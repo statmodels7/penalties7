@@ -1,0 +1,43 @@
+Package: penalties7
+Title: Penalties as Objects with Exact Derivatives
+Version: 0.1.0
+Authors@R:
+    person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
+Description: Penalties for regularized and Bayesian regression as 'S7'
+    objects: a linear map, a scalar function and hyperparameters, with the
+    value, the exact derivatives in the coefficients and in the
+    hyperparameters, the mixed block, and, for quadratic penalties, the
+    rank, the null space and the log pseudo-determinant that a marginal
+    likelihood criterion consumes. Normalizing constants are kept, so a
+    proper penalty is exactly the negative log-density of its prior.
+    Part of the 'statmodels7' toolkit.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = FALSE)
+RoxygenNote: 7.3.3
+URL: https://github.com/statmodels7/penalties7, https://statmodels7.github.io/penalties7/
+BugReports: https://github.com/statmodels7/penalties7/issues
+Imports:
+    distributions7,
+    linkfunctions7,
+    S7,
+    stats
+Suggests:
+    numDeriv,
+    pkgdown,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Remotes:
+    statmodels7/distributions7,
+    statmodels7/linkfunctions7,
+    statmodels7/numericals7,
+    statmodels7/optimizers7
+Config/testthat/edition: 3
+Collate:
+    'penalty_class.R'
+    'generics.R'
+    'scad_mcp.R'
+    'check_penalty.R'
+    'distrib_penalty.R'
+    'penalties7-package.R'
+    'quadratic_penalty.R'

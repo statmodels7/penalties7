@@ -1,0 +1,48 @@
+url: https://statmodels7.github.io/penalties7
+
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left:  [reference]
+    right: [search, book, statmodels7, github]
+  components:
+    book:
+      text: book
+      href: https://statmodels7.github.io/book/
+    statmodels7:
+      text: statmodels7
+      href: https://statmodels7.github.io
+
+reference:
+- title: The class and the generics
+  contents:
+  - penalty
+  - penalty_value
+  - penalty_gradient
+  - penalty_grad_theta
+  - penalty_kinks
+  - is_proper
+  - is_quadratic
+  - penalty_matrix
+- title: The quadratic branch
+  contents:
+  - quadratic_penalty
+  - QuadraticPenalty
+  - ends_with(".QuadraticPenalty")
+- title: The separable branch
+  contents:
+  - distrib_penalty
+  - ridge_penalty
+  - DistribPenalty
+  - ends_with(".DistribPenalty")
+- title: SCAD and MCP
+  contents:
+  - scad_penalty
+  - ScadPenalty
+  - ends_with(".ScadPenalty")
+  - ends_with(".McpPenalty")
+- title: Validation
+  contents:
+  - check_penalty
