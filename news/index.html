@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,10 +34,15 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="penalties7-020">penalties7 0.2.0<a class="anchor" aria-label="anchor" href="#penalties7-020"></a></h2>
+<ul><li>The structured quadratic prior: <code><a href="../reference/structured_penalty.html">structured_penalty()</a></code> takes a parameters7 matrix_parameter as the PRECISION, so the hyperparameters reach every entry of the matrix. The free vector is unconstrained by construction, so every link is the identity – the flattening convention of the multivariate families. Every derivative comes from the structure’s own contract (param_d1/param_d2, the logdet derivatives), and the marginal pieces answer through it, so is_quadratic() is TRUE. At a zero free vector the log-Cholesky prior IS the plain ridge, pinned at machine precision. check_penalty() gains the structured logpdet check, its lambda-slope identity now gated on the branch that has a lambda.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="penalties7-010">penalties7 0.1.0<a class="anchor" aria-label="anchor" href="#penalties7-010"></a></h2>
 <ul><li>First release: penalties as S7 objects, rho(D beta; theta), with the value, the exact derivatives in the coefficients and the hyperparameters, the mixed block, and the declared kink set. Three branches: <code><a href="../reference/quadratic_penalty.html">quadratic_penalty()</a></code> (rank, null basis and log pseudo-determinant fixed at construction, the pieces a marginal criterion consumes), <code><a href="../reference/distrib_penalty.html">distrib_penalty()</a></code> (a univariate distributions7 log-density applied coordinatewise, with <code><a href="../reference/ridge_penalty.html">ridge_penalty()</a></code>, <code><a href="../reference/ridge_penalty.html">lasso_penalty()</a></code> and <code><a href="../reference/ridge_penalty.html">heavy_penalty()</a></code> as named instances), and <code><a href="../reference/scad_penalty.html">scad_penalty()</a></code>/<code><a href="../reference/scad_penalty.html">mcp_penalty()</a></code> (defined by their derivative, improper by construction). Normalizing constants are kept throughout, so a proper penalty is exactly the negative log-density of its prior. <code><a href="../reference/check_penalty.html">check_penalty()</a></code> validates every closed form against a route sharing no code with it.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

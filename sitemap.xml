@@ -7,6 +7,7 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/DistribPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/ScadPenalty.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/StructuredPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/align_ptheta.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/check_penalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/distrib_penalty.html</loc></url>
@@ -25,6 +26,7 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.McpPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.QuadraticPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.ScadPenalty.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.StructuredPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/print.penalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/ptheta_pairs.html</loc></url>
@@ -34,5 +36,7 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/ridge_penalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/scad_parts.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/scad_penalty.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/struct_eta.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/structured_penalty.html</loc></url>
 </urlset>
 

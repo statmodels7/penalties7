@@ -43,6 +43,13 @@
 - [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
   : S7 Class for the Separable Penalty
 
+## The structured branch
+
+- [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
+  : Construct a Structured Quadratic Penalty
+- [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md)
+  : S7 Class for the Structured Quadratic Penalty
+
 ## SCAD and MCP
 
 - [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)

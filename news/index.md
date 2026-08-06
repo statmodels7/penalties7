@@ -1,5 +1,20 @@
 # Changelog
 
+## penalties7 0.2.0
+
+- The structured quadratic prior:
+  [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
+  takes a parameters7 matrix_parameter as the PRECISION, so the
+  hyperparameters reach every entry of the matrix. The free vector is
+  unconstrained by construction, so every link is the identity – the
+  flattening convention of the multivariate families. Every derivative
+  comes from the structure’s own contract (param_d1/param_d2, the logdet
+  derivatives), and the marginal pieces answer through it, so
+  is_quadratic() is TRUE. At a zero free vector the log-Cholesky prior
+  IS the plain ridge, pinned at machine precision. check_penalty() gains
+  the structured logpdet check, its lambda-slope identity now gated on
+  the branch that has a lambda.
+
 ## penalties7 0.1.0
 
 - First release: penalties as S7 objects, rho(D beta; theta), with the
