@@ -1,6 +1,6 @@
 Package: penalties7
 Title: Penalties as Objects with Exact Derivatives
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
 Description: Penalties for regularized and Bayesian regression as 'S7'
@@ -20,6 +20,7 @@ BugReports: https://github.com/statmodels7/penalties7/issues
 Imports:
     distributions7,
     linkfunctions7,
+    parameters7,
     S7,
     stats
 Suggests:
@@ -29,6 +30,7 @@ Suggests:
     testthat (>= 3.0.0)
 Remotes:
     statmodels7/distributions7,
+    statmodels7/parameters7,
     statmodels7/linkfunctions7,
     statmodels7/numericals7,
     statmodels7/optimizers7
@@ -41,3 +43,4 @@ Collate:
     'distrib_penalty.R'
     'penalties7-package.R'
     'quadratic_penalty.R'
+    'structured_penalty.R'

@@ -37,6 +37,11 @@ reference:
   - ridge_penalty
   - DistribPenalty
   - ends_with(".DistribPenalty")
+- title: The structured branch
+  contents:
+  - structured_penalty
+  - StructuredPenalty
+  - ends_with(".StructuredPenalty")
 - title: SCAD and MCP
   contents:
   - scad_penalty

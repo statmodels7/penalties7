@@ -129,3 +129,46 @@ test_that("the base class refuses the marginal pieces off the quadratic branch",
   expect_error(penalty_rank(pen), "quadratic")
   expect_error(penalty_logpdet(pen, list(sigma = 1)), "quadratic")
 })
+
+
+test_that("the structured prior passes its battery on three structures", {
+  skip_if_not_installed("numDeriv")
+  for (s in list(parameters7::log_cholesky(3),
+                 parameters7::ar1(4, role = "precision"),
+                 parameters7::compound_symmetry(3, role = "precision"))) {
+    pen <- structured_penalty(s)
+    set.seed(5)
+    th <- stats::setNames(as.list(round(rnorm(s@n_free, sd = 0.3), 2)),
+                          s@free_names)
+    res <- check_penalty(pen, theta = th, verbose = FALSE)
+    expect_true(all(res$status == "OK"),
+                info = paste(pen@penalty_name,
+                             paste(res$check[res$status != "OK"],
+                                   collapse = ", ")))
+  }
+})
+
+
+test_that("the structured prior at the identity precision is the plain ridge", {
+  # log_cholesky at a zero free vector is the identity matrix, so the prior
+  # is quadratic_penalty(diag(q)) at lambda = 1: two constructions of one
+  # object, compared with no tolerance to choose
+  q <- 3
+  beta <- c(0.4, -1.1, 2.2)
+  s <- parameters7::log_cholesky(q)
+  pen <- structured_penalty(s)
+  th <- stats::setNames(as.list(rep(0, s@n_free)), s@free_names)
+  ref <- quadratic_penalty(diag(q))
+  expect_equal(penalty_value(pen, beta, th),
+               penalty_value(ref, beta, list(lambda = 1)), tolerance = 1e-14)
+  expect_equal(penalty_gradient(pen, beta, th),
+               penalty_gradient(ref, beta, list(lambda = 1)),
+               tolerance = 1e-14)
+  expect_equal(unname(penalty_hessian(pen, beta, th)),
+               penalty_hessian(ref, beta, list(lambda = 1)),
+               tolerance = 1e-14)
+  expect_true(is_quadratic(pen))
+  expect_true(is_proper(pen))
+  expect_identical(penalty_rank(pen), 3L)
+  expect_equal(penalty_logpdet(pen, th)$value, 0, tolerance = 1e-14)
+})

@@ -102,11 +102,27 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
     v2 <- penalty_value(pen, 2 * beta, theta)
     add("quadratic three-point identity",
         abs(v2 - 4 * v1 + 3 * v0) / max(1, abs(v1)))
-    lp1 <- penalty_logpdet(pen, theta)
-    th2 <- theta; th2$lambda <- theta$lambda * exp(1)
-    lp2 <- penalty_logpdet(pen, th2)
-    add("logpdet linear in log lambda with slope r",
-        abs((lp2$value - lp1$value) - penalty_rank(pen)))
+    if ("lambda" %in% pen@params) {
+      # the plain quadratic branch: one scale multiplies a constant matrix
+      lp1 <- penalty_logpdet(pen, theta)
+      th2 <- theta; th2$lambda <- theta$lambda * exp(1)
+      lp2 <- penalty_logpdet(pen, th2)
+      add("logpdet linear in log lambda with slope r",
+          abs((lp2$value - lp1$value) - penalty_rank(pen)))
+    } else {
+      # the structured branch: the log pseudo-determinant's own gradient
+      # against numDeriv on its value
+      lp <- penalty_logpdet(pen, theta)
+      worst <- 0
+      for (p2 in pen@params) {
+        ref <- numDeriv::grad(function(v) {
+          th <- theta; th[[p2]] <- v
+          penalty_logpdet(pen, th)$value
+        }, theta[[p2]])
+        worst <- max(worst, abs(lp$grad[[p2]] - ref) / max(1, abs(ref)))
+      }
+      add("logpdet gradient vs numDeriv", worst)
+    }
     M <- penalty_matrix(pen, theta)
     nb <- penalty_null_basis(pen)
     if (ncol(nb)) {
