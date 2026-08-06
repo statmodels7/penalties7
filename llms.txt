@@ -1,0 +1,93 @@
+# penalties7 ![](reference/figures/logo.png)
+
+Penalties for regularized and Bayesian regression as S7 objects. A
+penalty is rho(D beta; theta) – a linear map, a scalar function,
+hyperparameters – and the object answers everything an estimation
+routine asks: the value with its normalizing constant, the exact
+derivatives in the coefficients and in the hyperparameters, the mixed
+block, the kink set, and, for quadratic penalties, the rank, the null
+basis and the log pseudo-determinant a marginal criterion consumes.
+
+Three branches:
+[`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md);
+[`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md),
+a univariate
+[distributions7](https://statmodels7.github.io/distributions7/)
+log-density applied coordinatewise
+([`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md),
+[`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md),
+[`heavy_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
+are its named instances); and
+[`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+/
+[`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md),
+defined by their derivative and improper by construction. Part of the
+[statmodels7](https://statmodels7.github.io) toolkit.
+
+## Installation
+
+``` r
+
+# install.packages("pak")
+pak::pak("statmodels7/penalties7")
+```
+
+# Package index
+
+## The class and the generics
+
+- [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
+  : S7 Base Class for Penalties
+- [`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md)
+  : Value of a Penalty
+- [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
+  [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
+  : Coefficient Derivatives of a Penalty
+- [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+  [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+  [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+  : Hyperparameter Derivatives of a Penalty
+- [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
+  : The Non-Differentiable Points of a Penalty
+- [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
+  : Is a Penalty a Proper Prior?
+- [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
+  : Is a Penalty Quadratic?
+- [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  : The Pieces a Marginal Criterion Consumes
+
+## The quadratic branch
+
+- [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
+  : Construct a Quadratic Penalty
+- [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
+  : S7 Class for the Quadratic Penalty
+
+## The separable branch
+
+- [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
+  : Construct a Separable Penalty From a Distribution
+- [`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
+  [`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
+  [`heavy_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
+  : Named Separable Penalties
+- [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
+  : S7 Class for the Separable Penalty
+
+## SCAD and MCP
+
+- [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+  [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+  : Construct the SCAD and MCP Penalties
+- [`ScadPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
+  [`McpPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
+  : S7 Classes for the Derivative-Defined Penalties
+
+## Validation
+
+- [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+  : Check a Penalty Numerically
+
