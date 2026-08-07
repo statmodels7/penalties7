@@ -5,7 +5,7 @@ For a quadratic penalty: `penalty_matrix` returns \\\lambda D'PD\\,
 the exact null basis for the model layer to intersect across terms, and
 `penalty_logpdet` the log pseudo-determinant \\r\log\lambda +
 \log\mathrm{pdet}(P)\\ with its first two theta derivatives. Every other
-penalty refuses: a marginal criterion for a non-Gaussian prior is not a
+penalty rejects: a marginal criterion for a non-Gaussian prior is not a
 determinant, and pretending otherwise would produce numbers silently.
 
 ## Usage
