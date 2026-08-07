@@ -1,4 +1,4 @@
-# penalties7 ![](reference/figures/logo.png)
+# penalties7
 
 Penalties for regularized and Bayesian regression as S7 objects. A
 penalty is rho(D beta; theta) – a linear map, a scalar function,
