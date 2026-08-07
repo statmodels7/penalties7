@@ -204,7 +204,7 @@ S7::method(is_quadratic, penalty) <- function(pen, ...) FALSE
 #' \code{penalty_null_basis} the exact null basis for the model layer to
 #' intersect across terms, and \code{penalty_logpdet} the log
 #' pseudo-determinant \eqn{r\log\lambda + \log\mathrm{pdet}(P)} with its
-#' first two theta derivatives. Every other penalty refuses: a marginal
+#' first two theta derivatives. Every other penalty rejects: a marginal
 #' criterion for a non-Gaussian prior is not a determinant, and pretending
 #' otherwise would produce numbers silently.
 #'
