@@ -25,6 +25,7 @@ Imports:
     stats
 Suggests:
     numDeriv,
+    optimizers7,
     pkgdown,
     rmarkdown,
     testthat (>= 3.0.0)
