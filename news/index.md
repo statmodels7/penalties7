@@ -1,5 +1,14 @@
 # Changelog
 
+## penalties7 0.4.0
+
+- additive_penalty(): a sum of quadratic penalties with a smoothing
+  parameter on each, which is what an anisotropic tensor smooth needs.
+  The rank is fixed at construction from the components stacked and
+  normalized, since the null space of the sum is the intersection of
+  theirs and does not move with the parameters – a count taken from the
+  assembled matrix does.
+
 ## penalties7 0.3.0
 
 - penalty_prox(): the proximal operator, closed form for the quadratic

@@ -32,6 +32,13 @@
 - [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
   : S7 Class for the Quadratic Penalty
 
+## The additive branch
+
+- [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
+  : Construct a Sum of Quadratic Penalties
+- [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
+  : S7 Class for a Sum of Quadratic Penalties
+
 ## The separable branch
 
 - [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)

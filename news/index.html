@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,10 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.0" id="penalties7-040">penalties7 0.4.0<a class="anchor" aria-label="anchor" href="#penalties7-040"></a></h2>
+<ul><li>additive_penalty(): a sum of quadratic penalties with a smoothing parameter on each, which is what an anisotropic tensor smooth needs. The rank is fixed at construction from the components stacked and normalized, since the null space of the sum is the intersection of theirs and does not move with the parameters – a count taken from the assembled matrix does.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="penalties7-030">penalties7 0.3.0<a class="anchor" aria-label="anchor" href="#penalties7-030"></a></h2>
 <ul><li>penalty_prox(): the proximal operator, closed form for the quadratic and structured branches (one linear solve), for the Gaussian and Laplace instances, and for SCAD and MCP over their piecewise regions; any other separable penalty is solved coordinatewise from its response derivative. has_prox() asks before calling.</li>
