@@ -48,6 +48,10 @@ reference:
   - ScadPenalty
   - ends_with(".ScadPenalty")
   - ends_with(".McpPenalty")
+- title: The proximal operator
+  contents:
+  - penalty_prox
+  - has_prox
 - title: Validation
   contents:
   - check_penalty

@@ -1,3 +1,11 @@
+# penalties7 0.3.0
+
+* penalty_prox(): the proximal operator, closed form for the quadratic
+  and structured branches (one linear solve), for the Gaussian and
+  Laplace instances, and for SCAD and MCP over their piecewise
+  regions; any other separable penalty is solved coordinatewise from
+  its response derivative. has_prox() asks before calling.
+
 # penalties7 0.2.0
 
 * The structured quadratic prior: `structured_penalty()` takes a
