@@ -3,10 +3,12 @@
 The canonical instances of
 [`distrib_penalty`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md),
 shipped as constructors so the model layer can name what it means. Ridge
-is the Gaussian at zero with the scale free; the lasso is the Laplace at
-zero, with its kink declared; the heavy-tailed prior is the Student t at
-zero, whose \\\nu\\ is estimable exactly because the normalizing
-constant is kept.
+is the Gaussian at zero with the scale free; the lasso is the Laplace in
+location and rate (\`laplace2\`) at zero, so the free hyperparameter is
+the rate \\\lambda\\ and the value is \\\lambda\lVert D\beta\rVert_1\\
+up to its constant, with the kink declared; the heavy-tailed prior is
+the Student t at zero, whose \\\nu\\ is estimable exactly because the
+normalizing constant is kept.
 
 ## Usage
 

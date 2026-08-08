@@ -37,6 +37,6 @@ A numeric vector, possibly empty.
 ``` r
 penalty_kinks(quadratic_penalty(diag(2)), list(lambda = 1))
 #> numeric(0)
-penalty_kinks(lasso_penalty(), list(b = 1))
+penalty_kinks(lasso_penalty(), list(lambda = 1))
 #> [1] 0
 ```
