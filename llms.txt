@@ -93,6 +93,13 @@ pak::pak("statmodels7/penalties7")
   [`McpPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
   : S7 Classes for the Derivative-Defined Penalties
 
+## The proximal operator
+
+- [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+  : Proximal Operator of a Penalty
+- [`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
+  : Does a Penalty Supply a Proximal Operator?
+
 ## Validation
 
 - [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)

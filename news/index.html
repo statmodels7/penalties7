@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,10 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="penalties7-030">penalties7 0.3.0<a class="anchor" aria-label="anchor" href="#penalties7-030"></a></h2>
+<ul><li>penalty_prox(): the proximal operator, closed form for the quadratic and structured branches (one linear solve), for the Gaussian and Laplace instances, and for SCAD and MCP over their piecewise regions; any other separable penalty is solved coordinatewise from its response derivative. has_prox() asks before calling.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="penalties7-020">penalties7 0.2.0<a class="anchor" aria-label="anchor" href="#penalties7-020"></a></h2>
 <ul><li>The structured quadratic prior: <code><a href="../reference/structured_penalty.html">structured_penalty()</a></code> takes a parameters7 matrix_parameter as the PRECISION, so the hyperparameters reach every entry of the matrix. The free vector is unconstrained by construction, so every link is the identity – the flattening convention of the multivariate families. Every derivative comes from the structure’s own contract (param_d1/param_d2, the logdet derivatives), and the marginal pieces answer through it, so is_quadratic() is TRUE. At a zero free vector the log-Cholesky prior IS the plain ridge, pinned at machine precision. check_penalty() gains the structured logpdet check, its lambda-slope identity now gated on the branch that has a lambda.</li>
