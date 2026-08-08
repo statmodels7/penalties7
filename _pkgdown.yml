@@ -31,6 +31,11 @@ reference:
   - quadratic_penalty
   - QuadraticPenalty
   - ends_with(".QuadraticPenalty")
+- title: The additive branch
+  contents:
+  - additive_penalty
+  - AdditivePenalty
+  - ends_with(".AdditivePenalty")
 - title: The separable branch
   contents:
   - distrib_penalty
