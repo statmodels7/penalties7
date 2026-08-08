@@ -146,7 +146,7 @@ penalty_cross <- S7::new_generic("penalty_cross", "pen",
 #'
 #' @examples
 #' penalty_kinks(quadratic_penalty(diag(2)), list(lambda = 1))
-#' penalty_kinks(lasso_penalty(), list(b = 1))
+#' penalty_kinks(lasso_penalty(), list(lambda = 1))
 #'
 #' @export
 penalty_kinks <- S7::new_generic("penalty_kinks", "pen",

@@ -102,8 +102,11 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL,
 #' @description
 #' The canonical instances of \code{\link{distrib_penalty}}, shipped as
 #' constructors so the model layer can name what it means. Ridge is the
-#' Gaussian at zero with the scale free; the lasso is the Laplace at zero,
-#' with its kink declared; the heavy-tailed prior is the Student t at zero,
+#' Gaussian at zero with the scale free; the lasso is the Laplace in location
+#' and rate (`laplace2`) at zero, so the free hyperparameter is the rate
+#' \eqn{\lambda} and the value is \eqn{\lambda\lVert D\beta\rVert_1} up to
+#' its constant, with the kink declared; the heavy-tailed prior is the
+#' Student t at zero,
 #' whose \eqn{\nu} is estimable exactly because the normalizing constant is
 #' kept.
 #'
@@ -128,7 +131,7 @@ ridge_penalty <- function(map = NULL, n_coef = 1L) {
 #' @export
 lasso_penalty <- function(map = NULL, n_coef = 1L) {
   distrib_penalty(
-    distributions7::fixed(distributions7::laplace_distrib(), mu = 0),
+    distributions7::fixed(distributions7::laplace2_distrib(), mu = 0),
     map = map, n_coef = n_coef, kinks = 0
   )
 }

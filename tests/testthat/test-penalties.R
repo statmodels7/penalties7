@@ -27,8 +27,8 @@ test_that("the separable branch passes for ridge, lasso and the t prior", {
   }
   # the lasso away from its declared kink
   pen <- lasso_penalty(n_coef = 3)
-  expect_identical(penalty_kinks(pen, list(b = 1)), 0)
-  res <- check_penalty(pen, beta = c(0.7, -1.2, 2.1), theta = list(b = 1),
+  expect_identical(penalty_kinks(pen, list(lambda = 1)), 0)
+  res <- check_penalty(pen, beta = c(0.7, -1.2, 2.1), theta = list(lambda = 1),
                        verbose = FALSE)
   expect_true(all(res$status == "OK"))
 })
@@ -80,7 +80,7 @@ test_that("SCAD and MCP match the literature and pass the battery", {
 test_that("the map enters every derivative the same way", {
   D <- diff(diag(4))
   pen <- lasso_penalty(map = D)   # the fused lasso
-  th <- list(b = 0.8)
+  th <- list(lambda = 0.8)
   beta <- c(0.5, 1.4, -0.3, 2.0)
   res <- check_penalty(pen, beta = beta, theta = th, verbose = FALSE)
   expect_true(all(res$status == "OK"))

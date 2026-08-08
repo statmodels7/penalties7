@@ -24,6 +24,6 @@ them, and a solver may consult them.
 }
 \examples{
 penalty_kinks(quadratic_penalty(diag(2)), list(lambda = 1))
-penalty_kinks(lasso_penalty(), list(b = 1))
+penalty_kinks(lasso_penalty(), list(lambda = 1))
 
 }
