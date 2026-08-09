@@ -44,6 +44,18 @@ heavy_penalty(map = NULL, n_coef = 1L)
 
 An object of class `DistribPenalty`.
 
+## References
+
+Hoerl, A. E. and Kennard, R. W. (1970). Ridge regression: biased
+estimation for nonorthogonal problems. *Technometrics* 12, 55-67.
+
+Tibshirani, R. (1996). Regression shrinkage and selection via the lasso.
+*Journal of the Royal Statistical Society, Series B* 58, 267-288.
+
+Zou, H. and Hastie, T. (2005). Regularization and variable selection via
+the elastic net. *Journal of the Royal Statistical Society, Series B*
+67, 301-320.
+
 ## Examples
 
 ``` r
