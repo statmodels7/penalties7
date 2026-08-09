@@ -108,7 +108,15 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL,
 #' its constant, with the kink declared; the heavy-tailed prior is the
 #' Student t at zero,
 #' whose \eqn{\nu} is estimable exactly because the normalizing constant is
-#' kept.
+#' kept. The elastic net is the product of the Laplace and the Gaussian at
+#' zero, normalized (\code{\link[distributions7]{enet_distrib}}), so its
+#' hyperparameters are the overall rate \eqn{\lambda} and the mixing weight
+#' \eqn{\alpha} and its value is
+#' \eqn{\lambda\{\alpha\lVert D\beta\rVert_1 +
+#' (1-\alpha)\lVert D\beta\rVert_2^2/2\}} up to a constant. That constant
+#' depends on both hyperparameters, which is what makes them estimable by a
+#' marginal criterion and what a penalty written as a formula would not
+#' have.
 #'
 #' @param map The matrix \eqn{D}, or \code{NULL} (default) for the identity.
 #' @param n_coef The number of coefficients when \code{map} is \code{NULL}.
@@ -132,6 +140,15 @@ ridge_penalty <- function(map = NULL, n_coef = 1L) {
 lasso_penalty <- function(map = NULL, n_coef = 1L) {
   distrib_penalty(
     distributions7::fixed(distributions7::laplace2_distrib(), mu = 0),
+    map = map, n_coef = n_coef, kinks = 0
+  )
+}
+
+#' @rdname ridge_penalty
+#' @export
+elasticnet_penalty <- function(map = NULL, n_coef = 1L) {
+  distrib_penalty(
+    distributions7::fixed(distributions7::enet_distrib(), mu = 0),
     map = map, n_coef = n_coef, kinks = 0
   )
 }

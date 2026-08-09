@@ -3,12 +3,15 @@
 \name{ridge_penalty}
 \alias{ridge_penalty}
 \alias{lasso_penalty}
+\alias{elasticnet_penalty}
 \alias{heavy_penalty}
 \title{Named Separable Penalties}
 \usage{
 ridge_penalty(map = NULL, n_coef = 1L)
 
 lasso_penalty(map = NULL, n_coef = 1L)
+
+elasticnet_penalty(map = NULL, n_coef = 1L)
 
 heavy_penalty(map = NULL, n_coef = 1L)
 }
@@ -29,7 +32,15 @@ and rate (`laplace2`) at zero, so the free hyperparameter is the rate
 its constant, with the kink declared; the heavy-tailed prior is the
 Student t at zero,
 whose \eqn{\nu} is estimable exactly because the normalizing constant is
-kept.
+kept. The elastic net is the product of the Laplace and the Gaussian at
+zero, normalized (\code{\link[distributions7]{enet_distrib}}), so its
+hyperparameters are the overall rate \eqn{\lambda} and the mixing weight
+\eqn{\alpha} and its value is
+\eqn{\lambda\{\alpha\lVert D\beta\rVert_1 +
+(1-\alpha)\lVert D\beta\rVert_2^2/2\}} up to a constant. That constant
+depends on both hyperparameters, which is what makes them estimable by a
+marginal criterion and what a penalty written as a formula would not
+have.
 }
 \examples{
 pen <- ridge_penalty(n_coef = 2)

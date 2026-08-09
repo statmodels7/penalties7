@@ -18,8 +18,9 @@
 A numeric vector.
 }
 \description{
-Closed form for the Gaussian (a shrinkage) and the Laplace (a soft
-threshold); for any other parent with a differentiable log-density, the
+Closed form for the Gaussian (a shrinkage), the Laplace (a soft
+threshold) and the elastic net (the one followed by the other); for any
+other parent with a differentiable log-density, the
 coordinatewise root of \eqn{(\beta - v)/t = \ell^{(y)}(\beta)}, which is
 unique because the density is log-concave.
 }

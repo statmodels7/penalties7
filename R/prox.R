@@ -158,8 +158,9 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' @title Proximal Operator of a Separable Penalty
 #' @name penalty_prox.DistribPenalty
 #' @description
-#' Closed form for the Gaussian (a shrinkage) and the Laplace (a soft
-#' threshold); for any other parent with a differentiable log-density, the
+#' Closed form for the Gaussian (a shrinkage), the Laplace (a soft
+#' threshold) and the elastic net (the one followed by the other); for any
+#' other parent with a differentiable log-density, the
 #' coordinatewise root of \eqn{(\beta - v)/t = \ell^{(y)}(\beta)}, which is
 #' unique because the density is log-concave.
 #' @param pen A \code{DistribPenalty} object.
@@ -195,6 +196,19 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
                  "centered at zero; this one is not."), call. = FALSE)
     }
     return(sign(v) * pmax(abs(v) - step * lam, 0))
+  }
+  if (identical(fam, "enet")) {
+    lam <- theta[[which(pen@params == "lambda")]]
+    al <- theta[[which(pen@params == "alpha")]]
+    if (max(abs(g0)) > 1e-8 * max(1, lam)) {
+      stop(paste("the elastic-net proximal operator is written for a parent",
+                 "centered at zero; this one is not."), call. = FALSE)
+    }
+    # the stationary condition (b - v)/t + a sgn(b) + c b = 0 separates
+    # into the soft threshold of the Laplace part followed by the
+    # shrinkage of the Gaussian one
+    sft <- sign(v) * pmax(abs(v) - step * lam * al, 0)
+    return(sft / (1 + step * lam * (1 - al)))
   }
 
   if (length(pen@kinks)) {
