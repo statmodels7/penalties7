@@ -182,6 +182,25 @@ is_proper <- S7::new_generic("is_proper", "pen")
 #' null basis and log pseudo-determinant the marginal-likelihood generics
 #' expose.
 #'
+#' @details
+#' A quadratic penalty carries a fixed matrix \eqn{P} and one smoothing
+#' parameter \eqn{\lambda}, and is the negative log-density of the improper
+#' Gaussian prior with precision \eqn{\lambda P} on \eqn{D\beta}:
+#'
+#' \deqn{\rho(\beta; \lambda)
+#'   = \tfrac{\lambda}{2} (D\beta)^\top P (D\beta)
+#'   - \tfrac{1}{2}\log^{+}\lvert \lambda P \rvert
+#'   + \tfrac{r}{2}\log(2\pi),
+#'   \qquad \log^{+}\lvert \lambda P \rvert
+#'     = r \log \lambda + \log^{+}\lvert P \rvert,}
+#'
+#' with \eqn{\log^{+}} the log pseudo-determinant and
+#' \eqn{r = \operatorname{rank}(P)}. Those are the quantities
+#' \code{\link{penalty_matrix}}, \code{\link{penalty_rank}},
+#' \code{\link{penalty_null_basis}} and \code{\link{penalty_logpdet}}
+#' report and a REML or marginal-likelihood criterion needs; a penalty for
+#' which this is \code{FALSE} has no such matrix and those generics reject.
+#'
 #' @param pen A \code{\link{penalty}} object.
 #' @param ... Passed to methods.
 #'

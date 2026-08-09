@@ -17,6 +17,21 @@ A single logical.
 penalty at a suitable step, so that a caller may choose a proximal
 method over a smooth one without provoking an error.
 }
+\details{
+The operator in question is
+
+\deqn{\operatorname{prox}_{t\rho}(v)
+  = \arg\min_{\beta} \Bigl\{ \tfrac{1}{2}\lVert \beta - v \rVert^{2}
+    + t\, \rho(\beta; \theta) \Bigr\},}
+
+which a proximal gradient method evaluates once per iteration and which
+therefore has to be available in closed form, or as a solve, for the
+method to be worth using. A penalty carries one when it is quadratic or
+structured (one linear solve at any map), when it is separable with a
+parent whose operator is closed or whose stationarity condition has a
+coordinatewise root, or when it is SCAD or MCP over their convex
+regions.
+}
 \examples{
 c(lasso = has_prox(lasso_penalty()), scad = has_prox(scad_penalty()))
 
