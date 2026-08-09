@@ -52,6 +52,12 @@ performed on it – and stores the exact null basis of \\D'PD\\, so that
 membership questions never go through a rank recomputed from an
 assembled sum. Every quantity is then closed form in \\\lambda\\.
 
+## See also
+
+[`additive_penalty`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md),
+[`distrib_penalty`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md),
+[`structured_penalty`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
+
 ## Examples
 
 ``` r

@@ -42,6 +42,11 @@ check_penalty(pen, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
 
 A data frame with one row per check, invisibly when printed.
 
+## See also
+
+[`penalty_value`](https://statmodels7.github.io/penalties7/reference/penalty_value.md),
+[`has_prox`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
+
 ## Examples
 
 ``` r

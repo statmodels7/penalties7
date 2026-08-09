@@ -48,6 +48,15 @@ and
 report and a REML or marginal-likelihood criterion needs; a penalty for
 which this is `FALSE` has no such matrix and those generics reject.
 
+## See also
+
+[`is_proper`](https://statmodels7.github.io/penalties7/reference/is_proper.md),
+[`has_prox`](https://statmodels7.github.io/penalties7/reference/has_prox.md),
+[`penalty_matrix`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+[`penalty_rank`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+[`penalty_null_basis`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+[`penalty_logpdet`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+
 ## Examples
 
 ``` r

@@ -34,6 +34,14 @@ penalty_value(pen, beta, theta, ...)
 
 A single number.
 
+## See also
+
+[`penalty_gradient`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md),
+[`penalty_hessian`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md),
+[`penalty_grad_theta`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md),
+[`penalty_cross`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md),
+[`penalty_kinks`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
+
 ## Examples
 
 ``` r

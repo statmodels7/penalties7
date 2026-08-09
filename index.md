@@ -1,28 +1,15 @@
 # penalties7
 
 Penalties for regularized and Bayesian regression as S7 objects. A
-penalty is rho(D beta; theta) – a linear map, a scalar function,
+penalty is $`\rho(D\beta; \theta)`$ – a linear map, a scalar function,
 hyperparameters – and the object answers everything an estimation
 routine asks: the value with its normalizing constant, the exact
 derivatives in the coefficients and in the hyperparameters, the mixed
-block, the kink set, and, for quadratic penalties, the rank, the null
-basis and the log pseudo-determinant a marginal criterion consumes.
+block, the kink set, the proximal operator where one exists, and, for
+the quadratic branch, the rank, the null basis and the log
+pseudo-determinant a marginal criterion consumes.
 
-Three branches:
-[`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md);
-[`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md),
-a univariate
-[distributions7](https://statmodels7.github.io/distributions7/)
-log-density applied coordinatewise
-([`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md),
-[`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md),
-[`heavy_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
-are its named instances); and
-[`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
-/
-[`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md),
-defined by their derivative and improper by construction. Part of the
-[statmodels7](https://statmodels7.github.io) toolkit.
+Part of the [statmodels7](https://statmodels7.github.io) toolkit.
 
 ## Installation
 
@@ -30,4 +17,141 @@ defined by their derivative and improper by construction. Part of the
 
 # install.packages("pak")
 pak::pak("statmodels7/penalties7")
+```
+
+## The four branches
+
+[`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
+carries a fixed matrix $`P`$ and one smoothing parameter, so it is the
+negative log-density of the improper Gaussian prior with precision
+$`\lambda P`$. Its rank, null basis and log pseudo-determinant are fixed
+at one eigendecomposition when the object is built.
+
+``` r
+
+P <- crossprod(diff(diag(6), differences = 2))   # a second-difference penalty
+pen <- quadratic_penalty(P)
+c(rank = penalty_rank(pen), nullity = ncol(penalty_null_basis(pen)))
+#>    rank nullity 
+#>       4       2
+penalty_value(pen, rep(1, 6), list(lambda = 1))
+#> [1] 1.348774
+```
+
+[`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
+is a sum of quadratics with a smoothing parameter on each, which is what
+an anisotropic tensor smooth needs. The rank is fixed at construction
+from the components stacked and normalized: the null space of a sum of
+positive semidefinite matrices is the intersection of theirs and does
+not move with the parameters, while a count taken from the assembled
+$`S(\lambda)`$ falls as they spread apart.
+
+``` r
+
+P1 <- crossprod(diff(diag(6), differences = 2))
+P2 <- crossprod(diff(diag(6), differences = 1))
+add <- additive_penalty(list(P1, P2))
+penalty_rank(add)
+#> [1] 5
+```
+
+[`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
+applies a univariate
+[distributions7](https://statmodels7.github.io/distributions7/)
+log-density coordinatewise, which is what a separable penalty *is*:
+[`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
+is a Gaussian at zero,
+[`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
+a Laplace,
+[`elasticnet_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
+the product of the two, and
+[`heavy_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
+a Student t.
+
+``` r
+
+ridge <- ridge_penalty(n_coef = 3)
+lasso <- lasso_penalty(n_coef = 3)
+enet  <- elasticnet_penalty(n_coef = 3)
+
+penalty_value(lasso, c(1, -2, 0.5), list(lambda = 2))
+#> [1] 7
+penalty_kinks(lasso, list(lambda = 2))   # where the density is not smooth
+#> [1] 0
+```
+
+[`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
+takes a [parameters7](https://statmodels7.github.io/parameters7/) matrix
+parameter as the **precision**, so the hyperparameters are that
+structure’s free values and every derivative comes from its derivative
+arrays. At a zero log-Cholesky free vector it is the plain ridge.
+
+``` r
+
+st <- structured_penalty(parameters7::log_cholesky(3))
+st@params
+#> [1] "log_L1" "log_L2" "log_L3" "L2.1"   "L3.1"   "L3.2"
+eta <- as.list(stats::setNames(rep(0, length(st@params)), st@params))
+
+c(structured = penalty_value(st, c(1, -1, 2), eta),
+  ridge      = penalty_value(ridge_penalty(n_coef = 3), c(1, -1, 2),
+                             list(sigma = 1)))
+#> structured      ridge 
+#>   5.756816   5.756816
+```
+
+[`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+and
+[`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+are defined by their derivative and are improper by construction, so
+they have no normalizing constant and
+[`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
+says so.
+
+``` r
+
+vapply(list(ridge = ridge, lasso = lasso, scad = scad_penalty(),
+            mcp = mcp_penalty()),
+       is_proper, logical(1))
+#> ridge lasso  scad   mcp 
+#>  TRUE  TRUE FALSE FALSE
+```
+
+## The proximal operator
+
+[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+evaluates
+$`\operatorname{prox}_{t\rho}(v) = \arg\min_\beta \{\tfrac{1}{2}\lVert\beta -
+v\rVert^2 + t\,\rho(\beta;\theta)\}`$, which is one step of a proximal
+gradient method. It is a linear solve for the quadratic and structured
+branches at any map, a closed form for the Gaussian, Laplace and
+elastic-net instances, the closed piecewise operators of SCAD and MCP
+over their convex regions, and a coordinatewise root otherwise.
+[`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
+says which.
+
+``` r
+
+v <- c(2, -0.4, 0.9)
+penalty_prox(lasso, v, step = 1, theta = list(lambda = 1))   # soft threshold
+#> [1] 1 0 0
+sign(v) * pmax(abs(v) - 1, 0)                                # by hand
+#> [1] 1 0 0
+```
+
+## Validation
+
+[`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+runs the numerical checks a penalty must pass – the gradients and
+Hessians in the coefficients and in the hyperparameters against finite
+differences, the mixed block, the proximal operator against its own
+defining minimization – and is meant above all for a penalty written
+outside the package. Injecting a deliberate error is what says the
+checks are not trivially passing.
+
+``` r
+
+res <- check_penalty(ridge_penalty(n_coef = 3), verbose = FALSE)
+all(res$status == "OK")
+#> [1] TRUE
 ```

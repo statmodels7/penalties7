@@ -27,6 +27,15 @@ is_proper(pen, ...)
 
 A single logical.
 
+## See also
+
+[`is_quadratic`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md),
+[`has_prox`](https://statmodels7.github.io/penalties7/reference/has_prox.md),
+[`penalty_matrix`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+[`penalty_rank`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+[`penalty_null_basis`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+[`penalty_logpdet`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+
 ## Examples
 
 ``` r

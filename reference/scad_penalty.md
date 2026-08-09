@@ -61,6 +61,12 @@ likelihood and its oracle properties. *JASA* 96, 1348-1360.
 Zhang, C.-H. (2010). Nearly unbiased variable selection under minimax
 concave penalty. *Annals of Statistics* 38, 894-942.
 
+## See also
+
+[`ridge_penalty`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md),
+[`is_proper`](https://statmodels7.github.io/penalties7/reference/is_proper.md),
+[`penalty_prox`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+
 ## Examples
 
 ``` r

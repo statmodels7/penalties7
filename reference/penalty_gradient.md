@@ -37,6 +37,12 @@ penalty_hessian(pen, beta, theta, ...)
 `penalty_gradient` a numeric vector of length `q`; `penalty_hessian` a
 `q x q` symmetric matrix.
 
+## See also
+
+[`penalty_value`](https://statmodels7.github.io/penalties7/reference/penalty_value.md),
+[`penalty_grad_theta`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md),
+[`penalty_kinks`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
+
 ## Examples
 
 ``` r

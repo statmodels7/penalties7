@@ -46,6 +46,12 @@ precision is a different precision, and composing it into the structure
 – where its log-determinant stays exact – is the structure's business,
 not this constructor's.
 
+## See also
+
+[`quadratic_penalty`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md),
+[`additive_penalty`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md),
+[`distrib_penalty`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
+
 ## Examples
 
 ``` r

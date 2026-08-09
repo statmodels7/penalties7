@@ -2,6 +2,10 @@
 
 ## The class and the generics
 
+What every penalty answers: its value with the normalizing constant, its
+derivatives in the coefficients and in the hyperparameters, the mixed
+block, and the kink set a non-smooth method needs.
+
 - [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
   : S7 Base Class for Penalties
 - [`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md)
@@ -27,6 +31,11 @@
 
 ## The quadratic branch
 
+A fixed matrix and one smoothing parameter, so the penalty is the
+negative log-density of an improper Gaussian prior. The rank, the null
+basis and the log pseudo-determinant are fixed at one eigendecomposition
+when the object is built.
+
 - [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
   : Construct a Quadratic Penalty
 - [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
@@ -34,12 +43,21 @@
 
 ## The additive branch
 
+A sum of quadratics with a smoothing parameter on each, which is what an
+anisotropic tensor smooth needs. The rank comes from the components
+stacked and normalized, not from the assembled matrix, whose eigenvalue
+count falls as the parameters spread apart.
+
 - [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
   : Construct a Sum of Quadratic Penalties
 - [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
   : S7 Class for a Sum of Quadratic Penalties
 
 ## The separable branch
+
+A univariate distributions7 log-density applied coordinatewise. Ridge is
+a Gaussian at zero, the lasso a Laplace, the elastic net the product of
+the two, and the heavy-tailed prior a Student t.
 
 - [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
   : Construct a Separable Penalty From a Distribution
@@ -53,12 +71,20 @@
 
 ## The structured branch
 
+A parameters7 matrix parameter used as the precision, so the
+hyperparameters are that structure’s free values and every derivative
+comes from its derivative arrays.
+
 - [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
   : Construct a Structured Quadratic Penalty
 - [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md)
   : S7 Class for the Structured Quadratic Penalty
 
 ## SCAD and MCP
+
+Defined by their derivative rather than by a density, hence improper by
+construction: they have no normalizing constant and cannot come from a
+distribution.
 
 - [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
   [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
@@ -69,12 +95,18 @@
 
 ## The proximal operator
 
+One step of a proximal gradient method, in closed form where one exists
+and as a linear solve or a coordinatewise root otherwise.
+
 - [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
   : Proximal Operator of a Penalty
 - [`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
   : Does a Penalty Supply a Proximal Operator?
 
 ## Validation
+
+The numerical checks a penalty must pass, meant above all for one
+written outside the package.
 
 - [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
   : Check a Penalty Numerically

@@ -53,6 +53,12 @@ The normalizing constant comes with the density and is kept, so the
 value is exactly the negative log prior density and a free scale or a
 free \\\nu\\ is estimable.
 
+## See also
+
+[`quadratic_penalty`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md),
+[`additive_penalty`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md),
+[`structured_penalty`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
+
 ## Examples
 
 ``` r

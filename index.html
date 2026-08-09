@@ -53,13 +53,14 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><div class="section level1">
+  <main id="main" class="col-md-9">
+<div class="section level1">
 <div class="page-header">
 <img src="logo.png" class="logo" alt=""><h1 id="penalties7-">penalties7 <a class="anchor" aria-label="anchor" href="#penalties7-"></a>
 </h1>
 </div>
-<p>Penalties for regularized and Bayesian regression as S7 objects. A penalty is rho(D beta; theta) – a linear map, a scalar function, hyperparameters – and the object answers everything an estimation routine asks: the value with its normalizing constant, the exact derivatives in the coefficients and in the hyperparameters, the mixed block, the kink set, and, for quadratic penalties, the rank, the null basis and the log pseudo-determinant a marginal criterion consumes.</p>
-<p>Three branches: <code><a href="reference/quadratic_penalty.html">quadratic_penalty()</a></code>; <code><a href="reference/distrib_penalty.html">distrib_penalty()</a></code>, a univariate <a href="https://statmodels7.github.io/distributions7/" class="external-link">distributions7</a> log-density applied coordinatewise (<code><a href="reference/ridge_penalty.html">ridge_penalty()</a></code>, <code><a href="reference/ridge_penalty.html">lasso_penalty()</a></code>, <code><a href="reference/ridge_penalty.html">heavy_penalty()</a></code> are its named instances); and <code><a href="reference/scad_penalty.html">scad_penalty()</a></code> / <code><a href="reference/scad_penalty.html">mcp_penalty()</a></code>, defined by their derivative and improper by construction. Part of the <a href="https://statmodels7.github.io" class="external-link">statmodels7</a> toolkit.</p>
+<p>Penalties for regularized and Bayesian regression as S7 objects. A penalty is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mi>β</mi><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\rho(D\beta; \theta)</annotation></semantics></math> – a linear map, a scalar function, hyperparameters – and the object answers everything an estimation routine asks: the value with its normalizing constant, the exact derivatives in the coefficients and in the hyperparameters, the mixed block, the kink set, the proximal operator where one exists, and, for the quadratic branch, the rank, the null basis and the log pseudo-determinant a marginal criterion consumes.</p>
+<p>Part of the <a href="https://statmodels7.github.io" class="external-link">statmodels7</a> toolkit.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -67,7 +68,78 @@
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"statmodels7/penalties7"</span><span class="op">)</span></span></code></pre></div>
 </div>
+<div class="section level2">
+<h2 id="the-four-branches">The four branches<a class="anchor" aria-label="anchor" href="#the-four-branches"></a>
+</h2>
+<p><code><a href="reference/quadratic_penalty.html">quadratic_penalty()</a></code> carries a fixed matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math> and one smoothing parameter, so it is the negative log-density of the improper Gaussian prior with precision <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">\lambda P</annotation></semantics></math>. Its rank, null basis and log pseudo-determinant are fixed at one eigendecomposition when the object is built.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">P</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span>, differences <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span>   <span class="co"># a second-difference penalty</span></span>
+<span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/quadratic_penalty.html">quadratic_penalty</a></span><span class="op">(</span><span class="va">P</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rank <span class="op">=</span> <span class="fu"><a href="reference/penalty_matrix.html">penalty_rank</a></span><span class="op">(</span><span class="va">pen</span><span class="op">)</span>, nullity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="fu"><a href="reference/penalty_matrix.html">penalty_null_basis</a></span><span class="op">(</span><span class="va">pen</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    rank nullity </span></span>
+<span><span class="co">#&gt;       4       2</span></span>
+<span><span class="fu"><a href="reference/penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">pen</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">6</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1.348774</span></span></code></pre></div>
+<p><code><a href="reference/additive_penalty.html">additive_penalty()</a></code> is a sum of quadratics with a smoothing parameter on each, which is what an anisotropic tensor smooth needs. The rank is fixed at construction from the components stacked and normalized: the null space of a sum of positive semidefinite matrices is the intersection of theirs and does not move with the parameters, while a count taken from the assembled <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>λ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">S(\lambda)</annotation></semantics></math> falls as they spread apart.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">P1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span>, differences <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">P2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span>, differences <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">add</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/additive_penalty.html">additive_penalty</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">P1</span>, <span class="va">P2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/penalty_matrix.html">penalty_rank</a></span><span class="op">(</span><span class="va">add</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 5</span></span></code></pre></div>
+<p><code><a href="reference/distrib_penalty.html">distrib_penalty()</a></code> applies a univariate <a href="https://statmodels7.github.io/distributions7/" class="external-link">distributions7</a> log-density coordinatewise, which is what a separable penalty <em>is</em>: <code><a href="reference/ridge_penalty.html">ridge_penalty()</a></code> is a Gaussian at zero, <code><a href="reference/ridge_penalty.html">lasso_penalty()</a></code> a Laplace, <code><a href="reference/ridge_penalty.html">elasticnet_penalty()</a></code> the product of the two, and <code><a href="reference/ridge_penalty.html">heavy_penalty()</a></code> a Student t.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ridge_penalty.html">ridge_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">lasso</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">enet</span>  <span class="op">&lt;-</span> <span class="fu"><a href="reference/ridge_penalty.html">elasticnet_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">lasso</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 7</span></span>
+<span><span class="fu"><a href="reference/penalty_kinks.html">penalty_kinks</a></span><span class="op">(</span><span class="va">lasso</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span>   <span class="co"># where the density is not smooth</span></span>
+<span><span class="co">#&gt; [1] 0</span></span></code></pre></div>
+<p><code><a href="reference/structured_penalty.html">structured_penalty()</a></code> takes a <a href="https://statmodels7.github.io/parameters7/" class="external-link">parameters7</a> matrix parameter as the <strong>precision</strong>, so the hyperparameters are that structure’s free values and every derivative comes from its derivative arrays. At a zero log-Cholesky free vector it is the plain ridge.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">st</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/structured_penalty.html">structured_penalty</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/log_cholesky.html" class="external-link">log_cholesky</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">st</span><span class="op">@</span><span class="va">params</span></span>
+<span><span class="co">#&gt; [1] "log_L1" "log_L2" "log_L3" "L2.1"   "L3.1"   "L3.2"</span></span>
+<span><span class="va">eta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">st</span><span class="op">@</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>, <span class="va">st</span><span class="op">@</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>structured <span class="op">=</span> <span class="fu"><a href="reference/penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">st</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="va">eta</span><span class="op">)</span>,</span>
+<span>  ridge      <span class="op">=</span> <span class="fu"><a href="reference/penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="fu"><a href="reference/ridge_penalty.html">ridge_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>                             <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; structured      ridge </span></span>
+<span><span class="co">#&gt;   5.756816   5.756816</span></span></code></pre></div>
+<p><code><a href="reference/scad_penalty.html">scad_penalty()</a></code> and <code><a href="reference/scad_penalty.html">mcp_penalty()</a></code> are defined by their derivative and are improper by construction, so they have no normalizing constant and <code><a href="reference/is_proper.html">is_proper()</a></code> says so.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ridge <span class="op">=</span> <span class="va">ridge</span>, lasso <span class="op">=</span> <span class="va">lasso</span>, scad <span class="op">=</span> <span class="fu"><a href="reference/scad_penalty.html">scad_penalty</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>            mcp <span class="op">=</span> <span class="fu"><a href="reference/scad_penalty.html">mcp_penalty</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>       <span class="va">is_proper</span>, <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ridge lasso  scad   mcp </span></span>
+<span><span class="co">#&gt;  TRUE  TRUE FALSE FALSE</span></span></code></pre></div>
 </div>
+<div class="section level2">
+<h2 id="the-proximal-operator">The proximal operator<a class="anchor" aria-label="anchor" href="#the-proximal-operator"></a>
+</h2>
+<p><code><a href="reference/penalty_prox.html">penalty_prox()</a></code> evaluates <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">prox</mi><mo>⁡</mo></mrow><mrow><mi>t</mi><mi>ρ</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>⁡</mo></mrow><msub><mrow><mi mathvariant="normal">min</mi><mo>⁡</mo></mrow><mi>β</mi></msub><mo stretchy="false" form="prefix">{</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><msup><mrow><mo stretchy="true" form="prefix">‖</mo><mi>β</mi><mo>−</mo><mi>v</mi><mo stretchy="true" form="postfix">‖</mo></mrow><mn>2</mn></msup><mo>+</mo><mi>t</mi><mspace width="0.167em"></mspace><mi>ρ</mi><mo stretchy="false" form="prefix">(</mo><mi>β</mi><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\operatorname{prox}_{t\rho}(v) = \arg\min_\beta \{\tfrac{1}{2}\lVert\beta -
+v\rVert^2 + t\,\rho(\beta;\theta)\}</annotation></semantics></math>, which is one step of a proximal gradient method. It is a linear solve for the quadratic and structured branches at any map, a closed form for the Gaussian, Laplace and elastic-net instances, the closed piecewise operators of SCAD and MCP over their convex regions, and a coordinatewise root otherwise. <code><a href="reference/has_prox.html">has_prox()</a></code> says which.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">0.4</span>, <span class="fl">0.9</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/penalty_prox.html">penalty_prox</a></span><span class="op">(</span><span class="va">lasso</span>, <span class="va">v</span>, step <span class="op">=</span> <span class="fl">1</span>, theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>   <span class="co"># soft threshold</span></span>
+<span><span class="co">#&gt; [1] 1 0 0</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>                                <span class="co"># by hand</span></span>
+<span><span class="co">#&gt; [1] 1 0 0</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a>
+</h2>
+<p><code><a href="reference/check_penalty.html">check_penalty()</a></code> runs the numerical checks a penalty must pass – the gradients and Hessians in the coefficients and in the hyperparameters against finite differences, the mixed block, the proximal operator against its own defining minimization – and is meant above all for a penalty written outside the package. Injecting a deliberate error is what says the checks are not trivially passing.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/check_penalty.html">check_penalty</a></span><span class="op">(</span><span class="fu"><a href="reference/ridge_penalty.html">ridge_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">status</span> <span class="op">==</span> <span class="st">"OK"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+</div>
+
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
@@ -79,9 +151,8 @@
 <div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li>
-<a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a>
-</li>
+<li><a href="LICENSE.html">Full license</a></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
 
@@ -100,7 +171,14 @@
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/statmodels7/penalties7/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/statmodels7/penalties7/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://app.codecov.io/gh/statmodels7/penalties7" class="external-link"><img src="https://codecov.io/gh/statmodels7/penalties7/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>

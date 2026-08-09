@@ -50,6 +50,12 @@ A named list: one number per hyperparameter for the gradient, one number
 per pair for the Hessian, one numeric vector of length `q` per
 hyperparameter for the mixed block.
 
+## See also
+
+[`penalty_value`](https://statmodels7.github.io/penalties7/reference/penalty_value.md),
+[`penalty_gradient`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md),
+[`penalty_kinks`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
+
 ## Examples
 
 ``` r

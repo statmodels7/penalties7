@@ -43,6 +43,12 @@ penalty_logpdet(pen, theta, ...)
 penalty is full rank); `penalty_logpdet` a list with elements `value`,
 `grad` and `hess`.
 
+## See also
+
+[`is_quadratic`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md),
+[`quadratic_penalty`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md),
+[`additive_penalty`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
+
 ## Examples
 
 ``` r
