@@ -24,6 +24,22 @@ has_prox(pen)
 
 A single logical.
 
+## Details
+
+The operator in question is
+
+\$\$\operatorname{prox}\_{t\rho}(v) = \arg\min\_{\beta} \Bigl\\
+\tfrac{1}{2}\lVert \beta - v \rVert^{2} + t\\ \rho(\beta; \theta)
+\Bigr\\,\$\$
+
+which a proximal gradient method evaluates once per iteration and which
+therefore has to be available in closed form, or as a solve, for the
+method to be worth using. A penalty carries one when it is quadratic or
+structured (one linear solve at any map), when it is separable with a
+parent whose operator is closed or whose stationarity condition has a
+coordinatewise root, or when it is SCAD or MCP over their convex
+regions.
+
 ## See also
 
 [`penalty_prox`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)

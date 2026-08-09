@@ -61,6 +61,20 @@ method over a smooth one without provoking an error.</p>
     <p>A single logical.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The operator in question is</p>
+<p>$$\operatorname{prox}_{t\rho}(v)
+  = \arg\min_{\beta} \Bigl\{ \tfrac{1}{2}\lVert \beta - v \rVert^{2}
+    + t\, \rho(\beta; \theta) \Bigr\},$$</p>
+<p>which a proximal gradient method evaluates once per iteration and which
+therefore has to be available in closed form, or as a solve, for the
+method to be worth using. A penalty carries one when it is quadratic or
+structured (one linear solve at any map), when it is separable with a
+parent whose operator is closed or whose stationarity condition has a
+coordinatewise root, or when it is SCAD or MCP over their convex
+regions.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="penalty_prox.html">penalty_prox</a></code></p></div>
     </div>

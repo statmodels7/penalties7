@@ -64,6 +64,24 @@ expose.</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A single logical.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>A quadratic penalty carries a fixed matrix \(P\) and one smoothing
+parameter \(\lambda\), and is the negative log-density of the improper
+Gaussian prior with precision \(\lambda P\) on \(D\beta\):</p>
+<p>$$\rho(\beta; \lambda)
+  = \tfrac{\lambda}{2} (D\beta)^\top P (D\beta)
+  - \tfrac{1}{2}\log^{+}\lvert \lambda P \rvert
+  + \tfrac{r}{2}\log(2\pi),
+  \qquad \log^{+}\lvert \lambda P \rvert
+    = r \log \lambda + \log^{+}\lvert P \rvert,$$</p>
+<p>with \(\log^{+}\) the log pseudo-determinant and
+\(r = \operatorname{rank}(P)\). Those are the quantities
+<code><a href="penalty_matrix.html">penalty_matrix</a></code>, <code><a href="penalty_matrix.html">penalty_rank</a></code>,
+<code><a href="penalty_matrix.html">penalty_null_basis</a></code> and <code><a href="penalty_matrix.html">penalty_logpdet</a></code>
+report and a REML or marginal-likelihood criterion needs; a penalty for
+which this is <code>FALSE</code> has no such matrix and those generics reject.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

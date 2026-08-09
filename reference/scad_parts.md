@@ -15,7 +15,7 @@ mcp_parts(t, lam, gam)
 
 - t:
 
-  The mapped coefficients \\Deta\\.
+  The mapped coefficients \\D\beta\\.
 
 - lam, a, gam:
 
