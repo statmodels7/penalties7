@@ -95,7 +95,7 @@ mcp_penalty <- function(map = NULL, n_coef = 1L,
 #' The Piecewise Regions of SCAD and MCP
 #' @description The sign, the absolute value and the region indicators of
 #'   each element, shared by every method below.
-#' @param t The mapped coefficients \eqn{Deta}.
+#' @param t The mapped coefficients \eqn{D\beta}.
 #' @param lam,a,gam The hyperparameters.
 #' @return A list of vectors.
 #' @keywords internal

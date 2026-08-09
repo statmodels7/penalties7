@@ -10,7 +10,7 @@ scad_parts(t, lam, a)
 mcp_parts(t, lam, gam)
 }
 \arguments{
-\item{t}{The mapped coefficients \eqn{Deta}.}
+\item{t}{The mapped coefficients \eqn{D\beta}.}
 
 \item{lam, a, gam}{The hyperparameters.}
 }
