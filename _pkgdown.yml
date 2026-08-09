@@ -17,6 +17,11 @@ navbar:
 
 reference:
 - title: The class and the generics
+  desc: >
+    What every penalty answers: its value with the normalizing
+    constant, its derivatives in the coefficients and in the
+    hyperparameters, the mixed block, and the kink set a
+    non-smooth method needs.
   contents:
   - penalty
   - penalty_value
@@ -27,36 +32,67 @@ reference:
   - is_quadratic
   - penalty_matrix
 - title: The quadratic branch
+  desc: >
+    A fixed matrix and one smoothing parameter, so the penalty is the
+    negative log-density of an improper Gaussian prior. The rank,
+    the null basis and the log pseudo-determinant are fixed at one
+    eigendecomposition when the object is built.
   contents:
   - quadratic_penalty
   - QuadraticPenalty
   - ends_with(".QuadraticPenalty")
 - title: The additive branch
+  desc: >
+    A sum of quadratics with a smoothing parameter on each, which is
+    what an anisotropic tensor smooth needs. The rank comes from
+    the components stacked and normalized, not from the assembled
+    matrix, whose eigenvalue count falls as the parameters spread
+    apart.
   contents:
   - additive_penalty
   - AdditivePenalty
   - ends_with(".AdditivePenalty")
 - title: The separable branch
+  desc: >
+    A univariate distributions7 log-density applied coordinatewise.
+    Ridge is a Gaussian at zero, the lasso a Laplace, the elastic
+    net the product of the two, and the heavy-tailed prior a
+    Student t.
   contents:
   - distrib_penalty
   - ridge_penalty
   - DistribPenalty
   - ends_with(".DistribPenalty")
 - title: The structured branch
+  desc: >
+    A parameters7 matrix parameter used as the precision, so the
+    hyperparameters are that structure's free values and every
+    derivative comes from its derivative arrays.
   contents:
   - structured_penalty
   - StructuredPenalty
   - ends_with(".StructuredPenalty")
 - title: SCAD and MCP
+  desc: >
+    Defined by their derivative rather than by a density, hence
+    improper by construction: they have no normalizing constant
+    and cannot come from a distribution.
   contents:
   - scad_penalty
   - ScadPenalty
   - ends_with(".ScadPenalty")
   - ends_with(".McpPenalty")
 - title: The proximal operator
+  desc: >
+    One step of a proximal gradient method, in closed form where one
+    exists and as a linear solve or a coordinatewise root
+    otherwise.
   contents:
   - penalty_prox
   - has_prox
 - title: Validation
+  desc: >
+    The numerical checks a penalty must pass, meant above all for one
+    written outside the package.
   contents:
   - check_penalty

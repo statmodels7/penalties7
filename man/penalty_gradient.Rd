@@ -33,3 +33,6 @@ penalty_gradient(pen, c(1, -1), list(lambda = 3))
 penalty_hessian(pen, c(1, -1), list(lambda = 3))
 
 }
+\seealso{
+\code{\link{penalty_value}}, \code{\link{penalty_grad_theta}}, \code{\link{penalty_kinks}}
+}

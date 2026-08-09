@@ -47,3 +47,6 @@ pen <- distrib_penalty(d, n_coef = 3)
 penalty_value(pen, c(1, 0, -1), list(sigma = 2))
 
 }
+\seealso{
+\code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}, \code{\link{structured_penalty}}
+}

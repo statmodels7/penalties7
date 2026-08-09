@@ -27,3 +27,6 @@ penalty_kinks(quadratic_penalty(diag(2)), list(lambda = 1))
 penalty_kinks(lasso_penalty(), list(lambda = 1))
 
 }
+\seealso{
+\code{\link{penalty_value}}, \code{\link{penalty_gradient}}, \code{\link{penalty_hessian}}, \code{\link{penalty_grad_theta}}, \code{\link{penalty_cross}}
+}

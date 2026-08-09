@@ -66,6 +66,7 @@ DistribPenalty <- S7::new_class(
 #' pen <- distrib_penalty(d, n_coef = 3)
 #' penalty_value(pen, c(1, 0, -1), list(sigma = 2))
 #'
+#' @seealso \code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}, \code{\link{structured_penalty}}
 #' @export
 distrib_penalty <- function(d, map = NULL, n_coef = NULL,
                             kinks = numeric(0)) {
@@ -138,6 +139,7 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL,
 #' the elastic net. \emph{Journal of the Royal Statistical Society, Series B}
 #' 67, 301-320.
 #'
+#' @seealso \code{\link{distrib_penalty}}, \code{\link{scad_penalty}}, \code{\link{quadratic_penalty}}
 #' @export
 ridge_penalty <- function(map = NULL, n_coef = 1L) {
   distrib_penalty(

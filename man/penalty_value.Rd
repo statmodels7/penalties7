@@ -28,3 +28,6 @@ pen <- quadratic_penalty(diag(3))
 penalty_value(pen, c(1, 0, -1), list(lambda = 2))
 
 }
+\seealso{
+\code{\link{penalty_gradient}}, \code{\link{penalty_hessian}}, \code{\link{penalty_grad_theta}}, \code{\link{penalty_cross}}, \code{\link{penalty_kinks}}
+}

@@ -34,3 +34,6 @@ res <- check_penalty(quadratic_penalty(diag(3)))
 all(res$status == "OK")
 
 }
+\seealso{
+\code{\link{penalty_value}}, \code{\link{has_prox}}
+}

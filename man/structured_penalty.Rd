@@ -52,3 +52,6 @@ penalty_value(pen, c(0.3, -0.1, 0.4, 0.2), theta)
 penalty_rank(pen)
 
 }
+\seealso{
+\code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}, \code{\link{distrib_penalty}}
+}

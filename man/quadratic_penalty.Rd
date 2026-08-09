@@ -53,3 +53,6 @@ is_proper(pen)
 penalty_value(pen, rnorm(5), list(lambda = 2))
 
 }
+\seealso{
+\code{\link{additive_penalty}}, \code{\link{distrib_penalty}}, \code{\link{structured_penalty}}
+}

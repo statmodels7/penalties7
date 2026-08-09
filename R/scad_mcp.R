@@ -61,6 +61,7 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty)
 #' penalty_value(pen, c(0.5, 2, 5), list(lambda = 1, a = 3.7))
 #' is_proper(pen)
 #'
+#' @seealso \code{\link{ridge_penalty}}, \code{\link{is_proper}}, \code{\link{penalty_prox}}
 #' @export
 scad_penalty <- function(map = NULL, n_coef = 1L,
                          link_lambda = linkfunctions7::log_link(),

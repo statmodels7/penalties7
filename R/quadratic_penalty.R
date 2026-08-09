@@ -73,6 +73,7 @@ QuadraticPenalty <- S7::new_class(
 #' is_proper(pen)
 #' penalty_value(pen, rnorm(5), list(lambda = 2))
 #'
+#' @seealso \code{\link{additive_penalty}}, \code{\link{distrib_penalty}}, \code{\link{structured_penalty}}
 #' @export
 quadratic_penalty <- function(P, map = NULL,
                               link_lambda = linkfunctions7::log_link(),

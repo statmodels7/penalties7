@@ -58,3 +58,6 @@ Zou, H. and Hastie, T. (2005). Regularization and variable selection via
 the elastic net. \emph{Journal of the Royal Statistical Society, Series B}
 67, 301-320.
 }
+\seealso{
+\code{\link{distrib_penalty}}, \code{\link{scad_penalty}}, \code{\link{quadratic_penalty}}
+}

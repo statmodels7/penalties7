@@ -72,6 +72,7 @@ StructuredPenalty <- S7::new_class(
 #' penalty_value(pen, c(0.3, -0.1, 0.4, 0.2), theta)
 #' penalty_rank(pen)
 #'
+#' @seealso \code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}, \code{\link{distrib_penalty}}
 #' @export
 structured_penalty <- function(structure) {
   if (!S7::S7_inherits(structure, parameters7::matrix_parameter)) {

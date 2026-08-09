@@ -44,3 +44,6 @@ penalty_rank(pen)
 penalty_logpdet(pen, list(lambda = 2))$value
 
 }
+\seealso{
+\code{\link{is_quadratic}}, \code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}
+}

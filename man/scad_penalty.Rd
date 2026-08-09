@@ -58,3 +58,6 @@ likelihood and its oracle properties. \emph{JASA} 96, 1348-1360.
 Zhang, C.-H. (2010). Nearly unbiased variable selection under minimax
 concave penalty. \emph{Annals of Statistics} 38, 894-942.
 }
+\seealso{
+\code{\link{ridge_penalty}}, \code{\link{is_proper}}, \code{\link{penalty_prox}}
+}

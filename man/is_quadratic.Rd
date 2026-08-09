@@ -43,3 +43,6 @@ is_quadratic(quadratic_penalty(diag(2)))
 is_quadratic(ridge_penalty())
 
 }
+\seealso{
+\code{\link{is_proper}}, \code{\link{has_prox}}, \code{\link{penalty_matrix}}, \code{\link{penalty_rank}}, \code{\link{penalty_null_basis}}, \code{\link{penalty_logpdet}}
+}

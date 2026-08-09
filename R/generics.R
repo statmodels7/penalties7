@@ -19,6 +19,7 @@ NULL
 #' pen <- quadratic_penalty(diag(3))
 #' penalty_value(pen, c(1, 0, -1), list(lambda = 2))
 #'
+#' @seealso \code{\link{penalty_gradient}}, \code{\link{penalty_hessian}}, \code{\link{penalty_grad_theta}}, \code{\link{penalty_cross}}, \code{\link{penalty_kinks}}
 #' @export
 penalty_value <- S7::new_generic("penalty_value", "pen",
   function(pen, beta, theta, ...) {
@@ -47,6 +48,7 @@ penalty_value <- S7::new_generic("penalty_value", "pen",
 #' penalty_gradient(pen, c(1, -1), list(lambda = 3))
 #' penalty_hessian(pen, c(1, -1), list(lambda = 3))
 #'
+#' @seealso \code{\link{penalty_value}}, \code{\link{penalty_grad_theta}}, \code{\link{penalty_kinks}}
 #' @export
 penalty_gradient <- S7::new_generic("penalty_gradient", "pen",
   function(pen, beta, theta, ...) {
@@ -92,6 +94,7 @@ penalty_hessian <- S7::new_generic("penalty_hessian", "pen",
 #' penalty_grad_theta(pen, c(1, -1), list(lambda = 3))
 #' penalty_cross(pen, c(1, -1), list(lambda = 3))
 #'
+#' @seealso \code{\link{penalty_value}}, \code{\link{penalty_gradient}}, \code{\link{penalty_kinks}}
 #' @export
 penalty_grad_theta <- S7::new_generic("penalty_grad_theta", "pen",
   function(pen, beta, theta, scale = c("parameter", "link"), ...) {
@@ -148,6 +151,7 @@ penalty_cross <- S7::new_generic("penalty_cross", "pen",
 #' penalty_kinks(quadratic_penalty(diag(2)), list(lambda = 1))
 #' penalty_kinks(lasso_penalty(), list(lambda = 1))
 #'
+#' @seealso \code{\link{penalty_value}}, \code{\link{penalty_gradient}}, \code{\link{penalty_hessian}}, \code{\link{penalty_grad_theta}}, \code{\link{penalty_cross}}
 #' @export
 penalty_kinks <- S7::new_generic("penalty_kinks", "pen",
   function(pen, theta, ...) {
@@ -172,6 +176,7 @@ penalty_kinks <- S7::new_generic("penalty_kinks", "pen",
 #' is_proper(quadratic_penalty(diag(2)))
 #' is_proper(scad_penalty())
 #'
+#' @seealso \code{\link{is_quadratic}}, \code{\link{has_prox}}, \code{\link{penalty_matrix}}, \code{\link{penalty_rank}}, \code{\link{penalty_null_basis}}, \code{\link{penalty_logpdet}}
 #' @export
 is_proper <- S7::new_generic("is_proper", "pen")
 
@@ -210,6 +215,7 @@ is_proper <- S7::new_generic("is_proper", "pen")
 #' is_quadratic(quadratic_penalty(diag(2)))
 #' is_quadratic(ridge_penalty())
 #'
+#' @seealso \code{\link{is_proper}}, \code{\link{has_prox}}, \code{\link{penalty_matrix}}, \code{\link{penalty_rank}}, \code{\link{penalty_null_basis}}, \code{\link{penalty_logpdet}}
 #' @export
 is_quadratic <- S7::new_generic("is_quadratic", "pen")
 
@@ -241,6 +247,7 @@ S7::method(is_quadratic, penalty) <- function(pen, ...) FALSE
 #' penalty_rank(pen)
 #' penalty_logpdet(pen, list(lambda = 2))$value
 #'
+#' @seealso \code{\link{is_quadratic}}, \code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}
 #' @export
 penalty_matrix <- S7::new_generic("penalty_matrix", "pen",
   function(pen, theta, ...) {

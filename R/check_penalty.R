@@ -24,6 +24,7 @@ NULL
 #' res <- check_penalty(quadratic_penalty(diag(3)))
 #' all(res$status == "OK")
 #'
+#' @seealso \code{\link{penalty_value}}, \code{\link{has_prox}}
 #' @export
 check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
                           verbose = TRUE) {

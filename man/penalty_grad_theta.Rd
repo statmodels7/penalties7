@@ -45,3 +45,6 @@ penalty_grad_theta(pen, c(1, -1), list(lambda = 3))
 penalty_cross(pen, c(1, -1), list(lambda = 3))
 
 }
+\seealso{
+\code{\link{penalty_value}}, \code{\link{penalty_gradient}}, \code{\link{penalty_kinks}}
+}
