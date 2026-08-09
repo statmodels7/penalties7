@@ -47,3 +47,14 @@ pen <- ridge_penalty(n_coef = 2)
 penalty_gradient(pen, c(1, -1), list(sigma = 1))
 
 }
+\references{
+Hoerl, A. E. and Kennard, R. W. (1970). Ridge regression: biased
+estimation for nonorthogonal problems. \emph{Technometrics} 12, 55-67.
+
+Tibshirani, R. (1996). Regression shrinkage and selection via the lasso.
+\emph{Journal of the Royal Statistical Society, Series B} 58, 267-288.
+
+Zou, H. and Hastie, T. (2005). Regularization and variable selection via
+the elastic net. \emph{Journal of the Royal Statistical Society, Series B}
+67, 301-320.
+}
