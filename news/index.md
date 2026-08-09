@@ -1,5 +1,17 @@
 # Changelog
 
+## penalties7 0.5.0
+
+- elasticnet_penalty(): the elastic net as the same construction as
+  ridge and lasso, a separable penalty over a fixed() family – here
+  distributions7::enet_distrib(), the product of the Laplace and the
+  Gaussian at zero, normalized. Its hyperparameters are the overall rate
+  lambda and the mixing weight alpha, and the normalizing constant
+  depends on both, which is what makes them estimable by a marginal
+  criterion.
+- penalty_prox() gains the elastic-net closed form, the soft threshold
+  of the Laplace part followed by the shrinkage of the Gaussian one.
+
 ## penalties7 0.4.0
 
 - additive_penalty(): a sum of quadratic penalties with a smoothing

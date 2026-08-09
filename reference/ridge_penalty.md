@@ -8,7 +8,15 @@ location and rate (\`laplace2\`) at zero, so the free hyperparameter is
 the rate \\\lambda\\ and the value is \\\lambda\lVert D\beta\rVert_1\\
 up to its constant, with the kink declared; the heavy-tailed prior is
 the Student t at zero, whose \\\nu\\ is estimable exactly because the
-normalizing constant is kept.
+normalizing constant is kept. The elastic net is the product of the
+Laplace and the Gaussian at zero, normalized
+([`enet_distrib`](https://statmodels7.github.io/distributions7/reference/enet_distrib.html)),
+so its hyperparameters are the overall rate \\\lambda\\ and the mixing
+weight \\\alpha\\ and its value is \\\lambda\\\alpha\lVert
+D\beta\rVert_1 + (1-\alpha)\lVert D\beta\rVert_2^2/2\\\\ up to a
+constant. That constant depends on both hyperparameters, which is what
+makes them estimable by a marginal criterion and what a penalty written
+as a formula would not have.
 
 ## Usage
 
@@ -16,6 +24,8 @@ normalizing constant is kept.
 ridge_penalty(map = NULL, n_coef = 1L)
 
 lasso_penalty(map = NULL, n_coef = 1L)
+
+elasticnet_penalty(map = NULL, n_coef = 1L)
 
 heavy_penalty(map = NULL, n_coef = 1L)
 ```

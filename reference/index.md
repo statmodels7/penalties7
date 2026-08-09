@@ -45,6 +45,7 @@
   : Construct a Separable Penalty From a Distribution
 - [`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
   [`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
+  [`elasticnet_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
   [`heavy_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
   : Named Separable Penalties
 - [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)

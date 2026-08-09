@@ -7,7 +7,15 @@ and rate (`laplace2`) at zero, so the free hyperparameter is the rate
 its constant, with the kink declared; the heavy-tailed prior is the
 Student t at zero,
 whose \(\nu\) is estimable exactly because the normalizing constant is
-kept."><meta property="og:description" content="The canonical instances of distrib_penalty, shipped as
+kept. The elastic net is the product of the Laplace and the Gaussian at
+zero, normalized (enet_distrib), so its
+hyperparameters are the overall rate \(\lambda\) and the mixing weight
+\(\alpha\) and its value is
+\(\lambda\{\alpha\lVert D\beta\rVert_1 +
+(1-\alpha)\lVert D\beta\rVert_2^2/2\}\) up to a constant. That constant
+depends on both hyperparameters, which is what makes them estimable by a
+marginal criterion and what a penalty written as a formula would not
+have."><meta property="og:description" content="The canonical instances of distrib_penalty, shipped as
 constructors so the model layer can name what it means. Ridge is the
 Gaussian at zero with the scale free; the lasso is the Laplace in location
 and rate (`laplace2`) at zero, so the free hyperparameter is the rate
@@ -15,7 +23,15 @@ and rate (`laplace2`) at zero, so the free hyperparameter is the rate
 its constant, with the kink declared; the heavy-tailed prior is the
 Student t at zero,
 whose \(\nu\) is estimable exactly because the normalizing constant is
-kept."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
+kept. The elastic net is the product of the Laplace and the Gaussian at
+zero, normalized (enet_distrib), so its
+hyperparameters are the overall rate \(\lambda\) and the mixing weight
+\(\alpha\) and its value is
+\(\lambda\{\alpha\lVert D\beta\rVert_1 +
+(1-\alpha)\lVert D\beta\rVert_2^2/2\}\) up to a constant. That constant
+depends on both hyperparameters, which is what makes them estimable by a
+marginal criterion and what a penalty written as a formula would not
+have."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +39,7 @@ kept."><meta property="og:image" content="https://statmodels7.github.io/penaltie
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +74,15 @@ and rate (`laplace2`) at zero, so the free hyperparameter is the rate
 its constant, with the kink declared; the heavy-tailed prior is the
 Student t at zero,
 whose \(\nu\) is estimable exactly because the normalizing constant is
-kept.</p>
+kept. The elastic net is the product of the Laplace and the Gaussian at
+zero, normalized (<code><a href="https://statmodels7.github.io/distributions7/reference/enet_distrib.html" class="external-link">enet_distrib</a></code>), so its
+hyperparameters are the overall rate \(\lambda\) and the mixing weight
+\(\alpha\) and its value is
+\(\lambda\{\alpha\lVert D\beta\rVert_1 +
+(1-\alpha)\lVert D\beta\rVert_2^2/2\}\) up to a constant. That constant
+depends on both hyperparameters, which is what makes them estimable by a
+marginal criterion and what a penalty written as a formula would not
+have.</p>
     </div>
 
     <div class="section level2">
@@ -66,6 +90,8 @@ kept.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ridge_penalty</span><span class="op">(</span>map <span class="op">=</span> <span class="cn">NULL</span>, n_coef <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">lasso_penalty</span><span class="op">(</span>map <span class="op">=</span> <span class="cn">NULL</span>, n_coef <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">elasticnet_penalty</span><span class="op">(</span>map <span class="op">=</span> <span class="cn">NULL</span>, n_coef <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">heavy_penalty</span><span class="op">(</span>map <span class="op">=</span> <span class="cn">NULL</span>, n_coef <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></code></pre></div>
     </div>
