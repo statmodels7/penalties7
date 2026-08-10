@@ -1,6 +1,6 @@
 Package: penalties7
 Title: Penalties as Objects with Exact Derivatives
-Version: 0.5.0
+Version: 0.6.0
 Authors@R:
     person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
 Description: Penalties for regularized and Bayesian regression as 'S7'
@@ -44,6 +44,7 @@ Collate:
     'scad_mcp.R'
     'check_penalty.R'
     'distrib_penalty.R'
-    'penalties7-package.R'
     'structured_penalty.R'
+    'marginal_derivatives.R'
+    'penalties7-package.R'
     'prox.R'

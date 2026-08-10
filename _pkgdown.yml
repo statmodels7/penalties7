@@ -31,6 +31,18 @@ reference:
   - is_proper
   - is_quadratic
   - penalty_matrix
+- title: What a marginal criterion asks
+  desc: >
+    A Laplace approximation to a marginal likelihood differentiates the
+    determinant of the penalized information, so it needs the
+    hyperparameter derivatives of the coefficient Hessian and of the
+    mixed block. A penalty that answers these is estimable by REML or ML
+    whatever its shape.
+  contents:
+  - penalty_dhessian
+  - penalty_d2hessian
+  - penalty_dcross
+  - beta_quadratic
 - title: The quadratic branch
   desc: >
     A fixed matrix and one smoothing parameter, so the penalty is the
