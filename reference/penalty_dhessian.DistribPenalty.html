@@ -17,7 +17,7 @@ again here."><meta property="og:image" content="https://statmodels7.github.io/pe
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,11 +79,13 @@ again here.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The second derivatives use one central difference of the parent's analytic
-<code>distrib_cross2_y</code> and <code>distrib_cross_y</code> in each hyperparameter,
-the second \(\theta\)-derivative of a response derivative not being one of
-that package's generics. A family that gains it will be exact here with no
-change: the difference is taken of whatever the parent supplies.</p>
+    <p>The second derivatives read the parent's
+<code><a href="https://statmodels7.github.io/distributions7/reference/distrib_grad_y_hess.html" class="external-link">distrib_grad_y_hess</a></code> and
+<code><a href="https://statmodels7.github.io/distributions7/reference/distrib_grad_y_hess.html" class="external-link">distrib_hess_y_hess</a></code>, so nothing is
+differentiated here either. A parent with closed forms for those – the
+gaussian, hence every ridge and every random effect – makes this branch
+exact; one without them inherits that package's documented fallback, which
+is one central difference of its analytic first-order component.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
