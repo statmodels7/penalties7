@@ -1,5 +1,15 @@
 # Changelog
 
+## penalties7 0.7.1
+
+- The hyperparameters may be given as a named numeric vector as well as
+  the documented list, the alignment converting one to the other. The
+  branches had split on how they read `theta`: `[[` accepts both shapes
+  and `$` accepts only the list, so a caller passing a vector reached
+  the quadratic and separable branches and stopped inside `scad()` and
+  `mcp()` with “\$ operator is invalid for atomic vectors”, three frames
+  down and naming neither the argument nor the penalty.
+
 ## penalties7 0.7.0
 
 - [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
