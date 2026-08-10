@@ -1,5 +1,23 @@
 # Changelog
 
+## penalties7 0.6.0
+
+- [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md),
+  [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
+  and
+  [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
+  are what a marginal criterion asks of a penalty: the hyperparameter
+  derivatives of the coefficient Hessian and of the mixed block. Every
+  branch answers – the quadratic and additive ones from their
+  components, the structured one from the matrix parameter’s `param_d1`
+  and `param_d2`, the separable one from the parent’s response surface –
+  so a penalty is estimable by REML or ML whatever its shape, and one
+  with a kink rejects by name.
+  [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
+  reports whether the third derivative in the coefficients is zero,
+  asking the parent whether its response curvature depends on the
+  response rather than recognizing a family by name.
+
 ## penalties7 0.5.0
 
 - elasticnet_penalty(): the elastic net as the same construction as

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,6 +96,43 @@
 
         </dt>
         <dd>The Pieces a Marginal Criterion Consumes</dd>
+      </dl></div><div class="section level2">
+      <h2 id="what-a-marginal-criterion-asks">What a marginal criterion asks<a class="anchor" aria-label="anchor" href="#what-a-marginal-criterion-asks"></a></h2>
+
+      <div class="section-desc"><p>A Laplace approximation to a marginal likelihood differentiates the determinant of the penalized information, so it needs the hyperparameter derivatives of the coefficient Hessian and of the mixed block. A penalty that answers these is estimable by REML or ML whatever its shape.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="penalty_dhessian.html">penalty_dhessian()</a></code>
+
+        </dt>
+        <dd>The Derivative of the Coefficient Hessian in the Hyperparameters</dd>
+
+        <dt>
+
+          <code><a href="penalty_d2hessian.html">penalty_d2hessian()</a></code>
+
+        </dt>
+        <dd>The Second Derivative of the Coefficient Hessian in the Hyperparameters</dd>
+
+        <dt>
+
+          <code><a href="penalty_dcross.html">penalty_dcross()</a></code>
+
+        </dt>
+        <dd>The Derivative of the Mixed Block in the Hyperparameters</dd>
+
+        <dt>
+
+          <code><a href="beta_quadratic.html">beta_quadratic()</a></code>
+
+        </dt>
+        <dd>Is a Penalty Quadratic in the Coefficients?</dd>
       </dl></div><div class="section level2">
       <h2 id="the-quadratic-branch">The quadratic branch<a class="anchor" aria-label="anchor" href="#the-quadratic-branch"></a></h2>
 

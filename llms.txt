@@ -187,6 +187,23 @@ block, and the kink set a non-smooth method needs.
   [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
   : The Pieces a Marginal Criterion Consumes
 
+## What a marginal criterion asks
+
+A Laplace approximation to a marginal likelihood differentiates the
+determinant of the penalized information, so it needs the hyperparameter
+derivatives of the coefficient Hessian and of the mixed block. A penalty
+that answers these is estimable by REML or ML whatever its shape.
+
+- [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
+  : The Derivative of the Coefficient Hessian in the Hyperparameters
+- [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
+  : The Second Derivative of the Coefficient Hessian in the
+  Hyperparameters
+- [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
+  : The Derivative of the Mixed Block in the Hyperparameters
+- [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
+  : Is a Penalty Quadratic in the Coefficients?
+
 ## The quadratic branch
 
 A fixed matrix and one smoothing parameter, so the penalty is the

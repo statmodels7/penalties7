@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,11 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="penalties7-060">penalties7 0.6.0<a class="anchor" aria-label="anchor" href="#penalties7-060"></a></h2>
+<ul><li>
+<code><a href="../reference/penalty_dhessian.html">penalty_dhessian()</a></code>, <code><a href="../reference/penalty_d2hessian.html">penalty_d2hessian()</a></code> and <code><a href="../reference/penalty_dcross.html">penalty_dcross()</a></code> are what a marginal criterion asks of a penalty: the hyperparameter derivatives of the coefficient Hessian and of the mixed block. Every branch answers – the quadratic and additive ones from their components, the structured one from the matrix parameter’s <code>param_d1</code> and <code>param_d2</code>, the separable one from the parent’s response surface – so a penalty is estimable by REML or ML whatever its shape, and one with a kink rejects by name. <code><a href="../reference/beta_quadratic.html">beta_quadratic()</a></code> reports whether the third derivative in the coefficients is zero, asking the parent whether its response curvature depends on the response rather than recognizing a family by name.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="penalties7-050">penalties7 0.5.0<a class="anchor" aria-label="anchor" href="#penalties7-050"></a></h2>
 <ul><li>elasticnet_penalty(): the elastic net as the same construction as ridge and lasso, a separable penalty over a fixed() family – here distributions7::enet_distrib(), the product of the Laplace and the Gaussian at zero, normalized. Its hyperparameters are the overall rate lambda and the mixing weight alpha, and the normalizing constant depends on both, which is what makes them estimable by a marginal criterion.</li>
