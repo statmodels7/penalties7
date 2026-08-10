@@ -43,10 +43,13 @@ penalty <- S7::new_class(
 #' @description
 #' Reorders \code{theta} by name, strips stray names off the values and
 #' validates against \code{params_bounds} treated as open intervals -- the
-#' \pkg{distributions7} contract, restated here for hyperparameters.
+#' \pkg{distributions7} contract, restated here for hyperparameters. A named
+#' numeric vector is accepted in place of the list and converted to one, so
+#' that every branch reads the same shape.
 #'
 #' @param pen A \code{\link{penalty}} object.
-#' @param theta A named list of hyperparameter values.
+#' @param theta A named list of hyperparameter values, or a named numeric
+#'   vector carrying the same.
 #'
 #' @return The aligned list.
 #'
@@ -54,6 +57,13 @@ penalty <- S7::new_class(
 align_ptheta <- function(pen, theta) {
   params <- pen@params
   if (length(params) == 0L) return(list())
+  # A named numeric vector carries what the list carries, and the branches
+  # split on how they read it: `[[` accepts both, `$` accepts only the list.
+  # A caller passing a vector therefore reached the quadratic and separable
+  # branches and failed inside scad and mcp, three frames down and naming
+  # neither the argument nor the penalty. The shape is settled here, at the
+  # one point every generic passes through.
+  if (!is.list(theta)) theta <- as.list(theta)
   if (is.null(names(theta)) || !all(params %in% names(theta))) {
     stop(sprintf("Missing parameter(s) in 'theta': %s. Expected: %s.",
                  paste(setdiff(params, names(theta)), collapse = ", "),

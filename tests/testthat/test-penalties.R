@@ -172,3 +172,44 @@ test_that("the structured prior at the identity precision is the plain ridge", {
   expect_identical(penalty_rank(pen), 3L)
   expect_equal(penalty_logpdet(pen, th)$value, 0, tolerance = 1e-14)
 })
+
+
+test_that("a named vector of hyperparameters is read like the list", {
+  # The branches split on how they read theta: `[[` accepts a named numeric
+  # vector as well as a list, `$` accepts only the list. A caller passing a
+  # vector therefore reached the quadratic and separable branches and stopped
+  # inside scad and mcp with "$ operator is invalid for atomic vectors",
+  # three frames down and naming neither the argument nor the penalty.
+  beta <- c(0.4, -1.1, 2.2, 0.05)
+  cases <- list(
+    quadratic = list(pen = quadratic_penalty(diag(4)), th = c(lambda = 2.5)),
+    ridge     = list(pen = ridge_penalty(n_coef = 4L), th = c(sigma = 0.8)),
+    lasso     = list(pen = lasso_penalty(n_coef = 4L), th = c(lambda = 1.7)),
+    scad      = list(pen = scad_penalty(n_coef = 4L),
+                     th = c(lambda = 1.2, a = 3.7)),
+    mcp       = list(pen = mcp_penalty(n_coef = 4L),
+                     th = c(lambda = 1.2, gamma = 3))
+  )
+  for (nm in names(cases)) {
+    pen <- cases[[nm]]$pen
+    v <- cases[[nm]]$th
+    l <- as.list(v)
+    expect_equal(penalty_value(pen, beta, v), penalty_value(pen, beta, l),
+                 tolerance = 1e-14, label = nm)
+    expect_equal(penalty_gradient(pen, beta, v),
+                 penalty_gradient(pen, beta, l), tolerance = 1e-14,
+                 label = nm)
+    expect_equal(penalty_kinks(pen, v), penalty_kinks(pen, l), label = nm)
+    expect_equal(penalty_prox(pen, beta, 0.3, v),
+                 penalty_prox(pen, beta, 0.3, l), tolerance = 1e-14,
+                 label = nm)
+  }
+
+  # and the reordering the alignment already did is unaffected by the shape
+  p <- scad_penalty(n_coef = 4L)
+  expect_equal(penalty_value(p, beta, c(a = 3.7, lambda = 1.2)),
+               penalty_value(p, beta, list(lambda = 1.2, a = 3.7)),
+               tolerance = 1e-14)
+  # a missing hyperparameter is still reported, whichever shape it arrives in
+  expect_error(penalty_value(p, beta, c(lambda = 1.2)), "Missing parameter")
+})

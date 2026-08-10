@@ -9,7 +9,8 @@ align_ptheta(pen, theta)
 \arguments{
 \item{pen}{A \code{\link{penalty}} object.}
 
-\item{theta}{A named list of hyperparameter values.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same.}
 }
 \value{
 The aligned list.
@@ -17,6 +18,8 @@ The aligned list.
 \description{
 Reorders \code{theta} by name, strips stray names off the values and
 validates against \code{params_bounds} treated as open intervals -- the
-\pkg{distributions7} contract, restated here for hyperparameters.
+\pkg{distributions7} contract, restated here for hyperparameters. A named
+numeric vector is accepted in place of the list and converted to one, so
+that every branch reads the same shape.
 }
 \keyword{internal}
