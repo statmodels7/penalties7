@@ -1,3 +1,12 @@
+# penalties7 0.7.0
+
+* `penalty_d2hessian()` and `penalty_dcross()` read the parent's
+  `distrib_grad_y_hess()` and `distrib_hess_y_hess()` for the separable
+  branch instead of differencing its first-order components. With a
+  gaussian parent -- every ridge, every random effect -- the branch is
+  now exact: measured, the second derivative of `I/sigma^2` comes back
+  as `6I/sigma^4` to 1e-13 where the difference gave 1e-10.
+
 # penalties7 0.6.0
 
 * `penalty_dhessian()`, `penalty_d2hessian()` and `penalty_dcross()`

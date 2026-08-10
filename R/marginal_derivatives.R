@@ -366,11 +366,13 @@ S7::method(beta_quadratic, StructuredPenalty) <- function(pen, theta, ...) TRUE
 #' \eqn{\theta}. Both come from \pkg{distributions7} rather than being written
 #' again here.
 #' @details
-#' The second derivatives use one central difference of the parent's analytic
-#' \code{distrib_cross2_y} and \code{distrib_cross_y} in each hyperparameter,
-#' the second \eqn{\theta}-derivative of a response derivative not being one of
-#' that package's generics. A family that gains it will be exact here with no
-#' change: the difference is taken of whatever the parent supplies.
+#' The second derivatives read the parent's
+#' \code{\link[distributions7]{distrib_grad_y_hess}} and
+#' \code{\link[distributions7]{distrib_hess_y_hess}}, so nothing is
+#' differentiated here either. A parent with closed forms for those -- the
+#' gaussian, hence every ridge and every random effect -- makes this branch
+#' exact; one without them inherits that package's documented fallback, which
+#' is one central difference of its analytic first-order component.
 #' @param pen A \code{DistribPenalty} object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of hyperparameters.
@@ -392,9 +394,9 @@ S7::method(penalty_dhessian, DistribPenalty) <- function(pen, beta, theta,
 S7::method(penalty_d2hessian, DistribPenalty) <- function(pen, beta, theta,
                                                           ...) {
   reject_kinked(pen, "penalty_d2hessian")
-  ptheta_second(pen, theta, function(th)
-    distributions7::distrib_cross2_y(pen@parent, map_apply(pen, beta), th),
-    function(v) -map_quad(pen, v + 0 * map_apply(pen, beta)))
+  t <- map_apply(pen, beta)
+  h <- distributions7::distrib_hess_y_hess(pen@parent, t, theta)
+  carry_pairs(pen, h, function(v) -map_quad(pen, v + 0 * t))
 }
 
 #' @rdname penalty_dhessian.DistribPenalty
@@ -402,9 +404,9 @@ S7::method(penalty_d2hessian, DistribPenalty) <- function(pen, beta, theta,
 #' @keywords internal
 S7::method(penalty_dcross, DistribPenalty) <- function(pen, beta, theta, ...) {
   reject_kinked(pen, "penalty_dcross")
-  ptheta_second(pen, theta, function(th)
-    distributions7::distrib_cross_y(pen@parent, map_apply(pen, beta), th),
-    function(v) -map_back(pen, v + 0 * map_apply(pen, beta)))
+  t <- map_apply(pen, beta)
+  g <- distributions7::distrib_grad_y_hess(pen@parent, t, theta)
+  carry_pairs(pen, g, function(v) -map_back(pen, v + 0 * t))
 }
 
 #' @rdname penalty_dhessian.DistribPenalty
@@ -426,51 +428,37 @@ S7::method(beta_quadratic, DistribPenalty) <- function(pen, theta, ...) {
 }
 
 
-#' A Second Hyperparameter Derivative of a Response Quantity
+#' Carry a Parent's Paired Components Into Coefficient Space
 #'
 #' @description
-#' Differences a parent's analytic mixed derivative once more in each
-#' hyperparameter and carries the result through the penalty's map.
+#' Re-keys a \pkg{distributions7} component keyed by parameter pair into this
+#' package's own keys, and places each through the penalty's map.
 #'
 #' @details
-#' One central difference of an analytic quantity, which is the fallback
-#' \pkg{distributions7} uses throughout; the two derivatives act on different
-#' hyperparameters wherever the pair is off the diagonal, and on the same one
-#' on it, where the reference is still analytic and only one difference is
-#' taken.
+#' The two enumerations of pairs are built the same way from the same names, so
+#' a key from one is a key of the other; it is looked up by name in both
+#' orders rather than by position, since a hyperparameter whose own name
+#' contains the separator would not survive being taken apart.
 #'
 #' @param pen A \code{\link{penalty}} object.
-#' @param theta A named list of hyperparameters.
-#' @param inner A function of \code{theta} returning a named list, one entry
-#'   per hyperparameter.
-#' @param carry A function placing one such entry into coefficient space.
+#' @param comp The parent's components, keyed by parameter pair.
+#' @param carry A function placing one component into coefficient space.
 #'
 #' @return A named list keyed by hyperparameter pair.
 #'
 #' @keywords internal
-ptheta_second <- function(pen, theta, inner, carry) {
-  p <- pen@params
-  diffs <- stats::setNames(vector("list", length(p)), p)
-  for (m in seq_along(p)) {
-    v <- as.numeric(theta[[p[m]]])
-    h <- pmax(abs(v), 1) * .Machine$double.eps^(1 / 3)
-    th_up <- theta
-    th_dn <- theta
-    th_up[[p[m]]] <- v + h
-    th_dn[[p[m]]] <- v - h
-    up <- inner(th_up)
-    dn <- inner(th_dn)
-    diffs[[p[m]]] <- lapply(p, function(q) (up[[q]] - dn[[q]]) / (2 * h))
-    names(diffs[[p[m]]]) <- p
-  }
-  prs <- ptheta_pairs(p)
+carry_pairs <- function(pen, comp, carry) {
+  prs <- ptheta_pairs(pen@params)
+  keys <- names(comp)
   stats::setNames(lapply(names(prs), function(nm) {
     pr <- prs[[nm]]
-    # the mixed pair is symmetric in exact arithmetic and is not quite so in
-    # floating point, the two differences being taken with different steps;
-    # averaging them keeps the result symmetric, which is what a second
-    # derivative of a scalar has to be
-    carry((diffs[[pr[1]]][[pr[2]]] + diffs[[pr[2]]][[pr[1]]]) / 2)
+    key <- paste(pr[1], pr[2], sep = "_")
+    if (!key %in% keys) key <- paste(pr[2], pr[1], sep = "_")
+    if (!key %in% keys) {
+      stop(sprintf("The parent has no component for '%s' and '%s'.",
+                   pr[1], pr[2]), call. = FALSE)
+    }
+    carry(comp[[key]])
   }), names(prs))
 }
 

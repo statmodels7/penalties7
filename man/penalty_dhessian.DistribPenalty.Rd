@@ -27,10 +27,12 @@ mixed third derivative is \code{distrib_cross_y} differentiated once more in
 again here.
 }
 \details{
-The second derivatives use one central difference of the parent's analytic
-\code{distrib_cross2_y} and \code{distrib_cross_y} in each hyperparameter,
-the second \eqn{\theta}-derivative of a response derivative not being one of
-that package's generics. A family that gains it will be exact here with no
-change: the difference is taken of whatever the parent supplies.
+The second derivatives read the parent's
+\code{\link[distributions7]{distrib_grad_y_hess}} and
+\code{\link[distributions7]{distrib_hess_y_hess}}, so nothing is
+differentiated here either. A parent with closed forms for those -- the
+gaussian, hence every ridge and every random effect -- makes this branch
+exact; one without them inherits that package's documented fallback, which
+is one central difference of its analytic first-order component.
 }
 \keyword{internal}

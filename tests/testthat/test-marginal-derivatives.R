@@ -102,8 +102,13 @@ test_that("a separable penalty carries the parent's response derivatives", {
   # to refuse
   expect_equal(d$sigma, diag(-2 / 1.4^3, 4), tolerance = 1e-10)
   expect_equal(d, num_dhessian(pen, b, th), tolerance = 1e-6)
+  # exact now that the parent supplies distrib_hess_y_hess: the second
+  # derivative of I/sigma^2 is 6I/sigma^4, and this used to be a difference
   expect_equal(penalty_d2hessian(pen, b, th)$sigma_sigma,
-               diag(6 / 1.4^4, 4), tolerance = 1e-5)
+               diag(6 / 1.4^4, 4), tolerance = 1e-13)
+  # and the mixed block's second derivative, 6 beta / sigma^4
+  expect_equal(penalty_dcross(pen, b, th)$sigma_sigma, 6 * b / 1.4^4,
+               tolerance = 1e-13)
   expect_true(beta_quadratic(pen, th))
 })
 
