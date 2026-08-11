@@ -1,5 +1,30 @@
 # Changelog
 
+## penalties7 0.8.0
+
+- [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
+  derives its kink set from the parent instead of defaulting to none. A
+  penalty built by hand from a non-smooth family –
+  `distrib_penalty(fixed(laplace_distrib(), mu = 0))`, which is the
+  lasso – declared itself differentiable everywhere, so a model layer
+  reading
+  [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
+  put it in the scheme for the opposite property. The shipped instances
+  passed `kinks` explicitly and were never affected.
+
+  [`distrib_kinks()`](https://statmodels7.github.io/penalties7/reference/distrib_kinks.md)
+  takes the candidates from `params_smooth` crossed with what `fixed()`
+  holds, a location that is not smooth being a kink in the argument at
+  the value it is held at, and then measures each one by comparing the
+  one-sided derivatives of the log-density across it. Inferring alone
+  would put a kink on any family whose non-smooth parameter is not a
+  location; measuring alone would need somewhere to look. Nothing is
+  taken from a parameter that is free, its value being whatever the
+  hyperparameters say at the time.
+
+  Passing `kinks` still overrides, including `numeric(0)` to declare
+  there are none.
+
 ## penalties7 0.7.1
 
 - The hyperparameters may be given as a named numeric vector as well as

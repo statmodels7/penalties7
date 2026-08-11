@@ -23,7 +23,7 @@ distrib_cross_y exists for."><meta property="og:image" content="https://statmode
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@ score and Hessian, and the mixed block one
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">distrib_penalty</span><span class="op">(</span><span class="va">d</span>, map <span class="op">=</span> <span class="cn">NULL</span>, n_coef <span class="op">=</span> <span class="cn">NULL</span>, kinks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">distrib_penalty</span><span class="op">(</span><span class="va">d</span>, map <span class="op">=</span> <span class="cn">NULL</span>, n_coef <span class="op">=</span> <span class="cn">NULL</span>, kinks <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -86,9 +86,9 @@ score and Hessian, and the mixed block one
 
 <dt id="arg-kinks">kinks<a class="anchor" aria-label="anchor" href="#arg-kinks"></a></dt>
 <dd><p>The points where the parent's log-density is not
-differentiable in its argument, declared by the caller because a
-distribution object does not carry a response kink set; <code>0</code> for a
-Laplace at zero.</p></dd>
+differentiable in its argument. <code>NULL</code>, the default, derives them
+from the parent with <code><a href="distrib_kinks.html">distrib_kinks</a></code>; pass a numeric vector to
+say so directly, or <code>numeric(0)</code> to declare there are none.</p></dd>
 
 </dl></div>
     <div class="section level2">

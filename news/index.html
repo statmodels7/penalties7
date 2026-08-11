@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,14 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.8.0" id="penalties7-080">penalties7 0.8.0<a class="anchor" aria-label="anchor" href="#penalties7-080"></a></h2>
+<ul><li>
+<p><code><a href="../reference/distrib_penalty.html">distrib_penalty()</a></code> derives its kink set from the parent instead of defaulting to none. A penalty built by hand from a non-smooth family – <code>distrib_penalty(fixed(laplace_distrib(), mu = 0))</code>, which is the lasso – declared itself differentiable everywhere, so a model layer reading <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> put it in the scheme for the opposite property. The shipped instances passed <code>kinks</code> explicitly and were never affected.</p>
+<p><code><a href="../reference/distrib_kinks.html">distrib_kinks()</a></code> takes the candidates from <code>params_smooth</code> crossed with what <code>fixed()</code> holds, a location that is not smooth being a kink in the argument at the value it is held at, and then measures each one by comparing the one-sided derivatives of the log-density across it. Inferring alone would put a kink on any family whose non-smooth parameter is not a location; measuring alone would need somewhere to look. Nothing is taken from a parameter that is free, its value being whatever the hyperparameters say at the time.</p>
+<p>Passing <code>kinks</code> still overrides, including <code>numeric(0)</code> to declare there are none.</p>
+</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.1" id="penalties7-071">penalties7 0.7.1<a class="anchor" aria-label="anchor" href="#penalties7-071"></a></h2>
 <ul><li>The hyperparameters may be given as a named numeric vector as well as the documented list, the alignment converting one to the other. The branches had split on how they read <code>theta</code>: <code>[[</code> accepts both shapes and <code>$</code> accepts only the list, so a caller passing a vector reached the quadratic and separable branches and stopped inside <code>scad()</code> and <code>mcp()</code> with “$ operator is invalid for atomic vectors”, three frames down and naming neither the argument nor the penalty.</li>

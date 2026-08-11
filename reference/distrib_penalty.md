@@ -14,7 +14,7 @@ exists for.
 ## Usage
 
 ``` r
-distrib_penalty(d, map = NULL, n_coef = NULL, kinks = numeric(0))
+distrib_penalty(d, map = NULL, n_coef = NULL, kinks = NULL)
 ```
 
 ## Arguments
@@ -36,8 +36,10 @@ distrib_penalty(d, map = NULL, n_coef = NULL, kinks = numeric(0))
 - kinks:
 
   The points where the parent's log-density is not differentiable in its
-  argument, declared by the caller because a distribution object does
-  not carry a response kink set; `0` for a Laplace at zero.
+  argument. `NULL`, the default, derives them from the parent with
+  [`distrib_kinks`](https://statmodels7.github.io/penalties7/reference/distrib_kinks.md);
+  pass a numeric vector to say so directly, or `numeric(0)` to declare
+  there are none.
 
 ## Value
 

@@ -78,6 +78,8 @@ the two, and the heavy-tailed prior a Student t.
 
 - [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
   : Construct a Separable Penalty From a Distribution
+- [`distrib_kinks()`](https://statmodels7.github.io/penalties7/reference/distrib_kinks.md)
+  : Where the Parent's Log-Density Has a Kink
 - [`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
   [`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
   [`elasticnet_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
