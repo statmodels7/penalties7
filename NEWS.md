@@ -1,3 +1,26 @@
+# penalties7 0.9.0
+
+* `penalty_prox_spec()` describes the scalar proximal operator of a
+  separable penalty as an odd piecewise linear table, so a compiled loop
+  can apply it without knowing which family it came from. Every closed
+  form the package carries has that shape: the soft threshold is two
+  pieces, the elastic net two, MCP three, SCAD four, and a Gaussian prior
+  one. The step is a vector, one per coefficient, because in a coordinate
+  descent the step of coordinate j is 1/sum(w x_j^2) and does not move
+  while the working weights are held.
+
+  The operator is applied once per coordinate per sweep at a point that
+  moves every time, so a compiled loop calling back for it would spend the
+  gain on the calls. Passing the numbers instead keeps the mathematics in
+  the penalty and leaves the kernel naming no family.
+
+  `prox_apply()` evaluates a table in R, and the table is pinned against
+  `penalty_prox()` itself across every breakpoint and at the breakpoints
+  exactly, at three step lengths and five families. A penalty with no such
+  description -- a quadratic under a general matrix, an operator that is a
+  root rather than a formula, a parent not centred where the quadratic
+  pull is, a step past the convex region of SCAD or MCP -- returns `NULL`.
+
 # penalties7 0.8.0
 
 * `distrib_penalty()` derives its kink set from the parent instead of

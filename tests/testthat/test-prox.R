@@ -128,3 +128,73 @@ test_that("the generic validates its arguments", {
   expect_error(penalty_prox(pen, c(1, 2, 3), -1, list(lambda = 1)), "positive")
   expect_error(has_prox(diag(2)), "penalty object")
 })
+
+
+test_that("the piecewise table is the proximal operator it describes", {
+  # two independent routes to the same map: the operator written out per
+  # family, and the table a compiled loop reads. The table is what makes a
+  # coordinate descent compilable without naming a family in the kernel, so
+  # it has to agree with the operator everywhere, including across every
+  # breakpoint and at the breakpoints themselves.
+  q <- 4L
+  cases <- list(
+    ridge = list(pen = ridge_penalty(n_coef = q), th = list(sigma = 0.8)),
+    lasso = list(pen = lasso_penalty(n_coef = q), th = list(lambda = 1.5)),
+    enet  = list(pen = elasticnet_penalty(n_coef = q),
+                 th = list(lambda = 1.5, alpha = 0.6)),
+    scad  = list(pen = scad_penalty(n_coef = q), th = list(lambda = 1.2,
+                                                           a = 3.7)),
+    mcp   = list(pen = mcp_penalty(n_coef = q), th = list(lambda = 1.2,
+                                                          gamma = 3))
+  )
+  for (nm in names(cases)) {
+    pen <- cases[[nm]]$pen
+    th <- cases[[nm]]$th
+    for (t in c(0.05, 0.3, 1.1)) {
+      sp <- penalty_prox_spec(pen, th, rep(t, q))
+      expect_false(is.null(sp), label = nm)
+      # a grid that crosses every breakpoint, plus the breakpoints exactly
+      brk <- as.numeric(sp$cut[1L, ])
+      brk <- brk[is.finite(brk)]
+      u <- sort(unique(c(seq(-8, 8, by = 0.05), brk, -brk,
+                         brk + 1e-12, brk - 1e-12)))
+      got <- vapply(u, function(x)
+        prox_apply(sp, rep(x, q))[[1L]], numeric(1))
+      want <- vapply(u, function(x)
+        penalty_prox(pen, rep(x, q), t, th)[[1L]], numeric(1))
+      expect_equal(got, want, tolerance = 1e-12,
+                   label = sprintf("%s at step %g", nm, t))
+    }
+  }
+})
+
+test_that("the table carries one step per coordinate", {
+  # in a coordinate descent the step is 1/sum(w x^2), which differs by column
+  pen <- lasso_penalty(n_coef = 3L)
+  st <- c(0.2, 1, 4)
+  sp <- penalty_prox_spec(pen, list(lambda = 2), st)
+  expect_equal(sp$cut[, 1L], st * 2)
+  for (j in seq_along(st)) {
+    expect_equal(prox_apply(sp, rep(3, 3))[[j]],
+                 penalty_prox(pen, rep(3, 3), st[[j]], list(lambda = 2))[[j]],
+                 tolerance = 1e-12)
+  }
+})
+
+test_that("a penalty with no such description says so", {
+  # a quadratic under a general matrix is not separable, and a step past the
+  # convex region of SCAD or MCP makes the operator set-valued
+  expect_null(penalty_prox_spec(quadratic_penalty(diag(3)), list(lambda = 1),
+                                rep(0.5, 3)))
+  expect_null(penalty_prox_spec(scad_penalty(n_coef = 3L),
+                                list(lambda = 1, a = 3.7), rep(3, 3)))
+  expect_null(penalty_prox_spec(mcp_penalty(n_coef = 3L),
+                                list(lambda = 1, gamma = 3), rep(3.5, 3)))
+  # a separable penalty whose operator is a root, not a formula
+  heavy <- heavy_penalty(n_coef = 3L)
+  expect_null(penalty_prox_spec(heavy, list(sigma = 1, nu = 4), rep(0.5, 3)))
+  # and an off-centre parent, where the map is not odd
+  off <- distrib_penalty(distributions7::fixed(
+    distributions7::laplace2_distrib(), mu = 0.5), n_coef = 3L, kinks = 0.5)
+  expect_null(penalty_prox_spec(off, list(lambda = 1), rep(0.5, 3)))
+})
