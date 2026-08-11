@@ -72,6 +72,7 @@ reference:
     Student t.
   contents:
   - distrib_penalty
+  - distrib_kinks
   - ridge_penalty
   - DistribPenalty
   - ends_with(".DistribPenalty")

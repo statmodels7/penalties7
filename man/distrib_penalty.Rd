@@ -4,7 +4,7 @@
 \alias{distrib_penalty}
 \title{Construct a Separable Penalty From a Distribution}
 \usage{
-distrib_penalty(d, map = NULL, n_coef = NULL, kinks = numeric(0))
+distrib_penalty(d, map = NULL, n_coef = NULL, kinks = NULL)
 }
 \arguments{
 \item{d}{A univariate continuous \pkg{distributions7} object; typically a
@@ -16,9 +16,9 @@ distrib_penalty(d, map = NULL, n_coef = NULL, kinks = numeric(0))
 \code{NULL}, ignored otherwise.}
 
 \item{kinks}{The points where the parent's log-density is not
-differentiable in its argument, declared by the caller because a
-distribution object does not carry a response kink set; \code{0} for a
-Laplace at zero.}
+differentiable in its argument. \code{NULL}, the default, derives them
+from the parent with \code{\link{distrib_kinks}}; pass a numeric vector to
+say so directly, or \code{numeric(0)} to declare there are none.}
 }
 \value{
 An object of class \code{DistribPenalty}.

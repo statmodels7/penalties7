@@ -213,3 +213,48 @@ test_that("a named vector of hyperparameters is read like the list", {
   # a missing hyperparameter is still reported, whichever shape it arrives in
   expect_error(penalty_value(p, beta, c(lambda = 1.2)), "Missing parameter")
 })
+
+
+test_that("a separable penalty derives its kinks from the parent", {
+  # kinks was a constructor argument with no default beyond "none", so a
+  # penalty built by hand from a non-smooth parent declared itself smooth and
+  # the model layer put it in the scheme for the opposite property. The
+  # candidates come from params_smooth crossed with what fixed() holds, and
+  # each one is then measured: inferring alone would put a kink on any family
+  # whose non-smooth parameter is not a location.
+  lap <- distributions7::fixed(distributions7::laplace_distrib(), mu = 0)
+  expect_equal(distrib_kinks(lap), 0)
+  expect_equal(distrib_kinks(distributions7::fixed(
+    distributions7::laplace_distrib(), mu = 1.5)), 1.5)
+  # the rate parametrization is the same law and answers the same
+  expect_equal(distrib_kinks(distributions7::fixed(
+    distributions7::laplace2_distrib(), mu = 0)), 0)
+  # the elastic net's density carries an absolute value too
+  expect_equal(distrib_kinks(distributions7::fixed(
+    distributions7::enet_distrib(), mu = 0)), 0)
+
+  # a smooth family has none, whatever is fixed
+  expect_length(distrib_kinks(distributions7::fixed(
+    distributions7::gaussian1_distrib(), mu = 0)), 0L)
+  expect_length(distrib_kinks(distributions7::fixed(
+    distributions7::student_t1_distrib(), mu = 0)), 0L)
+  # and nothing is taken from a parameter that is free: where it sits is
+  # whatever the hyperparameters say at the time
+  expect_length(distrib_kinks(distributions7::laplace_distrib()), 0L)
+
+  # the penalty carries what the parent implies
+  pen <- distrib_penalty(lap, n_coef = 5L)
+  expect_equal(penalty_kinks(pen, list(sigma = 1)), 0)
+  # and a caller who says otherwise is obeyed
+  expect_length(penalty_kinks(distrib_penalty(lap, n_coef = 5L,
+                                              kinks = numeric(0)),
+                              list(sigma = 1)), 0L)
+  expect_equal(penalty_kinks(distrib_penalty(lap, n_coef = 5L, kinks = c(0, 2)),
+                             list(sigma = 1)), c(0, 2))
+
+  # the shipped instances are unchanged
+  expect_equal(penalty_kinks(lasso_penalty(n_coef = 3L), list(lambda = 1)), 0)
+  expect_equal(penalty_kinks(elasticnet_penalty(n_coef = 3L),
+                             list(lambda = 1, alpha = 0.5)), 0)
+  expect_length(penalty_kinks(ridge_penalty(n_coef = 3L), list(sigma = 1)), 0L)
+})

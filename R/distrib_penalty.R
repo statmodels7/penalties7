@@ -55,9 +55,9 @@ DistribPenalty <- S7::new_class(
 #' @param n_coef The number of coefficients; required when \code{map} is
 #'   \code{NULL}, ignored otherwise.
 #' @param kinks The points where the parent's log-density is not
-#'   differentiable in its argument, declared by the caller because a
-#'   distribution object does not carry a response kink set; \code{0} for a
-#'   Laplace at zero.
+#'   differentiable in its argument. \code{NULL}, the default, derives them
+#'   from the parent with \code{\link{distrib_kinks}}; pass a numeric vector to
+#'   say so directly, or \code{numeric(0)} to declare there are none.
 #'
 #' @return An object of class \code{DistribPenalty}.
 #'
@@ -68,11 +68,11 @@ DistribPenalty <- S7::new_class(
 #'
 #' @seealso \code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}, \code{\link{structured_penalty}}
 #' @export
-distrib_penalty <- function(d, map = NULL, n_coef = NULL,
-                            kinks = numeric(0)) {
+distrib_penalty <- function(d, map = NULL, n_coef = NULL, kinks = NULL) {
   if (!S7::S7_inherits(d, distributions7::distrib)) {
     stop("'d' must be a distributions7 object.", call. = FALSE)
   }
+  if (is.null(kinks)) kinks <- distrib_kinks(d)
   if (d@dimension != "univariate") {
     stop("'d' must be univariate.", call. = FALSE)
   }
@@ -97,6 +97,111 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL,
     kinks = kinks
   )
 }
+
+
+#' Where the Parent's Log-Density Has a Kink
+#'
+#' @description
+#' The points a separable penalty is not differentiable at, derived from the
+#' distribution it is built on.
+#'
+#' @details
+#' A distribution records which of its parameters the log-likelihood is
+#' differentiable in, through \code{params_smooth}, and for a location family a
+#' location that is not smooth is a kink in the argument at that location. A
+#' penalty is the negative log-density read in the coefficient, so a
+#' \code{\link[distributions7]{fixed}} wrapper holding such a parameter at a
+#' value puts the kink there: \code{fixed(laplace_distrib(), mu = 0)} is the
+#' lasso and has a kink at zero.
+#'
+#' Each candidate is the value its parameter is held at, and whether it is a
+#' kink is then measured rather than inferred, by comparing the one-sided
+#' derivatives of the log-density across it. Inferring alone would put a kink
+#' on any family whose non-smooth parameter is not a location; measuring alone
+#' would need somewhere to look. A candidate whose derivative does not jump is
+#' dropped.
+#'
+#' A parent that declares every parameter smooth, or that fixes none of the
+#' ones it declares non-smooth, has no candidate and gets \code{numeric(0)}.
+#' Nothing is taken from a parameter that is free, its value being whatever the
+#' hyperparameters say at the time.
+#'
+#' @param d A univariate \pkg{distributions7} object.
+#'
+#' @return A numeric vector, possibly empty.
+#'
+#' @seealso \code{\link{distrib_penalty}}, \code{\link{penalty_kinks}}
+#'
+#' @examples
+#' distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),
+#'                                     mu = 0))
+#' distrib_kinks(distributions7::fixed(distributions7::gaussian1_distrib(),
+#'                                     mu = 0))
+#'
+#' @export
+distrib_kinks <- function(d) {
+  # the wrapper is recognized by what it carries rather than by its class:
+  # the two fixed classes are not exported, and a family written outside
+  # distributions7 may hold its parameters the same way
+  if (!all(c("parent_distrib", "fixed_params") %in% S7::prop_names(d))) {
+    return(numeric(0))
+  }
+  smooth <- d@parent_distrib@params_smooth
+  fixed_at <- d@fixed_params
+  rough <- names(smooth)[!smooth]
+  cand <- unlist(fixed_at[intersect(rough, names(fixed_at))],
+                 use.names = FALSE)
+  cand <- unique(cand[is.finite(cand)])
+  if (!length(cand)) return(numeric(0))
+  th <- probe_theta(d)
+  as.numeric(cand[vapply(cand, function(k) has_jump(d, th, k), logical(1))])
+}
+
+
+#' A Point to Read the Parent At
+#'
+#' @description
+#' The midpoint of each free parameter's bounds, the probe rule the toolkit
+#' already uses where a value is needed and none is in force.
+#'
+#' @param d A \pkg{distributions7} object.
+#'
+#' @return A named list.
+#'
+#' @keywords internal
+probe_theta <- function(d) {
+  stats::setNames(lapply(d@params, function(p) {
+    b <- d@params_bounds[[p]]
+    if (is.finite(b[1L]) && is.finite(b[2L])) (b[1L] + b[2L]) / 2
+    else if (is.finite(b[1L])) b[1L] + 1
+    else if (is.finite(b[2L])) b[2L] - 1
+    else 1
+  }), d@params)
+}
+
+
+#' Does the Log-Density's Slope Jump Across a Point?
+#'
+#' @description
+#' Compares the derivative in the argument just either side of it.
+#'
+#' @param d A \pkg{distributions7} object.
+#' @param theta Where to read it.
+#' @param at The candidate point.
+#' @param eps How far either side.
+#'
+#' @return A single logical.
+#'
+#' @keywords internal
+has_jump <- function(d, theta, at, eps = 1e-5) {
+  g <- tryCatch({
+    up <- distributions7::distrib_grad_y(d, at + eps, theta)
+    dn <- distributions7::distrib_grad_y(d, at - eps, theta)
+    abs(as.numeric(up) - as.numeric(dn))
+  }, error = function(e) NA_real_)
+  isTRUE(is.finite(g) && g > 1e-6 * max(1, abs(at)))
+}
+
 
 #' @title Named Separable Penalties
 #'
