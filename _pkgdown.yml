@@ -102,6 +102,8 @@ reference:
     otherwise.
   contents:
   - penalty_prox
+  - penalty_prox_spec
+  - prox_apply
   - has_prox
 - title: Validation
   desc: >
