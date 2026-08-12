@@ -82,6 +82,30 @@ align_ptheta <- function(pen, theta) {
   theta
 }
 
+#' A Map, in Whatever Form It Keeps
+#'
+#' @description
+#' The map as the caller gave it, densified only where it is not already a
+#' matrix of some kind.
+#'
+#' @details
+#' A \pkg{Matrix} object is kept as it is. Densifying a diagonal map would
+#' cost \eqn{q^2} numbers where it holds \eqn{q}, and a diagonal map is
+#' exactly what standardization is: a rescaling of each coordinate, under
+#' which a separable penalty stays separable and its proximal operator stays
+#' closed. Every arithmetic the map takes part in -- the product, the
+#' crossproduct -- works for both kinds.
+#'
+#' @param map A matrix, a \pkg{Matrix}, or anything coercible to one.
+#'
+#' @return The map.
+#'
+#' @keywords internal
+as_map <- function(map) {
+  if (isS4(map) && methods::is(map, "Matrix")) return(map)
+  as.matrix(map)
+}
+
 #' Apply the Linear Map and Its Transpose
 #'
 #' @description

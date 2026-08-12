@@ -82,7 +82,11 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL, kinks = NULL) {
     }
     q <- as.integer(n_coef)
   } else {
-    map <- as.matrix(map)
+  # A map that is already a Matrix is KEPT as it is: `as.matrix()` here would
+  # densify a diagonal or sparse map, which is the whole cost the map exists
+  # to avoid -- a diagonal one is a per-coordinate rescaling and costs q
+  # numbers, its dense form q^2.
+    map <- as_map(map)
     q <- ncol(map)
   }
   DistribPenalty(

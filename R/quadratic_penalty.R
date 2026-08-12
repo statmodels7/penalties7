@@ -84,7 +84,11 @@ quadratic_penalty <- function(P, map = NULL,
   }
   P <- (P + t(P)) / 2
   if (!is.null(map)) {
-    map <- as.matrix(map)
+  # A map that is already a Matrix is KEPT as it is: `as.matrix()` here would
+  # densify a diagonal or sparse map, which is the whole cost the map exists
+  # to avoid -- a diagonal one is a per-coordinate rescaling and costs q
+  # numbers, its dense form q^2.
+    map <- as_map(map)
     if (nrow(map) != nrow(P)) {
       stop("'map' must have as many rows as 'P'.", call. = FALSE)
     }

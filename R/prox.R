@@ -120,20 +120,69 @@ has_prox <- function(pen) {
   if (is_quadratic(pen) || S7::S7_inherits(pen, StructuredPenalty)) {
     return(TRUE)
   }
-  is.null(pen@map)
+  is.null(pen@map) || !is.null(map_diagonal(pen))
 }
 
-# The separable branches split by coordinate only under the identity map;
-# with a general D the problem is the generalized-lasso one, which needs a
-# different algorithm rather than a different formula.
-.prox_needs_identity <- function(pen) {
-  if (!is.null(pen@map)) {
+#' The Diagonal of a Map That Has One
+#'
+#' @description
+#' The entries of \eqn{D} where the map is diagonal, and \code{NULL} where
+#' there is no map or the map is not diagonal.
+#'
+#' @details
+#' A diagonal map RESCALES each coordinate on its own, and a separable
+#' penalty under one is still separable. That is what standardization comes
+#' to: penalizing a column divided by its own spread is penalizing
+#' \eqn{\rho(s_j\beta_j)}, so the scaling never has to touch the design and
+#' the sparsity of a block survives it. A general \eqn{D} mixes coordinates
+#' and turns the problem into the generalized-lasso one, which is a different
+#' algorithm rather than a different formula.
+#'
+#' The map is recognized by its CLASS and not by inspecting its entries: a
+#' \pkg{Matrix} diagonal object says what it is and costs \eqn{q} numbers,
+#' where testing a dense matrix for diagonality would cost \eqn{q^2} and
+#' defeat the point.
+#'
+#' @param pen A \code{\link{penalty}} object.
+#'
+#' @return A numeric vector, or \code{NULL}.
+#'
+#' @keywords internal
+map_diagonal <- function(pen) {
+  m <- pen@map
+  if (is.null(m)) return(NULL)
+  if (!isS4(m) || !methods::is(m, "diagonalMatrix")) return(NULL)
+  d <- if (identical(m@diag, "U")) rep(1, nrow(m)) else as.numeric(m@x)
+  if (anyNA(d) || any(d == 0)) return(NULL)
+  d
+}
+
+# The separable branches split by coordinate under the identity map and under
+# a DIAGONAL one, which only rescales each coordinate: with u = d b,
+#
+#     argmin_b (b - v)^2/(2t) + rho(d b)
+#       = argmin_u (u - d v)^2/(2 t d^2) + rho(u),   b = u/d
+#
+# so the operator is the identity-map one read at the scaled point with the
+# step scaled by d^2.
+# the same penalty with its map removed, which is what the scaled point is
+# handed to: the diagonal has already been applied to the point and the step
+.undiag <- function(pen) {
+  pen@map <- NULL
+  pen
+}
+
+.prox_scaling <- function(pen) {
+  if (is.null(pen@map)) return(NULL)
+  d <- map_diagonal(pen)
+  if (is.null(d)) {
     stop(sprintf(paste0(
-      "'%s' carries a linear map, and its proximal operator does not split\n",
-      "  by coordinate. Only the identity map has a closed form here."),
+      "'%s' carries a linear map that is not diagonal, and its proximal\n",
+      "  operator does not split by coordinate. Only the identity map and a\n",
+      "  diagonal one have a closed form here."),
       pen@penalty_name), call. = FALSE)
   }
-  invisible(TRUE)
+  d
 }
 
 #' @title Proximal Operator of a Quadratic Penalty
@@ -186,7 +235,11 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' @return A numeric vector.
 #' @keywords internal
 S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
-  .prox_needs_identity(pen)
+  d <- .prox_scaling(pen)
+  if (!is.null(d)) {
+    return(S7::method(penalty_prox, DistribPenalty)(
+      .undiag(pen), d * v, step * d^2, theta, ...) / d)
+  }
   fam <- .prox_family(pen)
 
   # The closed forms below hold for a parent centered where the quadratic
@@ -270,10 +323,14 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' @return A numeric vector.
 #' @keywords internal
 S7::method(penalty_prox, ScadPenalty) <- function(pen, v, step, theta, ...) {
-  .prox_needs_identity(pen)
+  d <- .prox_scaling(pen)
+  if (!is.null(d)) {
+    return(S7::method(penalty_prox, ScadPenalty)(
+      .undiag(pen), d * v, step * d^2, theta, ...) / d)
+  }
   lam <- theta$lambda
   a <- theta$a
-  if (step >= a - 1) {
+  if (any(step >= a - 1)) {
     stop(sprintf(paste0(
       "the SCAD proximal operator needs step < a - 1 (%g here): beyond that the\n",
       "  subproblem is not convex and the operator is set-valued."), a - 1),
@@ -302,10 +359,14 @@ S7::method(penalty_prox, ScadPenalty) <- function(pen, v, step, theta, ...) {
 #' @return A numeric vector.
 #' @keywords internal
 S7::method(penalty_prox, McpPenalty) <- function(pen, v, step, theta, ...) {
-  .prox_needs_identity(pen)
+  d <- .prox_scaling(pen)
+  if (!is.null(d)) {
+    return(S7::method(penalty_prox, McpPenalty)(
+      .undiag(pen), d * v, step * d^2, theta, ...) / d)
+  }
   lam <- theta$lambda
   gam <- theta$gamma
-  if (step >= gam) {
+  if (any(step >= gam)) {
     stop(sprintf(paste0(
       "the MCP proximal operator needs step < gamma (%g here): beyond that the\n",
       "  subproblem is not convex and the operator is set-valued."), gam),

@@ -118,7 +118,11 @@ additive_penalty <- function(mats, map = NULL,
   }
 
   if (!is.null(map)) {
-    map <- as.matrix(map)
+  # A map that is already a Matrix is KEPT as it is: `as.matrix()` here would
+  # densify a diagonal or sparse map, which is the whole cost the map exists
+  # to avoid -- a diagonal one is a per-coordinate rescaling and costs q
+  # numbers, its dense form q^2.
+    map <- as_map(map)
     if (nrow(map) != d) {
       stop(sprintf("'map' must have %d rows.", d), call. = FALSE)
     }

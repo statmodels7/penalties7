@@ -1,3 +1,37 @@
+# penalties7 0.10.0
+
+* A DIAGONAL map keeps the proximal operator, where any map used to lose it.
+
+  A diagonal `D` rescales each coordinate on its own, so a separable penalty
+  under one is still separable and the operator follows from the identity one
+  by a change of variable: with `u = d b`,
+
+      argmin_b (b - v)^2/(2t) + rho(d b)
+        = argmin_u (u - d v)^2/(2 t d^2) + rho(u),   b = u/d
+
+  so it is the same closed form read at the scaled point with the step scaled
+  by `d^2`, divided back. `has_prox()` answers TRUE there, and a map that is
+  not diagonal is still rejected, mixing coordinates being the
+  generalized-lasso problem rather than a different formula.
+
+  This is what standardization is. Penalizing a column divided by its own
+  spread is penalizing `rho(s_j beta_j)`, so the scaling never has to touch
+  the design: the sparsity of a block survives it, and the centring that would
+  destroy that sparsity is not needed at all where an intercept is free.
+  Measured against a coordinate-by-coordinate minimization that shares no
+  arithmetic with the closed forms, on the four separable penalties: 4.0e-06,
+  4.7e-06, 5.0e-06 and 4.8e-06, which is the reference grid's own resolution.
+
+  ⚠️ The convexity condition of SCAD and MCP binds on the SCALED step, so it
+  becomes `t < (a - 1)/max(d^2)` and `t < gamma/max(d^2)`. The existing guards
+  catch it unchanged -- with `d` up to 10 and `t = 0.3` the effective step is
+  30 and is refused -- but a caller who standardizes takes shorter steps.
+
+* `as_map()` keeps a map that is already a `Matrix`. The constructors called
+  `as.matrix()` on it in five places, which densified a diagonal map into the
+  `q x q` matrix it exists to avoid: that coercion, not the operator, was the
+  real obstacle to carrying a scaling without giving up sparsity.
+
 # penalties7 0.9.0
 
 * `penalty_prox_spec()` describes the scalar proximal operator of a

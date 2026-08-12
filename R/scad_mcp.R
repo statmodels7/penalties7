@@ -66,7 +66,7 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty)
 scad_penalty <- function(map = NULL, n_coef = 1L,
                          link_lambda = linkfunctions7::log_link(),
                          link_a = linkfunctions7::bounded_link(lwr = 2)) {
-  q <- if (is.null(map)) as.integer(n_coef) else ncol(map <- as.matrix(map))
+  q <- if (is.null(map)) as.integer(n_coef) else ncol(map <- as_map(map))
   ScadPenalty(
     penalty_name = "SCAD",
     map = map, n_coef = q,
@@ -82,7 +82,7 @@ scad_penalty <- function(map = NULL, n_coef = 1L,
 mcp_penalty <- function(map = NULL, n_coef = 1L,
                         link_lambda = linkfunctions7::log_link(),
                         link_gamma = linkfunctions7::bounded_link(lwr = 1)) {
-  q <- if (is.null(map)) as.integer(n_coef) else ncol(map <- as.matrix(map))
+  q <- if (is.null(map)) as.integer(n_coef) else ncol(map <- as_map(map))
   McpPenalty(
     penalty_name = "MCP",
     map = map, n_coef = q,
