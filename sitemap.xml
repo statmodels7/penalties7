@@ -44,6 +44,7 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox.QuadraticPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox.ScadPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.AdditivePenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.DistribPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.McpPenalty.html</loc></url>
@@ -53,6 +54,8 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/print.penalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/probe_theta.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/prox_apply.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/prox_table.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/ptheta_pairs.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/ptheta_to_link.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/quad_form.html</loc></url>

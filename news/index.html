@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,14 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.9.0" id="penalties7-090">penalties7 0.9.0<a class="anchor" aria-label="anchor" href="#penalties7-090"></a></h2>
+<ul><li>
+<p><code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code> describes the scalar proximal operator of a separable penalty as an odd piecewise linear table, so a compiled loop can apply it without knowing which family it came from. Every closed form the package carries has that shape: the soft threshold is two pieces, the elastic net two, MCP three, SCAD four, and a Gaussian prior one. The step is a vector, one per coefficient, because in a coordinate descent the step of coordinate j is 1/sum(w x_j^2) and does not move while the working weights are held.</p>
+<p>The operator is applied once per coordinate per sweep at a point that moves every time, so a compiled loop calling back for it would spend the gain on the calls. Passing the numbers instead keeps the mathematics in the penalty and leaves the kernel naming no family.</p>
+<p><code><a href="../reference/prox_apply.html">prox_apply()</a></code> evaluates a table in R, and the table is pinned against <code><a href="../reference/penalty_prox.html">penalty_prox()</a></code> itself across every breakpoint and at the breakpoints exactly, at three step lengths and five families. A penalty with no such description – a quadratic under a general matrix, an operator that is a root rather than a formula, a parent not centred where the quadratic pull is, a step past the convex region of SCAD or MCP – returns <code>NULL</code>.</p>
+</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.0" id="penalties7-080">penalties7 0.8.0<a class="anchor" aria-label="anchor" href="#penalties7-080"></a></h2>
 <ul><li>

@@ -277,6 +277,10 @@ and as a linear solve or a coordinatewise root otherwise.
 
 - [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
   : Proximal Operator of a Penalty
+- [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
+  : The Proximal Operator as a Piecewise Linear Table
+- [`prox_apply()`](https://statmodels7.github.io/penalties7/reference/prox_apply.md)
+  : Apply a Piecewise Linear Table
 - [`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
   : Does a Penalty Supply a Proximal Operator?
 
