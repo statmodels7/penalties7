@@ -30,11 +30,18 @@ NULL
 #' which does not move while the working weights are held, so the whole table
 #' is built once per weighted least squares iteration and the sweeps read it.
 #'
+#' \strong{A diagonal map.} Standardization is a diagonal \eqn{D}, under which
+#' a separable penalty stays separable and the table survives: reading it at
+#' \eqn{d_j v_j} with the step \eqn{t_j d_j^2} and dividing back gives the
+#' cuts and the intercepts divided by \eqn{|d_j|} and the slopes unchanged.
+#' The convexity condition of SCAD and MCP is tested on the scaled step, so it
+#' becomes \eqn{t < (a-1)/d_j^2} and \eqn{t < \gamma/d_j^2}.
+#'
 #' \strong{What has no table.} A quadratic penalty under a general matrix is
-#' not separable and returns \code{NULL}, as does a separable penalty whose
-#' operator is a root rather than a formula, and one whose parent is not
-#' centered where the quadratic pull is. A caller that gets \code{NULL} uses
-#' \code{\link{penalty_prox}} itself.
+#' not separable and returns \code{NULL}, as does a separable penalty under a
+#' map that is not diagonal, one whose operator is a root rather than a
+#' formula, and one whose parent is not centered where the quadratic pull is.
+#' A caller that gets \code{NULL} uses \code{\link{penalty_prox}} itself.
 #'
 #' @param pen A \code{\link{penalty}} object.
 #' @param theta A named list of hyperparameter values.
@@ -89,13 +96,59 @@ prox_table <- function(step, n_coef, pieces) {
   list(cut = m(1L), slope = m(2L), icept = m(3L))
 }
 
+#' Carry a Table Through a Diagonal Map
+#'
+#' @description
+#' Builds the table of a separable penalty under a diagonal map from the
+#' builder of its identity-map table, and returns \code{NULL} where the map
+#' is not diagonal.
+#'
+#' @details
+#' A diagonal map only rescales each coordinate, and the identity
+#' \deqn{\mathrm{prox}_{t\rho(d\,\cdot)}(v) =
+#'   \mathrm{prox}_{t d^2 \rho}(d v)/d}
+#' carries the table across. The identity-map table reads
+#' \eqn{|w| \le \mathrm{cut}} to
+#' \eqn{\mathrm{sign}(w)(\mathrm{slope}\,|w| + \mathrm{icept})} at
+#' \eqn{w = dv}, so a cut on \eqn{|w|} is a cut on \eqn{|v|} divided by
+#' \eqn{|d|} and the intercept divides by the same, while the slope, which
+#' multiplies a point that was scaled and then divided back, does not move.
+#' The operator is odd, so only the magnitude of \eqn{d} enters.
+#'
+#' The step handed to the builder is \eqn{t d^2}, which is where the
+#' convexity condition of SCAD and MCP tightens: a standardized penalty
+#' takes shorter steps.
+#'
+#' @param pen A \code{\link{penalty}} object.
+#' @param step A numeric vector of step lengths.
+#' @param build A function of a penalty and a step returning the table, or
+#'   \code{NULL}.
+#'
+#' @return The list \code{\link{penalty_prox_spec}} returns, or \code{NULL}.
+#'
+#' @keywords internal
+spec_diag <- function(pen, step, build) {
+  if (is.null(pen@map)) return(build(pen, step))
+  d <- map_diagonal(pen)
+  if (is.null(d)) return(NULL)
+  q <- as.integer(pen@n_coef)
+  # the operator is odd, so the sign of d cancels between the point and the
+  # division back and only the magnitude enters
+  d <- abs(rep_len(d, q))
+  sp <- build(.undiag(pen), rep_len(as.numeric(step), q) * d^2)
+  if (is.null(sp)) return(NULL)
+  sp$cut <- sp$cut / d
+  sp$icept <- sp$icept / d
+  sp
+}
+
 
 #' @name penalty_prox_spec.DistribPenalty
 #' @rdname penalty_prox_spec
 #' @keywords internal
 S7::method(penalty_prox_spec, DistribPenalty) <- function(pen, theta, step,
                                                           ...) {
-  if (!is.null(pen@map)) return(NULL)
+  spec_diag(pen, step, function(pen, step) {
   fam <- .prox_family(pen)
   q <- as.integer(pen@n_coef)
   # the closed forms are written for a parent centered where the quadratic
@@ -126,6 +179,7 @@ S7::method(penalty_prox_spec, DistribPenalty) <- function(pen, theta, step,
     }))
   }
   NULL
+  })
 }
 
 
@@ -133,7 +187,7 @@ S7::method(penalty_prox_spec, DistribPenalty) <- function(pen, theta, step,
 #' @rdname penalty_prox_spec
 #' @keywords internal
 S7::method(penalty_prox_spec, ScadPenalty) <- function(pen, theta, step, ...) {
-  if (!is.null(pen@map)) return(NULL)
+  spec_diag(pen, step, function(pen, step) {
   lam <- theta$lambda
   a <- theta$a
   if (any(step >= a - 1)) return(NULL)
@@ -143,6 +197,7 @@ S7::method(penalty_prox_spec, ScadPenalty) <- function(pen, theta, step, ...) {
           c(0, 1, 1 / d, 1),
           c(0, -t * lam, -t * a * lam / ((a - 1) * d), 0))
   })
+  })
 }
 
 
@@ -150,7 +205,7 @@ S7::method(penalty_prox_spec, ScadPenalty) <- function(pen, theta, step, ...) {
 #' @rdname penalty_prox_spec
 #' @keywords internal
 S7::method(penalty_prox_spec, McpPenalty) <- function(pen, theta, step, ...) {
-  if (!is.null(pen@map)) return(NULL)
+  spec_diag(pen, step, function(pen, step) {
   lam <- theta$lambda
   gam <- theta$gamma
   if (any(step >= gam)) return(NULL)
@@ -159,6 +214,7 @@ S7::method(penalty_prox_spec, McpPenalty) <- function(pen, theta, step, ...) {
     rbind(c(t * lam, gam * lam, Inf),
           c(0, 1 / d, 1),
           c(0, -t * lam / d, 0))
+  })
   })
 }
 

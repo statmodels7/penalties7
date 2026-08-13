@@ -181,6 +181,65 @@ test_that("the table carries one step per coordinate", {
   }
 })
 
+test_that("the table survives a diagonal map", {
+  # standardization is a diagonal map, and a penalized block reaches the
+  # compiled coordinate descent through this table rather than through the
+  # operator, so a standardized penalty that lost its table would silently
+  # fall back on the general proximal route. Same two independent routes as
+  # above, now with the map in place on both sides.
+  q <- 4L
+  d <- c(0.5, 0.8, 1.25, 2)
+  D <- Matrix::Diagonal(x = d)
+  cases <- list(
+    ridge = list(pen = ridge_penalty(map = D), th = list(sigma = 0.8)),
+    lasso = list(pen = lasso_penalty(map = D), th = list(lambda = 1.5)),
+    enet  = list(pen = elasticnet_penalty(map = D),
+                 th = list(lambda = 1.5, alpha = 0.6)),
+    scad  = list(pen = scad_penalty(map = D), th = list(lambda = 1.2,
+                                                        a = 3.7)),
+    mcp   = list(pen = mcp_penalty(map = D), th = list(lambda = 1.2,
+                                                       gamma = 3))
+  )
+  for (nm in names(cases)) {
+    pen <- cases[[nm]]$pen
+    th <- cases[[nm]]$th
+    expect_equal(as.integer(pen@n_coef), q, label = nm)
+    for (t in c(0.05, 0.2)) {
+      sp <- penalty_prox_spec(pen, th, rep(t, q))
+      expect_false(is.null(sp), label = nm)
+      for (j in seq_len(q)) {
+        brk <- as.numeric(sp$cut[j, ])
+        brk <- brk[is.finite(brk)]
+        u <- sort(unique(c(seq(-8, 8, by = 0.05), brk, -brk,
+                           brk + 1e-12, brk - 1e-12)))
+        got <- vapply(u, function(x)
+          prox_apply(sp, rep(x, q))[[j]], numeric(1))
+        want <- vapply(u, function(x)
+          penalty_prox(pen, rep(x, q), t, th)[[j]], numeric(1))
+        expect_equal(got, want, tolerance = 1e-12,
+                     label = sprintf("%s at step %g, coordinate %d", nm, t, j))
+      }
+    }
+  }
+})
+
+test_that("a diagonal map tightens the convex region of SCAD and MCP", {
+  # the condition is tested on the SCALED step, t d^2 < a - 1, so a step that
+  # is admissible under the identity map is not under a map that stretches
+  q <- 2L
+  D <- Matrix::Diagonal(x = c(1, 3))
+  expect_false(is.null(penalty_prox_spec(scad_penalty(n_coef = q),
+                                         list(lambda = 1, a = 3.7),
+                                         rep(1, q))))
+  expect_null(penalty_prox_spec(scad_penalty(map = D),
+                                list(lambda = 1, a = 3.7), rep(1, q)))
+  expect_false(is.null(penalty_prox_spec(mcp_penalty(n_coef = q),
+                                         list(lambda = 1, gamma = 3),
+                                         rep(1, q))))
+  expect_null(penalty_prox_spec(mcp_penalty(map = D),
+                                list(lambda = 1, gamma = 3), rep(1, q)))
+})
+
 test_that("a penalty with no such description says so", {
   # a quadratic under a general matrix is not separable, and a step past the
   # convex region of SCAD or MCP makes the operator set-valued
@@ -197,4 +256,7 @@ test_that("a penalty with no such description says so", {
   off <- distrib_penalty(distributions7::fixed(
     distributions7::laplace2_distrib(), mu = 0.5), n_coef = 3L, kinks = 0.5)
   expect_null(penalty_prox_spec(off, list(lambda = 1), rep(0.5, 3)))
+  # a map that mixes coordinates is the generalized-lasso problem
+  gen <- lasso_penalty(map = matrix(c(1, 0, 1, 1), 2, 2))
+  expect_null(penalty_prox_spec(gen, list(lambda = 1), rep(0.5, 2)))
 })

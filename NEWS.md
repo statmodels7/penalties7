@@ -1,3 +1,27 @@
+# penalties7 0.11.0
+
+* `penalty_prox_spec()` survives a diagonal map, where it returned `NULL`
+  under any map at all.
+
+  The table is the route a compiled coordinate descent takes, so a
+  standardized penalty that lost it would have fallen back on the general
+  proximal operator and paid an R call per coordinate per sweep -- the
+  half of the seam 0.10.0 left open. The same change of variable carries
+  the table across: reading it at `d v` with the step `t d^2` and dividing
+  back divides the cuts and the intercepts by `|d|` and leaves the slopes
+  alone, the slope multiplying a point that was scaled and then divided.
+  The operator is odd, so only the magnitude of `d` enters.
+
+  Pinned against `penalty_prox()` under the same map, coordinate by
+  coordinate and across every breakpoint including the breakpoints
+  themselves, on all five separable families: 1e-12. A map that mixes
+  coordinates still returns `NULL`.
+
+  The convexity condition of SCAD and MCP is now tested on the scaled step,
+  so it is `t < (a - 1)/d^2` and `t < gamma/d^2`; a step admissible under
+  the identity map and not under a map that stretches returns `NULL` rather
+  than a table of a non-convex subproblem.
+
 # penalties7 0.10.0
 
 * A DIAGONAL map keeps the proximal operator, where any map used to lose it.

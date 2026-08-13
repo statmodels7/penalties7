@@ -101,7 +101,10 @@ quadratic_penalty <- function(P, map = NULL,
   r <- sum(keep)
   logpdet_P <- sum(log(ev[keep]))
 
-  DPD <- if (is.null(map)) P else crossprod(map, P %*% map)
+  # the congruence carries a Matrix map's class into the stored matrix, and
+  # the stored matrix is dense at any width in the identity branch already;
+  # kept a base matrix so a consumer meets one contract
+  DPD <- if (is.null(map)) P else as.matrix(crossprod(map, P %*% map))
   eD <- eigen(DPD, symmetric = TRUE)
   keepD <- eD$values > tol * max(eD$values, 0)
   nb <- eD$vectors[, !keepD, drop = FALSE]

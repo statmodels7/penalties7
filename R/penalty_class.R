@@ -143,7 +143,13 @@ map_back <- function(pen, g) {
 #' @keywords internal
 map_quad <- function(pen, h) {
   if (is.null(pen@map)) return(diag(h, length(h)))
-  crossprod(pen@map, pen@map * h)
+  # a Matrix map carries its class through the crossproduct, and the result
+  # would then be the one thing in the contract that is not a base matrix:
+  # the identity-map branch above is already dense at any width, map_back()
+  # coerces its vector for the same reason, and a consumer writing this into
+  # a block of its own information fails on the class rather than on the
+  # arithmetic. Densified here, where the contract is stated.
+  as.matrix(crossprod(pen@map, pen@map * h))
 }
 
 #' The Hyperparameter Pair Names

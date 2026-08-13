@@ -51,11 +51,18 @@ coordinate \eqn{j} is \eqn{1/v_j} with \eqn{v_j = \sum_i w_i x_{ij}^2},
 which does not move while the working weights are held, so the whole table
 is built once per weighted least squares iteration and the sweeps read it.
 
+\strong{A diagonal map.} Standardization is a diagonal \eqn{D}, under which
+a separable penalty stays separable and the table survives: reading it at
+\eqn{d_j v_j} with the step \eqn{t_j d_j^2} and dividing back gives the
+cuts and the intercepts divided by \eqn{|d_j|} and the slopes unchanged.
+The convexity condition of SCAD and MCP is tested on the scaled step, so it
+becomes \eqn{t < (a-1)/d_j^2} and \eqn{t < \gamma/d_j^2}.
+
 \strong{What has no table.} A quadratic penalty under a general matrix is
-not separable and returns \code{NULL}, as does a separable penalty whose
-operator is a root rather than a formula, and one whose parent is not
-centered where the quadratic pull is. A caller that gets \code{NULL} uses
-\code{\link{penalty_prox}} itself.
+not separable and returns \code{NULL}, as does a separable penalty under a
+map that is not diagonal, one whose operator is a root rather than a
+formula, and one whose parent is not centered where the quadratic pull is.
+A caller that gets \code{NULL} uses \code{\link{penalty_prox}} itself.
 }
 \examples{
 pen <- lasso_penalty(n_coef = 2L)

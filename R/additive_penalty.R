@@ -126,7 +126,10 @@ additive_penalty <- function(mats, map = NULL,
     if (nrow(map) != d) {
       stop(sprintf("'map' must have %d rows.", d), call. = FALSE)
     }
-    mats <- lapply(mats, function(P) crossprod(map, P %*% map))
+    # densified for the reason quadratic_penalty() states: a Matrix map would
+    # otherwise decide the class of every component and of every quantity
+    # assembled from them
+    mats <- lapply(mats, function(P) as.matrix(crossprod(map, P %*% map)))
     d <- ncol(map)
   }
 

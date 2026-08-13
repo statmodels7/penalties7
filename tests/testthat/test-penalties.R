@@ -258,3 +258,44 @@ test_that("a separable penalty derives its kinks from the parent", {
                              list(lambda = 1, alpha = 0.5)), 0)
   expect_length(penalty_kinks(ridge_penalty(n_coef = 3L), list(sigma = 1)), 0L)
 })
+
+
+test_that("a Matrix map does not decide the class of what a penalty returns", {
+  # 0.10.0 let a map stay a Matrix, which is what makes a diagonal one cost q
+  # numbers instead of q^2. The congruence D' H D then carried that class into
+  # the RESULT, so a consumer writing a penalty's Hessian into a block of its
+  # own information failed on the class rather than on the arithmetic -- which
+  # is how a standardized term first broke a fit. Every branch, every route.
+  s <- c(0.5, 2, 4)
+  b <- c(0.3, -1.2, 0.7)
+  P <- crossprod(diff(diag(3)))
+  maps <- list(identity = NULL, diagonal = Matrix::Diagonal(x = s),
+               dense = diag(s))
+  for (tag in names(maps)) {
+    map <- maps[[tag]]
+    pens <- list(
+      ridge = ridge_penalty(map = map, n_coef = 3L),
+      lasso = lasso_penalty(map = map, n_coef = 3L),
+      enet  = elasticnet_penalty(map = map, n_coef = 3L),
+      scad  = scad_penalty(map = map, n_coef = 3L),
+      mcp   = mcp_penalty(map = map, n_coef = 3L),
+      quadratic = quadratic_penalty(P, map = map),
+      additive  = additive_penalty(list(P, diag(3)), map = map)
+    )
+    for (nm in names(pens)) {
+      pen <- pens[[nm]]
+      th <- lapply(pen@params_bounds, function(bb) {
+        if (all(is.finite(bb))) mean(bb) else if (is.finite(bb[1])) bb[1] + 1
+        else 1
+      })
+      lab <- paste(tag, nm)
+      expect_true(is.numeric(penalty_value(pen, b, th)), label = lab)
+      expect_true(is.numeric(penalty_gradient(pen, b, th)), label = lab)
+      h <- penalty_hessian(pen, b, th)
+      expect_true(is.matrix(h) && is.numeric(h), label = lab)
+      # and a base matrix takes the subassignment every consumer writes
+      m <- matrix(0, 3, 3)
+      expect_silent(m[1:3, 1:3] <- m[1:3, 1:3] + h)
+    }
+  }
+})
