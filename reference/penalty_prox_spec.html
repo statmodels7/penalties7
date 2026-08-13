@@ -11,7 +11,7 @@ which family it came from."><meta property="og:image" content="https://statmodel
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,11 +94,17 @@ any map of this shape and names no family.</p>
 coordinate \(j\) is \(1/v_j\) with \(v_j = \sum_i w_i x_{ij}^2\),
 which does not move while the working weights are held, so the whole table
 is built once per weighted least squares iteration and the sweeps read it.</p>
+<p><strong>A diagonal map.</strong> Standardization is a diagonal \(D\), under which
+a separable penalty stays separable and the table survives: reading it at
+\(d_j v_j\) with the step \(t_j d_j^2\) and dividing back gives the
+cuts and the intercepts divided by \(|d_j|\) and the slopes unchanged.
+The convexity condition of SCAD and MCP is tested on the scaled step, so it
+becomes \(t &lt; (a-1)/d_j^2\) and \(t &lt; \gamma/d_j^2\).</p>
 <p><strong>What has no table.</strong> A quadratic penalty under a general matrix is
-not separable and returns <code>NULL</code>, as does a separable penalty whose
-operator is a root rather than a formula, and one whose parent is not
-centered where the quadratic pull is. A caller that gets <code>NULL</code> uses
-<code><a href="penalty_prox.html">penalty_prox</a></code> itself.</p>
+not separable and returns <code>NULL</code>, as does a separable penalty under a
+map that is not diagonal, one whose operator is a root rather than a
+formula, and one whose parent is not centered where the quadratic pull is.
+A caller that gets <code>NULL</code> uses <code><a href="penalty_prox.html">penalty_prox</a></code> itself.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

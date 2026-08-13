@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.9.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,28 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.11.0" id="penalties7-0110">penalties7 0.11.0<a class="anchor" aria-label="anchor" href="#penalties7-0110"></a></h2>
+<ul><li>
+<p><code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code> survives a diagonal map, where it returned <code>NULL</code> under any map at all.</p>
+<p>The table is the route a compiled coordinate descent takes, so a standardized penalty that lost it would have fallen back on the general proximal operator and paid an R call per coordinate per sweep – the half of the seam 0.10.0 left open. The same change of variable carries the table across: reading it at <code>d v</code> with the step <code>t d^2</code> and dividing back divides the cuts and the intercepts by <code>|d|</code> and leaves the slopes alone, the slope multiplying a point that was scaled and then divided. The operator is odd, so only the magnitude of <code>d</code> enters.</p>
+<p>Pinned against <code><a href="../reference/penalty_prox.html">penalty_prox()</a></code> under the same map, coordinate by coordinate and across every breakpoint including the breakpoints themselves, on all five separable families: 1e-12. A map that mixes coordinates still returns <code>NULL</code>.</p>
+<p>The convexity condition of SCAD and MCP is now tested on the scaled step, so it is <code>t &lt; (a - 1)/d^2</code> and <code>t &lt; gamma/d^2</code>; a step admissible under the identity map and not under a map that stretches returns <code>NULL</code> rather than a table of a non-convex subproblem.</p>
+</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.10.0" id="penalties7-0100">penalties7 0.10.0<a class="anchor" aria-label="anchor" href="#penalties7-0100"></a></h2>
+<ul><li>
+<p>A DIAGONAL map keeps the proximal operator, where any map used to lose it.</p>
+<p>A diagonal <code>D</code> rescales each coordinate on its own, so a separable penalty under one is still separable and the operator follows from the identity one by a change of variable: with <code>u = d b</code>,</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">argmin_b</span> (b <span class="sc">-</span> v)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(<span class="dv">2</span>t) <span class="sc">+</span> <span class="fu">rho</span>(d b)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="ot">=</span> <span class="fu">argmin_u</span> (u <span class="sc">-</span> d v)<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(<span class="dv">2</span> t d<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> <span class="fu">rho</span>(u),   b <span class="ot">=</span> u<span class="sc">/</span>d</span></code></pre></div>
+<p>so it is the same closed form read at the scaled point with the step scaled by <code>d^2</code>, divided back. <code><a href="../reference/has_prox.html">has_prox()</a></code> answers TRUE there, and a map that is not diagonal is still rejected, mixing coordinates being the generalized-lasso problem rather than a different formula.</p>
+<p>This is what standardization is. Penalizing a column divided by its own spread is penalizing <code>rho(s_j beta_j)</code>, so the scaling never has to touch the design: the sparsity of a block survives it, and the centring that would destroy that sparsity is not needed at all where an intercept is free. Measured against a coordinate-by-coordinate minimization that shares no arithmetic with the closed forms, on the four separable penalties: 4.0e-06, 4.7e-06, 5.0e-06 and 4.8e-06, which is the reference grid’s own resolution.</p>
+<p>⚠️ The convexity condition of SCAD and MCP binds on the SCALED step, so it becomes <code>t &lt; (a - 1)/max(d^2)</code> and <code>t &lt; gamma/max(d^2)</code>. The existing guards catch it unchanged – with <code>d</code> up to 10 and <code>t = 0.3</code> the effective step is 30 and is refused – but a caller who standardizes takes shorter steps.</p>
+</li>
+<li><p><code><a href="../reference/as_map.html">as_map()</a></code> keeps a map that is already a <code>Matrix</code>. The constructors called <code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix()</a></code> on it in five places, which densified a diagonal map into the <code>q x q</code> matrix it exists to avoid: that coercion, not the operator, was the real obstacle to carrying a scaling without giving up sparsity.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.0" id="penalties7-090">penalties7 0.9.0<a class="anchor" aria-label="anchor" href="#penalties7-090"></a></h2>
 <ul><li>

@@ -59,10 +59,18 @@ coordinate \\j\\ is \\1/v_j\\ with \\v_j = \sum_i w_i x\_{ij}^2\\, which
 does not move while the working weights are held, so the whole table is
 built once per weighted least squares iteration and the sweeps read it.
 
+**A diagonal map.** Standardization is a diagonal \\D\\, under which a
+separable penalty stays separable and the table survives: reading it at
+\\d_j v_j\\ with the step \\t_j d_j^2\\ and dividing back gives the cuts
+and the intercepts divided by \\\|d_j\|\\ and the slopes unchanged. The
+convexity condition of SCAD and MCP is tested on the scaled step, so it
+becomes \\t \< (a-1)/d_j^2\\ and \\t \< \gamma/d_j^2\\.
+
 **What has no table.** A quadratic penalty under a general matrix is not
-separable and returns `NULL`, as does a separable penalty whose operator
-is a root rather than a formula, and one whose parent is not centered
-where the quadratic pull is. A caller that gets `NULL` uses
+separable and returns `NULL`, as does a separable penalty under a map
+that is not diagonal, one whose operator is a root rather than a
+formula, and one whose parent is not centered where the quadratic pull
+is. A caller that gets `NULL` uses
 [`penalty_prox`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
 itself.
 

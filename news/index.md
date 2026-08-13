@@ -1,5 +1,75 @@
 # Changelog
 
+## penalties7 0.11.0
+
+- [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
+  survives a diagonal map, where it returned `NULL` under any map at
+  all.
+
+  The table is the route a compiled coordinate descent takes, so a
+  standardized penalty that lost it would have fallen back on the
+  general proximal operator and paid an R call per coordinate per sweep
+  – the half of the seam 0.10.0 left open. The same change of variable
+  carries the table across: reading it at `d v` with the step `t d^2`
+  and dividing back divides the cuts and the intercepts by `|d|` and
+  leaves the slopes alone, the slope multiplying a point that was scaled
+  and then divided. The operator is odd, so only the magnitude of `d`
+  enters.
+
+  Pinned against
+  [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+  under the same map, coordinate by coordinate and across every
+  breakpoint including the breakpoints themselves, on all five separable
+  families: 1e-12. A map that mixes coordinates still returns `NULL`.
+
+  The convexity condition of SCAD and MCP is now tested on the scaled
+  step, so it is `t < (a - 1)/d^2` and `t < gamma/d^2`; a step
+  admissible under the identity map and not under a map that stretches
+  returns `NULL` rather than a table of a non-convex subproblem.
+
+## penalties7 0.10.0
+
+- A DIAGONAL map keeps the proximal operator, where any map used to lose
+  it.
+
+  A diagonal `D` rescales each coordinate on its own, so a separable
+  penalty under one is still separable and the operator follows from the
+  identity one by a change of variable: with `u = d b`,
+
+  ``` R
+  argmin_b (b - v)^2/(2t) + rho(d b)
+    = argmin_u (u - d v)^2/(2 t d^2) + rho(u),   b = u/d
+  ```
+
+  so it is the same closed form read at the scaled point with the step
+  scaled by `d^2`, divided back.
+  [`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
+  answers TRUE there, and a map that is not diagonal is still rejected,
+  mixing coordinates being the generalized-lasso problem rather than a
+  different formula.
+
+  This is what standardization is. Penalizing a column divided by its
+  own spread is penalizing `rho(s_j beta_j)`, so the scaling never has
+  to touch the design: the sparsity of a block survives it, and the
+  centring that would destroy that sparsity is not needed at all where
+  an intercept is free. Measured against a coordinate-by-coordinate
+  minimization that shares no arithmetic with the closed forms, on the
+  four separable penalties: 4.0e-06, 4.7e-06, 5.0e-06 and 4.8e-06, which
+  is the reference grid’s own resolution.
+
+  ⚠️ The convexity condition of SCAD and MCP binds on the SCALED step,
+  so it becomes `t < (a - 1)/max(d^2)` and `t < gamma/max(d^2)`. The
+  existing guards catch it unchanged – with `d` up to 10 and `t = 0.3`
+  the effective step is 30 and is refused – but a caller who
+  standardizes takes shorter steps.
+
+- [`as_map()`](https://statmodels7.github.io/penalties7/reference/as_map.md)
+  keeps a map that is already a `Matrix`. The constructors called
+  [`as.matrix()`](https://rdrr.io/r/base/matrix.html) on it in five
+  places, which densified a diagonal map into the `q x q` matrix it
+  exists to avoid: that coercion, not the operator, was the real
+  obstacle to carrying a scaling without giving up sparsity.
+
 ## penalties7 0.9.0
 
 - [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
