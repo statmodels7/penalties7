@@ -51,7 +51,7 @@ split by coordinate and has no elementary solution: that case is
 rejected rather than approximated.
 
 The named separable instances are exact: the Gaussian gives
-\\v/(1+t/\sigma^{2})\\ and the Laplace the soft threshold
+\\v/(1+t\lambda)\\ and the Laplace the soft threshold
 \\\mathrm{sign}(v)(\lvert v \rvert - t\lambda)\_{+}\\. SCAD and MCP have
 the closed piecewise operators of their defining papers, each valid only
 while the quadratic pull dominates the concave region of the penalty –
@@ -80,6 +80,6 @@ penalty_prox(lasso_penalty(n_coef = 3), c(2, 0.3, -1.4), 1, list(lambda = 1))
 #> [1]  1.0  0.0 -0.4
 
 # the ridge: a shrinkage
-penalty_prox(ridge_penalty(n_coef = 2), c(2, -1), 1, list(sigma = 1))
-#> Error: Missing parameter(s) in 'theta': lambda. Expected: lambda.
+penalty_prox(ridge_penalty(n_coef = 2), c(2, -1), 1, list(lambda = 1))
+#> [1]  1.0 -0.5
 ```

@@ -100,7 +100,7 @@ need the identity map, because with a general \(D\) the problem does
 not split by coordinate and has no elementary solution: that case is
 rejected rather than approximated.</p>
 <p>The named separable instances are exact: the Gaussian gives
-\(v/(1+t/\sigma^{2})\) and the Laplace the soft threshold
+\(v/(1+t\lambda)\) and the Laplace the soft threshold
 \(\mathrm{sign}(v)(\lvert v \rvert - t\lambda)_{+}\). SCAD and MCP
 have the closed piecewise operators of their defining papers, each
 valid only while the quadratic pull dominates the concave region of the
@@ -127,8 +127,8 @@ bracketed search finds it.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.0  0.0 -0.4</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># the ridge: a shrinkage</span></span></span>
-<span class="r-in"><span><span class="fu">penalty_prox</span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">ridge_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Missing parameter(s) in 'theta': lambda. Expected: lambda.</span>
+<span class="r-in"><span><span class="fu">penalty_prox</span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">ridge_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.0 -0.5</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
