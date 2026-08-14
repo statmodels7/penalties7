@@ -81,5 +81,5 @@ penalty_prox(lasso_penalty(n_coef = 3), c(2, 0.3, -1.4), 1, list(lambda = 1))
 
 # the ridge: a shrinkage
 penalty_prox(ridge_penalty(n_coef = 2), c(2, -1), 1, list(sigma = 1))
-#> [1]  1.0 -0.5
+#> Error: Missing parameter(s) in 'theta': lambda. Expected: lambda.
 ```

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.12.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,13 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.12.0" id="penalties7-0120">penalties7 0.12.0<a class="anchor" aria-label="anchor" href="#penalties7-0120"></a></h2>
+<ul><li>
+<p><code><a href="../reference/ridge_penalty.html">ridge_penalty()</a></code> is written by its PRECISION and built on the quadratic branch, so its hyperparameter is <code>lambda</code> and a larger value shrinks harder – as it already did for the lasso, whose <code>laplace2</code> carries a rate. The Gaussian prior written by its precision IS the quadratic penalty at the identity, the same value to the last bit (5.177374 against 5.177374 on three coefficients), so what the move removes is a second name for one number rather than a construction: the separable twin is still there, and the tests pin the two against each other as before, read the other way round.</p>
+<p>Two consequences. A random effect’s hyperparameter is a precision, so the variance component a reader wants is <code>1/sqrt(lambda)</code>. And <code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code> has no entry for the quadratic branch, so the ridge no longer has a piecewise table; nothing loses a route, a smooth penalty never reaching the compiled coordinate descent, and <code><a href="../reference/penalty_prox.html">penalty_prox()</a></code> is a linear solve there.</p>
+</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.11.0" id="penalties7-0110">penalties7 0.11.0<a class="anchor" aria-label="anchor" href="#penalties7-0110"></a></h2>
 <ul><li>

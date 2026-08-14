@@ -72,5 +72,5 @@ An object of class `DistribPenalty`.
 
 ``` r
 S7::S7_inherits(ridge_penalty(n_coef = 2), DistribPenalty)
-#> [1] TRUE
+#> [1] FALSE
 ```

@@ -63,5 +63,5 @@ which this is `FALSE` has no such matrix and those generics reject.
 is_quadratic(quadratic_penalty(diag(2)))
 #> [1] TRUE
 is_quadratic(ridge_penalty())
-#> [1] FALSE
+#> [1] TRUE
 ```

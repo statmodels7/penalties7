@@ -2,14 +2,20 @@
 
 The canonical instances of
 [`distrib_penalty`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md),
-shipped as constructors so the model layer can name what it means. Ridge
-is the Gaussian at zero with the scale free; the lasso is the Laplace in
-location and rate (\`laplace2\`) at zero, so the free hyperparameter is
-the rate \\\lambda\\ and the value is \\\lambda\lVert D\beta\rVert_1\\
-up to its constant, with the kink declared; the heavy-tailed prior is
-the Student t at zero, whose \\\nu\\ is estimable exactly because the
-normalizing constant is kept. The elastic net is the product of the
-Laplace and the Gaussian at zero, normalized
+shipped as constructors so the model layer can name what it means. Each
+is written on the chart whose hyperparameter MEASURES THE SHRINKAGE, so
+that a larger value shrinks harder in all of them. Ridge is the
+exception to the branch rather than to the rule: it is the Gaussian
+prior at zero, and that prior written by its PRECISION is exactly the
+quadratic penalty at the identity, the same value to the last bit, so it
+is built there and its hyperparameter is the lambda that branch already
+carries – one name for one number. The lasso is the Laplace in location
+and rate (\`laplace2\`) at zero, so the free hyperparameter is the rate
+\\\lambda\\ and the value is \\\lambda\lVert D\beta\rVert_1\\ up to its
+constant, with the kink declared; the heavy-tailed prior is the Student
+t at zero, whose \\\nu\\ is estimable exactly because the normalizing
+constant is kept. The elastic net is the product of the Laplace and the
+Gaussian at zero, normalized
 ([`enet_distrib`](https://statmodels7.github.io/distributions7/reference/enet_distrib.html)),
 so its hyperparameters are the overall rate \\\lambda\\ and the mixing
 weight \\\alpha\\ and its value is \\\lambda\\\alpha\lVert
@@ -66,6 +72,6 @@ the elastic net. *Journal of the Royal Statistical Society, Series B*
 
 ``` r
 pen <- ridge_penalty(n_coef = 2)
-penalty_gradient(pen, c(1, -1), list(sigma = 1))
+penalty_gradient(pen, c(1, -1), list(lambda = 1))
 #> [1]  1 -1
 ```
