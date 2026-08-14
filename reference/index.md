@@ -19,6 +19,8 @@ block, and the kink set a non-smooth method needs.
   : Hyperparameter Derivatives of a Penalty
 - [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
   : The Non-Differentiable Points of a Penalty
+- [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+  : What a Penalty's Hyperparameters Are About
 - [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
   : Is a Penalty a Proper Prior?
 - [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)

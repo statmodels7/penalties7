@@ -2,8 +2,9 @@
 
 The class
 [`structured_penalty`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
-instantiates: the Gaussian prior whose precision is a parameters7 matrix
-parameter, so that the hyperparameters enter the matrix itself.
+instantiates: the Gaussian prior whose covariance or precision is a
+parameters7 matrix parameter, so that the hyperparameters enter the
+matrix itself.
 
 ## Usage
 
@@ -65,7 +66,8 @@ An object of class `StructuredPenalty`.
 ## Examples
 
 ``` r
-S7::S7_inherits(structured_penalty(parameters7::log_cholesky(2)),
-                StructuredPenalty)
+S7::S7_inherits(
+  structured_penalty(parameters7::log_cholesky(2, role = "precision")),
+  StructuredPenalty)
 #> [1] TRUE
 ```

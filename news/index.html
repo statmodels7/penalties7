@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.12.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,21 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.14.1" id="penalties7-0141">penalties7 0.14.1<a class="anchor" aria-label="anchor" href="#penalties7-0141"></a></h2>
+<ul><li>The blockwise marginal pieces are exercised on a Student t parent as well, whose response Hessian depends on the observation: <code><a href="../reference/dp_blockdiag.html">dp_blockdiag()</a></code> already carried both shapes, and the three quantities agree with one difference of the analytic quantity below each.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.14.0" id="penalties7-0140">penalties7 0.14.0<a class="anchor" aria-label="anchor" href="#penalties7-0140"></a></h2>
+<ul><li><p><code><a href="../reference/penalty_readable.html">penalty_readable()</a></code> says what a penalty’s hyperparameters are ABOUT, where they are coordinates of a chart rather than the quantities themselves: a correlated prior’s are the logarithms of a Cholesky diagonal and the entries below it, and what the prior describes is the standard deviations and the correlations of the effects. It is the same distinction <code><a href="https://statmodels7.github.io/parameters7/reference/param_readable.html" class="external-link">parameters7::param_readable()</a></code> makes for a matrix parameter and <code>modelterms7::term_readable()</code> for a fitted term. The base method returns <code>NULL</code>, which says the hyperparameters ARE the quantities – the honest answer for every other branch, a smoothing parameter, a rate and a shape each being read on their own scale already.</p></li>
+<li><p><code><a href="../reference/penalty_dhessian.html">penalty_dhessian()</a></code>, <code><a href="../reference/penalty_d2hessian.html">penalty_d2hessian()</a></code> and <code><a href="../reference/penalty_dcross.html">penalty_dcross()</a></code> carry the blockwise reading, so a marginal criterion estimates a correlated prior’s matrix exactly rather than refusing. Each is one difference of the analytic quantity below it against numDeriv, at p = 2 and 3.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.13.0" id="penalties7-0130">penalties7 0.13.0<a class="anchor" aria-label="anchor" href="#penalties7-0130"></a></h2>
+<ul><li><p><code><a href="../reference/distrib_penalty.html">distrib_penalty()</a></code> reads its parent one BLOCK at a time, the block being the parent’s dimension. A univariate parent gives blocks of one, which is the separable penalty unchanged; a p-variate parent gives blocks of p, which is a prior letting the coordinates of one block depend on each other while the blocks stay independent – the effects of one group of a random effect. The Hessian is block diagonal rather than diagonal, the mixed block comes from the parent’s <code>distrib_cross_y()</code>, and nothing else moves. Against a hand-written negative log multivariate normal density the value agrees to 2e-15, and every derivative agrees with numDeriv.</p></li>
+<li><p>A blockwise parent has no proximal operator, and <code><a href="../reference/has_prox.html">has_prox()</a></code> says so before a fitting layer routes a block to a scheme that cannot solve it: the operator acts one coordinate at a time and a correlated block does not separate. <code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code> returns NULL there for the same reason, and a kink is a point of a scalar argument, so <code><a href="../reference/distrib_kinks.html">distrib_kinks()</a></code> of a multivariate parent is empty and says so rather than inheriting the univariate route by accident.</p></li>
+<li><p><code><a href="../reference/structured_penalty.html">structured_penalty()</a></code> honors the structure’s <code>role</code>. A structure declared <code>"covariance"</code> is read as the covariance of the prior, and the quantities below are the same arithmetic at the precision it implies, transported once by the chain rule for an inverse. A structure that declares <code>"either"</code> is now REJECTED: the two readings differ in the sign of the log-determinant term, so a guess would give a fit converging to a different matrix without saying so, and the property has been carried, validated and never read since it was added. A covariance of deficient rank is rejected too, having no inverse; a precision of deficient rank is the improper prior the log pseudo-determinant is written for and is still admitted. The two readings are pinned against each other at Sigma and Sigma^-1, where they agree to the last bit.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.12.0" id="penalties7-0120">penalties7 0.12.0<a class="anchor" aria-label="anchor" href="#penalties7-0120"></a></h2>
 <ul><li>

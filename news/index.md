@@ -1,5 +1,78 @@
 # Changelog
 
+## penalties7 0.14.1
+
+- The blockwise marginal pieces are exercised on a Student t parent as
+  well, whose response Hessian depends on the observation:
+  [`dp_blockdiag()`](https://statmodels7.github.io/penalties7/reference/dp_blockdiag.md)
+  already carried both shapes, and the three quantities agree with one
+  difference of the analytic quantity below each.
+
+## penalties7 0.14.0
+
+- [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+  says what a penalty’s hyperparameters are ABOUT, where they are
+  coordinates of a chart rather than the quantities themselves: a
+  correlated prior’s are the logarithms of a Cholesky diagonal and the
+  entries below it, and what the prior describes is the standard
+  deviations and the correlations of the effects. It is the same
+  distinction
+  [`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html)
+  makes for a matrix parameter and `modelterms7::term_readable()` for a
+  fitted term. The base method returns `NULL`, which says the
+  hyperparameters ARE the quantities – the honest answer for every other
+  branch, a smoothing parameter, a rate and a shape each being read on
+  their own scale already.
+
+- [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md),
+  [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
+  and
+  [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
+  carry the blockwise reading, so a marginal criterion estimates a
+  correlated prior’s matrix exactly rather than refusing. Each is one
+  difference of the analytic quantity below it against numDeriv, at p =
+  2 and 3.
+
+## penalties7 0.13.0
+
+- [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
+  reads its parent one BLOCK at a time, the block being the parent’s
+  dimension. A univariate parent gives blocks of one, which is the
+  separable penalty unchanged; a p-variate parent gives blocks of p,
+  which is a prior letting the coordinates of one block depend on each
+  other while the blocks stay independent – the effects of one group of
+  a random effect. The Hessian is block diagonal rather than diagonal,
+  the mixed block comes from the parent’s `distrib_cross_y()`, and
+  nothing else moves. Against a hand-written negative log multivariate
+  normal density the value agrees to 2e-15, and every derivative agrees
+  with numDeriv.
+
+- A blockwise parent has no proximal operator, and
+  [`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
+  says so before a fitting layer routes a block to a scheme that cannot
+  solve it: the operator acts one coordinate at a time and a correlated
+  block does not separate.
+  [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
+  returns NULL there for the same reason, and a kink is a point of a
+  scalar argument, so
+  [`distrib_kinks()`](https://statmodels7.github.io/penalties7/reference/distrib_kinks.md)
+  of a multivariate parent is empty and says so rather than inheriting
+  the univariate route by accident.
+
+- [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
+  honors the structure’s `role`. A structure declared `"covariance"` is
+  read as the covariance of the prior, and the quantities below are the
+  same arithmetic at the precision it implies, transported once by the
+  chain rule for an inverse. A structure that declares `"either"` is now
+  REJECTED: the two readings differ in the sign of the log-determinant
+  term, so a guess would give a fit converging to a different matrix
+  without saying so, and the property has been carried, validated and
+  never read since it was added. A covariance of deficient rank is
+  rejected too, having no inverse; a precision of deficient rank is the
+  improper prior the log pseudo-determinant is written for and is still
+  admitted. The two readings are pinned against each other at Sigma and
+  Sigma^-1, where they agree to the last bit.
+
 ## penalties7 0.12.0
 
 - [`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)

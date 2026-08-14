@@ -2,8 +2,9 @@
 
 The class
 [`distrib_penalty`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
-instantiates: a penalty built by applying a univariate distributions7
-log-density coordinatewise to \\D\beta\\.
+instantiates: a penalty built by applying a distributions7 log-density
+to the successive blocks of \\D\beta\\, the block being one coordinate
+for a univariate parent and \\p\\ of them for a \\p\\-variate one.
 
 ## Usage
 
@@ -17,7 +18,8 @@ DistribPenalty(
   link_params = list(),
   params_smooth = logical(0),
   parent = NULL,
-  kinks = integer(0)
+  kinks = integer(0),
+  block = integer(0)
 )
 ```
 
@@ -60,6 +62,11 @@ DistribPenalty(
   The declared non-differentiable points of the parent's log-density in
   its argument.
 
+- block:
+
+  The block width, `1` for a univariate parent and the parent's
+  dimension otherwise.
+
 ## Value
 
 An object of class `DistribPenalty`.
@@ -71,6 +78,6 @@ An object of class `DistribPenalty`.
 ## Examples
 
 ``` r
-S7::S7_inherits(ridge_penalty(n_coef = 2), DistribPenalty)
-#> [1] FALSE
+S7::S7_inherits(lasso_penalty(n_coef = 2), DistribPenalty)
+#> [1] TRUE
 ```
