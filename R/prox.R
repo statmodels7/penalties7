@@ -23,7 +23,7 @@ NULL
 #' rejected rather than approximated.
 #'
 #' The named separable instances are exact: the Gaussian gives
-#' \eqn{v/(1+t/\sigma^{2})} and the Laplace the soft threshold
+#' \eqn{v/(1+t\lambda)} and the Laplace the soft threshold
 #' \eqn{\mathrm{sign}(v)(\lvert v \rvert - t\lambda)_{+}}. SCAD and MCP
 #' have the closed piecewise operators of their defining papers, each
 #' valid only while the quadratic pull dominates the concave region of the
@@ -54,7 +54,7 @@ NULL
 #' penalty_prox(lasso_penalty(n_coef = 3), c(2, 0.3, -1.4), 1, list(lambda = 1))
 #'
 #' # the ridge: a shrinkage
-#' penalty_prox(ridge_penalty(n_coef = 2), c(2, -1), 1, list(sigma = 1))
+#' penalty_prox(ridge_penalty(n_coef = 2), c(2, -1), 1, list(lambda = 1))
 #'
 #' @export
 penalty_prox <- S7::new_generic("penalty_prox", "pen",
