@@ -211,8 +211,14 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #'
 #' @description
 #' The canonical instances of \code{\link{distrib_penalty}}, shipped as
-#' constructors so the model layer can name what it means. Ridge is the
-#' Gaussian at zero with the scale free; the lasso is the Laplace in location
+#' constructors so the model layer can name what it means. Each is written
+#' on the chart whose hyperparameter MEASURES THE SHRINKAGE, so that a larger
+#' value shrinks harder in all of them. Ridge is the exception to the branch
+#' rather than to the rule: it is the Gaussian prior at zero, and that prior
+#' written by its PRECISION is exactly the quadratic penalty at the identity,
+#' the same value to the last bit, so it is built there and its
+#' hyperparameter is the lambda that branch already carries -- one name for
+#' one number. The lasso is the Laplace in location
 #' and rate (`laplace2`) at zero, so the free hyperparameter is the rate
 #' \eqn{\lambda} and the value is \eqn{\lambda\lVert D\beta\rVert_1} up to
 #' its constant, with the kink declared; the heavy-tailed prior is the
@@ -235,7 +241,7 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #'
 #' @examples
 #' pen <- ridge_penalty(n_coef = 2)
-#' penalty_gradient(pen, c(1, -1), list(sigma = 1))
+#' penalty_gradient(pen, c(1, -1), list(lambda = 1))
 #'
 #' @references
 #' Hoerl, A. E. and Kennard, R. W. (1970). Ridge regression: biased
@@ -251,10 +257,8 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #' @seealso \code{\link{distrib_penalty}}, \code{\link{scad_penalty}}, \code{\link{quadratic_penalty}}
 #' @export
 ridge_penalty <- function(map = NULL, n_coef = 1L) {
-  distrib_penalty(
-    distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
-    map = map, n_coef = n_coef
-  )
+  k <- if (is.null(map)) as.integer(n_coef) else nrow(as.matrix(map))
+  quadratic_penalty(diag(1, k), map = map)
 }
 
 #' @rdname ridge_penalty

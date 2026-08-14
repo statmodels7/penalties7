@@ -15,9 +15,12 @@ test_that("the quadratic penalty passes its battery and knows its rank", {
   expect_lt(max(abs(crossprod(P, nb))), 1e-10)
 })
 
-test_that("the separable branch passes for ridge, lasso and the t prior", {
-  for (pen in list(ridge_penalty(n_coef = 4), heavy_penalty(n_coef = 4))) {
-    th <- if (identical(pen@params, "sigma")) list(sigma = 1.4) else
+test_that("the separable branch passes for the Gaussian prior and the t", {
+  gauss <- distrib_penalty(
+    distributions7::fixed(distributions7::gaussian3_distrib(), mu = 0),
+    n_coef = 4)
+  for (pen in list(gauss, heavy_penalty(n_coef = 4))) {
+    th <- if (identical(pen@params, "tau")) list(tau = 1 / 1.4^2) else
       list(sigma = 1.4, nu = 6)
     res <- check_penalty(pen, theta = th, verbose = FALSE)
     expect_true(all(res$status == "OK"),
@@ -41,9 +44,11 @@ test_that("ridge exists twice and the two constructions agree exactly", {
   beta <- c(0.4, -1.1, 2.2)
   sigma <- 1.7
   a <- quadratic_penalty(diag(q))
-  b <- ridge_penalty(n_coef = q)
+  b <- distrib_penalty(
+    distributions7::fixed(distributions7::gaussian3_distrib(), mu = 0),
+    n_coef = q)
   tha <- list(lambda = 1 / sigma^2)
-  thb <- list(sigma = sigma)
+  thb <- list(tau = 1 / sigma^2)
   expect_equal(penalty_value(a, beta, tha), penalty_value(b, beta, thb),
                tolerance = 1e-14)
   expect_equal(penalty_gradient(a, beta, tha), penalty_gradient(b, beta, thb),
@@ -123,11 +128,17 @@ test_that("an injected defect is caught and a clean reference still passes", {
 })
 
 test_that("the base class refuses the marginal pieces off the quadratic branch", {
-  pen <- ridge_penalty(n_coef = 2)
+  pen <- lasso_penalty(n_coef = 2)
   expect_false(is_quadratic(pen))
-  expect_error(penalty_matrix(pen, list(sigma = 1)), "quadratic")
+  expect_error(penalty_matrix(pen, list(lambda = 1)), "quadratic")
   expect_error(penalty_rank(pen), "quadratic")
-  expect_error(penalty_logpdet(pen, list(sigma = 1)), "quadratic")
+  expect_error(penalty_logpdet(pen, list(lambda = 1)), "quadratic")
+
+  # and the ridge IS quadratic now: a Gaussian prior written by its precision
+  # is the quadratic penalty at the identity, the same value to the last bit
+  r <- ridge_penalty(n_coef = 2)
+  expect_true(is_quadratic(r))
+  expect_identical(r@params, "lambda")
 })
 
 
@@ -183,7 +194,7 @@ test_that("a named vector of hyperparameters is read like the list", {
   beta <- c(0.4, -1.1, 2.2, 0.05)
   cases <- list(
     quadratic = list(pen = quadratic_penalty(diag(4)), th = c(lambda = 2.5)),
-    ridge     = list(pen = ridge_penalty(n_coef = 4L), th = c(sigma = 0.8)),
+    ridge     = list(pen = ridge_penalty(n_coef = 4L), th = c(lambda = 1.5)),
     lasso     = list(pen = lasso_penalty(n_coef = 4L), th = c(lambda = 1.7)),
     scad      = list(pen = scad_penalty(n_coef = 4L),
                      th = c(lambda = 1.2, a = 3.7)),
@@ -256,7 +267,7 @@ test_that("a separable penalty derives its kinks from the parent", {
   expect_equal(penalty_kinks(lasso_penalty(n_coef = 3L), list(lambda = 1)), 0)
   expect_equal(penalty_kinks(elasticnet_penalty(n_coef = 3L),
                              list(lambda = 1, alpha = 0.5)), 0)
-  expect_length(penalty_kinks(ridge_penalty(n_coef = 3L), list(sigma = 1)), 0L)
+  expect_length(penalty_kinks(ridge_penalty(n_coef = 3L), list(lambda = 1)), 0L)
 })
 
 

@@ -35,7 +35,8 @@ test_that("the lasso prox is the soft threshold, and it is the minimizer", {
 
 test_that("the ridge prox is the shrinkage, and it is the minimizer", {
   pen <- ridge_penalty(n_coef = length(v))
-  th <- list(sigma = 1.3)
+  # the hyperparameter is the PRECISION, so the shrinkage rises with it
+  th <- list(lambda = 1 / 1.3^2)
   for (step in c(0.2, 1, 3)) {
     got <- penalty_prox(pen, v, step, th)
     expect_equal(got, v / (1 + step / 1.3^2))
@@ -138,7 +139,9 @@ test_that("the piecewise table is the proximal operator it describes", {
   # breakpoint and at the breakpoints themselves.
   q <- 4L
   cases <- list(
-    ridge = list(pen = ridge_penalty(n_coef = q), th = list(sigma = 0.8)),
+    ridge = list(pen = distrib_penalty(
+      distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
+      n_coef = q), th = list(sigma = 0.8)),
     lasso = list(pen = lasso_penalty(n_coef = q), th = list(lambda = 1.5)),
     enet  = list(pen = elasticnet_penalty(n_coef = q),
                  th = list(lambda = 1.5, alpha = 0.6)),
@@ -191,7 +194,9 @@ test_that("the table survives a diagonal map", {
   d <- c(0.5, 0.8, 1.25, 2)
   D <- Matrix::Diagonal(x = d)
   cases <- list(
-    ridge = list(pen = ridge_penalty(map = D), th = list(sigma = 0.8)),
+    ridge = list(pen = distrib_penalty(
+      distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
+      map = D), th = list(sigma = 0.8)),
     lasso = list(pen = lasso_penalty(map = D), th = list(lambda = 1.5)),
     enet  = list(pen = elasticnet_penalty(map = D),
                  th = list(lambda = 1.5, alpha = 0.6)),

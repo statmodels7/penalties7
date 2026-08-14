@@ -1,3 +1,22 @@
+# penalties7 0.12.0
+
+* `ridge_penalty()` is written by its PRECISION and built on the quadratic
+  branch, so its hyperparameter is `lambda` and a larger value shrinks
+  harder -- as it already did for the lasso, whose `laplace2` carries a
+  rate. The Gaussian prior written by its precision IS the quadratic
+  penalty at the identity, the same value to the last bit (5.177374 against
+  5.177374 on three coefficients), so what the move removes is a second
+  name for one number rather than a construction: the separable twin is
+  still there, and the tests pin the two against each other as before, read
+  the other way round.
+
+  Two consequences. A random effect's hyperparameter is a precision, so the
+  variance component a reader wants is `1/sqrt(lambda)`. And
+  `penalty_prox_spec()` has no entry for the quadratic branch, so the ridge
+  no longer has a piecewise table; nothing loses a route, a smooth penalty
+  never reaching the compiled coordinate descent, and `penalty_prox()` is a
+  linear solve there.
+
 # penalties7 0.11.0
 
 * `penalty_prox_spec()` survives a diagonal map, where it returned `NULL`

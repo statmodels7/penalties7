@@ -64,7 +64,8 @@ test_that("the two ends are the lasso and the ridge", {
   pr <- ridge_penalty(n_coef = 4)
   sg <- 1 / sqrt(lam)
   expect_equal(penalty_prox(pen, b, 0.5, list(lambda = lam, alpha = 1e-12)),
-               penalty_prox(pr, b, 0.5, list(sigma = sg)), tolerance = 1e-10)
+               penalty_prox(pr, b, 0.5, list(lambda = 1 / sg^2)),
+               tolerance = 1e-10)
 })
 
 test_that("the derivatives are the parent's, reassembled", {

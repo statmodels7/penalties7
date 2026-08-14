@@ -92,7 +92,9 @@ test_that("a structured penalty reads the matrix parameter's derivatives", {
 
 test_that("a separable penalty carries the parent's response derivatives", {
   skip_if_not_installed("numDeriv")
-  pen <- ridge_penalty(n_coef = 4L)
+  pen <- distrib_penalty(
+    distributions7::fixed(distributions7::gaussian1_distrib(),
+                          mu = 0), n_coef = 4)
   b <- c(0.6, -1.3, 0.2, 0.9)
   th <- list(sigma = 1.4)
 
