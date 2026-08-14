@@ -113,7 +113,7 @@ test_that("a separable penalty with no closed form is solved from its score", {
 })
 
 test_that("a penalty without an operator refuses, and has_prox agrees", {
-  st <- parameters7::log_cholesky(3)
+  st <- parameters7::log_cholesky(3, role = "precision")
   ps <- structured_penalty(st)
   expect_true(has_prox(ps))
   th <- stats::setNames(as.list(rep(0, length(st@free_names))), st@free_names)

@@ -383,6 +383,12 @@ S7::method(penalty_dhessian, DistribPenalty) <- function(pen, beta, theta,
                                                          ...) {
   reject_kinked(pen, "penalty_dhessian")
   t <- map_apply(pen, beta)
+  if (pen@block > 1L) {
+    a <- dp_arg(pen, t)
+    c2 <- distributions7::distrib_cross2_y(pen@parent, a, theta)
+    return(stats::setNames(lapply(pen@params, function(m)
+      -map_quad_full(pen, dp_blockdiag(pen, c2[[m]], nrow(a)))), pen@params))
+  }
   c2 <- distributions7::distrib_cross2_y(pen@parent, t, theta)
   stats::setNames(lapply(pen@params, function(m)
     -map_quad(pen, c2[[m]] + 0 * t)), pen@params)
@@ -395,6 +401,12 @@ S7::method(penalty_d2hessian, DistribPenalty) <- function(pen, beta, theta,
                                                           ...) {
   reject_kinked(pen, "penalty_d2hessian")
   t <- map_apply(pen, beta)
+  if (pen@block > 1L) {
+    a <- dp_arg(pen, t)
+    h <- distributions7::distrib_hess_y_hess(pen@parent, a, theta)
+    return(carry_pairs(pen, h, function(v)
+      -map_quad_full(pen, dp_blockdiag(pen, v, nrow(a)))))
+  }
   h <- distributions7::distrib_hess_y_hess(pen@parent, t, theta)
   carry_pairs(pen, h, function(v) -map_quad(pen, v + 0 * t))
 }
@@ -405,6 +417,12 @@ S7::method(penalty_d2hessian, DistribPenalty) <- function(pen, beta, theta,
 S7::method(penalty_dcross, DistribPenalty) <- function(pen, beta, theta, ...) {
   reject_kinked(pen, "penalty_dcross")
   t <- map_apply(pen, beta)
+  if (pen@block > 1L) {
+    a <- dp_arg(pen, t)
+    g <- distributions7::distrib_grad_y_hess(pen@parent, a, theta)
+    return(carry_pairs(pen, g, function(v)
+      -map_back(pen, dp_flat(pen, v + 0 * a))))
+  }
   g <- distributions7::distrib_grad_y_hess(pen@parent, t, theta)
   carry_pairs(pen, g, function(v) -map_back(pen, v + 0 * t))
 }

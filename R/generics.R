@@ -287,3 +287,54 @@ S7::method(penalty_logpdet, penalty) <- function(pen, theta, ...) {
   stop("Only a quadratic penalty has a log pseudo-determinant; see is_quadratic().",
        call. = FALSE)
 }
+
+
+#' @title What a Penalty's Hyperparameters Are About
+#'
+#' @description
+#' The quantities a reader reads, where the hyperparameters are coordinates of
+#' a chart rather than the quantities themselves, with the Jacobian from those
+#' coordinates and the scale each one's interval belongs on.
+#'
+#' @details
+#' The case this exists for is a penalty whose prior is a multivariate family:
+#' its hyperparameters are the free values of a matrix parameter -- the
+#' logarithms of the diagonal of a Cholesky factor and the entries below it --
+#' and nobody reads those. What the prior is about is the standard deviations
+#' and the correlations of the effects it describes, and
+#' \code{\link[distributions7]{mv_derived}} declares them, so this is the same
+#' distinction \code{\link[parameters7]{param_readable}} makes for a matrix
+#' parameter and \code{term_readable} for a fitted term.
+#'
+#' The base method returns \code{NULL}, which says that the hyperparameters
+#' ARE the quantities and a consumer should report them as they stand. That is
+#' the honest answer for every other branch: a smoothing parameter, a rate, a
+#' shape are each read on their own scale already.
+#'
+#' @param pen A \code{\link{penalty}} object.
+#' @param theta A named list of hyperparameter values.
+#' @param ... Passed to methods.
+#'
+#' @return \code{NULL}, or a list with \code{value}, \code{jacobian},
+#'   \code{transform} and \code{block}, as
+#'   \code{\link[distributions7]{mv_derived}} returns them.
+#'
+#' @examples
+#' pen <- distrib_penalty(
+#'   distributions7::fixed(distributions7::mvgaussian_distrib(2),
+#'                         mu1 = 0, mu2 = 0), n_coef = 6)
+#' penalty_readable(pen, list(sigma_log_L1 = 0.2, sigma_log_L2 = -0.1,
+#'                            sigma_L2.1 = 0.5))$value
+#'
+#' # a smoothing parameter is already the quantity it names
+#' penalty_readable(quadratic_penalty(diag(2)), list(lambda = 1))
+#'
+#' @seealso \code{\link{penalty_value}}, \code{\link[distributions7]{mv_derived}}
+#' @export
+penalty_readable <- S7::new_generic("penalty_readable", "pen",
+  function(pen, theta, ...) {
+    theta <- align_ptheta(pen, theta)
+    S7::S7_dispatch()
+  })
+
+S7::method(penalty_readable, penalty) <- function(pen, theta, ...) NULL

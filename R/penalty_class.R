@@ -129,14 +129,16 @@ map_back <- function(pen, g) {
   if (is.null(pen@map)) g else as.numeric(crossprod(pen@map, g))
 }
 
-#' Carry a Diagonal Middle Matrix Through the Map
+#' Carry a Middle Matrix Through the Map
 #'
 #' @description
 #' \eqn{D' \mathrm{diag}(h) D} for the separable Hessians, without forming
-#' the diagonal matrix.
+#' the diagonal matrix, and \eqn{D' M D} for a parent read blockwise, whose
+#' middle matrix is block diagonal rather than diagonal.
 #'
 #' @param pen A \code{\link{penalty}} object.
 #' @param h A numeric vector of diagonal entries.
+#' @param m A symmetric matrix.
 #'
 #' @return A \code{q x q} symmetric matrix.
 #'
@@ -150,6 +152,13 @@ map_quad <- function(pen, h) {
   # a block of its own information fails on the class rather than on the
   # arithmetic. Densified here, where the contract is stated.
   as.matrix(crossprod(pen@map, pen@map * h))
+}
+
+#' @rdname map_quad
+#' @keywords internal
+map_quad_full <- function(pen, m) {
+  if (is.null(pen@map)) return(as.matrix(m))
+  as.matrix(crossprod(pen@map, m %*% pen@map))
 }
 
 #' The Hyperparameter Pair Names

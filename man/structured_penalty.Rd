@@ -7,36 +7,54 @@
 structured_penalty(structure)
 }
 \arguments{
-\item{structure}{A \pkg{parameters7} \code{matrix_parameter}, read as the
-PRECISION of the prior. A rank-deficient structure (an improper prior)
-is admitted; \code{is_proper} then answers \code{FALSE} and the
-constant uses the rank and the log pseudo-determinant.}
+\item{structure}{A \pkg{parameters7} \code{matrix_parameter} whose
+\code{role} says which matrix of the prior it is. A structure declared
+\code{"precision"} may be rank deficient (an improper prior);
+\code{is_proper} then answers \code{FALSE} and the constant uses the
+rank and the log pseudo-determinant. A structure declared
+\code{"covariance"} may not: a covariance of deficient rank has no
+inverse, and an effect with a direction of zero variance is a
+constraint rather than a prior. A structure that declares
+\code{"either"} is rejected, because the sign of the log-determinant
+term depends on which of the two it is.}
 }
 \value{
 An object of class \code{StructuredPenalty}.
 }
 \description{
 The exact negative log-density of the Gaussian prior
-\eqn{\beta \sim N(0, \Omega(\theta)^{-})}, with the precision
-\eqn{\Omega} a \pkg{parameters7} matrix parameter:
+\eqn{\beta \sim N(0, \Sigma(\theta))}, with the matrix a
+\pkg{parameters7} matrix parameter. Writing \eqn{\Omega = \Sigma^{-}} for
+the precision,
 \deqn{\rho = \tfrac{1}{2}\,\beta'\Omega(\theta)\beta
   - \tfrac{1}{2}\log\mathrm{pdet}\,\Omega(\theta)
-  + \tfrac{r}{2}\log 2\pi.}
-This is the correlated prior \code{\link{quadratic_penalty}} cannot
-express: there the matrix is a constant and one scale multiplies it,
-here the hyperparameters are the structure's free values and reach every
-entry.
+  + \tfrac{r}{2}\log 2\pi,}
+and the structure supplies whichever of the two matrices its \code{role}
+declares. This is the correlated prior \code{\link{quadratic_penalty}}
+cannot express: there the matrix is a constant and one scale multiplies
+it, here the hyperparameters are the structure's free values and reach
+every entry.
 }
 \details{
 The hyperparameters ARE the structure's free vector, which is
 unconstrained by construction, so every link is the identity -- the same
 flattening convention the multivariate families of \pkg{distributions7}
 follow, and for the same reason: the constraint lives in the structure,
-where a scalar link cannot express it. Every derivative comes from the
-structure's own contract: the theta gradient is
+where a scalar link cannot express it.
+
+Every derivative comes from the structure's own contract. When the
+structure IS the precision the theta gradient is
 \eqn{\tfrac{1}{2}\beta'A_k\beta - \tfrac{1}{2}\partial_k\log\mathrm{pdet}}
 with \eqn{A_k} the structure's \code{param_d1}, the theta Hessian adds
-\code{param_d2}, and the mixed block is \eqn{A_k\beta}.
+\code{param_d2}, and the mixed block is \eqn{A_k\beta}. When it is the
+covariance the same expressions are read at the precision it implies,
+whose derivatives follow from the chain rule for an inverse,
+\deqn{\partial_k\Omega = -\Omega A_k \Omega, \qquad
+  \partial_{kl}\Omega = \Omega\left(A_k\Omega A_l
+    + A_l\Omega A_k\right)\Omega - \Omega A_{kl}\Omega,}
+with \eqn{\log\lvert\Omega\rvert = -\log\lvert\Sigma\rvert} and its
+derivatives negated termwise. The transport is done once and the
+quantities below are then the same arithmetic in both cases.
 
 There is no \code{map} argument, deliberately: a linear image of a
 structured precision is a different precision, and composing it into the
@@ -50,6 +68,11 @@ pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
 theta <- list(log_scale = 0.2, z_rho = 0.5)
 penalty_value(pen, c(0.3, -0.1, 0.4, 0.2), theta)
 penalty_rank(pen)
+
+# the same prior written by its covariance: the free values that give
+# Sigma here give Sigma^-1 there, and the penalty is the same number
+cov <- structured_penalty(parameters7::ar1(4, role = "covariance"))
+penalty_value(cov, c(0.3, -0.1, 0.4, 0.2), theta)
 
 }
 \seealso{

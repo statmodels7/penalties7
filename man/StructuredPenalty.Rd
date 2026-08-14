@@ -38,12 +38,13 @@ An object of class \code{StructuredPenalty}.
 }
 \description{
 The class \code{\link{structured_penalty}} instantiates: the Gaussian
-prior whose precision is a \pkg{parameters7} matrix parameter, so that
-the hyperparameters enter the matrix itself.
+prior whose covariance or precision is a \pkg{parameters7} matrix
+parameter, so that the hyperparameters enter the matrix itself.
 }
 \examples{
-S7::S7_inherits(structured_penalty(parameters7::log_cholesky(2)),
-                StructuredPenalty)
+S7::S7_inherits(
+  structured_penalty(parameters7::log_cholesky(2, role = "precision")),
+  StructuredPenalty)
 }
 \seealso{
 \code{\link{structured_penalty}}

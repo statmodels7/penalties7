@@ -1,6 +1,6 @@
 Package: penalties7
 Title: Penalties as Objects with Exact Derivatives
-Version: 0.12.0
+Version: 0.14.1
 Authors@R:
     person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
 Description: Penalties for regularized and Bayesian regression as 'S7'

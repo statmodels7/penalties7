@@ -148,6 +148,8 @@ spec_diag <- function(pen, step, build) {
 #' @keywords internal
 S7::method(penalty_prox_spec, DistribPenalty) <- function(pen, theta, step,
                                                           ...) {
+  # a blockwise parent has no operator, so it has no table either
+  if (pen@block > 1L) return(NULL)
   spec_diag(pen, step, function(pen, step) {
   fam <- .prox_family(pen)
   q <- as.integer(pen@n_coef)

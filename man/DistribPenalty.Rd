@@ -13,7 +13,8 @@ DistribPenalty(
   link_params = list(),
   params_smooth = logical(0),
   parent = NULL,
-  kinks = integer(0)
+  kinks = integer(0),
+  block = integer(0)
 )
 }
 \arguments{
@@ -36,17 +37,21 @@ differentiable.}
 
 \item{kinks}{The declared non-differentiable points of the parent's
 log-density in its argument.}
+
+\item{block}{The block width, \code{1} for a univariate parent and the
+parent's dimension otherwise.}
 }
 \value{
 An object of class \code{DistribPenalty}.
 }
 \description{
 The class \code{\link{distrib_penalty}} instantiates: a penalty built by
-applying a univariate \pkg{distributions7} log-density coordinatewise to
-\eqn{D\beta}.
+applying a \pkg{distributions7} log-density to the successive blocks of
+\eqn{D\beta}, the block being one coordinate for a univariate parent and
+\eqn{p} of them for a \eqn{p}-variate one.
 }
 \examples{
-S7::S7_inherits(ridge_penalty(n_coef = 2), DistribPenalty)
+S7::S7_inherits(lasso_penalty(n_coef = 2), DistribPenalty)
 }
 \seealso{
 \code{\link{distrib_penalty}}

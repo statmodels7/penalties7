@@ -9,6 +9,7 @@
 \alias{penalty_cross.DistribPenalty}
 \alias{penalty_kinks.DistribPenalty}
 \alias{is_proper.DistribPenalty}
+\alias{penalty_readable.DistribPenalty}
 \title{Separable Penalty Methods}
 \arguments{
 \item{pen}{A \code{DistribPenalty} object.}

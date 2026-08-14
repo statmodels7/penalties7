@@ -28,6 +28,7 @@ reference:
   - penalty_gradient
   - penalty_grad_theta
   - penalty_kinks
+  - penalty_readable
   - is_proper
   - is_quadratic
   - penalty_matrix

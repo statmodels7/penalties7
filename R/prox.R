@@ -120,6 +120,11 @@ has_prox <- function(pen) {
   if (is_quadratic(pen) || S7::S7_inherits(pen, StructuredPenalty)) {
     return(TRUE)
   }
+  # A parent read BLOCKWISE has no operator: the operator acts one coordinate
+  # at a time and the coordinates of a block do not separate. Asked here
+  # rather than discovered at the call, so a fitting layer routes the block to
+  # the scheme that can solve it.
+  if (S7::S7_inherits(pen, DistribPenalty) && pen@block > 1L) return(FALSE)
   is.null(pen@map) || !is.null(map_diagonal(pen))
 }
 
@@ -235,6 +240,13 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' @return A numeric vector.
 #' @keywords internal
 S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
+  if (pen@block > 1L) {
+    stop(sprintf(paste0(
+      "'%s' is read in blocks of %d, and the proximal operator acts one\n",
+      "  coordinate at a time: the coordinates of a block do not separate.\n",
+      "  has_prox() answers FALSE for it."),
+      pen@penalty_name, pen@block), call. = FALSE)
+  }
   d <- .prox_scaling(pen)
   if (!is.null(d)) {
     return(S7::method(penalty_prox, DistribPenalty)(

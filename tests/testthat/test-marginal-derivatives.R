@@ -73,7 +73,7 @@ test_that("an additive penalty's derivatives are its components", {
 
 test_that("a structured penalty reads the matrix parameter's derivatives", {
   skip_if_not_installed("numDeriv")
-  st <- parameters7::log_cholesky(3)
+  st <- parameters7::log_cholesky(3, role = "precision")
   pen <- structured_penalty(st)
   b <- c(0.5, -0.4, 0.8)
   th <- as.list(stats::setNames(c(0.1, -0.2, 0.3, 0.15, -0.05, 0.2),

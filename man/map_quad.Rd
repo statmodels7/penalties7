@@ -2,20 +2,26 @@
 % Please edit documentation in R/penalty_class.R
 \name{map_quad}
 \alias{map_quad}
-\title{Carry a Diagonal Middle Matrix Through the Map}
+\alias{map_quad_full}
+\title{Carry a Middle Matrix Through the Map}
 \usage{
 map_quad(pen, h)
+
+map_quad_full(pen, m)
 }
 \arguments{
 \item{pen}{A \code{\link{penalty}} object.}
 
 \item{h}{A numeric vector of diagonal entries.}
+
+\item{m}{A symmetric matrix.}
 }
 \value{
 A \code{q x q} symmetric matrix.
 }
 \description{
 \eqn{D' \mathrm{diag}(h) D} for the separable Hessians, without forming
-the diagonal matrix.
+the diagonal matrix, and \eqn{D' M D} for a parent read blockwise, whose
+middle matrix is block diagonal rather than diagonal.
 }
 \keyword{internal}

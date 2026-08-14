@@ -144,7 +144,7 @@ test_that("the base class refuses the marginal pieces off the quadratic branch",
 
 test_that("the structured prior passes its battery on three structures", {
   skip_if_not_installed("numDeriv")
-  for (s in list(parameters7::log_cholesky(3),
+  for (s in list(parameters7::log_cholesky(3, role = "precision"),
                  parameters7::ar1(4, role = "precision"),
                  parameters7::compound_symmetry(3, role = "precision"))) {
     pen <- structured_penalty(s)
@@ -166,7 +166,7 @@ test_that("the structured prior at the identity precision is the plain ridge", {
   # object, compared with no tolerance to choose
   q <- 3
   beta <- c(0.4, -1.1, 2.2)
-  s <- parameters7::log_cholesky(q)
+  s <- parameters7::log_cholesky(q, role = "precision")
   pen <- structured_penalty(s)
   th <- stats::setNames(as.list(rep(0, s@n_free)), s@free_names)
   ref <- quadratic_penalty(diag(q))
@@ -308,5 +308,109 @@ test_that("a Matrix map does not decide the class of what a penalty returns", {
       m <- matrix(0, 3, 3)
       expect_silent(m[1:3, 1:3] <- m[1:3, 1:3] + h)
     }
+  }
+})
+
+
+# ---------------------------------------------------------------------------
+# the structured prior reads its structure's role
+# ---------------------------------------------------------------------------
+
+test_that("a structure that does not say which matrix it is is rejected", {
+  # "either" is a statement about the structure, not about this prior, and the
+  # two readings differ in the sign of the log-determinant term: a guess would
+  # give a fit converging to a different matrix without saying so
+  expect_error(structured_penalty(parameters7::log_cholesky(2)), "role")
+  expect_error(structured_penalty(parameters7::ar1(3)), "role")
+  expect_silent(structured_penalty(parameters7::ar1(3, role = "covariance")))
+})
+
+
+test_that("a rank-deficient covariance is rejected and a precision is not", {
+  d <- parameters7::scaled_matrix(diag(c(1, 1, 0)), role = "covariance")
+  expect_error(structured_penalty(d), "no inverse")
+  ok <- parameters7::scaled_matrix(diag(c(1, 1, 0)), role = "precision")
+  expect_false(is_proper(structured_penalty(ok)))
+})
+
+
+test_that("the covariance branch at Sigma is the precision branch at Sigma^-1", {
+  # the twin that makes the SIGN verifiable without choosing a tolerance: the
+  # two are the same prior, so every quantity agrees to the last bit
+  set.seed(11)
+  for (d in 2:4) {
+    sc <- parameters7::log_cholesky(d, role = "covariance")
+    sp <- parameters7::log_cholesky(d, role = "precision")
+    eta <- stats::rnorm(sc@n_free, sd = 0.4)
+    b <- stats::rnorm(d)
+    om <- solve(unclass(parameters7::param_value(sc, eta)))
+    th_c <- stats::setNames(as.list(eta), sc@free_names)
+    th_p <- stats::setNames(as.list(parameters7::param_free(sp, om)),
+                            sp@free_names)
+    pc <- structured_penalty(sc)
+    pp <- structured_penalty(sp)
+    expect_equal(penalty_value(pc, b, th_c), penalty_value(pp, b, th_p),
+                 tolerance = 1e-12, info = paste("d =", d))
+    expect_equal(penalty_gradient(pc, b, th_c), penalty_gradient(pp, b, th_p),
+                 tolerance = 1e-12)
+    expect_equal(unname(penalty_hessian(pc, b, th_c)),
+                 unname(penalty_hessian(pp, b, th_p)), tolerance = 1e-12)
+    # and the value IS the negative log-density of N(0, Sigma)
+    sig <- unclass(parameters7::param_value(sc, eta))
+    ref <- -(-d / 2 * log(2 * pi) -
+             determinant(sig, logarithm = TRUE)$modulus[1] / 2 -
+             sum(b * solve(sig, b)) / 2)
+    expect_equal(penalty_value(pc, b, th_c), ref, tolerance = 1e-12)
+  }
+})
+
+
+test_that("the covariance branch's theta derivatives agree with numDeriv", {
+  skip_if_not_installed("numDeriv")
+  # d = 2 says nothing about the cross terms, so the loop starts where the
+  # second derivative in two DIFFERENT free values exists
+  set.seed(12)
+  for (d in 2:4) {
+    s <- parameters7::log_cholesky(d, role = "covariance")
+    pen <- structured_penalty(s)
+    eta <- stats::rnorm(s@n_free, sd = 0.35)
+    b <- stats::rnorm(d)
+    nm <- s@free_names
+    fv <- function(z) penalty_value(pen, b, stats::setNames(as.list(z), nm))
+    th <- stats::setNames(as.list(eta), nm)
+    expect_equal(unname(unlist(penalty_grad_theta(pen, b, th))),
+                 numDeriv::grad(fv, eta), tolerance = 1e-6,
+                 info = paste("d =", d))
+    hh <- penalty_hess_theta(pen, b, th)
+    H <- numDeriv::hessian(fv, eta)
+    for (i in seq_along(nm)) for (j in seq_along(nm)) {
+      key <- paste(nm[sort(c(i, j))], collapse = "_")
+      if (i == j) key <- paste0(nm[i], "_", nm[i])
+      if (!is.null(hh[[key]])) {
+        expect_equal(hh[[key]], H[i, j], tolerance = 1e-5,
+                     info = paste("d =", d, key))
+      }
+    }
+    fg <- function(z) penalty_gradient(pen, b, stats::setNames(as.list(z), nm))
+    expect_equal(unname(do.call(cbind, penalty_cross(pen, b, th))),
+                 numDeriv::jacobian(fg, eta), tolerance = 1e-6)
+  }
+})
+
+
+test_that("the covariance branch passes check_penalty", {
+  skip_if_not_installed("numDeriv")
+  for (s in list(parameters7::log_cholesky(3, role = "covariance"),
+                 parameters7::ar1(4, role = "covariance"),
+                 parameters7::compound_symmetry(3, role = "covariance"))) {
+    pen <- structured_penalty(s)
+    set.seed(5)
+    th <- stats::setNames(as.list(round(stats::rnorm(s@n_free, sd = 0.3), 2)),
+                          s@free_names)
+    res <- check_penalty(pen, theta = th, verbose = FALSE)
+    expect_true(all(res$status == "OK"),
+                info = paste(pen@penalty_name,
+                             paste(res$check[res$status != "OK"],
+                                   collapse = ", ")))
   }
 })
