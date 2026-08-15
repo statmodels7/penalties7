@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,14 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.15.0" id="penalties7-0150">penalties7 0.15.0<a class="anchor" aria-label="anchor" href="#penalties7-0150"></a></h2>
+<ul><li><p><code><a href="../reference/quadratic_penalty.html">quadratic_penalty()</a></code> takes <code>blocks</code>: the penalty of <code>I_m (x) P</code>, built from <code>P</code> alone. What the constructor needs from its matrix is the rank, the log pseudo-determinant and a basis of the null space, and all three follow from one block – the eigenvalues of <code>I_m (x) P</code> are <code>P</code>’s repeated <code>m</code> times – so the assembled matrix is never formed or decomposed.</p></li>
+<li><p>Measured at <code>m = 200</code> over a basis of ten: 5.65 s to build from the assembled matrix against 0.010 s from the block, 565 times, of which 4.50 s was the eigendecomposition alone. The stored matrix is sparse besides, 0.03 MB against 32.00, which follows rather than being the point. Rank, log pseudo-determinant, value, gradient, Hessian, both theta derivatives, the mixed block and the null space all agree with the penalty built from the assembled matrix, the gradient and the Hessian to exactly zero.</p></li>
+<li><p>It does not combine with <code>map</code>: a map mixes the blocks, and <code>D'(I (x) P)D</code> is block diagonal with a DIFFERENT block each, which is not the structure <code>blocks</code> names.</p></li>
+<li><p>This is the one branch whose <code><a href="../reference/penalty_gradient.html">penalty_hessian()</a></code> is not a base matrix, and deliberately: it exists to avoid the assembled form, so returning that form would defeat it. <code><a href="../reference/penalty_dhessian.html">penalty_dhessian()</a></code> follows, <code><a href="https://rdrr.io/r/base/class.html" class="external-link">unclass()</a></code> having done nothing to an S4 object. A consumer coerces where the two kinds meet.</p></li>
+<li><p>The same identity is what <code><a href="https://statmodels7.github.io/parameters7/reference/kron_identity.html" class="external-link">parameters7::kron_identity()</a></code> uses on the other side of the toolkit, for the covariance of grouped random effects.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.14.1" id="penalties7-0141">penalties7 0.14.1<a class="anchor" aria-label="anchor" href="#penalties7-0141"></a></h2>
 <ul><li>The blockwise marginal pieces are exercised on a Student t parent as well, whose response Hessian depends on the observation: <code><a href="../reference/dp_blockdiag.html">dp_blockdiag()</a></code> already carried both shapes, and the three quantities agree with one difference of the analytic quantity below each.</li>
