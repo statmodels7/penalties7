@@ -414,3 +414,54 @@ test_that("the covariance branch passes check_penalty", {
                                    collapse = ", ")))
   }
 })
+
+test_that("a blocked quadratic penalty is the assembled one, without assembling it", {
+  # I (x) P has P's eigenvalues repeated m times, so the rank, the log
+  # pseudo-determinant and the null space all follow from P and the big
+  # matrix is never decomposed. Every quantity must match the penalty built
+  # from the assembled matrix, which is what licenses the shortcut.
+  set.seed(21)
+  k <- 6L
+  m <- 12L
+  P0 <- diag(c(0, rep(1, k - 1L)))
+  a <- quadratic_penalty(kronecker(diag(m), P0))
+  b <- quadratic_penalty(P0, blocks = m)
+
+  expect_identical(b@n_coef, a@n_coef)
+  expect_identical(penalty_rank(b), penalty_rank(a))
+  expect_equal(b@logpdet_P, a@logpdet_P)
+  expect_identical(ncol(penalty_null_basis(b)), ncol(penalty_null_basis(a)))
+  # the null basis spans the same space: P times it is zero
+  N <- as.matrix(penalty_null_basis(b))
+  expect_equal(max(abs(as.matrix(b@DPD) %*% N)), 0, tolerance = 1e-10)
+
+  bb <- stats::rnorm(m * k)
+  for (lam in c(0.3, 2.5)) {
+    th <- list(lambda = lam)
+    expect_equal(penalty_value(b, bb, th), penalty_value(a, bb, th))
+    expect_equal(penalty_gradient(b, bb, th), penalty_gradient(a, bb, th))
+    expect_equal(as.matrix(penalty_hessian(b, bb, th)),
+                 penalty_hessian(a, bb, th))
+    expect_equal(penalty_grad_theta(b, bb, th), penalty_grad_theta(a, bb, th))
+    expect_equal(penalty_hess_theta(b, bb, th), penalty_hess_theta(a, bb, th))
+    expect_equal(penalty_cross(b, bb, th), penalty_cross(a, bb, th))
+    expect_equal(penalty_logpdet(b, th), penalty_logpdet(a, th))
+  }
+
+  # THE ONE BRANCH whose Hessian is not a base matrix, and deliberately: it
+  # exists to avoid the assembled form, so returning it dense would defeat
+  # it. A consumer accumulates into a matrix of its own kind.
+  h <- penalty_hessian(b, bb, list(lambda = 1))
+  expect_true(methods::is(h, "sparseMatrix"))
+  expect_lt(as.numeric(utils::object.size(h)),
+            as.numeric(utils::object.size(penalty_hessian(a, bb,
+                                                          list(lambda = 1)))))
+  acc <- Matrix::sparseMatrix(i = integer(0), j = integer(0), x = numeric(0),
+                              dims = c(m * k, m * k))
+  expect_silent(acc[seq_len(m * k), seq_len(m * k)] <- acc + h)
+
+  expect_error(quadratic_penalty(P0, map = diag(k), blocks = 3),
+               "do not combine")
+  expect_error(quadratic_penalty(P0, blocks = 0), "at least 1")
+  expect_error(quadratic_penalty(P0, blocks = 2.5), "whole number")
+})

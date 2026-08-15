@@ -227,7 +227,11 @@ S7::method(beta_quadratic, penalty) <- function(pen, theta, ...) FALSE
 #' @keywords internal
 S7::method(penalty_dhessian, QuadraticPenalty) <- function(pen, beta, theta,
                                                            ...) {
-  list(lambda = unclass(pen@DPD))
+  # `unclass()` strips the attributes a base matrix may carry and does
+  # nothing to an S4 one, which is what a blocked penalty stores: the
+  # derivative is the matrix itself, in whatever storage the penalty keeps
+  # it, and a caller that needs a base matrix coerces where the two meet.
+  list(lambda = if (isS4(pen@DPD)) pen@DPD else unclass(pen@DPD))
 }
 
 #' @rdname penalty_dhessian.QuadraticPenalty

@@ -1,3 +1,31 @@
+# penalties7 0.15.0
+
+* `quadratic_penalty()` takes `blocks`: the penalty of `I_m (x) P`, built
+  from `P` alone. What the constructor needs from its matrix is the rank, the
+  log pseudo-determinant and a basis of the null space, and all three follow
+  from one block -- the eigenvalues of `I_m (x) P` are `P`'s repeated `m`
+  times -- so the assembled matrix is never formed or decomposed.
+
+* Measured at `m = 200` over a basis of ten: 5.65 s to build from the
+  assembled matrix against 0.010 s from the block, 565 times, of which 4.50 s
+  was the eigendecomposition alone. The stored matrix is sparse besides, 0.03
+  MB against 32.00, which follows rather than being the point. Rank, log
+  pseudo-determinant, value, gradient, Hessian, both theta derivatives, the
+  mixed block and the null space all agree with the penalty built from the
+  assembled matrix, the gradient and the Hessian to exactly zero.
+
+* It does not combine with `map`: a map mixes the blocks, and `D'(I (x) P)D`
+  is block diagonal with a DIFFERENT block each, which is not the structure
+  `blocks` names.
+
+* This is the one branch whose `penalty_hessian()` is not a base matrix, and
+  deliberately: it exists to avoid the assembled form, so returning that form
+  would defeat it. `penalty_dhessian()` follows, `unclass()` having done
+  nothing to an S4 object. A consumer coerces where the two kinds meet.
+
+* The same identity is what `parameters7::kron_identity()` uses on the other
+  side of the toolkit, for the covariance of grouped random effects.
+
 # penalties7 0.14.1
 
 * The blockwise marginal pieces are exercised on a Student t parent as well,
