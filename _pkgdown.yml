@@ -96,6 +96,21 @@ reference:
   - ScadPenalty
   - ends_with(".ScadPenalty")
   - ends_with(".McpPenalty")
+- title: Smoothers of the absolute value
+  desc: >
+    A smooth replacement for the absolute value with its derivatives
+    up to order five, from which the smooth sign, step and hinge
+    follow by composition. A break-point term smoothed this way has a
+    true Jacobian block, so a random or penalized development of its
+    break-points becomes fittable.
+  contents:
+  - abs_smoother
+  - smooth_probit
+  - smooth_hyperbolic
+  - smooth_quintic
+  - smoother_deriv
+  - smoother_width
+  - smoother_width_floor
 - title: The proximal operator
   desc: >
     One step of a proximal gradient method, in closed form where one
@@ -112,3 +127,4 @@ reference:
     written outside the package.
   contents:
   - check_penalty
+  - check_abs_smoother
