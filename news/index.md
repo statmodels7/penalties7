@@ -1,5 +1,43 @@
 # Changelog
 
+## penalties7 0.16.0
+
+- New class `abs_smoother`: a smooth replacement `s(u)` for `|u|`
+  carrying its derivatives in `u` up to order five as FUNCTIONS, so a
+  piecewise smoother’s branches are ordinary code rather than an
+  expression [`stats::deriv`](https://rdrr.io/r/stats/deriv.html) cannot
+  read. The contract is only `s`: the smooth sign is `s'`, the smooth
+  step `(1 + s')/2` and the smooth hinge `(u + s)/2` follow by
+  composition, which is what lets one object serve the smoothed
+  break-point terms now and a smoothed kinked penalty later.
+
+- Three instances:
+  [`smooth_probit()`](https://statmodels7.github.io/penalties7/reference/smooth_probit.md)
+  (the recommended default: gaussian tails, and the exact convolution
+  identity `tau_true^2 = tau^2 - h^2` declared as its `tau_correction`),
+  [`smooth_hyperbolic()`](https://statmodels7.github.io/penalties7/reference/smooth_hyperbolic.md)
+  (`sqrt(u^2 + c)`, polynomial tails, no correction) and
+  [`smooth_quintic()`](https://statmodels7.github.io/penalties7/reference/smooth_quintic.md)
+  (exact outside `[-h, h]`, `C^3` at the seam).
+
+- [`smoother_deriv()`](https://statmodels7.github.io/penalties7/reference/smoother_deriv.md),
+  [`smoother_width()`](https://statmodels7.github.io/penalties7/reference/smoother_width.md)
+  (a `NULL` width is resolved by the consumer at build, from the
+  covariate’s spacing) and
+  [`smoother_width_floor()`](https://statmodels7.github.io/penalties7/reference/smoother_width_floor.md),
+  whose floor is derived from the expression that binds – the Jacobian
+  column carries `s''(0)/2 ~ 1/h` against columns of order the range
+  `D`, so holding the design’s condition below `eps^-1/2` gives
+  `h >= sqrt(eps) * D` – rather than chosen.
+
+- [`check_abs_smoother()`](https://statmodels7.github.io/penalties7/reference/check_abs_smoother.md),
+  the sibling of
+  [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+  for user-written smoothers: the structural properties (even, odd
+  bounded first derivative, convex, matching `|u|` in the tails) and
+  each order against one numerical differentiation of the analytic order
+  below it.
+
 ## penalties7 0.15.0
 
 - [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
