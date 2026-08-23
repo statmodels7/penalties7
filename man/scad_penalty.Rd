@@ -42,7 +42,7 @@ extended evenly, with \eqn{a > 2}; MCP (Zhang, 2010) by
 quantity -- the value, the derivatives in \eqn{\beta} and in the
 hyperparameters, and the mixed block -- is a closed piecewise form. Both
 report kinks at zero, where the second derivative additionally jumps at
-the region boundaries; \code{\link{check_penalty}} keeps its grids away
+the region boundaries; \code{\link[=check_penalty]{check_penalty()}} keeps its grids away
 from all of them by asking the object.
 }
 \examples{
@@ -59,5 +59,5 @@ Zhang, C.-H. (2010). Nearly unbiased variable selection under minimax
 concave penalty. \emph{Annals of Statistics} 38, 894-942.
 }
 \seealso{
-\code{\link{ridge_penalty}}, \code{\link{is_proper}}, \code{\link{penalty_prox}}
+\code{\link[=ridge_penalty]{ridge_penalty()}}, \code{\link[=is_proper]{is_proper()}}, \code{\link[=penalty_prox]{penalty_prox()}}
 }

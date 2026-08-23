@@ -7,7 +7,7 @@
 align_ptheta(pen, theta)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
 vector carrying the same.}

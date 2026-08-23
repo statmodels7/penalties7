@@ -28,8 +28,8 @@ again here.
 }
 \details{
 The second derivatives read the parent's
-\code{\link[distributions7]{distrib_grad_y_hess}} and
-\code{\link[distributions7]{distrib_hess_y_hess}}, so nothing is
+\code{\link[distributions7:distrib_grad_y_hess]{distributions7::distrib_grad_y_hess()}} and
+\code{\link[distributions7:distrib_grad_y_hess]{distributions7::distrib_hess_y_hess()}}, so nothing is
 differentiated here either. A parent with closed forms for those -- the
 gaussian, hence every ridge and every random effect -- makes this branch
 exact; one without them inherits that package's documented fallback, which

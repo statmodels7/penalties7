@@ -24,7 +24,7 @@ heavy_penalty(map = NULL, n_coef = 1L)
 An object of class \code{DistribPenalty}.
 }
 \description{
-The canonical instances of \code{\link{distrib_penalty}}, shipped as
+The canonical instances of \code{\link[=distrib_penalty]{distrib_penalty()}}, shipped as
 constructors so the model layer can name what it means. Each is written
 on the chart whose hyperparameter MEASURES THE SHRINKAGE, so that a larger
 value shrinks harder in all of them. Ridge is the exception to the branch
@@ -33,13 +33,13 @@ written by its PRECISION is exactly the quadratic penalty at the identity,
 the same value to the last bit, so it is built there and its
 hyperparameter is the lambda that branch already carries -- one name for
 one number. The lasso is the Laplace in location
-and rate (`laplace2`) at zero, so the free hyperparameter is the rate
+and rate (\code{laplace2}) at zero, so the free hyperparameter is the rate
 \eqn{\lambda} and the value is \eqn{\lambda\lVert D\beta\rVert_1} up to
 its constant, with the kink declared; the heavy-tailed prior is the
 Student t at zero,
 whose \eqn{\nu} is estimable exactly because the normalizing constant is
 kept. The elastic net is the product of the Laplace and the Gaussian at
-zero, normalized (\code{\link[distributions7]{enet_distrib}}), so its
+zero, normalized (\code{\link[distributions7:enet_distrib]{distributions7::enet_distrib()}}), so its
 hyperparameters are the overall rate \eqn{\lambda} and the mixing weight
 \eqn{\alpha} and its value is
 \eqn{\lambda\{\alpha\lVert D\beta\rVert_1 +
@@ -65,5 +65,5 @@ the elastic net. \emph{Journal of the Royal Statistical Society, Series B}
 67, 301-320.
 }
 \seealso{
-\code{\link{distrib_penalty}}, \code{\link{scad_penalty}}, \code{\link{quadratic_penalty}}
+\code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=quadratic_penalty]{quadratic_penalty()}}
 }

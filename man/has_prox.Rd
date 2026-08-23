@@ -7,13 +7,13 @@
 has_prox(pen)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 }
 \value{
 A single logical.
 }
 \description{
-\code{TRUE} when \code{\link{penalty_prox}} can be evaluated for this
+\code{TRUE} when \code{\link[=penalty_prox]{penalty_prox()}} can be evaluated for this
 penalty at a suitable step, so that a caller may choose a proximal
 method over a smooth one without provoking an error.
 }
@@ -37,5 +37,5 @@ c(lasso = has_prox(lasso_penalty()), scad = has_prox(scad_penalty()))
 
 }
 \seealso{
-\code{\link{penalty_prox}}
+\code{\link[=penalty_prox]{penalty_prox()}}
 }

@@ -7,7 +7,7 @@
 smoother_width_floor(smoother, scale)
 }
 \arguments{
-\item{smoother}{An \code{\link{abs_smoother}}.}
+\item{smoother}{An \code{\link[=abs_smoother]{abs_smoother()}}.}
 
 \item{scale}{The scale of the covariate (its range).}
 }
@@ -31,5 +31,5 @@ smoother_width_floor(smooth_probit(), scale = 10)
 
 }
 \seealso{
-\code{\link{smoother_width}}
+\code{\link[=smoother_width]{smoother_width()}}
 }

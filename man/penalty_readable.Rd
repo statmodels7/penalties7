@@ -7,7 +7,7 @@
 penalty_readable(pen, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameter values.}
 
@@ -15,8 +15,8 @@ penalty_readable(pen, theta, ...)
 }
 \value{
 \code{NULL}, or a list with \code{value}, \code{jacobian},
-  \code{transform} and \code{block}, as
-  \code{\link[distributions7]{mv_derived}} returns them.
+\code{transform} and \code{block}, as
+\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} returns them.
 }
 \description{
 The quantities a reader reads, where the hyperparameters are coordinates of
@@ -29,8 +29,8 @@ its hyperparameters are the free values of a matrix parameter -- the
 logarithms of the diagonal of a Cholesky factor and the entries below it --
 and nobody reads those. What the prior is about is the standard deviations
 and the correlations of the effects it describes, and
-\code{\link[distributions7]{mv_derived}} declares them, so this is the same
-distinction \code{\link[parameters7]{param_readable}} makes for a matrix
+\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} declares them, so this is the same
+distinction \code{\link[parameters7:param_readable]{parameters7::param_readable()}} makes for a matrix
 parameter and \code{term_readable} for a fitted term.
 
 The base method returns \code{NULL}, which says that the hyperparameters
@@ -50,5 +50,5 @@ penalty_readable(quadratic_penalty(diag(2)), list(lambda = 1))
 
 }
 \seealso{
-\code{\link{penalty_value}}, \code{\link[distributions7]{mv_derived}}
+\code{\link[=penalty_value]{penalty_value()}}, \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}}
 }

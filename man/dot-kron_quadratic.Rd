@@ -36,11 +36,11 @@ eigendecomposition of the assembled \eqn{1800 \times 1800} matrix costs
 matrix is sparse besides -- 25.9 MB dense at a density of 0.0005 -- which
 follows rather than being the point.
 
-The same identity is what \code{\link[parameters7]{kron_identity}} uses on
+The same identity is what \code{\link[parameters7:kron_identity]{parameters7::kron_identity()}} uses on
 the other side of the toolkit, for the covariance of grouped random
 effects.
 }
 \seealso{
-\code{\link{quadratic_penalty}}
+\code{\link[=quadratic_penalty]{quadratic_penalty()}}
 }
 \keyword{internal}

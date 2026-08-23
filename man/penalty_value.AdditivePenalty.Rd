@@ -28,6 +28,6 @@
 See the generic pages.
 }
 \description{
-The closed forms; see \code{\link{additive_penalty}}.
+The closed forms; see \code{\link[=additive_penalty]{additive_penalty()}}.
 }
 \keyword{internal}

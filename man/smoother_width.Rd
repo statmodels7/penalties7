@@ -7,13 +7,13 @@
 smoother_width(smoother, spacing)
 }
 \arguments{
-\item{smoother}{An \code{\link{abs_smoother}}.}
+\item{smoother}{An \code{\link[=abs_smoother]{abs_smoother()}}.}
 
 \item{spacing}{A spacing in covariate units, one value or one per group.}
 }
 \value{
 The width, the same length as \code{spacing} when resolved from
-  it.
+it.
 }
 \description{
 The width the smoother carries where it carries one, and otherwise the
@@ -29,5 +29,5 @@ smoother_width(smooth_probit(h = 0.5), 0.3)   # 0.5, the width it holds
 
 }
 \seealso{
-\code{\link{smoother_width_floor}}
+\code{\link[=smoother_width_floor]{smoother_width_floor()}}
 }

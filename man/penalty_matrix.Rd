@@ -16,17 +16,17 @@ penalty_null_basis(pen, ...)
 penalty_logpdet(pen, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameter values.}
 
 \item{...}{Passed to methods.}
 }
 \value{
-\code{penalty_matrix} a \code{q x q} matrix; \code{penalty_rank}
-  an integer; \code{penalty_null_basis} a matrix with \code{q} rows (zero
-  columns when the penalty is full rank); \code{penalty_logpdet} a list
-  with elements \code{value}, \code{grad} and \code{hess}.
+\code{penalty_matrix} a \verb{q x q} matrix; \code{penalty_rank}
+an integer; \code{penalty_null_basis} a matrix with \code{q} rows (zero
+columns when the penalty is full rank); \code{penalty_logpdet} a list
+with elements \code{value}, \code{grad} and \code{hess}.
 }
 \description{
 For a quadratic penalty: \code{penalty_matrix} returns
@@ -45,5 +45,5 @@ penalty_logpdet(pen, list(lambda = 2))$value
 
 }
 \seealso{
-\code{\link{is_quadratic}}, \code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}
+\code{\link[=is_quadratic]{is_quadratic()}}, \code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=additive_penalty]{additive_penalty()}}
 }

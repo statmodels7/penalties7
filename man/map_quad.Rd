@@ -10,14 +10,14 @@ map_quad(pen, h)
 map_quad_full(pen, m)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{h}{A numeric vector of diagonal entries.}
 
 \item{m}{A symmetric matrix.}
 }
 \value{
-A \code{q x q} symmetric matrix.
+A \verb{q x q} symmetric matrix.
 }
 \description{
 \eqn{D' \mathrm{diag}(h) D} for the separable Hessians, without forming

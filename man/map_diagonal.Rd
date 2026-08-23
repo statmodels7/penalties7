@@ -7,7 +7,7 @@
 map_diagonal(pen)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 }
 \value{
 A numeric vector, or \code{NULL}.

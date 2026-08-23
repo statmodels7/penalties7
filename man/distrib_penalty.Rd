@@ -19,7 +19,7 @@ coefficients must then be a multiple of \eqn{p}.}
 
 \item{kinks}{The points where the parent's log-density is not
 differentiable in its argument. \code{NULL}, the default, derives them
-from the parent with \code{\link{distrib_kinks}}; pass a numeric vector to
+from the parent with \code{\link[=distrib_kinks]{distrib_kinks()}}; pass a numeric vector to
 say so directly, or \code{numeric(0)} to declare there are none. A
 multivariate parent has none: a kink is a point of a scalar argument.}
 }
@@ -42,17 +42,17 @@ Hessian \eqn{-D'\mathrm{diag}(\ell^{(yy)})D} (block diagonal rather than
 diagonal when the parent is multivariate), the theta blocks the summed
 score and Hessian, and the mixed block one
 \eqn{-D'\ell^{(y\theta_k)}} per hyperparameter -- which is what
-\code{\link[distributions7]{distrib_cross_y}} exists for.
+\code{\link[distributions7:distrib_cross_y]{distributions7::distrib_cross_y()}} exists for.
 }
 \details{
 Lasso, the elastic net and the heavy-tailed prior are this construction at
-a \code{\link[distributions7]{fixed}} Laplace, elastic net and Student t;
-see \code{\link{ridge_penalty}}. The normalizing constant comes with the
+a \code{\link[distributions7:fixed]{distributions7::fixed()}} Laplace, elastic net and Student t;
+see \code{\link[=ridge_penalty]{ridge_penalty()}}. The normalizing constant comes with the
 density and is kept, so the value is exactly the negative log prior
 density and a free scale or a free \eqn{\nu} is estimable.
 
 A multivariate parent is centered by the caller, typically through
-\code{\link[distributions7]{fixed}} at a zero mean, and its matrix
+\code{\link[distributions7:fixed]{distributions7::fixed()}} at a zero mean, and its matrix
 parameter carries the dependence within a block. It has no proximal
 operator: that operator acts one coordinate at a time and the coordinates
 of a block do not separate.
@@ -71,5 +71,5 @@ penalty_value(pen2, c(1, 0, -1, 0.5, 0.2, -0.3),
 
 }
 \seealso{
-\code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}, \code{\link{structured_penalty}}
+\code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=additive_penalty]{additive_penalty()}}, \code{\link[=structured_penalty]{structured_penalty()}}
 }

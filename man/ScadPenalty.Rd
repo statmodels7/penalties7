@@ -45,7 +45,7 @@ differentiable.}
 An object of class \code{ScadPenalty} or \code{McpPenalty}.
 }
 \description{
-The classes \code{\link{scad_penalty}} and \code{\link{mcp_penalty}}
+The classes \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}}
 instantiate: families the literature defines by \eqn{\rho'} and whose
 \eqn{\rho} follows by the closed piecewise antiderivative anchored at
 \eqn{\rho(0) = 0}. Both are improper: \eqn{\rho} is bounded, so
@@ -55,6 +55,6 @@ instantiate: families the literature defines by \eqn{\rho'} and whose
 S7::S7_inherits(scad_penalty(), ScadPenalty)
 }
 \seealso{
-\code{\link{scad_penalty}}, \code{\link{mcp_penalty}}
+\code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}}
 }
 \keyword{internal}

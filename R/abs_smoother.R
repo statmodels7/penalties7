@@ -23,60 +23,60 @@ NULL
 #'
 #' @details
 #' The derivatives are FUNCTIONS and not expressions: a piecewise smoother
-#' (the quintic) has branches, which \code{\link[stats]{deriv}} does not
+#' (the quintic) has branches, which [stats::deriv()] does not
 #' read, and with the derivatives written in the constructor the branches
-#' are ordinary code. Each function takes \code{(u, width)} and vectorizes
+#' are ordinary code. Each function takes `(u, width)` and vectorizes
 #' in both, so a per-group width is one value per observation.
 #'
-#' \code{width} is the transition scale -- \code{h} for a smoother whose
+#' `width` is the transition scale -- `h` for a smoother whose
 #' parameter is a length, the bent-cable reading of a transition of width
-#' \eqn{h}; \code{c} for the hyperbolic, whose parameter is a squared
-#' length. \code{NULL}, the default, asks the consumer to resolve it from
+#' \eqn{h}; `c` for the hyperbolic, whose parameter is a squared
+#' length. `NULL`, the default, asks the consumer to resolve it from
 #' the data at build (a break-point term takes the median spacing of its
-#' covariate), through \code{\link{smoother_width}}. \code{per_group} asks
+#' covariate), through [smoother_width()]. `per_group` asks
 #' for one width per group where a grouping is available, the validity
 #' window of a Laplace approximation being per-subject.
 #'
-#' \code{tau_correction} is a property of the mollifier, not of any model:
+#' `tau_correction` is a property of the mollifier, not of any model:
 #' the probit smoother satisfies an exact convolution identity, smoothing
 #' with width \eqn{h} being the same as convolving the break-point with
 #' \eqn{N(0, h^2)}, so an apparent scale \eqn{\tau} of a random break-point
 #' composes as \eqn{\tau^2_{\mathrm{true}} = \tau^2 - h^2} and the smoother
 #' declares the correction. Smoothers with no such identity declare
-#' \code{NULL} and a consumer reports the apparent scale alone.
+#' `NULL` and a consumer reports the apparent scale alone.
 #'
 #' @param smoother_name A string naming the smoother.
-#' @param width The transition width, or \code{NULL} to be resolved at
+#' @param width The transition width, or `NULL` to be resolved at
 #'   build.
-#' @param width_name What the width parameter is called (\code{"h"} or
-#'   \code{"c"}).
+#' @param width_name What the width parameter is called (`"h"` or
+#'   `"c"`).
 #' @param per_group Whether the width is resolved per group.
-#' @param s A list of six functions of \code{(u, width)}: \eqn{s} and its
+#' @param s A list of six functions of `(u, width)`: \eqn{s} and its
 #'   derivatives in \eqn{u} of orders one to five, in order.
-#' @param width_from_spacing \code{NULL} (the identity) or a function
+#' @param width_from_spacing `NULL` (the identity) or a function
 #'   carrying a spacing in covariate units onto the width parameter's own
 #'   scale (the square, for the hyperbolic).
-#' @param tau_correction \code{NULL}, or a function \code{(tau, width)}
+#' @param tau_correction `NULL`, or a function `(tau, width)`
 #'   returning the corrected scale of a random break-point.
-#' @param exact_radius \code{NULL}, or a function of the width returning
+#' @param exact_radius `NULL`, or a function of the width returning
 #'   the radius beyond which \eqn{s(u) = \lvert u\rvert} exactly.
 #'
-#' @return An object of class \code{abs_smoother}.
+#' @return An object of class `abs_smoother`.
 #'
 #' @references
 #' Bacon, D. W. and Watts, D. G. (1971). Estimating the transition between
-#' two intersecting straight lines. \emph{Biometrika}, 58(3), 525--534.
+#' two intersecting straight lines. *Biometrika*, 58(3), 525--534.
 #'
 #' Tishler, A. and Zang, I. (1981). A new maximum likelihood algorithm for
-#' piecewise regression. \emph{Journal of the American Statistical
-#' Association}, 76(376), 980--987.
+#' piecewise regression. *Journal of the American Statistical
+#' Association*, 76(376), 980--987.
 #'
 #' Seo, M. H. and Linton, O. (2007). A smoothed least squares estimator
-#' for threshold regression models. \emph{Journal of Econometrics},
+#' for threshold regression models. *Journal of Econometrics*,
 #' 141(2), 704--735.
 #'
-#' @seealso \code{\link{smooth_probit}}, \code{\link{smooth_hyperbolic}},
-#'   \code{\link{smooth_quintic}}, \code{\link{check_abs_smoother}}
+#' @seealso [smooth_probit()], [smooth_hyperbolic()],
+#'   [smooth_quintic()], [check_abs_smoother()]
 #'
 #' @examples
 #' S7::S7_inherits(smooth_probit(), abs_smoother)
@@ -146,18 +146,18 @@ abs_smoother <- S7::new_class(
 #' declares the closed correction
 #' \eqn{\tau_{\mathrm{true}} = \sqrt{\tau^2 - h^2}}.
 #'
-#' @param h The transition width, or \code{NULL} (the default) to be
+#' @param h The transition width, or `NULL` (the default) to be
 #'   resolved at build from the covariate's spacing.
 #' @param per_group Whether the width is resolved per group.
 #'
-#' @return An \code{\link{abs_smoother}}.
+#' @return An [abs_smoother()].
 #'
 #' @examples
 #' sm <- smooth_probit(h = 0.2)
 #' smoother_deriv(sm, 0, order = 0)  # 2 * h * dnorm(0)
 #'
-#' @seealso \code{\link{abs_smoother}}, \code{\link{smooth_hyperbolic}},
-#'   \code{\link{smooth_quintic}}
+#' @seealso [abs_smoother()], [smooth_hyperbolic()],
+#'   [smooth_quintic()]
 #' @export
 smooth_probit <- function(h = NULL, per_group = FALSE) {
   abs_smoother(
@@ -198,19 +198,19 @@ smooth_probit <- function(h = NULL, per_group = FALSE) {
 #' \eqn{c/(4\lvert u\rvert)} in the tails, so the smoothing bias spreads
 #' away from the kink -- the worst bias profile of the three at equal
 #' width -- and no convolution identity relates \eqn{c} to the scale of a
-#' random break-point, so \code{tau_correction} is \code{NULL} and a
+#' random break-point, so `tau_correction` is `NULL` and a
 #' consumer reports the apparent scale alone.
 #'
-#' @param c The squared transition width, or \code{NULL} (the default) to
+#' @param c The squared transition width, or `NULL` (the default) to
 #'   be resolved at build as the square of the covariate's spacing.
 #'
-#' @return An \code{\link{abs_smoother}}.
+#' @return An [abs_smoother()].
 #'
 #' @examples
 #' sm <- smooth_hyperbolic(c = 0.04)
 #' smoother_deriv(sm, 0, order = 0)  # sqrt(c)
 #'
-#' @seealso \code{\link{abs_smoother}}, \code{\link{smooth_probit}}
+#' @seealso [abs_smoother()], [smooth_probit()]
 #' @export
 smooth_hyperbolic <- function(c = NULL) {
   abs_smoother(
@@ -248,18 +248,18 @@ smooth_hyperbolic <- function(c = NULL) {
 #' derivative at the seam. The smoothing bias is exactly zero outside
 #' \eqn{[\psi - h, \psi + h]}, which is the cleanest fixed-width choice;
 #' the branches are why the contract carries the derivatives as functions,
-#' \code{\link[stats]{deriv}} not reading a clamp.
+#' [stats::deriv()] not reading a clamp.
 #'
-#' @param h The transition half-width, or \code{NULL} (the default) to be
+#' @param h The transition half-width, or `NULL` (the default) to be
 #'   resolved at build from the covariate's spacing.
 #'
-#' @return An \code{\link{abs_smoother}}.
+#' @return An [abs_smoother()].
 #'
 #' @examples
 #' sm <- smooth_quintic(h = 0.5)
 #' smoother_deriv(sm, 1, order = 0)  # exactly 1: outside the transition
 #'
-#' @seealso \code{\link{abs_smoother}}, \code{\link{smooth_probit}}
+#' @seealso [abs_smoother()], [smooth_probit()]
 #' @export
 smooth_quintic <- function(h = NULL) {
   inside <- function(u, width) abs(u) < width
@@ -307,17 +307,17 @@ smooth_quintic <- function(h = NULL) {
 #' that resolved the width at build evaluates without mutating the object;
 #' a vector width is one value per point.
 #'
-#' @param smoother An \code{\link{abs_smoother}}.
+#' @param smoother An [abs_smoother()].
 #' @param u A numeric vector.
-#' @param width The width, or \code{NULL} for the smoother's own.
+#' @param width The width, or `NULL` for the smoother's own.
 #' @param order 0 to 5.
 #'
-#' @return A numeric vector as long as \code{u}.
+#' @return A numeric vector as long as `u`.
 #'
 #' @examples
 #' smoother_deriv(smooth_hyperbolic(c = 1), 0:3, order = 1)
 #'
-#' @seealso \code{\link{abs_smoother}}
+#' @seealso [abs_smoother()]
 #' @export
 smoother_deriv <- function(smoother, u, width = NULL, order = 0L) {
   if (!S7::S7_inherits(smoother, abs_smoother)) {
@@ -344,10 +344,10 @@ smoother_deriv <- function(smoother, u, width = NULL, order = 0L) {
 #' calls at build: a break-point term hands it the median spacing of its
 #' covariate, the smallest transition the data can tell from a step.
 #'
-#' @param smoother An \code{\link{abs_smoother}}.
+#' @param smoother An [abs_smoother()].
 #' @param spacing A spacing in covariate units, one value or one per group.
 #'
-#' @return The width, the same length as \code{spacing} when resolved from
+#' @return The width, the same length as `spacing` when resolved from
 #'   it.
 #'
 #' @examples
@@ -355,7 +355,7 @@ smoother_deriv <- function(smoother, u, width = NULL, order = 0L) {
 #' smoother_width(smooth_hyperbolic(), 0.3)      # 0.09
 #' smoother_width(smooth_probit(h = 0.5), 0.3)   # 0.5, the width it holds
 #'
-#' @seealso \code{\link{smoother_width_floor}}
+#' @seealso [smoother_width_floor()]
 #' @export
 smoother_width <- function(smoother, spacing) {
   if (!S7::S7_inherits(smoother, abs_smoother)) {
@@ -384,7 +384,7 @@ smoother_width <- function(smoother, spacing) {
 #' width parameter's own scale for a smoother parametrized by a squared
 #' length.
 #'
-#' @param smoother An \code{\link{abs_smoother}}.
+#' @param smoother An [abs_smoother()].
 #' @param scale The scale of the covariate (its range).
 #'
 #' @return A single number.
@@ -392,7 +392,7 @@ smoother_width <- function(smoother, spacing) {
 #' @examples
 #' smoother_width_floor(smooth_probit(), scale = 10)
 #'
-#' @seealso \code{\link{smoother_width}}
+#' @seealso [smoother_width()]
 #' @export
 smoother_width_floor <- function(smoother, scale) {
   if (!S7::S7_inherits(smoother, abs_smoother)) {
@@ -427,7 +427,7 @@ S7::method(print, abs_smoother) <- function(x, ...) {
 #' Check a Smoother of the Absolute Value Numerically
 #'
 #' @description
-#' The sibling of \code{check_penalty} for user-written smoothers: the
+#' The sibling of `check_penalty` for user-written smoothers: the
 #' structural properties of \eqn{s} (even, with an odd first derivative
 #' bounded by one, convex, and matching \eqn{\lvert u\rvert} in the tails)
 #' and each derivative order against one numerical differentiation of the
@@ -440,8 +440,8 @@ S7::method(print, abs_smoother) <- function(x, ...) {
 #' wrong derivative is caught against an independent route while the
 #' reference never degenerates into a difference of differences.
 #'
-#' @param smoother An \code{\link{abs_smoother}}.
-#' @param width The width to check at, or \code{NULL} for the smoother's
+#' @param smoother An [abs_smoother()].
+#' @param width The width to check at, or `NULL` for the smoother's
 #'   own (0.5 where it carries none).
 #' @param tol The comparison tolerance.
 #' @param verbose Logical; print the table.
@@ -452,7 +452,7 @@ S7::method(print, abs_smoother) <- function(x, ...) {
 #' res <- check_abs_smoother(smooth_probit(h = 0.3))
 #' all(res$status == "OK")
 #'
-#' @seealso \code{\link{abs_smoother}}, \code{\link{check_penalty}}
+#' @seealso [abs_smoother()], [check_penalty()]
 #' @export
 check_abs_smoother <- function(smoother, width = NULL, tol = 1e-6,
                                verbose = TRUE) {

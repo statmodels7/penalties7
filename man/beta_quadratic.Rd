@@ -7,7 +7,7 @@
 beta_quadratic(pen, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameters.}
 
@@ -21,10 +21,10 @@ A single logical.
 spares a consumer that third derivative altogether.
 }
 \details{
-Distinct from \code{\link{is_quadratic}}, which is about the whole
-construction of \code{\link{quadratic_penalty}}: a structured penalty is
+Distinct from \code{\link[=is_quadratic]{is_quadratic()}}, which is about the whole
+construction of \code{\link[=quadratic_penalty]{quadratic_penalty()}}: a structured penalty is
 quadratic in the coefficients and is not a quadratic penalty, and a
-\code{\link{distrib_penalty}} over a gaussian parent is quadratic in the
+\code{\link[=distrib_penalty]{distrib_penalty()}} over a gaussian parent is quadratic in the
 coefficients while its Hessian is not linear in its hyperparameters. The
 three properties are independent and each is asked of the penalty.
 }
@@ -33,5 +33,5 @@ beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
 
 }
 \seealso{
-\code{\link{penalty_dhessian}}
+\code{\link[=penalty_dhessian]{penalty_dhessian()}}
 }

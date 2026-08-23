@@ -4,7 +4,7 @@ NULL
 #' @title Check a Penalty Numerically
 #'
 #' @description
-#' The sibling of \code{check_link} and \code{check_distrib}: every closed
+#' The sibling of `check_link` and `check_distrib`: every closed
 #' form is compared against a route that shares no code with it. The
 #' gradient and the Hessian are checked against \pkg{numDeriv} on the value,
 #' the theta blocks against \pkg{numDeriv} in each hyperparameter -- the
@@ -12,9 +12,9 @@ NULL
 #' difference -- and the map by comparing \eqn{\rho(D\beta)} routes. Grids
 #' are placed away from the kink set the object itself declares.
 #'
-#' @param pen A \code{\link{penalty}} object.
-#' @param beta A coefficient vector, or \code{NULL} for a default draw.
-#' @param theta A named hyperparameter list, or \code{NULL} for midpoints.
+#' @param pen A [penalty()] object.
+#' @param beta A coefficient vector, or `NULL` for a default draw.
+#' @param theta A named hyperparameter list, or `NULL` for midpoints.
 #' @param tol The comparison tolerance.
 #' @param verbose Logical; print the table.
 #'
@@ -24,7 +24,7 @@ NULL
 #' res <- check_penalty(quadratic_penalty(diag(3)))
 #' all(res$status == "OK")
 #'
-#' @seealso \code{\link{penalty_value}}, \code{\link{has_prox}}
+#' @seealso [penalty_value()], [has_prox()]
 #' @export
 check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
                           verbose = TRUE) {

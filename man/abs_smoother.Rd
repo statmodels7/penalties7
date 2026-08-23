@@ -26,14 +26,14 @@ build.}
 
 \item{per_group}{Whether the width is resolved per group.}
 
-\item{s}{A list of six functions of \code{(u, width)}: \eqn{s} and its
+\item{s}{A list of six functions of \verb{(u, width)}: \eqn{s} and its
 derivatives in \eqn{u} of orders one to five, in order.}
 
 \item{width_from_spacing}{\code{NULL} (the identity) or a function
 carrying a spacing in covariate units onto the width parameter's own
 scale (the square, for the hyperbolic).}
 
-\item{tau_correction}{\code{NULL}, or a function \code{(tau, width)}
+\item{tau_correction}{\code{NULL}, or a function \verb{(tau, width)}
 returning the corrected scale of a random break-point.}
 
 \item{exact_radius}{\code{NULL}, or a function of the width returning
@@ -62,9 +62,9 @@ proper separable one, at the price of the exact zeros the kink produced.
 }
 \details{
 The derivatives are FUNCTIONS and not expressions: a piecewise smoother
-(the quintic) has branches, which \code{\link[stats]{deriv}} does not
+(the quintic) has branches, which \code{\link[stats:deriv]{stats::deriv()}} does not
 read, and with the derivatives written in the constructor the branches
-are ordinary code. Each function takes \code{(u, width)} and vectorizes
+are ordinary code. Each function takes \verb{(u, width)} and vectorizes
 in both, so a per-group width is one value per observation.
 
 \code{width} is the transition scale -- \code{h} for a smoother whose
@@ -72,7 +72,7 @@ parameter is a length, the bent-cable reading of a transition of width
 \eqn{h}; \code{c} for the hyperbolic, whose parameter is a squared
 length. \code{NULL}, the default, asks the consumer to resolve it from
 the data at build (a break-point term takes the median spacing of its
-covariate), through \code{\link{smoother_width}}. \code{per_group} asks
+covariate), through \code{\link[=smoother_width]{smoother_width()}}. \code{per_group} asks
 for one width per group where a grouping is available, the validity
 window of a Laplace approximation being per-subject.
 
@@ -101,6 +101,6 @@ for threshold regression models. \emph{Journal of Econometrics},
 141(2), 704--735.
 }
 \seealso{
-\code{\link{smooth_probit}}, \code{\link{smooth_hyperbolic}},
-  \code{\link{smooth_quintic}}, \code{\link{check_abs_smoother}}
+\code{\link[=smooth_probit]{smooth_probit()}}, \code{\link[=smooth_hyperbolic]{smooth_hyperbolic()}},
+\code{\link[=smooth_quintic]{smooth_quintic()}}, \code{\link[=check_abs_smoother]{check_abs_smoother()}}
 }

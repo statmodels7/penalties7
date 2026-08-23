@@ -7,7 +7,7 @@
 penalty_dcross(pen, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{beta}{A numeric vector of coefficients.}
 
@@ -23,7 +23,7 @@ A named list of numeric vectors, keyed by hyperparameter pair.
 vector per unordered pair.
 }
 \details{
-\code{\link{penalty_cross}} is how the coefficient gradient moves with one
+\code{\link[=penalty_cross]{penalty_cross()}} is how the coefficient gradient moves with one
 hyperparameter; this is how that movement itself moves with a second. It is
 what a marginal criterion needs to differentiate the mode's own derivative,
 and it is exactly zero wherever the penalty is quadratic in the
@@ -35,5 +35,5 @@ penalty_dcross(pen, c(1, 2, 3), list(lambda = 2))
 
 }
 \seealso{
-\code{\link{penalty_cross}}, \code{\link{penalty_dhessian}}
+\code{\link[=penalty_cross]{penalty_cross()}}, \code{\link[=penalty_dhessian]{penalty_dhessian()}}
 }

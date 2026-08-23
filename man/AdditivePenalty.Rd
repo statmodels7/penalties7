@@ -42,7 +42,7 @@ value.}
 An object of class \code{AdditivePenalty}.
 }
 \description{
-The class \code{\link{additive_penalty}} instantiates: several
+The class \code{\link[=additive_penalty]{additive_penalty()}} instantiates: several
 quadratic penalties added together, each with a smoothing parameter of
 its own.
 }
@@ -51,6 +51,6 @@ S7::S7_inherits(additive_penalty(list(diag(3), diag(c(1, 0, 0)))),
                 AdditivePenalty)
 }
 \seealso{
-\code{\link{additive_penalty}}
+\code{\link[=additive_penalty]{additive_penalty()}}
 }
 \keyword{internal}

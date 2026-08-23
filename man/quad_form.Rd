@@ -16,7 +16,7 @@ A single number.
 }
 \description{
 The quadratic form of the mapped coefficients, shared by
-  the value and the
-  theta derivatives.
+the value and the
+theta derivatives.
 }
 \keyword{internal}

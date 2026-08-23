@@ -7,7 +7,7 @@
 penalty_dhessian(pen, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{beta}{A numeric vector of coefficients.}
 
@@ -27,15 +27,15 @@ A named list of matrices, one per hyperparameter.
 this says how that curvature moves with each hyperparameter. It is the piece
 a marginal criterion needs to differentiate \eqn{\log|H+S|}.
 
-Every branch answers in closed form. For \code{\link{quadratic_penalty}} the
+Every branch answers in closed form. For \code{\link[=quadratic_penalty]{quadratic_penalty()}} the
 Hessian is \eqn{\lambda D'PD} and the derivative is \eqn{D'PD}; for
-\code{\link{additive_penalty}} it is the component \eqn{P_k} of each
-smoothing parameter; for \code{\link{structured_penalty}} it is the matrix
-parameter's own \code{param_d1}; for \code{\link{distrib_penalty}} it is
+\code{\link[=additive_penalty]{additive_penalty()}} it is the component \eqn{P_k} of each
+smoothing parameter; for \code{\link[=structured_penalty]{structured_penalty()}} it is the matrix
+parameter's own \code{param_d1}; for \code{\link[=distrib_penalty]{distrib_penalty()}} it is
 \eqn{-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D}, which
 \pkg{distributions7} supplies as \code{distrib_cross2_y}. A penalty defined
-by its derivative rather than by a density -- \code{\link{scad_penalty}},
-\code{\link{mcp_penalty}} -- has no such quantity where its kinks are and
+by its derivative rather than by a density -- \code{\link[=scad_penalty]{scad_penalty()}},
+\code{\link[=mcp_penalty]{mcp_penalty()}} -- has no such quantity where its kinks are and
 rejects.
 }
 \examples{
@@ -44,6 +44,6 @@ penalty_dhessian(pen, c(1, 2, 3), list(lambda = 2))
 
 }
 \seealso{
-\code{\link{penalty_hessian}}, \code{\link{penalty_d2hessian}},
-  \code{\link{penalty_dcross}}
+\code{\link[=penalty_hessian]{penalty_hessian()}}, \code{\link[=penalty_d2hessian]{penalty_d2hessian()}},
+\code{\link[=penalty_dcross]{penalty_dcross()}}
 }

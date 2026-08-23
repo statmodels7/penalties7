@@ -11,7 +11,7 @@
 penalty_prox_spec(pen, theta, step, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameter values.}
 
@@ -21,8 +21,8 @@ penalty_prox_spec(pen, theta, step, ...)
 }
 \value{
 A list with \code{cut}, \code{slope} and \code{icept}, each a matrix
-  with one row per coefficient and one column per piece, the last cut being
-  \code{Inf}; or \code{NULL} where the operator has no such description.
+with one row per coefficient and one column per piece, the last cut being
+\code{Inf}; or \code{NULL} where the operator has no such description.
 }
 \description{
 Describes the scalar proximal operator of a separable penalty as an odd
@@ -62,7 +62,7 @@ becomes \eqn{t < (a-1)/d_j^2} and \eqn{t < \gamma/d_j^2}.
 not separable and returns \code{NULL}, as does a separable penalty under a
 map that is not diagonal, one whose operator is a root rather than a
 formula, and one whose parent is not centered where the quadratic pull is.
-A caller that gets \code{NULL} uses \code{\link{penalty_prox}} itself.
+A caller that gets \code{NULL} uses \code{\link[=penalty_prox]{penalty_prox()}} itself.
 }
 \examples{
 pen <- lasso_penalty(n_coef = 2L)
@@ -70,6 +70,6 @@ penalty_prox_spec(pen, list(lambda = 1.5), step = c(0.5, 2))
 
 }
 \seealso{
-\code{\link{penalty_prox}}, \code{\link{has_prox}}
+\code{\link[=penalty_prox]{penalty_prox()}}, \code{\link[=has_prox]{has_prox()}}
 }
 \keyword{internal}

@@ -7,7 +7,7 @@
 zero_pairs(pen, z)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{z}{The zero object, a matrix or a vector.}
 }

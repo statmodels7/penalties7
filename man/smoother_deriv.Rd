@@ -7,7 +7,7 @@
 smoother_deriv(smoother, u, width = NULL, order = 0L)
 }
 \arguments{
-\item{smoother}{An \code{\link{abs_smoother}}.}
+\item{smoother}{An \code{\link[=abs_smoother]{abs_smoother()}}.}
 
 \item{u}{A numeric vector.}
 
@@ -29,5 +29,5 @@ smoother_deriv(smooth_hyperbolic(c = 1), 0:3, order = 1)
 
 }
 \seealso{
-\code{\link{abs_smoother}}
+\code{\link[=abs_smoother]{abs_smoother()}}
 }

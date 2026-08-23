@@ -7,7 +7,7 @@
 carry_pairs(pen, comp, carry)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{comp}{The parent's components, keyed by parameter pair.}
 

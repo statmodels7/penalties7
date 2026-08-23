@@ -31,6 +31,6 @@ See the generic pages.
 }
 \description{
 Every quantity from the structure's own contract; see
-\code{\link{structured_penalty}}.
+\code{\link[=structured_penalty]{structured_penalty()}}.
 }
 \keyword{internal}

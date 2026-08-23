@@ -13,7 +13,7 @@ penalty_hess_theta(pen, beta, theta, scale = c("parameter", "link"), ...)
 penalty_cross(pen, beta, theta, scale = c("parameter", "link"), ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{beta}{A numeric vector of coefficients.}
 
@@ -28,8 +28,8 @@ always return the parameter scale.}
 }
 \value{
 A named list: one number per hyperparameter for the gradient, one
-  number per pair for the Hessian, one numeric vector of length \code{q}
-  per hyperparameter for the mixed block.
+number per pair for the Hessian, one numeric vector of length \code{q}
+per hyperparameter for the mixed block.
 }
 \description{
 \code{penalty_grad_theta} returns \eqn{\partial\rho/\partial\theta} as a
@@ -46,5 +46,5 @@ penalty_cross(pen, c(1, -1), list(lambda = 3))
 
 }
 \seealso{
-\code{\link{penalty_value}}, \code{\link{penalty_gradient}}, \code{\link{penalty_kinks}}
+\code{\link[=penalty_value]{penalty_value()}}, \code{\link[=penalty_gradient]{penalty_gradient()}}, \code{\link[=penalty_kinks]{penalty_kinks()}}
 }

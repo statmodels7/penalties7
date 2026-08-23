@@ -49,7 +49,7 @@ differentiable.}
 An object of class \code{QuadraticPenalty}.
 }
 \description{
-The class \code{\link{quadratic_penalty}} instantiates. Beyond the base
+The class \code{\link[=quadratic_penalty]{quadratic_penalty()}} instantiates. Beyond the base
 properties it stores the matrix \eqn{P}, its rank, its null basis and its
 log pseudo-determinant, all fixed by one eigendecomposition at
 construction.
@@ -58,6 +58,6 @@ construction.
 S7::S7_inherits(quadratic_penalty(diag(2)), QuadraticPenalty)
 }
 \seealso{
-\code{\link{quadratic_penalty}}
+\code{\link[=quadratic_penalty]{quadratic_penalty()}}
 }
 \keyword{internal}

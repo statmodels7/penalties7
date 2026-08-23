@@ -13,7 +13,7 @@ additive_sum(pen, theta)
 }
 \value{
 A list with the matrix \code{S}, its pseudo-inverse \code{Sp},
-  and the log pseudo-determinant \code{logpdet}.
+and the log pseudo-determinant \code{logpdet}.
 }
 \description{
 \eqn{S(\lambda)} and the pseudo-inverse the log pseudo-determinant and

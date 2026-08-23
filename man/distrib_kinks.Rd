@@ -21,7 +21,7 @@ A distribution records which of its parameters the log-likelihood is
 differentiable in, through \code{params_smooth}, and for a location family a
 location that is not smooth is a kink in the argument at that location. A
 penalty is the negative log-density read in the coefficient, so a
-\code{\link[distributions7]{fixed}} wrapper holding such a parameter at a
+\code{\link[distributions7:fixed]{distributions7::fixed()}} wrapper holding such a parameter at a
 value puts the kink there: \code{fixed(laplace_distrib(), mu = 0)} is the
 lasso and has a kink at zero.
 
@@ -45,5 +45,5 @@ distrib_kinks(distributions7::fixed(distributions7::gaussian1_distrib(),
 
 }
 \seealso{
-\code{\link{distrib_penalty}}, \code{\link{penalty_kinks}}
+\code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=penalty_kinks]{penalty_kinks()}}
 }

@@ -4,7 +4,7 @@ NULL
 #' @title S7 Class for a Sum of Quadratic Penalties
 #'
 #' @description
-#' The class \code{\link{additive_penalty}} instantiates: several
+#' The class [additive_penalty()] instantiates: several
 #' quadratic penalties added together, each with a smoothing parameter of
 #' its own.
 #'
@@ -14,9 +14,9 @@ NULL
 #' @param p_rank The rank of the sum, the same at every positive parameter
 #'   value.
 #'
-#' @return An object of class \code{AdditivePenalty}.
+#' @return An object of class `AdditivePenalty`.
 #'
-#' @seealso \code{\link{additive_penalty}}
+#' @seealso [additive_penalty()]
 #' @examples
 #' S7::S7_inherits(additive_penalty(list(diag(3), diag(c(1, 0, 0)))),
 #'                 AdditivePenalty)
@@ -44,7 +44,7 @@ AdditivePenalty <- S7::new_class(
 #' one direction and smooth in another.
 #'
 #' @details
-#' \code{\link{quadratic_penalty}} carries a single matrix and one scale,
+#' [quadratic_penalty()] carries a single matrix and one scale,
 #' which forces every direction to be smoothed alike. Here the components
 #' keep their own parameters, and the quantities a marginal criterion reads
 #' follow from one eigendecomposition of the sum:
@@ -53,7 +53,7 @@ AdditivePenalty <- S7::new_class(
 #'   \frac{\partial^{2}}{\partial\lambda_k\partial\lambda_l}
 #'   \log\mathrm{pdet}\,S = -\operatorname{tr}(S^{+}P_kS^{+}P_l).}
 #'
-#' \strong{The rank is not read off the sum.} Counting the eigenvalues of
+#' **The rank is not read off the sum.** Counting the eigenvalues of
 #' \eqn{S(\lambda)} above a tolerance gives the right answer only while the
 #' parameters are comparable: once they differ by orders of magnitude the
 #' small contributions sink below any fixed tolerance and are counted as
@@ -65,16 +65,16 @@ AdditivePenalty <- S7::new_class(
 #'
 #' @param mats A list of symmetric positive semidefinite matrices of the
 #'   same dimension.
-#' @param map The matrix \eqn{D}, or \code{NULL} (default) for the
+#' @param map The matrix \eqn{D}, or `NULL` (default) for the
 #'   identity.
 #' @param link_lambda The link carrying each smoothing parameter to the
 #'   unconstrained scale. Defaults to the log.
 #' @param tol The relative tolerance below which an eigenvalue counts as
 #'   zero.
 #'
-#' @return An object of class \code{\link{AdditivePenalty}}.
+#' @return An object of class [AdditivePenalty()].
 #'
-#' @seealso \code{\link{quadratic_penalty}}
+#' @seealso [quadratic_penalty()]
 #'
 #' @examples
 #' # curvature in two directions, penalized separately
@@ -163,11 +163,11 @@ additive_penalty <- function(mats, map = NULL,
 #' \eqn{S(\lambda)} and the pseudo-inverse the log pseudo-determinant and
 #' its derivatives are written in, from one eigendecomposition.
 #'
-#' @param pen An \code{AdditivePenalty} object.
+#' @param pen An `AdditivePenalty` object.
 #' @param theta The aligned hyperparameter list.
 #'
-#' @return A list with the matrix \code{S}, its pseudo-inverse \code{Sp},
-#'   and the log pseudo-determinant \code{logpdet}.
+#' @return A list with the matrix `S`, its pseudo-inverse `Sp`,
+#'   and the log pseudo-determinant `logpdet`.
 #'
 #' @keywords internal
 additive_sum <- function(pen, theta) {
@@ -182,8 +182,8 @@ additive_sum <- function(pen, theta) {
 
 #' @title Additive Penalty Methods
 #' @name penalty_value.AdditivePenalty
-#' @description The closed forms; see \code{\link{additive_penalty}}.
-#' @param pen An \code{AdditivePenalty} object.
+#' @description The closed forms; see [additive_penalty()].
+#' @param pen An `AdditivePenalty` object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of smoothing parameters.
 #' @param scale Handled by the generic.

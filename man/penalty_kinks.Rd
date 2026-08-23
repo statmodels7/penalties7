@@ -7,7 +7,7 @@
 penalty_kinks(pen, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameter values.}
 
@@ -19,7 +19,7 @@ A numeric vector, possibly empty.
 \description{
 The values of \eqn{t = D\beta} at which \eqn{\rho} is not differentiable
 in its argument: empty for the smooth penalties, \code{0} for the lasso,
-SCAD and MCP. \code{\link{check_penalty}} places its grids away from
+SCAD and MCP. \code{\link[=check_penalty]{check_penalty()}} places its grids away from
 them, and a solver may consult them.
 }
 \examples{
@@ -28,5 +28,5 @@ penalty_kinks(lasso_penalty(), list(lambda = 1))
 
 }
 \seealso{
-\code{\link{penalty_value}}, \code{\link{penalty_gradient}}, \code{\link{penalty_hessian}}, \code{\link{penalty_grad_theta}}, \code{\link{penalty_cross}}
+\code{\link[=penalty_value]{penalty_value()}}, \code{\link[=penalty_gradient]{penalty_gradient()}}, \code{\link[=penalty_hessian]{penalty_hessian()}}, \code{\link[=penalty_grad_theta]{penalty_grad_theta()}}, \code{\link[=penalty_cross]{penalty_cross()}}
 }

@@ -7,7 +7,7 @@
 check_penalty(pen, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{beta}{A coefficient vector, or \code{NULL} for a default draw.}
 
@@ -35,5 +35,5 @@ all(res$status == "OK")
 
 }
 \seealso{
-\code{\link{penalty_value}}, \code{\link{has_prox}}
+\code{\link[=penalty_value]{penalty_value()}}, \code{\link[=has_prox]{has_prox()}}
 }

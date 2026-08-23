@@ -10,7 +10,7 @@ map_apply(pen, beta)
 map_back(pen, g)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{beta}{A numeric vector of coefficients.}
 

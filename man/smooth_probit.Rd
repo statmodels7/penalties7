@@ -13,7 +13,7 @@ resolved at build from the covariate's spacing.}
 \item{per_group}{Whether the width is resolved per group.}
 }
 \value{
-An \code{\link{abs_smoother}}.
+An \code{\link[=abs_smoother]{abs_smoother()}}.
 }
 \description{
 \eqn{s(u) = \mathbb{E}\lvert u + hZ\rvert} for \eqn{Z} standard normal:
@@ -36,6 +36,6 @@ smoother_deriv(sm, 0, order = 0)  # 2 * h * dnorm(0)
 
 }
 \seealso{
-\code{\link{abs_smoother}}, \code{\link{smooth_hyperbolic}},
-  \code{\link{smooth_quintic}}
+\code{\link[=abs_smoother]{abs_smoother()}}, \code{\link[=smooth_hyperbolic]{smooth_hyperbolic()}},
+\code{\link[=smooth_quintic]{smooth_quintic()}}
 }

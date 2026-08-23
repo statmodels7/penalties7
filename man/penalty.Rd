@@ -45,6 +45,6 @@ S7::S7_inherits(quadratic_penalty(diag(3)), penalty)
 
 }
 \seealso{
-\code{\link{quadratic_penalty}}, \code{\link{distrib_penalty}},
-  \code{\link{scad_penalty}}
+\code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=distrib_penalty]{distrib_penalty()}},
+\code{\link[=scad_penalty]{scad_penalty()}}
 }

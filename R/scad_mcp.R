@@ -4,7 +4,7 @@ NULL
 #' @title S7 Classes for the Derivative-Defined Penalties
 #'
 #' @description
-#' The classes \code{\link{scad_penalty}} and \code{\link{mcp_penalty}}
+#' The classes [scad_penalty()] and [mcp_penalty()]
 #' instantiate: families the literature defines by \eqn{\rho'} and whose
 #' \eqn{\rho} follows by the closed piecewise antiderivative anchored at
 #' \eqn{\rho(0) = 0}. Both are improper: \eqn{\rho} is bounded, so
@@ -12,9 +12,9 @@ NULL
 #'
 #' @inheritParams penalty
 #'
-#' @return An object of class \code{ScadPenalty} or \code{McpPenalty}.
+#' @return An object of class `ScadPenalty` or `McpPenalty`.
 #'
-#' @seealso \code{\link{scad_penalty}}, \code{\link{mcp_penalty}}
+#' @seealso [scad_penalty()], [mcp_penalty()]
 #' @examples
 #' S7::S7_inherits(scad_penalty(), ScadPenalty)
 #' @keywords internal
@@ -38,30 +38,30 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty)
 #' quantity -- the value, the derivatives in \eqn{\beta} and in the
 #' hyperparameters, and the mixed block -- is a closed piecewise form. Both
 #' report kinks at zero, where the second derivative additionally jumps at
-#' the region boundaries; \code{\link{check_penalty}} keeps its grids away
+#' the region boundaries; [check_penalty()] keeps its grids away
 #' from all of them by asking the object.
 #'
-#' @param map The matrix \eqn{D}, or \code{NULL} (default) for the identity.
-#' @param n_coef The number of coefficients when \code{map} is \code{NULL}.
+#' @param map The matrix \eqn{D}, or `NULL` (default) for the identity.
+#' @param n_coef The number of coefficients when `map` is `NULL`.
 #' @param link_lambda The link carrying \eqn{\lambda}.
 #' @param link_a,link_gamma The link carrying the shoulder parameter, lower
 #'   bounded at 2 (SCAD) or 1 (MCP).
 #'
-#' @return An object of class \code{ScadPenalty} or \code{McpPenalty}.
+#' @return An object of class `ScadPenalty` or `McpPenalty`.
 #'
 #' @references
 #' Fan, J. and Li, R. (2001). Variable selection via nonconcave penalized
-#' likelihood and its oracle properties. \emph{JASA} 96, 1348-1360.
+#' likelihood and its oracle properties. *JASA* 96, 1348-1360.
 #'
 #' Zhang, C.-H. (2010). Nearly unbiased variable selection under minimax
-#' concave penalty. \emph{Annals of Statistics} 38, 894-942.
+#' concave penalty. *Annals of Statistics* 38, 894-942.
 #'
 #' @examples
 #' pen <- scad_penalty(n_coef = 3)
 #' penalty_value(pen, c(0.5, 2, 5), list(lambda = 1, a = 3.7))
 #' is_proper(pen)
 #'
-#' @seealso \code{\link{ridge_penalty}}, \code{\link{is_proper}}, \code{\link{penalty_prox}}
+#' @seealso [ridge_penalty()], [is_proper()], [penalty_prox()]
 #' @export
 scad_penalty <- function(map = NULL, n_coef = 1L,
                          link_lambda = linkfunctions7::log_link(),
@@ -111,10 +111,10 @@ scad_parts <- function(t, lam, a) {
 
 #' @title SCAD Methods
 #' @name penalty_value.ScadPenalty
-#' @description The closed piecewise forms; see \code{\link{scad_penalty}}.
-#' @param pen A \code{ScadPenalty} object.
+#' @description The closed piecewise forms; see [scad_penalty()].
+#' @param pen A `ScadPenalty` object.
 #' @param beta A numeric vector of coefficients.
-#' @param theta A list containing \code{lambda} and \code{a}.
+#' @param theta A list containing `lambda` and `a`.
 #' @param scale Handled by the generic.
 #' @param ... Unused.
 #' @return See the generic pages.
@@ -212,10 +212,10 @@ mcp_parts <- function(t, lam, gam) {
 
 #' @title MCP Methods
 #' @name penalty_value.McpPenalty
-#' @description The closed piecewise forms; see \code{\link{mcp_penalty}}.
-#' @param pen An \code{McpPenalty} object.
+#' @description The closed piecewise forms; see [mcp_penalty()].
+#' @param pen An `McpPenalty` object.
 #' @param beta A numeric vector of coefficients.
-#' @param theta A list containing \code{lambda} and \code{gamma}.
+#' @param theta A list containing `lambda` and `gamma`.
 #' @param scale Handled by the generic.
 #' @param ... Unused.
 #' @return See the generic pages.

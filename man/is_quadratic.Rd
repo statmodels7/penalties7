@@ -7,7 +7,7 @@
 is_quadratic(pen, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{...}{Passed to methods.}
 }
@@ -15,7 +15,7 @@ is_quadratic(pen, ...)
 A single logical.
 }
 \description{
-\code{TRUE} only for \code{\link{quadratic_penalty}}, whose matrix, rank,
+\code{TRUE} only for \code{\link[=quadratic_penalty]{quadratic_penalty()}}, whose matrix, rank,
 null basis and log pseudo-determinant the marginal-likelihood generics
 expose.
 }
@@ -33,8 +33,8 @@ Gaussian prior with precision \eqn{\lambda P} on \eqn{D\beta}:
 
 with \eqn{\log^{+}} the log pseudo-determinant and
 \eqn{r = \operatorname{rank}(P)}. Those are the quantities
-\code{\link{penalty_matrix}}, \code{\link{penalty_rank}},
-\code{\link{penalty_null_basis}} and \code{\link{penalty_logpdet}}
+\code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}},
+\code{\link[=penalty_null_basis]{penalty_null_basis()}} and \code{\link[=penalty_logpdet]{penalty_logpdet()}}
 report and a REML or marginal-likelihood criterion needs; a penalty for
 which this is \code{FALSE} has no such matrix and those generics reject.
 }
@@ -44,5 +44,5 @@ is_quadratic(ridge_penalty())
 
 }
 \seealso{
-\code{\link{is_proper}}, \code{\link{has_prox}}, \code{\link{penalty_matrix}}, \code{\link{penalty_rank}}, \code{\link{penalty_null_basis}}, \code{\link{penalty_logpdet}}
+\code{\link[=is_proper]{is_proper()}}, \code{\link[=has_prox]{has_prox()}}, \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}}, \code{\link[=penalty_logpdet]{penalty_logpdet()}}
 }

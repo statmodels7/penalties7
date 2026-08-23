@@ -11,7 +11,7 @@ smooth_quintic(h = NULL)
 resolved at build from the covariate's spacing.}
 }
 \value{
-An \code{\link{abs_smoother}}.
+An \code{\link[=abs_smoother]{abs_smoother()}}.
 }
 \description{
 \eqn{\lvert u\rvert} replaced inside \eqn{[-h, h]} by the even
@@ -27,7 +27,7 @@ so \eqn{s''(u) = 15(1 - t^2)^2/(8h)} vanishes to second order at
 derivative at the seam. The smoothing bias is exactly zero outside
 \eqn{[\psi - h, \psi + h]}, which is the cleanest fixed-width choice;
 the branches are why the contract carries the derivatives as functions,
-\code{\link[stats]{deriv}} not reading a clamp.
+\code{\link[stats:deriv]{stats::deriv()}} not reading a clamp.
 }
 \examples{
 sm <- smooth_quintic(h = 0.5)
@@ -35,5 +35,5 @@ smoother_deriv(sm, 1, order = 0)  # exactly 1: outside the transition
 
 }
 \seealso{
-\code{\link{abs_smoother}}, \code{\link{smooth_probit}}
+\code{\link[=abs_smoother]{abs_smoother()}}, \code{\link[=smooth_probit]{smooth_probit()}}
 }

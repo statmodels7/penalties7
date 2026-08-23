@@ -25,6 +25,6 @@
 See the generic pages.
 }
 \description{
-The closed piecewise forms; see \code{\link{scad_penalty}}.
+The closed piecewise forms; see \code{\link[=scad_penalty]{scad_penalty()}}.
 }
 \keyword{internal}

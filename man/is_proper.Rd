@@ -7,7 +7,7 @@
 is_proper(pen, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{...}{Passed to methods.}
 }
@@ -26,5 +26,5 @@ is_proper(scad_penalty())
 
 }
 \seealso{
-\code{\link{is_quadratic}}, \code{\link{has_prox}}, \code{\link{penalty_matrix}}, \code{\link{penalty_rank}}, \code{\link{penalty_null_basis}}, \code{\link{penalty_logpdet}}
+\code{\link[=is_quadratic]{is_quadratic()}}, \code{\link[=has_prox]{has_prox()}}, \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}}, \code{\link[=penalty_logpdet]{penalty_logpdet()}}
 }

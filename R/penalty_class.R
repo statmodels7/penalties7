@@ -8,7 +8,7 @@
 #' unconstrained scale.
 #'
 #' @param penalty_name A string naming the penalty.
-#' @param map The matrix \eqn{D}, or \code{NULL} for the identity.
+#' @param map The matrix \eqn{D}, or `NULL` for the identity.
 #' @param n_coef The number of coefficients \eqn{q}.
 #' @param params Hyperparameter names, in order.
 #' @param params_bounds A named list of open intervals.
@@ -16,10 +16,10 @@
 #' @param params_smooth Logical vector; which hyperparameters are
 #'   differentiable.
 #'
-#' @return An object inheriting from class \code{penalty}.
+#' @return An object inheriting from class `penalty`.
 #'
-#' @seealso \code{\link{quadratic_penalty}}, \code{\link{distrib_penalty}},
-#'   \code{\link{scad_penalty}}
+#' @seealso [quadratic_penalty()], [distrib_penalty()],
+#'   [scad_penalty()]
 #'
 #' @examples
 #' S7::S7_inherits(quadratic_penalty(diag(3)), penalty)
@@ -41,13 +41,13 @@ penalty <- S7::new_class(
 #' Align and Validate the Hyperparameters
 #'
 #' @description
-#' Reorders \code{theta} by name, strips stray names off the values and
-#' validates against \code{params_bounds} treated as open intervals -- the
+#' Reorders `theta` by name, strips stray names off the values and
+#' validates against `params_bounds` treated as open intervals -- the
 #' \pkg{distributions7} contract, restated here for hyperparameters. A named
 #' numeric vector is accepted in place of the list and converted to one, so
 #' that every branch reads the same shape.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param theta A named list of hyperparameter values, or a named numeric
 #'   vector carrying the same.
 #'
@@ -109,12 +109,12 @@ as_map <- function(map) {
 #' Apply the Linear Map and Its Transpose
 #'
 #' @description
-#' \code{map_apply} computes \eqn{t = D\beta} and \code{map_back} computes
-#' \eqn{D'g}; a \code{NULL} map is the identity and pays nothing.
+#' `map_apply` computes \eqn{t = D\beta} and `map_back` computes
+#' \eqn{D'g}; a `NULL` map is the identity and pays nothing.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param beta A numeric vector of coefficients.
-#' @param g A numeric vector of length \code{nrow(D)}.
+#' @param g A numeric vector of length `nrow(D)`.
 #'
 #' @return A numeric vector.
 #'
@@ -136,11 +136,11 @@ map_back <- function(pen, g) {
 #' the diagonal matrix, and \eqn{D' M D} for a parent read blockwise, whose
 #' middle matrix is block diagonal rather than diagonal.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param h A numeric vector of diagonal entries.
 #' @param m A symmetric matrix.
 #'
-#' @return A \code{q x q} symmetric matrix.
+#' @return A `q x q` symmetric matrix.
 #'
 #' @keywords internal
 map_quad <- function(pen, h) {
@@ -194,11 +194,11 @@ ptheta_pairs <- function(params) {
 #' same interception \pkg{distributions7} applies, restricted to the two
 #' orders a penalty consumer needs.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param theta The aligned hyperparameters.
-#' @param g The parameter-scale gradient list, or \code{NULL}.
-#' @param H The parameter-scale Hessian list, or \code{NULL}.
-#' @param cross The parameter-scale mixed list, or \code{NULL}.
+#' @param g The parameter-scale gradient list, or `NULL`.
+#' @param H The parameter-scale Hessian list, or `NULL`.
+#' @param cross The parameter-scale mixed list, or `NULL`.
 #'
 #' @return Whichever of the three was supplied, transformed.
 #'
@@ -232,9 +232,9 @@ ptheta_to_link <- function(pen, theta, g = NULL, H = NULL, cross = NULL) {
 #' @title Print a Penalty
 #' @name print.penalty
 #' @description One line: the name, the sizes, the hyperparameters.
-#' @param x A \code{\link{penalty}} object.
+#' @param x A [penalty()] object.
 #' @param ... Unused.
-#' @return \code{x}, invisibly.
+#' @return `x`, invisibly.
 #' @keywords internal
 S7::method(print, penalty) <- function(x, ...) {
   m <- if (is.null(x@map)) x@n_coef else nrow(x@map)

@@ -34,20 +34,20 @@ NULL
 #' differentiable log-density is solved coordinatewise from the stationary
 #' condition \eqn{(\beta - v)/t = \ell^{(y)}(\beta)}. The right-hand side
 #' is the response derivative
-#' \code{\link[distributions7]{distrib_grad_y}}, closed form for every
+#' [distributions7::distrib_grad_y()], closed form for every
 #' continuous family, and log-concavity of the density makes the left side
 #' minus the right side strictly increasing, so the root is unique and a
 #' bracketed search finds it.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param v A numeric vector, the point to be pulled towards.
 #' @param step The positive step length \eqn{t}.
 #' @param theta A named list of hyperparameter values.
 #' @param ... Passed to methods.
 #'
-#' @return A numeric vector of the same length as \code{v}.
+#' @return A numeric vector of the same length as `v`.
 #'
-#' @seealso \code{\link{has_prox}}, \code{\link{penalty_value}}
+#' @seealso [has_prox()], [penalty_value()]
 #'
 #' @examples
 #' # the lasso: a soft threshold
@@ -81,7 +81,7 @@ S7::method(penalty_prox, penalty) <- function(pen, v, step, theta, ...) {
 #' @title Does a Penalty Supply a Proximal Operator?
 #'
 #' @description
-#' \code{TRUE} when \code{\link{penalty_prox}} can be evaluated for this
+#' `TRUE` when [penalty_prox()] can be evaluated for this
 #' penalty at a suitable step, so that a caller may choose a proximal
 #' method over a smooth one without provoking an error.
 #'
@@ -100,11 +100,11 @@ S7::method(penalty_prox, penalty) <- function(pen, v, step, theta, ...) {
 #' coordinatewise root, or when it is SCAD or MCP over their convex
 #' regions.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #'
 #' @return A single logical.
 #'
-#' @seealso \code{\link{penalty_prox}}
+#' @seealso [penalty_prox()]
 #'
 #' @examples
 #' c(lasso = has_prox(lasso_penalty()), scad = has_prox(scad_penalty()))
@@ -131,7 +131,7 @@ has_prox <- function(pen) {
 #' The Diagonal of a Map That Has One
 #'
 #' @description
-#' The entries of \eqn{D} where the map is diagonal, and \code{NULL} where
+#' The entries of \eqn{D} where the map is diagonal, and `NULL` where
 #' there is no map or the map is not diagonal.
 #'
 #' @details
@@ -148,9 +148,9 @@ has_prox <- function(pen) {
 #' where testing a dense matrix for diagonality would cost \eqn{q^2} and
 #' defeat the point.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #'
-#' @return A numeric vector, or \code{NULL}.
+#' @return A numeric vector, or `NULL`.
 #'
 #' @keywords internal
 map_diagonal <- function(pen) {
@@ -196,7 +196,7 @@ map_diagonal <- function(pen) {
 #' One linear solve, \eqn{(I + tS)^{-1}v} with \eqn{S = \lambda D'PD} the
 #' penalty's Hessian, which holds for any map because the objective stays
 #' quadratic.
-#' @param pen A \code{QuadraticPenalty} object.
+#' @param pen A `QuadraticPenalty` object.
 #' @param v A numeric vector.
 #' @param step The step length.
 #' @param theta A named list of hyperparameter values.
@@ -232,7 +232,7 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' other parent with a differentiable log-density, the
 #' coordinatewise root of \eqn{(\beta - v)/t = \ell^{(y)}(\beta)}, which is
 #' unique because the density is log-concave.
-#' @param pen A \code{DistribPenalty} object.
+#' @param pen A `DistribPenalty` object.
 #' @param v A numeric vector.
 #' @param step The step length.
 #' @param theta A named list of hyperparameter values.
@@ -327,10 +327,10 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' threshold on the tapering region, and the identity beyond \eqn{a\lambda}.
 #' The middle region is convex only while \eqn{t < a - 1}, and a longer
 #' step is rejected.
-#' @param pen A \code{ScadPenalty} object.
+#' @param pen A `ScadPenalty` object.
 #' @param v A numeric vector.
 #' @param step The step length.
-#' @param theta A named list containing \code{lambda} and \code{a}.
+#' @param theta A named list containing `lambda` and `a`.
 #' @param ... Unused.
 #' @return A numeric vector.
 #' @keywords internal
@@ -363,10 +363,10 @@ S7::method(penalty_prox, ScadPenalty) <- function(pen, v, step, theta, ...) {
 #' The closed piecewise operator: a rescaled soft threshold below
 #' \eqn{\gamma\lambda} and the identity beyond it. Convex only while
 #' \eqn{t < \gamma}, and a longer step is rejected.
-#' @param pen An \code{McpPenalty} object.
+#' @param pen An `McpPenalty` object.
 #' @param v A numeric vector.
 #' @param step The step length.
-#' @param theta A named list containing \code{lambda} and \code{gamma}.
+#' @param theta A named list containing `lambda` and `gamma`.
 #' @param ... Unused.
 #' @return A numeric vector.
 #' @keywords internal

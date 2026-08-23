@@ -26,30 +26,30 @@ NULL
 #' \partial\theta_m}, one matrix per hyperparameter.
 #'
 #' @details
-#' \code{penalty_hessian} says how curved the penalty is in the coefficients;
+#' `penalty_hessian` says how curved the penalty is in the coefficients;
 #' this says how that curvature moves with each hyperparameter. It is the piece
 #' a marginal criterion needs to differentiate \eqn{\log|H+S|}.
 #'
-#' Every branch answers in closed form. For \code{\link{quadratic_penalty}} the
+#' Every branch answers in closed form. For [quadratic_penalty()] the
 #' Hessian is \eqn{\lambda D'PD} and the derivative is \eqn{D'PD}; for
-#' \code{\link{additive_penalty}} it is the component \eqn{P_k} of each
-#' smoothing parameter; for \code{\link{structured_penalty}} it is the matrix
-#' parameter's own \code{param_d1}; for \code{\link{distrib_penalty}} it is
+#' [additive_penalty()] it is the component \eqn{P_k} of each
+#' smoothing parameter; for [structured_penalty()] it is the matrix
+#' parameter's own `param_d1`; for [distrib_penalty()] it is
 #' \eqn{-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D}, which
-#' \pkg{distributions7} supplies as \code{distrib_cross2_y}. A penalty defined
-#' by its derivative rather than by a density -- \code{\link{scad_penalty}},
-#' \code{\link{mcp_penalty}} -- has no such quantity where its kinks are and
+#' \pkg{distributions7} supplies as `distrib_cross2_y`. A penalty defined
+#' by its derivative rather than by a density -- [scad_penalty()],
+#' [mcp_penalty()] -- has no such quantity where its kinks are and
 #' rejects.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of hyperparameters.
 #' @param ... Passed to methods.
 #'
 #' @return A named list of matrices, one per hyperparameter.
 #'
-#' @seealso \code{\link{penalty_hessian}}, \code{\link{penalty_d2hessian}},
-#'   \code{\link{penalty_dcross}}
+#' @seealso [penalty_hessian()], [penalty_d2hessian()],
+#'   [penalty_dcross()]
 #'
 #' @examples
 #' pen <- quadratic_penalty(diag(3))
@@ -74,20 +74,20 @@ penalty_dhessian <- S7::new_generic("penalty_dhessian", "pen",
 #' @details
 #' Zero for every penalty whose Hessian is linear in its hyperparameters, which
 #' is the quadratic and additive branches; the structured branch reads the
-#' matrix parameter's \code{param_d2}, and the separable branch the second
+#' matrix parameter's `param_d2`, and the separable branch the second
 #' \eqn{\theta}-derivative of the parent's response curvature.
 #'
-#' The keys are those of \code{\link{penalty_hess_theta}}, so a consumer
+#' The keys are those of [penalty_hess_theta()], so a consumer
 #' looking a pair up need not know which order it was written in.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of hyperparameters.
 #' @param ... Passed to methods.
 #'
 #' @return A named list of matrices, keyed by hyperparameter pair.
 #'
-#' @seealso \code{\link{penalty_dhessian}}
+#' @seealso [penalty_dhessian()]
 #'
 #' @examples
 #' pen <- quadratic_penalty(diag(3))
@@ -109,20 +109,20 @@ penalty_d2hessian <- S7::new_generic("penalty_d2hessian", "pen",
 #' vector per unordered pair.
 #'
 #' @details
-#' \code{\link{penalty_cross}} is how the coefficient gradient moves with one
+#' [penalty_cross()] is how the coefficient gradient moves with one
 #' hyperparameter; this is how that movement itself moves with a second. It is
 #' what a marginal criterion needs to differentiate the mode's own derivative,
 #' and it is exactly zero wherever the penalty is quadratic in the
 #' coefficients with a Hessian linear in the hyperparameters.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of hyperparameters.
 #' @param ... Passed to methods.
 #'
 #' @return A named list of numeric vectors, keyed by hyperparameter pair.
 #'
-#' @seealso \code{\link{penalty_cross}}, \code{\link{penalty_dhessian}}
+#' @seealso [penalty_cross()], [penalty_dhessian()]
 #'
 #' @examples
 #' pen <- quadratic_penalty(diag(3))
@@ -140,24 +140,24 @@ penalty_dcross <- S7::new_generic("penalty_dcross", "pen",
 #' Is a Penalty Quadratic in the Coefficients?
 #'
 #' @description
-#' \code{TRUE} when \eqn{\partial^3\rho/\partial\beta^3} is exactly zero, which
+#' `TRUE` when \eqn{\partial^3\rho/\partial\beta^3} is exactly zero, which
 #' spares a consumer that third derivative altogether.
 #'
 #' @details
-#' Distinct from \code{\link{is_quadratic}}, which is about the whole
-#' construction of \code{\link{quadratic_penalty}}: a structured penalty is
+#' Distinct from [is_quadratic()], which is about the whole
+#' construction of [quadratic_penalty()]: a structured penalty is
 #' quadratic in the coefficients and is not a quadratic penalty, and a
-#' \code{\link{distrib_penalty}} over a gaussian parent is quadratic in the
+#' [distrib_penalty()] over a gaussian parent is quadratic in the
 #' coefficients while its Hessian is not linear in its hyperparameters. The
 #' three properties are independent and each is asked of the penalty.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param theta A named list of hyperparameters.
 #' @param ... Passed to methods.
 #'
 #' @return A single logical.
 #'
-#' @seealso \code{\link{penalty_dhessian}}
+#' @seealso [penalty_dhessian()]
 #'
 #' @examples
 #' beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
@@ -176,7 +176,7 @@ beta_quadratic <- S7::new_generic("beta_quadratic", "pen",
 #' Laplace approximation and asks for derivatives beyond the second; a penalty
 #' that does not supply them cannot be estimated by one, and reporting that is
 #' better than a criterion assembled from a quantity nobody wrote.
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of hyperparameters.
 #' @param ... Unused.
@@ -219,7 +219,7 @@ S7::method(beta_quadratic, penalty) <- function(pen, theta, ...) FALSE
 #' \eqn{S = \lambda D'PD} is linear in \eqn{\lambda} and free of the
 #' coefficients, so \eqn{\partial S/\partial\lambda = D'PD} and every higher
 #' derivative is zero.
-#' @param pen A \code{QuadraticPenalty} object.
+#' @param pen A `QuadraticPenalty` object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of hyperparameters.
 #' @param ... Unused.
@@ -264,7 +264,7 @@ S7::method(beta_quadratic, QuadraticPenalty) <- function(pen, theta, ...) TRUE
 #' \eqn{S = \sum_k \lambda_k P_k} is linear in the smoothing parameters, so
 #' \eqn{\partial S/\partial\lambda_k = P_k} and every higher derivative is
 #' zero.
-#' @param pen An \code{AdditivePenalty} object.
+#' @param pen An `AdditivePenalty` object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of hyperparameters.
 #' @param ... Unused.
@@ -303,11 +303,11 @@ S7::method(beta_quadratic, AdditivePenalty) <- function(pen, theta, ...) TRUE
 #' @name penalty_dhessian.StructuredPenalty
 #' @description
 #' \eqn{S = \Omega(\theta)} is the matrix parameter itself, so its derivatives
-#' in the hyperparameters are the structure's own \code{param_d1} and
-#' \code{param_d2}, which \pkg{parameters7} supplies exactly. It is quadratic
+#' in the hyperparameters are the structure's own `param_d1` and
+#' `param_d2`, which \pkg{parameters7} supplies exactly. It is quadratic
 #' in the coefficients, so the mixed third derivative is
 #' \eqn{\partial^2\Omega/\partial\theta_m\partial\theta_l\,\beta}.
-#' @param pen A \code{StructuredPenalty} object.
+#' @param pen A `StructuredPenalty` object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of hyperparameters.
 #' @param ... Unused.
@@ -365,19 +365,19 @@ S7::method(beta_quadratic, StructuredPenalty) <- function(pen, theta, ...) TRUE
 #' @description
 #' With \eqn{\rho = -\sum_j \log f((D\beta)_j;\theta)} the Hessian is
 #' \eqn{-D'\mathrm{diag}(\ell^{(yy)})D}, so its \eqn{\theta}-derivatives are
-#' the parent's \code{distrib_cross2_y} carried through the same map, and the
-#' mixed third derivative is \code{distrib_cross_y} differentiated once more in
+#' the parent's `distrib_cross2_y` carried through the same map, and the
+#' mixed third derivative is `distrib_cross_y` differentiated once more in
 #' \eqn{\theta}. Both come from \pkg{distributions7} rather than being written
 #' again here.
 #' @details
 #' The second derivatives read the parent's
-#' \code{\link[distributions7]{distrib_grad_y_hess}} and
-#' \code{\link[distributions7]{distrib_hess_y_hess}}, so nothing is
+#' [distributions7::distrib_grad_y_hess()] and
+#' [distributions7::distrib_hess_y_hess()], so nothing is
 #' differentiated here either. A parent with closed forms for those -- the
 #' gaussian, hence every ridge and every random effect -- makes this branch
 #' exact; one without them inherits that package's documented fallback, which
 #' is one central difference of its analytic first-order component.
-#' @param pen A \code{DistribPenalty} object.
+#' @param pen A `DistribPenalty` object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of hyperparameters.
 #' @param ... Unused.
@@ -462,7 +462,7 @@ S7::method(beta_quadratic, DistribPenalty) <- function(pen, theta, ...) {
 #' orders rather than by position, since a hyperparameter whose own name
 #' contains the separator would not survive being taken apart.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param comp The parent's components, keyed by parameter pair.
 #' @param carry A function placing one component into coefficient space.
 #'
@@ -490,7 +490,7 @@ carry_pairs <- function(pen, comp, carry) {
 #' @description
 #' The answer of a penalty whose Hessian is linear in its hyperparameters.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param z The zero object, a matrix or a vector.
 #'
 #' @return A named list keyed by hyperparameter pair.
@@ -507,10 +507,10 @@ zero_pairs <- function(pen, z) {
 #' @description
 #' Signals that a penalty with a kink has no derivative of this order.
 #'
-#' @param pen A \code{\link{penalty}} object.
+#' @param pen A [penalty()] object.
 #' @param what The generic's name.
 #'
-#' @return \code{NULL}, invisibly, or signals an error.
+#' @return `NULL`, invisibly, or signals an error.
 #'
 #' @keywords internal
 reject_kinked <- function(pen, what) {

@@ -7,7 +7,7 @@
 penalty_prox(pen, v, step, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{v}{A numeric vector, the point to be pulled towards.}
 
@@ -50,7 +50,7 @@ Any other separable penalty built from a distribution with a
 differentiable log-density is solved coordinatewise from the stationary
 condition \eqn{(\beta - v)/t = \ell^{(y)}(\beta)}. The right-hand side
 is the response derivative
-\code{\link[distributions7]{distrib_grad_y}}, closed form for every
+\code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}}, closed form for every
 continuous family, and log-concavity of the density makes the left side
 minus the right side strictly increasing, so the root is unique and a
 bracketed search finds it.
@@ -64,5 +64,5 @@ penalty_prox(ridge_penalty(n_coef = 2), c(2, -1), 1, list(lambda = 1))
 
 }
 \seealso{
-\code{\link{has_prox}}, \code{\link{penalty_value}}
+\code{\link[=has_prox]{has_prox()}}, \code{\link[=penalty_value]{penalty_value()}}
 }

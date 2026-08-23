@@ -4,7 +4,7 @@ NULL
 #' @title S7 Class for the Separable Penalty
 #'
 #' @description
-#' The class \code{\link{distrib_penalty}} instantiates: a penalty built by
+#' The class [distrib_penalty()] instantiates: a penalty built by
 #' applying a \pkg{distributions7} log-density to the successive blocks of
 #' \eqn{D\beta}, the block being one coordinate for a univariate parent and
 #' \eqn{p} of them for a \eqn{p}-variate one.
@@ -13,12 +13,12 @@ NULL
 #' @param parent The \pkg{distributions7} object.
 #' @param kinks The declared non-differentiable points of the parent's
 #'   log-density in its argument.
-#' @param block The block width, \code{1} for a univariate parent and the
+#' @param block The block width, `1` for a univariate parent and the
 #'   parent's dimension otherwise.
 #'
-#' @return An object of class \code{DistribPenalty}.
+#' @return An object of class `DistribPenalty`.
 #'
-#' @seealso \code{\link{distrib_penalty}}
+#' @seealso [distrib_penalty()]
 #' @examples
 #' S7::S7_inherits(lasso_penalty(n_coef = 2), DistribPenalty)
 #' @keywords internal
@@ -51,35 +51,35 @@ DistribPenalty <- S7::new_class(
 #' diagonal when the parent is multivariate), the theta blocks the summed
 #' score and Hessian, and the mixed block one
 #' \eqn{-D'\ell^{(y\theta_k)}} per hyperparameter -- which is what
-#' \code{\link[distributions7]{distrib_cross_y}} exists for.
+#' [distributions7::distrib_cross_y()] exists for.
 #'
 #' @details
 #' Lasso, the elastic net and the heavy-tailed prior are this construction at
-#' a \code{\link[distributions7]{fixed}} Laplace, elastic net and Student t;
-#' see \code{\link{ridge_penalty}}. The normalizing constant comes with the
+#' a [distributions7::fixed()] Laplace, elastic net and Student t;
+#' see [ridge_penalty()]. The normalizing constant comes with the
 #' density and is kept, so the value is exactly the negative log prior
 #' density and a free scale or a free \eqn{\nu} is estimable.
 #'
 #' A multivariate parent is centered by the caller, typically through
-#' \code{\link[distributions7]{fixed}} at a zero mean, and its matrix
+#' [distributions7::fixed()] at a zero mean, and its matrix
 #' parameter carries the dependence within a block. It has no proximal
 #' operator: that operator acts one coordinate at a time and the coordinates
 #' of a block do not separate.
 #'
 #' @param d A continuous \pkg{distributions7} object; typically a
-#'   \code{fixed()} wrapper holding the location at zero. A multivariate
+#'   `fixed()` wrapper holding the location at zero. A multivariate
 #'   parent of dimension \eqn{p} is read blockwise, and the number of
 #'   coefficients must then be a multiple of \eqn{p}.
-#' @param map The matrix \eqn{D}, or \code{NULL} (default) for the identity.
-#' @param n_coef The number of coefficients; required when \code{map} is
-#'   \code{NULL}, ignored otherwise.
+#' @param map The matrix \eqn{D}, or `NULL` (default) for the identity.
+#' @param n_coef The number of coefficients; required when `map` is
+#'   `NULL`, ignored otherwise.
 #' @param kinks The points where the parent's log-density is not
-#'   differentiable in its argument. \code{NULL}, the default, derives them
-#'   from the parent with \code{\link{distrib_kinks}}; pass a numeric vector to
-#'   say so directly, or \code{numeric(0)} to declare there are none. A
+#'   differentiable in its argument. `NULL`, the default, derives them
+#'   from the parent with [distrib_kinks()]; pass a numeric vector to
+#'   say so directly, or `numeric(0)` to declare there are none. A
 #'   multivariate parent has none: a kink is a point of a scalar argument.
 #'
-#' @return An object of class \code{DistribPenalty}.
+#' @return An object of class `DistribPenalty`.
 #'
 #' @examples
 #' d <- distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0)
@@ -93,7 +93,7 @@ DistribPenalty <- S7::new_class(
 #' penalty_value(pen2, c(1, 0, -1, 0.5, 0.2, -0.3),
 #'               list(sigma_log_L1 = 0, sigma_log_L2 = 0, sigma_L2.1 = 0.4))
 #'
-#' @seealso \code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}, \code{\link{structured_penalty}}
+#' @seealso [quadratic_penalty()], [additive_penalty()], [structured_penalty()]
 #' @export
 distrib_penalty <- function(d, map = NULL, n_coef = NULL, kinks = NULL) {
   if (!S7::S7_inherits(d, distributions7::distrib)) {
@@ -152,11 +152,11 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL, kinks = NULL) {
 #'
 #' @details
 #' A distribution records which of its parameters the log-likelihood is
-#' differentiable in, through \code{params_smooth}, and for a location family a
+#' differentiable in, through `params_smooth`, and for a location family a
 #' location that is not smooth is a kink in the argument at that location. A
 #' penalty is the negative log-density read in the coefficient, so a
-#' \code{\link[distributions7]{fixed}} wrapper holding such a parameter at a
-#' value puts the kink there: \code{fixed(laplace_distrib(), mu = 0)} is the
+#' [distributions7::fixed()] wrapper holding such a parameter at a
+#' value puts the kink there: `fixed(laplace_distrib(), mu = 0)` is the
 #' lasso and has a kink at zero.
 #'
 #' Each candidate is the value its parameter is held at, and whether it is a
@@ -167,7 +167,7 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL, kinks = NULL) {
 #' dropped.
 #'
 #' A parent that declares every parameter smooth, or that fixes none of the
-#' ones it declares non-smooth, has no candidate and gets \code{numeric(0)}.
+#' ones it declares non-smooth, has no candidate and gets `numeric(0)`.
 #' Nothing is taken from a parameter that is free, its value being whatever the
 #' hyperparameters say at the time.
 #'
@@ -175,7 +175,7 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL, kinks = NULL) {
 #'
 #' @return A numeric vector, possibly empty.
 #'
-#' @seealso \code{\link{distrib_penalty}}, \code{\link{penalty_kinks}}
+#' @seealso [distrib_penalty()], [penalty_kinks()]
 #'
 #' @examples
 #' distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),
@@ -251,7 +251,7 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #' @title Named Separable Penalties
 #'
 #' @description
-#' The canonical instances of \code{\link{distrib_penalty}}, shipped as
+#' The canonical instances of [distrib_penalty()], shipped as
 #' constructors so the model layer can name what it means. Each is written
 #' on the chart whose hyperparameter MEASURES THE SHRINKAGE, so that a larger
 #' value shrinks harder in all of them. Ridge is the exception to the branch
@@ -266,7 +266,7 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #' Student t at zero,
 #' whose \eqn{\nu} is estimable exactly because the normalizing constant is
 #' kept. The elastic net is the product of the Laplace and the Gaussian at
-#' zero, normalized (\code{\link[distributions7]{enet_distrib}}), so its
+#' zero, normalized ([distributions7::enet_distrib()]), so its
 #' hyperparameters are the overall rate \eqn{\lambda} and the mixing weight
 #' \eqn{\alpha} and its value is
 #' \eqn{\lambda\{\alpha\lVert D\beta\rVert_1 +
@@ -275,10 +275,10 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #' marginal criterion and what a penalty written as a formula would not
 #' have.
 #'
-#' @param map The matrix \eqn{D}, or \code{NULL} (default) for the identity.
-#' @param n_coef The number of coefficients when \code{map} is \code{NULL}.
+#' @param map The matrix \eqn{D}, or `NULL` (default) for the identity.
+#' @param n_coef The number of coefficients when `map` is `NULL`.
 #'
-#' @return An object of class \code{DistribPenalty}.
+#' @return An object of class `DistribPenalty`.
 #'
 #' @examples
 #' pen <- ridge_penalty(n_coef = 2)
@@ -286,16 +286,16 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #'
 #' @references
 #' Hoerl, A. E. and Kennard, R. W. (1970). Ridge regression: biased
-#' estimation for nonorthogonal problems. \emph{Technometrics} 12, 55-67.
+#' estimation for nonorthogonal problems. *Technometrics* 12, 55-67.
 #'
 #' Tibshirani, R. (1996). Regression shrinkage and selection via the lasso.
-#' \emph{Journal of the Royal Statistical Society, Series B} 58, 267-288.
+#' *Journal of the Royal Statistical Society, Series B* 58, 267-288.
 #'
 #' Zou, H. and Hastie, T. (2005). Regularization and variable selection via
-#' the elastic net. \emph{Journal of the Royal Statistical Society, Series B}
+#' the elastic net. *Journal of the Royal Statistical Society, Series B*
 #' 67, 301-320.
 #'
-#' @seealso \code{\link{distrib_penalty}}, \code{\link{scad_penalty}}, \code{\link{quadratic_penalty}}
+#' @seealso [distrib_penalty()], [scad_penalty()], [quadratic_penalty()]
 #' @export
 ridge_penalty <- function(map = NULL, n_coef = 1L) {
   k <- if (is.null(map)) as.integer(n_coef) else nrow(as.matrix(map))
@@ -333,8 +333,8 @@ heavy_penalty <- function(map = NULL, n_coef = 1L) {
 #' @name penalty_value.DistribPenalty
 #' @description
 #' The parent distribution's quantities, reassembled through the map; see
-#' \code{\link{distrib_penalty}}.
-#' @param pen A \code{DistribPenalty} object.
+#' [distrib_penalty()].
+#' @param pen A `DistribPenalty` object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of the parent's free parameters.
 #' @param scale Handled by the generic.
@@ -346,9 +346,9 @@ NULL
 #' The Parent's Argument, Shaped and Unshaped
 #'
 #' @description
-#' \code{dp_arg} reshapes \eqn{D\beta} into the argument the parent reads --
+#' `dp_arg` reshapes \eqn{D\beta} into the argument the parent reads --
 #' the vector itself for a univariate parent, one row per block for a
-#' multivariate one -- and \code{dp_flat} undoes it.
+#' multivariate one -- and `dp_flat` undoes it.
 #'
 #' @details
 #' The blocks are the SUCCESSIVE stretches of \eqn{D\beta}, so the reshaping
@@ -356,7 +356,7 @@ NULL
 #' That is the order a grouped design assembles its coefficients in, and the
 #' order \eqn{I_m \otimes \Sigma} assumes.
 #'
-#' @param pen A \code{DistribPenalty} object.
+#' @param pen A `DistribPenalty` object.
 #' @param t The mapped coefficient vector.
 #' @param g The parent's answer, a vector or a matrix of one row per block.
 #'
@@ -381,11 +381,11 @@ dp_flat <- function(pen, g) {
 #' not depend on the observation, as the gaussian's does not, and a
 #' \eqn{p \times p \times n} array when it does.
 #'
-#' @param pen A \code{DistribPenalty} object.
-#' @param h The parent's \code{distrib_hess_y}.
+#' @param pen A `DistribPenalty` object.
+#' @param h The parent's `distrib_hess_y`.
 #' @param nblk The number of blocks.
 #'
-#' @return A symmetric matrix of side \code{nblk * pen@block}.
+#' @return A symmetric matrix of side `nblk * pen@block`.
 #'
 #' @keywords internal
 dp_blockdiag <- function(pen, h, nblk) {

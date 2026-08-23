@@ -7,7 +7,7 @@
 penalty_d2hessian(pen, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{beta}{A numeric vector of coefficients.}
 
@@ -29,7 +29,7 @@ is the quadratic and additive branches; the structured branch reads the
 matrix parameter's \code{param_d2}, and the separable branch the second
 \eqn{\theta}-derivative of the parent's response curvature.
 
-The keys are those of \code{\link{penalty_hess_theta}}, so a consumer
+The keys are those of \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}, so a consumer
 looking a pair up need not know which order it was written in.
 }
 \examples{
@@ -38,5 +38,5 @@ penalty_d2hessian(pen, c(1, 2, 3), list(lambda = 2))
 
 }
 \seealso{
-\code{\link{penalty_dhessian}}
+\code{\link[=penalty_dhessian]{penalty_dhessian()}}
 }

@@ -37,7 +37,7 @@ differentiable.}
 An object of class \code{StructuredPenalty}.
 }
 \description{
-The class \code{\link{structured_penalty}} instantiates: the Gaussian
+The class \code{\link[=structured_penalty]{structured_penalty()}} instantiates: the Gaussian
 prior whose covariance or precision is a \pkg{parameters7} matrix
 parameter, so that the hyperparameters enter the matrix itself.
 }
@@ -47,6 +47,6 @@ S7::S7_inherits(
   StructuredPenalty)
 }
 \seealso{
-\code{\link{structured_penalty}}
+\code{\link[=structured_penalty]{structured_penalty()}}
 }
 \keyword{internal}

@@ -10,7 +10,7 @@ penalty_gradient(pen, beta, theta, ...)
 penalty_hessian(pen, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{beta}{A numeric vector of coefficients.}
 
@@ -20,7 +20,7 @@ penalty_hessian(pen, beta, theta, ...)
 }
 \value{
 \code{penalty_gradient} a numeric vector of length \code{q};
-  \code{penalty_hessian} a \code{q x q} symmetric matrix.
+\code{penalty_hessian} a \verb{q x q} symmetric matrix.
 }
 \description{
 \code{penalty_gradient} returns \eqn{\partial\rho/\partial\beta} and
@@ -34,5 +34,5 @@ penalty_hessian(pen, c(1, -1), list(lambda = 3))
 
 }
 \seealso{
-\code{\link{penalty_value}}, \code{\link{penalty_grad_theta}}, \code{\link{penalty_kinks}}
+\code{\link[=penalty_value]{penalty_value()}}, \code{\link[=penalty_grad_theta]{penalty_grad_theta()}}, \code{\link[=penalty_kinks]{penalty_kinks()}}
 }

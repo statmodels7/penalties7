@@ -7,7 +7,7 @@
 prox_apply(spec, u)
 }
 \arguments{
-\item{spec}{A table, as \code{\link{penalty_prox_spec}} returns it.}
+\item{spec}{A table, as \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns it.}
 
 \item{u}{The points, one per coefficient.}
 }
@@ -15,7 +15,7 @@ prox_apply(spec, u)
 A numeric vector as long as \code{u}.
 }
 \description{
-Evaluates the map \code{\link{penalty_prox_spec}} describes, in \R, which is
+Evaluates the map \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} describes, in \R, which is
 what a compiled loop does and what the tests compare the table against.
 }
 \examples{
@@ -25,5 +25,5 @@ prox_apply(sp, c(2, 2))
 
 }
 \seealso{
-\code{\link{penalty_prox_spec}}
+\code{\link[=penalty_prox_spec]{penalty_prox_spec()}}
 }

@@ -7,7 +7,7 @@
 penalty_value(pen, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{beta}{A numeric vector of coefficients.}
 
@@ -29,5 +29,5 @@ penalty_value(pen, c(1, 0, -1), list(lambda = 2))
 
 }
 \seealso{
-\code{\link{penalty_gradient}}, \code{\link{penalty_hessian}}, \code{\link{penalty_grad_theta}}, \code{\link{penalty_cross}}, \code{\link{penalty_kinks}}
+\code{\link[=penalty_gradient]{penalty_gradient()}}, \code{\link[=penalty_hessian]{penalty_hessian()}}, \code{\link[=penalty_grad_theta]{penalty_grad_theta()}}, \code{\link[=penalty_cross]{penalty_cross()}}, \code{\link[=penalty_kinks]{penalty_kinks()}}
 }

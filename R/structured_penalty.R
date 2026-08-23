@@ -4,16 +4,16 @@ NULL
 #' @title S7 Class for the Structured Quadratic Penalty
 #'
 #' @description
-#' The class \code{\link{structured_penalty}} instantiates: the Gaussian
+#' The class [structured_penalty()] instantiates: the Gaussian
 #' prior whose covariance or precision is a \pkg{parameters7} matrix
 #' parameter, so that the hyperparameters enter the matrix itself.
 #'
 #' @inheritParams penalty
-#' @param structure The \pkg{parameters7} \code{matrix_parameter}.
+#' @param structure The \pkg{parameters7} `matrix_parameter`.
 #'
-#' @return An object of class \code{StructuredPenalty}.
+#' @return An object of class `StructuredPenalty`.
 #'
-#' @seealso \code{\link{structured_penalty}}
+#' @seealso [structured_penalty()]
 #' @examples
 #' S7::S7_inherits(
 #'   structured_penalty(parameters7::log_cholesky(2, role = "precision")),
@@ -38,8 +38,8 @@ StructuredPenalty <- S7::new_class(
 #' \deqn{\rho = \tfrac{1}{2}\,\beta'\Omega(\theta)\beta
 #'   - \tfrac{1}{2}\log\mathrm{pdet}\,\Omega(\theta)
 #'   + \tfrac{r}{2}\log 2\pi,}
-#' and the structure supplies whichever of the two matrices its \code{role}
-#' declares. This is the correlated prior \code{\link{quadratic_penalty}}
+#' and the structure supplies whichever of the two matrices its `role`
+#' declares. This is the correlated prior [quadratic_penalty()]
 #' cannot express: there the matrix is a constant and one scale multiplies
 #' it, here the hyperparameters are the structure's free values and reach
 #' every entry.
@@ -54,8 +54,8 @@ StructuredPenalty <- S7::new_class(
 #' Every derivative comes from the structure's own contract. When the
 #' structure IS the precision the theta gradient is
 #' \eqn{\tfrac{1}{2}\beta'A_k\beta - \tfrac{1}{2}\partial_k\log\mathrm{pdet}}
-#' with \eqn{A_k} the structure's \code{param_d1}, the theta Hessian adds
-#' \code{param_d2}, and the mixed block is \eqn{A_k\beta}. When it is the
+#' with \eqn{A_k} the structure's `param_d1`, the theta Hessian adds
+#' `param_d2`, and the mixed block is \eqn{A_k\beta}. When it is the
 #' covariance the same expressions are read at the precision it implies,
 #' whose derivatives follow from the chain rule for an inverse,
 #' \deqn{\partial_k\Omega = -\Omega A_k \Omega, \qquad
@@ -65,23 +65,23 @@ StructuredPenalty <- S7::new_class(
 #' derivatives negated termwise. The transport is done once and the
 #' quantities below are then the same arithmetic in both cases.
 #'
-#' There is no \code{map} argument, deliberately: a linear image of a
+#' There is no `map` argument, deliberately: a linear image of a
 #' structured precision is a different precision, and composing it into the
 #' structure -- where its log-determinant stays exact -- is the structure's
 #' business, not this constructor's.
 #'
-#' @param structure A \pkg{parameters7} \code{matrix_parameter} whose
-#'   \code{role} says which matrix of the prior it is. A structure declared
-#'   \code{"precision"} may be rank deficient (an improper prior);
-#'   \code{is_proper} then answers \code{FALSE} and the constant uses the
+#' @param structure A \pkg{parameters7} `matrix_parameter` whose
+#'   `role` says which matrix of the prior it is. A structure declared
+#'   `"precision"` may be rank deficient (an improper prior);
+#'   `is_proper` then answers `FALSE` and the constant uses the
 #'   rank and the log pseudo-determinant. A structure declared
-#'   \code{"covariance"} may not: a covariance of deficient rank has no
+#'   `"covariance"` may not: a covariance of deficient rank has no
 #'   inverse, and an effect with a direction of zero variance is a
 #'   constraint rather than a prior. A structure that declares
-#'   \code{"either"} is rejected, because the sign of the log-determinant
+#'   `"either"` is rejected, because the sign of the log-determinant
 #'   term depends on which of the two it is.
 #'
-#' @return An object of class \code{StructuredPenalty}.
+#' @return An object of class `StructuredPenalty`.
 #'
 #' @examples
 #' # an AR(1) prior on four coefficients: three hyperparameters reach every
@@ -96,7 +96,7 @@ StructuredPenalty <- S7::new_class(
 #' cov <- structured_penalty(parameters7::ar1(4, role = "covariance"))
 #' penalty_value(cov, c(0.3, -0.1, 0.4, 0.2), theta)
 #'
-#' @seealso \code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}, \code{\link{distrib_penalty}}
+#' @seealso [quadratic_penalty()], [additive_penalty()], [distrib_penalty()]
 #' @export
 structured_penalty <- function(structure) {
   if (!S7::S7_inherits(structure, parameters7::matrix_parameter)) {
@@ -142,14 +142,14 @@ structured_penalty <- function(structure) {
 
 #' Whether the Structure Describes the Covariance
 #' @description Reads the structure's declared role.
-#' @param pen A \code{StructuredPenalty} object.
+#' @param pen A `StructuredPenalty` object.
 #' @return A single logical.
 #' @keywords internal
 struct_is_cov <- function(pen) identical(pen@structure@role, "covariance")
 
 #' The Structure's Free Vector From the Aligned Hyperparameters
 #' @description Unlists the aligned theta in the structure's own order.
-#' @param pen A \code{StructuredPenalty} object.
+#' @param pen A `StructuredPenalty` object.
 #' @param theta The aligned hyperparameter list.
 #' @return A numeric vector.
 #' @keywords internal
@@ -172,10 +172,10 @@ struct_eta <- function(pen, theta) {
 #' The prior's precision and its first and second derivatives in the
 #' structure's free values, transported from the covariance where that is what
 #' the structure describes.
-#' @param pen A \code{StructuredPenalty} object.
+#' @param pen A `StructuredPenalty` object.
 #' @param eta The structure's free vector.
 #' @param omega The precision, when the caller already has it.
-#' @return A matrix (\code{struct_omega}) or a list of matrices.
+#' @return A matrix (`struct_omega`) or a list of matrices.
 #' @keywords internal
 struct_omega <- function(pen, eta) {
   s <- pen@structure
@@ -240,8 +240,8 @@ struct_logdet <- function(pen, eta, order = 2L) {
 #' @name penalty_value.StructuredPenalty
 #' @description
 #' Every quantity from the structure's own contract; see
-#' \code{\link{structured_penalty}}.
-#' @param pen A \code{StructuredPenalty} object.
+#' [structured_penalty()].
+#' @param pen A `StructuredPenalty` object.
 #' @param beta A numeric vector of coefficients.
 #' @param theta A named list of the structure's free values.
 #' @param scale Handled by the generic.

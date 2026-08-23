@@ -45,7 +45,7 @@ parent's dimension otherwise.}
 An object of class \code{DistribPenalty}.
 }
 \description{
-The class \code{\link{distrib_penalty}} instantiates: a penalty built by
+The class \code{\link[=distrib_penalty]{distrib_penalty()}} instantiates: a penalty built by
 applying a \pkg{distributions7} log-density to the successive blocks of
 \eqn{D\beta}, the block being one coordinate for a univariate parent and
 \eqn{p} of them for a \eqn{p}-variate one.
@@ -54,6 +54,6 @@ applying a \pkg{distributions7} log-density to the successive blocks of
 S7::S7_inherits(lasso_penalty(n_coef = 2), DistribPenalty)
 }
 \seealso{
-\code{\link{distrib_penalty}}
+\code{\link[=distrib_penalty]{distrib_penalty()}}
 }
 \keyword{internal}

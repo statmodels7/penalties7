@@ -7,7 +7,7 @@
 ptheta_to_link(pen, theta, g = NULL, H = NULL, cross = NULL)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{The aligned hyperparameters.}
 

@@ -25,6 +25,6 @@
 See the generic pages.
 }
 \description{
-The closed piecewise forms; see \code{\link{mcp_penalty}}.
+The closed piecewise forms; see \code{\link[=mcp_penalty]{mcp_penalty()}}.
 }
 \keyword{internal}

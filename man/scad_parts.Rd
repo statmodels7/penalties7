@@ -19,6 +19,6 @@ A list of vectors.
 }
 \description{
 The sign, the absolute value and the region indicators of
-  each element, shared by every method below.
+each element, shared by every method below.
 }
 \keyword{internal}

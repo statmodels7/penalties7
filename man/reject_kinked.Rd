@@ -7,7 +7,7 @@
 reject_kinked(pen, what)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{what}{The generic's name.}
 }

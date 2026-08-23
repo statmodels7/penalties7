@@ -15,7 +15,7 @@ prox_table(step, n_coef, pieces)
 \code{cut}, \code{slope}, \code{icept}.}
 }
 \value{
-The list \code{\link{penalty_prox_spec}} returns.
+The list \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns.
 }
 \description{
 Builds the three matrices from one row per piece, recycling a step that is

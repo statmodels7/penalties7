@@ -7,7 +7,7 @@
 \alias{beta_quadratic.penalty}
 \title{What the Base Class Answers}
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{beta}{A numeric vector of coefficients.}
 

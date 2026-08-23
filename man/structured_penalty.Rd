@@ -30,7 +30,7 @@ the precision,
   - \tfrac{1}{2}\log\mathrm{pdet}\,\Omega(\theta)
   + \tfrac{r}{2}\log 2\pi,}
 and the structure supplies whichever of the two matrices its \code{role}
-declares. This is the correlated prior \code{\link{quadratic_penalty}}
+declares. This is the correlated prior \code{\link[=quadratic_penalty]{quadratic_penalty()}}
 cannot express: there the matrix is a constant and one scale multiplies
 it, here the hyperparameters are the structure's free values and reach
 every entry.
@@ -76,5 +76,5 @@ penalty_value(cov, c(0.3, -0.1, 0.4, 0.2), theta)
 
 }
 \seealso{
-\code{\link{quadratic_penalty}}, \code{\link{additive_penalty}}, \code{\link{distrib_penalty}}
+\code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=additive_penalty]{additive_penalty()}}, \code{\link[=distrib_penalty]{distrib_penalty()}}
 }

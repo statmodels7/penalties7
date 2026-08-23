@@ -7,7 +7,7 @@
 check_abs_smoother(smoother, width = NULL, tol = 1e-06, verbose = TRUE)
 }
 \arguments{
-\item{smoother}{An \code{\link{abs_smoother}}.}
+\item{smoother}{An \code{\link[=abs_smoother]{abs_smoother()}}.}
 
 \item{width}{The width to check at, or \code{NULL} for the smoother's
 own (0.5 where it carries none).}
@@ -39,5 +39,5 @@ all(res$status == "OK")
 
 }
 \seealso{
-\code{\link{abs_smoother}}, \code{\link{check_penalty}}
+\code{\link[=abs_smoother]{abs_smoother()}}, \code{\link[=check_penalty]{check_penalty()}}
 }

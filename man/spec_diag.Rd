@@ -7,7 +7,7 @@
 spec_diag(pen, step, build)
 }
 \arguments{
-\item{pen}{A \code{\link{penalty}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{step}{A numeric vector of step lengths.}
 
@@ -15,7 +15,7 @@ spec_diag(pen, step, build)
 \code{NULL}.}
 }
 \value{
-The list \code{\link{penalty_prox_spec}} returns, or \code{NULL}.
+The list \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns, or \code{NULL}.
 }
 \description{
 Builds the table of a separable penalty under a diagonal map from the

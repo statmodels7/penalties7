@@ -25,7 +25,7 @@ unconstrained scale. Defaults to the log.}
 zero.}
 }
 \value{
-An object of class \code{\link{AdditivePenalty}}.
+An object of class \code{\link[=AdditivePenalty]{AdditivePenalty()}}.
 }
 \description{
 The gaussian prior whose precision is a weighted sum of fixed matrices,
@@ -38,7 +38,7 @@ smooth needs: one parameter per margin, so that the fit may be rough in
 one direction and smooth in another.
 }
 \details{
-\code{\link{quadratic_penalty}} carries a single matrix and one scale,
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} carries a single matrix and one scale,
 which forces every direction to be smoothed alike. Here the components
 keep their own parameters, and the quantities a marginal criterion reads
 follow from one eigendecomposition of the sum:
@@ -67,5 +67,5 @@ penalty_value(pen, rnorm(16), list(lambda1 = 1, lambda2 = 100))
 
 }
 \seealso{
-\code{\link{quadratic_penalty}}
+\code{\link[=quadratic_penalty]{quadratic_penalty()}}
 }

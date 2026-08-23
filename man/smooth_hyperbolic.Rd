@@ -11,7 +11,7 @@ smooth_hyperbolic(c = NULL)
 be resolved at build as the square of the covariate's spacing.}
 }
 \value{
-An \code{\link{abs_smoother}}.
+An \code{\link[=abs_smoother]{abs_smoother()}}.
 }
 \description{
 \eqn{s(u) = \sqrt{u^2 + c}}, the simplest smoother, whose parameter
@@ -29,5 +29,5 @@ smoother_deriv(sm, 0, order = 0)  # sqrt(c)
 
 }
 \seealso{
-\code{\link{abs_smoother}}, \code{\link{smooth_probit}}
+\code{\link[=abs_smoother]{abs_smoother()}}, \code{\link[=smooth_probit]{smooth_probit()}}
 }

@@ -4,7 +4,7 @@
 \alias{print.penalty}
 \title{Print a Penalty}
 \arguments{
-\item{x}{A \code{\link{penalty}} object.}
+\item{x}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{...}{Unused.}
 }

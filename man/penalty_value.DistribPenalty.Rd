@@ -27,6 +27,6 @@ See the generic pages.
 }
 \description{
 The parent distribution's quantities, reassembled through the map; see
-\code{\link{distrib_penalty}}.
+\code{\link[=distrib_penalty]{distrib_penalty()}}.
 }
 \keyword{internal}

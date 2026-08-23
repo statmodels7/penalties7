@@ -4,7 +4,7 @@ NULL
 #' @title S7 Class for the Quadratic Penalty
 #'
 #' @description
-#' The class \code{\link{quadratic_penalty}} instantiates. Beyond the base
+#' The class [quadratic_penalty()] instantiates. Beyond the base
 #' properties it stores the matrix \eqn{P}, its rank, its null basis and its
 #' log pseudo-determinant, all fixed by one eigendecomposition at
 #' construction.
@@ -16,9 +16,9 @@ NULL
 #' @param logpdet_P The log pseudo-determinant of \eqn{P}.
 #' @param DPD The assembled \eqn{D'PD}, cached.
 #'
-#' @return An object of class \code{QuadraticPenalty}.
+#' @return An object of class `QuadraticPenalty`.
 #'
-#' @seealso \code{\link{quadratic_penalty}}
+#' @seealso [quadratic_penalty()]
 #' @examples
 #' S7::S7_inherits(quadratic_penalty(diag(2)), QuadraticPenalty)
 #' @keywords internal
@@ -57,7 +57,7 @@ QuadraticPenalty <- S7::new_class(
 #'
 #' @param P A symmetric positive semidefinite matrix, for instance a
 #'   \pkg{basis7} Gram matrix or a difference penalty \eqn{D_k'D_k}.
-#' @param map The matrix \eqn{D}, or \code{NULL} (default) for the identity.
+#' @param map The matrix \eqn{D}, or `NULL` (default) for the identity.
 #' @param blocks How many times \eqn{P} is repeated blockwise: the penalty is
 #'   then that of \eqn{I_m \otimes P}, which is what one copy of a smooth per
 #'   level of a factor needs. The big matrix is NEVER formed or decomposed --
@@ -66,12 +66,12 @@ QuadraticPenalty <- S7::new_class(
 #'   \eqn{m\log\mathrm{pdet}(P)} and the null space is \eqn{I_m \otimes N}.
 #'   Measured at \eqn{m = 200} over a basis of ten, that is 4.50 seconds of
 #'   eigendecomposition saved and a stored matrix of 0.13 MB against 25.9. It
-#'   does not combine with \code{map}, which would mix the blocks.
+#'   does not combine with `map`, which would mix the blocks.
 #' @param link_lambda The link carrying \eqn{\lambda}; defaults to
-#'   \code{linkfunctions7::log_link()}.
+#'   `linkfunctions7::log_link()`.
 #' @param tol The relative eigenvalue tolerance of the rank rule.
 #'
-#' @return An object of class \code{QuadraticPenalty}.
+#' @return An object of class `QuadraticPenalty`.
 #'
 #' @examples
 #' # a second-difference penalty on five coefficients: rank 3, an improper
@@ -82,7 +82,7 @@ QuadraticPenalty <- S7::new_class(
 #' is_proper(pen)
 #' penalty_value(pen, rnorm(5), list(lambda = 2))
 #'
-#' @seealso \code{\link{additive_penalty}}, \code{\link{distrib_penalty}}, \code{\link{structured_penalty}}
+#' @seealso [additive_penalty()], [distrib_penalty()], [structured_penalty()]
 #' @export
 quadratic_penalty <- function(P, map = NULL, blocks = 1L,
                               link_lambda = linkfunctions7::log_link(),
@@ -168,7 +168,7 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
 #' matrix is sparse besides -- 25.9 MB dense at a density of 0.0005 -- which
 #' follows rather than being the point.
 #'
-#' The same identity is what \code{\link[parameters7]{kron_identity}} uses on
+#' The same identity is what [parameters7::kron_identity()] uses on
 #' the other side of the toolkit, for the covariance of grouped random
 #' effects.
 #'
@@ -177,9 +177,9 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
 #' @param link_lambda The link for the hyperparameter.
 #' @param tol The relative tolerance for a zero eigenvalue.
 #'
-#' @return A \code{QuadraticPenalty}.
+#' @return A `QuadraticPenalty`.
 #'
-#' @seealso \code{\link{quadratic_penalty}}
+#' @seealso [quadratic_penalty()]
 #'
 #' @keywords internal
 .kron_quadratic <- function(P, m, link_lambda, tol) {
@@ -212,7 +212,7 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
 #' @description The quadratic form of the mapped coefficients, shared by
 #'   the value and the
 #'   theta derivatives.
-#' @param pen A \code{QuadraticPenalty} object.
+#' @param pen A `QuadraticPenalty` object.
 #' @param beta A numeric vector of coefficients.
 #' @return A single number.
 #' @keywords internal
@@ -226,9 +226,9 @@ quad_form <- function(pen, beta) {
 #' @description
 #' Closed form in \eqn{\lambda} throughout; the Hessian is constant in
 #' \eqn{\beta}, and the mixed block is \eqn{D'PD\beta}.
-#' @param pen A \code{QuadraticPenalty} object.
+#' @param pen A `QuadraticPenalty` object.
 #' @param beta A numeric vector of coefficients.
-#' @param theta A list containing \code{lambda}.
+#' @param theta A list containing `lambda`.
 #' @param scale Handled by the generic.
 #' @param ... Unused.
 #' @return See the generic pages.
