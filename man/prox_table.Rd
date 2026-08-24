@@ -7,18 +7,30 @@
 prox_table(step, n_coef, pieces)
 }
 \arguments{
-\item{step}{The step lengths.}
+\item{step}{The step lengths, a numeric vector recycled to \code{n_coef}.}
 
-\item{n_coef}{How many coefficients.}
+\item{n_coef}{How many coefficients, a single whole number.}
 
-\item{pieces}{A function of one step returning a matrix whose rows are
-\code{cut}, \code{slope}, \code{icept}.}
+\item{pieces}{A function of one step returning a matrix of three rows,
+\code{cut}, \code{slope} and \code{icept}, and one column per piece.}
 }
 \value{
-The list \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns.
+A list of three matrices, \code{cut}, \code{slope} and \code{icept}, each \code{n_coef}
+by the piece count.
 }
 \description{
-Builds the three matrices from one row per piece, recycling a step that is
-the same for every coefficient.
+Builds the three matrices \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns from a function that
+gives one column per piece at a single step, recycling a step that is the
+same for every coefficient.
+}
+\details{
+Every branch's builder differs only in that per-step function, so this holds
+the recycling and the transposition once. The number of pieces is read from
+the first coefficient's answer and every other is required to match, which
+is automatic: the piece count depends on the family and on the
+hyperparameters, never on the step.
+}
+\seealso{
+\code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=prox_apply]{prox_apply()}}
 }
 \keyword{internal}

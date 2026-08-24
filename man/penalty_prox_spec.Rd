@@ -11,65 +11,121 @@
 penalty_prox_spec(pen, theta, step, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{theta}{A named list of hyperparameter values.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same, holding every name in \code{pen@params}.}
 
-\item{step}{A numeric vector of step lengths, one per coefficient.}
+\item{step}{A numeric vector of step lengths, one per coefficient, recycled
+from a single value. Every entry must be positive, and \strong{that is not
+checked}: a negative step produces a negative cut and a table nothing
+will reject. \code{\link[=penalty_prox]{penalty_prox()}}, which takes a single step, does check it.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-A list with \code{cut}, \code{slope} and \code{icept}, each a matrix
-with one row per coefficient and one column per piece, the last cut being
-\code{Inf}; or \code{NULL} where the operator has no such description.
+A list of three matrices, \code{cut}, \code{slope} and \code{icept}, each with
+\code{pen@n_coef} rows and one column per piece, the last column of \code{cut} being
+\code{Inf}. \code{NULL} where the operator has no piecewise linear description.
 }
 \description{
-Describes the scalar proximal operator of a separable penalty as an odd
-piecewise linear map, so that a compiled loop can apply it without knowing
-which family it came from.
+Returns the scalar proximal operator of a separable penalty as an odd
+piecewise linear map: three matrices of cuts, slopes and intercepts from
+which a compiled loop can apply the operator without knowing which family it
+came from. Returns \code{NULL} for a penalty whose operator has no such
+description, and a caller that gets \code{NULL} uses \code{\link[=penalty_prox]{penalty_prox()}} itself.
 }
-\details{
-\strong{What the table says.} The operator of a separable penalty acts one
-coordinate at a time and is odd, so it is determined by what it does to
-\eqn{|u|}: on the \eqn{k}-th interval, \eqn{|u| \le} \code{cut[j, k]},
-\deqn{\mathrm{prox}(u) = \mathrm{sign}(u)\,(a_{jk}|u| + b_{jk}).}
-Every closed form the package carries has this shape: the soft threshold is
-two pieces, the elastic net two, MCP three and SCAD four, and a Gaussian
-prior is the single piece \eqn{u/(1 + t/\sigma^2)}.
+\section{What the table says}{
+The operator of a separable penalty acts one coordinate at a time and is
+odd, so it is determined by what it does to \eqn{\lvert u\rvert}: on the
+\eqn{k}-th interval, \eqn{\lvert u\rvert \le} \code{cut[j, k]},
 
-\strong{Why a table rather than the operator.} A coordinate descent applies
-the operator once per coordinate per sweep, at a point that moves every
-time, so a compiled loop calling back into \R for it would spend its gain on
-the calls -- the property that decided how far the score-driven filter of
-\pkg{modelterms7} could be ported. Passing the numbers instead lets the loop
-stay compiled while the penalty keeps the mathematics: the kernel evaluates
-any map of this shape and names no family.
+\deqn{\mathrm{prox}(u) = \mathrm{sign}(u)\,(a_{jk}\lvert u\rvert + b_{jk}).}
 
-\strong{Why the step is a vector.} In a coordinate descent the step of
-coordinate \eqn{j} is \eqn{1/v_j} with \eqn{v_j = \sum_i w_i x_{ij}^2},
-which does not move while the working weights are held, so the whole table
-is built once per weighted least squares iteration and the sweeps read it.
+Every closed form the package carries has that shape. At
+\eqn{\lambda = 1.5} for the first three, \eqn{\lambda = 1}, \eqn{a = 3.7},
+\eqn{\gamma = 3} for the last two, and a step of \code{0.5}:\tabular{lll}{
+   penalty \tab pieces \tab cuts \cr
+   Gaussian prior (ridge) \tab 1 \tab \code{Inf} \cr
+   Laplace prior (lasso) \tab 2 \tab \code{0.75}, \code{Inf} \cr
+   elastic net \tab 2 \tab \code{0.45}, \code{Inf} \cr
+   MCP \tab 3 \tab \code{0.5}, \code{3}, \code{Inf} \cr
+   SCAD \tab 4 \tab \code{0.5}, \code{1.5}, \code{3.7}, \code{Inf} \cr
+}
 
-\strong{A diagonal map.} Standardization is a diagonal \eqn{D}, under which
-a separable penalty stays separable and the table survives: reading it at
-\eqn{d_j v_j} with the step \eqn{t_j d_j^2} and dividing back gives the
-cuts and the intercepts divided by \eqn{|d_j|} and the slopes unchanged.
+
+The last cut is always \code{Inf}. Applied with \code{\link[=prox_apply]{prox_apply()}} and compared
+against \code{\link[=penalty_prox]{penalty_prox()}} at every cut, on both sides of every cut, and over
+a grid across the whole range, all five agree to \code{8.9e-16} or better.
+}
+
+\section{Why a table rather than the operator}{
+A coordinate descent applies the operator once per coordinate per sweep, at
+a point that moves every time, so a compiled loop calling back into R for it
+would spend its gain on the calls. Passing the numbers lets the loop stay
+compiled while the penalty keeps the mathematics: the kernel evaluates any
+map of this shape and names no family.
+}
+
+\section{Why the step is a vector}{
+In a coordinate descent the step of coordinate \eqn{j} is \eqn{1/v_j} with
+\eqn{v_j = \sum_i w_i x_{ij}^2}, which does not move while the working
+weights are held. The whole table is therefore built once per weighted least
+squares iteration and every sweep reads it. Note the asymmetry with
+\code{\link[=penalty_prox]{penalty_prox()}}, which takes a \strong{single} step.
+}
+
+\section{Under a diagonal map}{
+Standardization is a diagonal \eqn{D}, under which a separable penalty stays
+separable and the table survives. The builder is called at the step
+\eqn{t_j d_j^2}, and the resulting cuts and intercepts are divided by
+\eqn{\lvert d_j\rvert} while the slopes do not move, the slope multiplying a
+point that was scaled and then divided back. The operator is odd, so only
+the magnitude of \eqn{d} enters. For a lasso this leaves the cut at
+\eqn{t_j d_j \lambda}: at \eqn{d = (0.5, 2, 3)}, \eqn{t = 0.4} and
+\eqn{\lambda = 1.2} the cuts are \code{0.24}, \code{0.96}, \code{1.44}.
+
 The convexity condition of SCAD and MCP is tested on the scaled step, so it
-becomes \eqn{t < (a-1)/d_j^2} and \eqn{t < \gamma/d_j^2}.
-
-\strong{What has no table.} A quadratic penalty under a general matrix is
-not separable and returns \code{NULL}, as does a separable penalty under a
-map that is not diagonal, one whose operator is a root rather than a
-formula, and one whose parent is not centered where the quadratic pull is.
-A caller that gets \code{NULL} uses \code{\link[=penalty_prox]{penalty_prox()}} itself.
+tightens to \eqn{t < (a-1)/d_j^2} and \eqn{t < \gamma/d_j^2}: a standardized
+penalty takes shorter steps.
 }
+
+\section{What has no table}{
+\code{NULL} comes back for a quadratic or structured penalty, whose operator is a
+linear solve and not a coordinatewise map; for a separable penalty under a
+map that is not diagonal, which is the generalized-lasso problem; for one
+whose parent is read blockwise, whose coordinates do not separate; for one
+whose operator is a root rather than a formula, such as the heavy-tailed
+Student t prior; for one whose parent is not centered where the quadratic
+pull is; and for SCAD or MCP at a step where the operator is set-valued,
+that is \code{step >= a - 1} or \code{step >= gamma}.
+}
+
 \examples{
+# A lasso at two different steps: the threshold is t * lambda.
 pen <- lasso_penalty(n_coef = 2L)
-penalty_prox_spec(pen, list(lambda = 1.5), step = c(0.5, 2))
+sp <- penalty_prox_spec(pen, list(lambda = 1.5), step = c(0.5, 2))
+sp$cut
+
+# The table reproduces the operator exactly. The first point sits on its
+# own cut and is set to zero; the second survives, shrunk by t * lambda.
+u <- c(0.75, 4)
+prox_apply(sp, u)
+c(penalty_prox(lasso_penalty(n_coef = 1), u[1], 0.5, list(lambda = 1.5)),
+  penalty_prox(lasso_penalty(n_coef = 1), u[2], 2, list(lambda = 1.5)))
+
+# SCAD needs four pieces, and has none where its operator is set-valued.
+penalty_prox_spec(scad_penalty(), list(lambda = 1, a = 3.7),
+                  step = 0.5)$cut
+penalty_prox_spec(scad_penalty(), list(lambda = 1, a = 3.7), step = 2.7)
+
+# A quadratic penalty has a solve, not a coordinatewise map.
+penalty_prox_spec(quadratic_penalty(diag(2)), list(lambda = 1), step = 0.5)
 
 }
 \seealso{
-\code{\link[=penalty_prox]{penalty_prox()}}, \code{\link[=has_prox]{has_prox()}}
+\code{\link[=prox_apply]{prox_apply()}} to evaluate the table, \code{\link[=penalty_prox]{penalty_prox()}} for the
+operator itself, \code{\link[=has_prox]{has_prox()}} for whether there is one at all,
+\code{\link[=spec_diag]{spec_diag()}} for the diagonal-map transport.
 }
 \keyword{internal}

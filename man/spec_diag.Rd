@@ -7,35 +7,45 @@
 spec_diag(pen, step, build)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object whose map is \code{NULL} or diagonal.}
 
-\item{step}{A numeric vector of step lengths.}
+\item{step}{A numeric vector of step lengths, recycled to \code{pen@n_coef}.}
 
 \item{build}{A function of a penalty and a step returning the table, or
-\code{NULL}.}
+\code{NULL}. Called on the penalty with its map removed.}
 }
 \value{
-The list \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns, or \code{NULL}.
+The list \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns, or \code{NULL} when the map is
+not diagonal or the builder itself declines.
 }
 \description{
 Builds the table of a separable penalty under a diagonal map from the
-builder of its identity-map table, and returns \code{NULL} where the map
-is not diagonal.
+builder of its identity-map table, and returns \code{NULL} where there is a map
+and it is not diagonal. With no map at all the builder is called directly.
 }
 \details{
 A diagonal map only rescales each coordinate, and the identity
+
 \deqn{\mathrm{prox}_{t\rho(d\,\cdot)}(v) =
   \mathrm{prox}_{t d^2 \rho}(d v)/d}
-carries the table across. The identity-map table reads
-\eqn{|w| \le \mathrm{cut}} to
-\eqn{\mathrm{sign}(w)(\mathrm{slope}\,|w| + \mathrm{icept})} at
-\eqn{w = dv}, so a cut on \eqn{|w|} is a cut on \eqn{|v|} divided by
-\eqn{|d|} and the intercept divides by the same, while the slope, which
-multiplies a point that was scaled and then divided back, does not move.
-The operator is odd, so only the magnitude of \eqn{d} enters.
 
-The step handed to the builder is \eqn{t d^2}, which is where the
-convexity condition of SCAD and MCP tightens: a standardized penalty
-takes shorter steps.
+carries the table across. The identity-map table reads
+\eqn{\lvert w\rvert \le \mathrm{cut}} to
+\eqn{\mathrm{sign}(w)(\mathrm{slope}\,\lvert w\rvert + \mathrm{icept})} at
+\eqn{w = dv}, so a cut on \eqn{\lvert w\rvert} is a cut on
+\eqn{\lvert v\rvert} divided by \eqn{\lvert d\rvert}, the intercept divides
+by the same, and the slope does not move, multiplying a point that was
+scaled and then divided back. The operator is odd, so only the magnitude of
+\eqn{d} enters.
+
+The step handed to the builder is \eqn{t d^2}, which is where the convexity
+condition of SCAD and MCP tightens: a standardized penalty takes shorter
+steps and a table may come back \code{NULL} where the unmapped one exists.
+
+The map is recognized by its class through \code{\link[=map_diagonal]{map_diagonal()}}, so a base
+matrix that happens to be diagonal is not treated as one.
+}
+\seealso{
+\code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=map_diagonal]{map_diagonal()}}, \code{\link[=prox_table]{prox_table()}}
 }
 \keyword{internal}
