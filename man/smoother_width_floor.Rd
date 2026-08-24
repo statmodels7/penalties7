@@ -7,29 +7,51 @@
 smoother_width_floor(smoother, scale)
 }
 \arguments{
-\item{smoother}{An \code{\link[=abs_smoother]{abs_smoother()}}.}
+\item{smoother}{An \code{\link[=abs_smoother]{abs_smoother()}}. Anything else is rejected.}
 
-\item{scale}{The scale of the covariate (its range).}
+\item{scale}{The scale of the covariate, its range, a single positive
+number. Anything else is rejected.}
 }
 \value{
-A single number.
+A single number, on the smoother's own width scale.
 }
 \description{
-The floor of the width, derived from the expression that binds rather
-than chosen. The derivatives of a smoother scale as
-\eqn{s^{(k)} \sim h^{1-k}}, so the Jacobian column of a smoothed
-break-point carries \eqn{s''(0)/2 \sim 1/h} against covariate columns of
-order the range \eqn{D}: holding the design's condition number below
-\eqn{\epsilon^{-1/2}}, which leaves half the digits of a double to a QR
-of the design -- the same bound the working schedule's scaling floor
-rests on -- gives \eqn{h \geq \sqrt{\epsilon}\,D}, carried onto the
-width parameter's own scale for a smoother parametrized by a squared
-length.
+Returns the floor of the width, derived from the expression that binds. A
+consumer resolving a width from data takes the larger of this and
+\code{\link[=smoother_width]{smoother_width()}}'s answer.
 }
+\section{Where the bound comes from}{
+The derivatives of a smoother scale as \eqn{s^{(k)} \sim h^{1-k}}, so the
+Jacobian column of a smoothed break-point carries \eqn{s''(0)/2 \sim 1/h}
+against covariate columns of order the range \eqn{D}. Holding the design's
+condition number below \eqn{\epsilon^{-1/2}}, which leaves half the digits
+of a double to a QR of the design, gives
+
+\deqn{h \geq \sqrt{\epsilon}\,D,}
+
+carried onto the width parameter's own scale for a smoother parametrized by
+a squared length. At a covariate range of 10 that is \code{1.49e-07} for
+\code{\link[=smooth_probit]{smooth_probit()}} and its square, \code{2.22e-14}, for \code{\link[=smooth_hyperbolic]{smooth_hyperbolic()}}.
+
+The bound is derived, which is the toolkit's rule for a guard constant, and
+it is the same argument the break-point schedule's own scaling floor rests
+on.
+}
+
 \examples{
+# A length-parametrized smoother: sqrt(eps) times the range.
 smoother_width_floor(smooth_probit(), scale = 10)
+sqrt(.Machine$double.eps) * 10
+
+# The hyperbolic's floor is the square of that, its parameter being one.
+smoother_width_floor(smooth_hyperbolic(), scale = 10)
+
+# A consumer takes the larger of the data's spacing and the floor.
+max(smoother_width(smooth_probit(), 0.3),
+    smoother_width_floor(smooth_probit(), scale = 10))
 
 }
 \seealso{
-\code{\link[=smoother_width]{smoother_width()}}
+\code{\link[=smoother_width]{smoother_width()}} for the width the data suggests,
+\code{\link[=abs_smoother]{abs_smoother()}} for what a width means.
 }

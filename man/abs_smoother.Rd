@@ -16,91 +16,121 @@ abs_smoother(
 )
 }
 \arguments{
-\item{smoother_name}{A string naming the smoother.}
+\item{smoother_name}{A single non-empty string naming the smoother, used by
+\code{print()} and by a consumer reporting which smoother a term carries.}
 
-\item{width}{The transition width, or \code{NULL} to be resolved at
-build.}
+\item{width}{The transition width, a single positive number, or \code{NULL} to be
+resolved at build.}
 
-\item{width_name}{What the width parameter is called (\code{"h"} or
-\code{"c"}).}
+\item{width_name}{What the width parameter is called, a single non-empty
+string: \code{"h"} for a length and \code{"c"} for a squared one. \code{"h"} by default.}
 
-\item{per_group}{Whether the width is resolved per group.}
+\item{per_group}{\code{TRUE} when the width is resolved per group, \code{FALSE} (the
+default) for one width throughout.}
 
-\item{s}{A list of six functions of \verb{(u, width)}: \eqn{s} and its
-derivatives in \eqn{u} of orders one to five, in order.}
+\item{s}{A list of exactly six functions of \verb{(u, width)}: \eqn{s} and its
+derivatives in \eqn{u} of orders one to five, in that order. Each must
+take at least two arguments; the validator checks the count and the arity.}
 
-\item{width_from_spacing}{\code{NULL} (the identity) or a function
-carrying a spacing in covariate units onto the width parameter's own
-scale (the square, for the hyperbolic).}
+\item{width_from_spacing}{\code{NULL} (the identity) or a function carrying a
+spacing in covariate units onto the width parameter's own scale, which is
+the square for the hyperbolic.}
 
-\item{tau_correction}{\code{NULL}, or a function \verb{(tau, width)}
-returning the corrected scale of a random break-point.}
+\item{tau_correction}{\code{NULL}, or a function \verb{(tau, width)} returning the
+corrected scale of a random break-point.}
 
-\item{exact_radius}{\code{NULL}, or a function of the width returning
-the radius beyond which \eqn{s(u) = \lvert u\rvert} exactly.}
+\item{exact_radius}{\code{NULL}, or a function of the width returning the radius
+beyond which \eqn{s(u) = \lvert u\rvert} exactly. Only the quintic has
+one.}
 }
 \value{
-An object of class \code{abs_smoother}.
+An S7 object of class \code{abs_smoother} carrying the eight properties
+above.
 }
 \description{
 A smooth replacement \eqn{s(u)} for \eqn{\lvert u \rvert}, carrying its
 derivatives in \eqn{u} up to order five as functions. Every non-smooth
-primitive the toolkit uses is generated from the absolute value --
+primitive the toolkit uses is generated from the absolute value:
 
 \deqn{\operatorname{sign}(u) = \frac{d\lvert u\rvert}{du}, \qquad
   \mathbb{1}(u \geq 0) = \frac{1 + \operatorname{sign}(u)}{2}, \qquad
   (u)_{+} = \frac{u + \lvert u\rvert}{2},}
 
-so one contract serves them all: the smooth sign is \eqn{s'}, the smooth
+so one contract serves them all. The smooth sign is \eqn{s'}, the smooth
 step \eqn{(1 + s'(u))/2} and the smooth hinge \eqn{(u + s(u))/2} follow by
-composition, and a consumer that replaces \eqn{\lvert u\rvert} by
-\eqn{s(u)} has replaced every one of them consistently. A break-point term
-smoothed this way becomes an ordinary nonlinear term whose block is the
-true Jacobian, which is what makes a random or penalized development of
-its break-points fittable; a kinked penalty smoothed this way becomes a
-proper separable one, at the price of the exact zeros the kink produced.
+composition, and a consumer that replaces \eqn{\lvert u\rvert} by \eqn{s(u)}
+has replaced every one of them consistently.
 }
-\details{
-The derivatives are FUNCTIONS and not expressions: a piecewise smoother
-(the quintic) has branches, which \code{\link[stats:deriv]{stats::deriv()}} does not
-read, and with the derivatives written in the constructor the branches
-are ordinary code. Each function takes \verb{(u, width)} and vectorizes
-in both, so a per-group width is one value per observation.
-
-\code{width} is the transition scale -- \code{h} for a smoother whose
-parameter is a length, the bent-cable reading of a transition of width
-\eqn{h}; \code{c} for the hyperbolic, whose parameter is a squared
-length. \code{NULL}, the default, asks the consumer to resolve it from
-the data at build (a break-point term takes the median spacing of its
-covariate), through \code{\link[=smoother_width]{smoother_width()}}. \code{per_group} asks
-for one width per group where a grouping is available, the validity
-window of a Laplace approximation being per-subject.
-
-\code{tau_correction} is a property of the mollifier, not of any model:
-the probit smoother satisfies an exact convolution identity, smoothing
-with width \eqn{h} being the same as convolving the break-point with
-\eqn{N(0, h^2)}, so an apparent scale \eqn{\tau} of a random break-point
-composes as \eqn{\tau^2_{\mathrm{true}} = \tau^2 - h^2} and the smoother
-declares the correction. Smoothers with no such identity declare
-\code{NULL} and a consumer reports the apparent scale alone.
+\section{What a smoother buys}{
+A break-point term smoothed this way becomes an ordinary nonlinear term
+whose design block is the true Jacobian, so a random or penalized
+development of its break-points becomes fittable. A kinked penalty
+smoothed this way becomes a proper separable one, at the price of the exact
+zeros the kink produced.
 }
+
+\section{The derivatives are functions}{
+They are functions and not expressions. A piecewise smoother, the quintic
+here, has branches that \code{\link[stats:deriv]{stats::deriv()}} does not read, and with the
+derivatives written out in the constructor those branches are ordinary code.
+Each takes \verb{(u, width)} and vectorizes in both, so a per-group width is one
+value per observation.
+}
+
+\section{The width}{
+\code{width} is the transition scale: \code{h} for a smoother whose parameter is a
+length, the bent-cable reading of a transition of width \eqn{h}, and \code{c} for
+the hyperbolic, whose parameter is a squared length. \code{NULL}, the default of
+all three constructors, asks the consumer to resolve it from the data at
+build through \code{\link[=smoother_width]{smoother_width()}}; a break-point term hands it the median
+spacing of its covariate. \code{per_group} asks for one width per group where a
+grouping is available, the validity window of a Laplace approximation being
+per-subject.
+}
+
+\section{The scale correction}{
+\code{tau_correction} is a property of the mollifier and of no model. The probit
+smoother satisfies an exact convolution identity, smoothing with width
+\eqn{h} being the same as convolving the break-point with \eqn{N(0, h^2)},
+so an apparent scale \eqn{\tau} of a random break-point composes as
+\eqn{\tau^2_{\mathrm{true}} = \tau^2 - h^2} and the smoother declares that
+correction. Smoothers with no such identity declare \code{NULL}, and a consumer
+then reports the apparent scale alone.
+}
+
 \examples{
-S7::S7_inherits(smooth_probit(), abs_smoother)
+sm <- smooth_probit(h = 0.3)
+S7::S7_inherits(sm, abs_smoother)
+sm
+
+# The smooth sign, step and hinge all follow from the same object.
+u <- c(-1, -0.1, 0, 0.1, 1)
+smoother_deriv(sm, u, order = 1)                    # smooth sign
+(1 + smoother_deriv(sm, u, order = 1)) / 2          # smooth step
+(u + smoother_deriv(sm, u, order = 0)) / 2          # smooth hinge
+
+# Three widths out they agree with the sharp versions to five decimals,
+# and inside the transition they are what replaces them.
+far <- c(-1.2, -0.9, 0.9, 1.2)
+round(smoother_deriv(sm, far, order = 1) - sign(far), 5)
+round((far + smoother_deriv(sm, far, order = 0)) / 2 - pmax(far, 0), 5)
 
 }
 \references{
 Bacon, D. W. and Watts, D. G. (1971). Estimating the transition between
-two intersecting straight lines. \emph{Biometrika}, 58(3), 525--534.
+two intersecting straight lines. \emph{Biometrika}, \strong{58}(3), 525--534.
 
 Tishler, A. and Zang, I. (1981). A new maximum likelihood algorithm for
 piecewise regression. \emph{Journal of the American Statistical
-Association}, 76(376), 980--987.
+Association}, \strong{76}(376), 980--987.
 
 Seo, M. H. and Linton, O. (2007). A smoothed least squares estimator
 for threshold regression models. \emph{Journal of Econometrics},
-141(2), 704--735.
+\strong{141}(2), 704--735.
 }
 \seealso{
-\code{\link[=smooth_probit]{smooth_probit()}}, \code{\link[=smooth_hyperbolic]{smooth_hyperbolic()}},
-\code{\link[=smooth_quintic]{smooth_quintic()}}, \code{\link[=check_abs_smoother]{check_abs_smoother()}}
+\code{\link[=smooth_probit]{smooth_probit()}}, \code{\link[=smooth_hyperbolic]{smooth_hyperbolic()}} and \code{\link[=smooth_quintic]{smooth_quintic()}}
+for the three that ship, \code{\link[=smoother_deriv]{smoother_deriv()}} to evaluate one,
+\code{\link[=smoother_width]{smoother_width()}} and \code{\link[=smoother_width_floor]{smoother_width_floor()}} for the width,
+\code{\link[=check_abs_smoother]{check_abs_smoother()}} to verify one of your own.
 }

@@ -7,27 +7,48 @@
 smoother_width(smoother, spacing)
 }
 \arguments{
-\item{smoother}{An \code{\link[=abs_smoother]{abs_smoother()}}.}
+\item{smoother}{An \code{\link[=abs_smoother]{abs_smoother()}}. Anything else is rejected.}
 
-\item{spacing}{A spacing in covariate units, one value or one per group.}
+\item{spacing}{A spacing in covariate units, one value or one per group.
+Every entry must be positive and none may be missing; a smoother that
+already carries a width never reaches the check.}
 }
 \value{
-The width, the same length as \code{spacing} when resolved from
-it.
+The width, on the smoother's own scale. The same length as \code{spacing}
+when resolved from it, and a single number when the smoother carries one.
 }
 \description{
-The width the smoother carries where it carries one, and otherwise the
-given spacing carried onto the width parameter's own scale (the square,
-for a smoother parametrized by a squared length). It is what a consumer
-calls at build: a break-point term hands it the median spacing of its
-covariate, the smallest transition the data can tell from a step.
+Returns the width the smoother carries where it carries one, and otherwise
+the given spacing carried onto the width parameter's own scale. This is what
+a consumer calls at build: a break-point term hands it the median spacing of
+its covariate, the smallest transition the data can tell from a step.
+}
+\details{
+A smoother constructed with an explicit width keeps it, and \code{spacing} is
+then not even looked at. A smoother constructed with \code{NULL} takes the
+spacing through its own \code{width_from_spacing}, which is the identity for
+\code{\link[=smooth_probit]{smooth_probit()}} and \code{\link[=smooth_quintic]{smooth_quintic()}}, whose parameter is a length, and
+the square for \code{\link[=smooth_hyperbolic]{smooth_hyperbolic()}}, whose parameter is a squared one.
+
+The result is nothing about whether the width is large enough for the
+arithmetic; \code{\link[=smoother_width_floor]{smoother_width_floor()}} answers that separately, and a consumer
+takes the larger of the two.
 }
 \examples{
-smoother_width(smooth_probit(), 0.3)          # 0.3
-smoother_width(smooth_hyperbolic(), 0.3)      # 0.09
-smoother_width(smooth_probit(h = 0.5), 0.3)   # 0.5, the width it holds
+# A length-parametrized smoother takes the spacing as it stands.
+smoother_width(smooth_probit(), 0.3)
+
+# The hyperbolic's parameter is a squared length, so it is squared.
+smoother_width(smooth_hyperbolic(), 0.3)
+
+# A smoother that carries a width keeps it, whatever the spacing.
+smoother_width(smooth_probit(h = 0.5), 0.3)
+
+# One width per group.
+smoother_width(smooth_probit(per_group = TRUE), c(0.2, 0.4, 0.35))
 
 }
 \seealso{
-\code{\link[=smoother_width_floor]{smoother_width_floor()}}
+\code{\link[=smoother_width_floor]{smoother_width_floor()}} for the lower bound the arithmetic
+imposes, \code{\link[=abs_smoother]{abs_smoother()}} for what a width means.
 }
