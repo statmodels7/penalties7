@@ -14,56 +14,129 @@ quadratic_penalty(
 }
 \arguments{
 \item{P}{A symmetric positive semidefinite matrix, for instance a
-\pkg{basis7} Gram matrix or a difference penalty \eqn{D_k'D_k}.}
+\pkg{basis7} Gram matrix or a difference penalty \eqn{D_k'D_k}. Symmetry
+is checked to a relative tolerance of \code{1e-8} and the matrix is symmetrized
+before use; a zero matrix is rejected.}
 
-\item{map}{The matrix \eqn{D}, or \code{NULL} (default) for the identity.}
+\item{map}{The matrix \eqn{D}, with as many rows as \eqn{P} and one column
+per coefficient, or \code{NULL} (the default) for the identity, and then
+\code{n_coef} is \code{nrow(P)}. A \pkg{Matrix} object keeps its own storage.}
 
-\item{blocks}{How many times \eqn{P} is repeated blockwise: the penalty is
-then that of \eqn{I_m \otimes P}, which is what one copy of a smooth per
-level of a factor needs. The big matrix is NEVER formed or decomposed --
-the eigenvalues of \eqn{I_m \otimes P} are \eqn{P}'s repeated \eqn{m}
-times, so the rank is \eqn{m\,r}, the log pseudo-determinant is
-\eqn{m\log\mathrm{pdet}(P)} and the null space is \eqn{I_m \otimes N}.
-Measured at \eqn{m = 200} over a basis of ten, that is 4.50 seconds of
-eigendecomposition saved and a stored matrix of 0.13 MB against 25.9. It
-does not combine with \code{map}, which would mix the blocks.}
+\item{blocks}{How many times \eqn{P} is repeated blockwise, a whole number
+of at least 1. \code{1L}, the default, is the ordinary single-block penalty.
+Above 1 it must be given without a \code{map}.}
 
-\item{link_lambda}{The link carrying \eqn{\lambda}; defaults to
-\code{linkfunctions7::log_link()}.}
+\item{link_lambda}{The \pkg{linkfunctions7} link carrying \eqn{\lambda} onto
+the whole real line. \code{linkfunctions7::log_link()} by default, \eqn{\lambda}
+being positive.}
 
-\item{tol}{The relative eigenvalue tolerance of the rank rule.}
+\item{tol}{The relative eigenvalue tolerance of the rank rule, \code{1e-10} by
+default. An eigenvalue at or below \code{tol} times the largest counts as zero,
+so its direction joins the null space and is not penalized.}
 }
 \value{
-An object of class \code{QuadraticPenalty}.
+A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object with one hyperparameter, \code{lambda},
+bounded on \eqn{(0, \infty)}.
 }
 \description{
-The exact negative log-density of the (possibly degenerate) Gaussian
-prior \eqn{\beta \sim N(0, (\lambda D'PD)^{-})}:
-\deqn{\rho = \tfrac{\lambda}{2}\,(D\beta)'P(D\beta)
+Builds the penalty \eqn{\tfrac{\lambda}{2}(D\beta)'P(D\beta)} together with
+the constant that makes it a density, so the value returned is exactly the
+negative log-density of the Gaussian prior with precision
+\eqn{\lambda D'PD}. This is the penalty behind a spline smooth, a ridge and
+a Gaussian random effect: one fixed matrix saying which directions are
+expensive, and one smoothing parameter saying how expensive.
+}
+\section{The value}{
+With \eqn{r} the rank of \eqn{P},
+
+\deqn{\rho(\beta; \lambda) = \tfrac{\lambda}{2}\,(D\beta)'P(D\beta)
   - \tfrac{r}{2}\log\lambda + \tfrac{r}{2}\log 2\pi
-  - \tfrac{1}{2}\log\mathrm{pdet}(P),}
-with \eqn{r} the rank of \eqn{P}. The constant is kept deliberately:
-dropping it, as penalized-likelihood software does, makes joint
-hyperparameter estimation degenerate.
+  - \tfrac{1}{2}\log\mathrm{pdet}(P).}
+
+The last three terms are the normalizing constant of the prior, taken over
+the range of \eqn{P} alone when \eqn{P} is deficient. Penalized-likelihood
+software usually drops them, and dropping them makes \eqn{\lambda}
+unestimable: with no \eqn{-\tfrac{r}{2}\log\lambda} the penalty falls to
+zero as \eqn{\lambda} does and the joint maximum runs away.
 }
-\details{
-One eigendecomposition at construction fixes the rank by the relative
-rule \eqn{\mathrm{ev} > \mathrm{tol}\cdot\max(\mathrm{ev})} -- a
-statement about the matrix rather than about whichever arithmetic is
-later performed on it -- and stores the exact null basis of \eqn{D'PD},
-so that membership questions never go through a rank recomputed from an
-assembled sum. Every quantity is then closed form in \eqn{\lambda}.
+
+\section{The rank, and why it is fixed at construction}{
+One eigendecomposition fixes the rank by the relative rule
+\eqn{\mathrm{ev} > \mathtt{tol} \cdot \max(\mathrm{ev})}, and stores the
+exact null basis of \eqn{D'PD}. That is a statement about the matrix, not
+about whichever arithmetic is later performed on it, and it is what keeps
+the answer stable: a rank recounted from an assembled sum of several
+penalties falls as their smoothing parameters spread apart, while the true
+null space is the intersection of the components' and does not move.
 }
+
+\section{Blockwise repetition}{
+\code{blocks = m} builds the penalty of \eqn{I_m \otimes P} from \eqn{P} alone,
+the shape one copy of a smooth per level of a factor takes. The
+eigenvalues of \eqn{I_m \otimes P} are \eqn{P}'s repeated \eqn{m} times, so
+the rank is \eqn{mr}, the log pseudo-determinant is
+\eqn{m\log\mathrm{pdet}(P)} and the null space is \eqn{I_m \otimes N}: the
+large matrix is never decomposed. Measured on second differences over ten
+coefficients at \eqn{m = 200}, so an assembled matrix of
+\eqn{2000 \times 2000}:\tabular{lll}{
+    \tab assembled \tab \code{blocks = 200} \cr
+   eigendecomposition \tab 4.79 s \tab 2.9e-05 s \cr
+   whole construction \tab 5.82 s \tab 0.001 s \cr
+   stored matrix \tab 30.5 MB dense \tab 0.11 MB sparse \cr
+}
+
+
+at a density of 0.0022. The two penalties agree exactly: the value to
+1.4e-14, the gradient and the Hessian to 0, and the same rank, null basis
+and log pseudo-determinant.
+
+\strong{Under \code{blocks > 1} the matrix-valued returns are \code{dgCMatrix}}, not base
+matrices: \code{\link[=penalty_hessian]{penalty_hessian()}}, \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}}
+and \code{\link[=penalty_dhessian]{penalty_dhessian()}} all keep the sparse storage. A branch built to
+avoid the assembled form would defeat itself by densifying at its own
+boundary. Consumers that write these into a block of their own information
+need to accept both classes.
+
+\code{blocks} does not combine with \code{map}, and the constructor rejects the pair:
+a map mixes the blocks, so \eqn{D'(I_m \otimes P)D} is not block diagonal
+with the structure \code{blocks} names.
+}
+
 \examples{
-# a second-difference penalty on five coefficients: rank 3, an improper
-# prior whose null space is the linear polynomials
+# Second differences over five coefficients: rank 3, and a null space
+# holding the straight lines, so this is an improper prior.
 P <- crossprod(diff(diag(5), differences = 2))
 pen <- quadratic_penalty(P)
 penalty_rank(pen)
 is_proper(pen)
-penalty_value(pen, rnorm(5), list(lambda = 2))
+
+# A straight line lies in the null space and has zero gradient.
+penalty_gradient(pen, c(1, 2, 3, 4, 5), list(lambda = 2))
+
+# A full-rank penalty is a proper Gaussian prior, and its value is the
+# negative log-density of one.
+ridge <- quadratic_penalty(diag(3))
+b <- c(0.4, -1.1, 0.7)
+all.equal(penalty_value(ridge, b, list(lambda = 2)),
+          -sum(stats::dnorm(b, sd = 1 / sqrt(2), log = TRUE)))
+
+# A map penalizes what it selects. Here only the second differences of a
+# six-vector are charged for, through a 4 x 6 map.
+D <- diff(diag(6), differences = 2)
+curved <- quadratic_penalty(diag(4), map = D)
+curved@n_coef
+penalty_value(curved, 1:6, list(lambda = 1))
+
+# blocks = m repeats P without assembling I_m (x) P.
+blocked <- quadratic_penalty(P, blocks = 4)
+c(blocked@n_coef, penalty_rank(blocked))
+all.equal(penalty_rank(blocked), 4L * penalty_rank(pen))
 
 }
 \seealso{
-\code{\link[=additive_penalty]{additive_penalty()}}, \code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=structured_penalty]{structured_penalty()}}
+\code{\link[=additive_penalty]{additive_penalty()}} for a sum of quadratics with a smoothing
+parameter each, \code{\link[=structured_penalty]{structured_penalty()}} for a matrix that moves with
+several hyperparameters, \code{\link[=distrib_penalty]{distrib_penalty()}} for the separable branch,
+\code{\link[=penalty_logpdet]{penalty_logpdet()}} for the constant a marginal criterion reads,
+\code{\link[=check_penalty]{check_penalty()}} to verify the result.
 }

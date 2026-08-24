@@ -44,29 +44,55 @@ real line.}
 \item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
 where the value is differentiable in it.}
 
-\item{P}{The symmetric positive semidefinite matrix.}
+\item{P}{The symmetric positive semidefinite matrix of the quadratic form,
+with as many rows as the map has, or as many as there are coefficients
+when the map is \code{NULL}. A \code{dgCMatrix} under \code{blocks > 1}.}
 
-\item{p_rank}{The rank of \eqn{P}.}
+\item{p_rank}{The rank of \eqn{P}, a single whole number, counted at
+construction by a relative eigenvalue rule.}
 
-\item{null_basis}{An orthonormal basis of the null space of \eqn{D'PD}.}
+\item{null_basis}{An orthonormal basis of the null space of \eqn{D'PD}, with
+\code{n_coef} rows and \code{n_coef - p_rank} columns, and no columns when the
+penalty is full rank.}
 
-\item{logpdet_P}{The log pseudo-determinant of \eqn{P}.}
+\item{logpdet_P}{The log pseudo-determinant of \eqn{P}: the sum of the
+logarithms of its non-zero eigenvalues. A single number.}
 
-\item{DPD}{The assembled \eqn{D'PD}, cached.}
+\item{DPD}{The assembled \eqn{D'PD}, an \code{n_coef} by \code{n_coef} matrix, cached
+so that the gradient and the Hessian never re-form it.}
 }
 \value{
-An object of class \code{QuadraticPenalty}.
+An S7 object of class \code{QuadraticPenalty}, inheriting from
+\code{\link[=penalty]{penalty()}}, with the seven inherited properties and the five above.
 }
 \description{
-The class \code{\link[=quadratic_penalty]{quadratic_penalty()}} instantiates. Beyond the base
-properties it stores the matrix \eqn{P}, its rank, its null basis and its
-log pseudo-determinant, all fixed by one eigendecomposition at
-construction.
+The class \code{\link[=quadratic_penalty]{quadratic_penalty()}} builds. Beyond the seven properties every
+penalty carries it stores the matrix \eqn{P}, its rank, an orthonormal basis
+of the null space of \eqn{D'PD}, the log pseudo-determinant of \eqn{P} and
+the assembled \eqn{D'PD}. All five are fixed by one eigendecomposition at
+construction and none of them moves with the hyperparameter, so every
+quantity the branch supplies is closed form in \eqn{\lambda}.
+}
+\details{
+Construct through \code{\link[=quadratic_penalty]{quadratic_penalty()}}, which computes the five derived
+properties and checks that \eqn{P} is symmetric. This raw constructor takes
+them as given and checks nothing, so a wrong rank here would be reported by
+\code{\link[=penalty_logpdet]{penalty_logpdet()}} and by nothing else.
 }
 \examples{
-S7::S7_inherits(quadratic_penalty(diag(2)), QuadraticPenalty)
+pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
+S7::S7_inherits(pen, QuadraticPenalty)
+
+# The five derived properties, fixed at construction.
+pen@p_rank
+dim(pen@null_basis)
+pen@logpdet_P
+
 }
 \seealso{
-\code{\link[=quadratic_penalty]{quadratic_penalty()}}
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} for the constructor to use,
+\code{\link[=penalty_value.QuadraticPenalty]{penalty_value.QuadraticPenalty()}} for what the branch computes,
+\code{\link[=structured_penalty]{structured_penalty()}} for the other branch that answers
+\code{\link[=is_quadratic]{is_quadratic()}} with \code{TRUE}.
 }
 \keyword{internal}

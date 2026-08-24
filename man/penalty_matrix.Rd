@@ -25,12 +25,14 @@ vector carrying the same. \code{penalty_matrix()} and \code{penalty_logpdet()} o
 \item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-\code{penalty_matrix()} a symmetric \verb{q x q} base matrix, where \code{q} is
+\code{penalty_matrix()} a symmetric \verb{q x q} matrix, where \code{q} is
 \code{pen@n_coef}.
 \code{penalty_rank()} a single integer, fixed at construction.
 \code{penalty_null_basis()} a \verb{q x (q - r)} matrix with orthonormal columns
 spanning the null space, and a \verb{q x 0} matrix when the penalty is full
 rank.
+The two matrices are base matrices ordinarily, and \code{dgCMatrix} objects
+for a penalty built by \code{\link[=quadratic_penalty]{quadratic_penalty()}} with \code{blocks > 1}.
 \code{penalty_logpdet()} a list of three: \code{value}, a single number; \code{grad}, a
 named list of one number per hyperparameter; and \code{hess}, a named list of
 one number per hyperparameter pair, keyed diagonals first as

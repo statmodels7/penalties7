@@ -7,16 +7,24 @@
 quad_form(pen, beta)
 }
 \arguments{
-\item{pen}{A \code{QuadraticPenalty} object.}
+\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}.}
 }
 \value{
-A single number.
+A single number, non-negative for a positive semidefinite \eqn{P}.
 }
 \description{
-The quadratic form of the mapped coefficients, shared by
-the value and the
-theta derivatives.
+Computes \eqn{(D\beta)'P(D\beta)}, the part of the value that depends on the
+coefficients. Shared by \code{\link[=penalty_value.QuadraticPenalty]{penalty_value.QuadraticPenalty()}} and the
+hyperparameter derivatives, both of which need it and neither of which needs
+anything else from \eqn{\beta}.
+}
+\details{
+Uses \eqn{P} and the map, not the cached \eqn{D'PD}, so the intermediate is
+the \eqn{m}-vector \eqn{D\beta} and no \eqn{q \times q} product is formed.
+}
+\seealso{
+\code{\link[=penalty_value.QuadraticPenalty]{penalty_value.QuadraticPenalty()}}
 }
 \keyword{internal}

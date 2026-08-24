@@ -22,8 +22,10 @@ vector carrying the same, holding every name in \code{pen@params}.}
 }
 \value{
 \code{penalty_gradient()} a numeric vector of length \code{pen@n_coef};
-\code{penalty_hessian()} a symmetric numeric matrix of that side, a base matrix
-even where the map is a \pkg{Matrix}.
+\code{penalty_hessian()} a symmetric matrix of that side. It is a base matrix
+even where the map is a \pkg{Matrix}, and a \code{dgCMatrix} for a penalty
+built by \code{\link[=quadratic_penalty]{quadratic_penalty()}} with \code{blocks > 1}, which keeps its sparse
+storage deliberately.
 }
 \description{
 \code{penalty_gradient()} returns \eqn{\partial\rho/\partial\beta} and

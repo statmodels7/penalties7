@@ -117,8 +117,10 @@ penalty_value <- S7::new_generic("penalty_value", "pen",
 #' @param ... Passed to methods. No shipped method reads it.
 #'
 #' @return `penalty_gradient()` a numeric vector of length `pen@n_coef`;
-#'   `penalty_hessian()` a symmetric numeric matrix of that side, a base matrix
-#'   even where the map is a \pkg{Matrix}.
+#'   `penalty_hessian()` a symmetric matrix of that side. It is a base matrix
+#'   even where the map is a \pkg{Matrix}, and a `dgCMatrix` for a penalty
+#'   built by [quadratic_penalty()] with `blocks > 1`, which keeps its sparse
+#'   storage deliberately.
 #'
 #' @examples
 #' pen <- quadratic_penalty(diag(2))
@@ -535,12 +537,14 @@ S7::method(is_quadratic, penalty) <- function(pen, ...) FALSE
 #'   vector carrying the same. `penalty_matrix()` and `penalty_logpdet()` only.
 #' @param ... Passed to methods. No shipped method reads it.
 #'
-#' @return `penalty_matrix()` a symmetric `q x q` base matrix, where `q` is
+#' @return `penalty_matrix()` a symmetric `q x q` matrix, where `q` is
 #'   `pen@n_coef`.
 #'   `penalty_rank()` a single integer, fixed at construction.
 #'   `penalty_null_basis()` a `q x (q - r)` matrix with orthonormal columns
 #'   spanning the null space, and a `q x 0` matrix when the penalty is full
 #'   rank.
+#'   The two matrices are base matrices ordinarily, and `dgCMatrix` objects
+#'   for a penalty built by [quadratic_penalty()] with `blocks > 1`.
 #'   `penalty_logpdet()` a list of three: `value`, a single number; `grad`, a
 #'   named list of one number per hyperparameter; and `hess`, a named list of
 #'   one number per hyperparameter pair, keyed diagonals first as

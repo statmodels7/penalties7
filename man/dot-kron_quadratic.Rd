@@ -7,40 +7,43 @@
 .kron_quadratic(P, m, link_lambda, tol)
 }
 \arguments{
-\item{P}{The symmetric matrix of one block.}
+\item{P}{The symmetric matrix of one block, already symmetrized.}
 
-\item{m}{How many blocks.}
+\item{m}{How many blocks, a whole number of at least two in practice.}
 
-\item{link_lambda}{The link for the hyperparameter.}
+\item{link_lambda}{The \pkg{linkfunctions7} link for \code{lambda}.}
 
-\item{tol}{The relative tolerance for a zero eigenvalue.}
+\item{tol}{The relative eigenvalue tolerance for counting a zero.}
 }
 \value{
-A \code{QuadraticPenalty}.
+A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} with \code{n_coef} equal to \code{m * nrow(P)}, whose
+\code{P}, \code{DPD} and \code{null_basis} are \code{dgCMatrix} objects. Rejects a \code{P} whose
+eigenvalues are all below the tolerance.
 }
 \description{
-The penalty of \eqn{I_m \otimes P}, built from \eqn{P} alone.
+Builds the penalty of \eqn{I_m \otimes P} from \eqn{P} alone, and returns a
+\code{\link[=QuadraticPenalty]{QuadraticPenalty()}} whose stored matrix is sparse. Called by
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} when \code{blocks} is above one.
 }
 \details{
-What the constructor needs from the matrix is its rank, its log pseudo-
-determinant and a basis of its null space, and all three of them follow
-from \eqn{P}: the eigenvalues of \eqn{I_m \otimes P} are \eqn{P}'s
-repeated \eqn{m} times, so the rank is \eqn{m\,r}, the log pseudo-
-determinant is \eqn{m\log\mathrm{pdet}(P)} and the null space is
-\eqn{I_m \otimes N}. The big matrix is therefore never decomposed.
+A quadratic penalty needs three things from its matrix: the rank, the log
+pseudo-determinant and a basis of the null space. All three follow from
+\eqn{P}, because the eigenvalues of \eqn{I_m \otimes P} are \eqn{P}'s
+repeated \eqn{m} times: the rank is \eqn{mr}, the log pseudo-determinant is
+\eqn{m\log\mathrm{pdet}(P)}, and the null space is \eqn{I_m \otimes N}. The
+large matrix is assembled with \code{\link[Matrix:kronecker-methods]{Matrix::kronecker()}} and stored, never
+decomposed.
 
-It is what one smooth per level of a factor needs, and the saving is the
-whole of the construction: at \eqn{m = 200} over a basis of ten, the
-eigendecomposition of the assembled \eqn{1800 \times 1800} matrix costs
-4.50 seconds and the one of \eqn{P} costs nothing measurable. The stored
-matrix is sparse besides -- 25.9 MB dense at a density of 0.0005 -- which
-follows rather than being the point.
+The saving is the whole of the construction. On second differences over ten
+coefficients at \eqn{m = 200}, the assembled route spends 4.79 s in
+\code{eigen()} against 2.9e-05 s here, and 5.82 s in all against 0.001 s. The
+stored matrix is 0.11 MB against 30.5 MB, at a density of 0.0022, which
+follows from the sparse storage.
 
-The same identity is what \code{\link[parameters7:kron_identity]{parameters7::kron_identity()}} uses on
-the other side of the toolkit, for the covariance of grouped random
-effects.
+The same identity carries \code{\link[parameters7:kron_identity]{parameters7::kron_identity()}} on the other side
+of the toolkit, for the covariance of grouped random effects.
 }
 \seealso{
-\code{\link[=quadratic_penalty]{quadratic_penalty()}}
+\code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[parameters7:kron_identity]{parameters7::kron_identity()}}
 }
 \keyword{internal}
