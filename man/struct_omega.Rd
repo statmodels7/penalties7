@@ -16,20 +16,57 @@ struct_d2(pen, eta, omega = NULL)
 struct_logdet(pen, eta, order = 2L)
 }
 \arguments{
-\item{pen}{A \code{StructuredPenalty} object.}
+\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{eta}{The structure's free vector.}
+\item{eta}{The structure's free vector, as \code{\link[=struct_eta]{struct_eta()}} returns it.}
 
-\item{omega}{The precision, when the caller already has it.}
+\item{omega}{The precision, when the caller already has it, so that a
+covariance structure is not inverted twice. \code{NULL} computes it.
+\code{struct_d1()} and \code{struct_d2()} only.}
 
 \item{order}{The highest derivative wanted, 0, 1 or 2.}
 }
 \value{
-A matrix (\code{struct_omega}) or a list of matrices.
+\code{struct_omega()} a symmetric base matrix of side
+\code{pen@structure@dimension}.
+\code{struct_d1()} a list of such matrices, one per free value, in
+\code{pen@params} order.
+\code{struct_d2()} a list of such matrices, one per unordered pair, keyed by
+the colon-joined sorted names.
+\code{struct_logdet()} a list with \code{value} (a single number) and, according to
+\code{order}, \code{d1} (a named numeric vector, one per free value) and \code{d2} (a
+named list, one number per pair, keyed as \code{struct_d2()} is).
 }
 \description{
-The prior's precision and its first and second derivatives in the
-structure's free values, transported from the covariance where that is what
-the structure describes.
+The four helpers that read the prior's precision and its derivatives off the
+structure, transporting from the covariance where that is what the structure
+describes. \code{struct_omega()} returns \eqn{\Omega}, \code{struct_d1()} its first
+derivatives, \code{struct_d2()} its second, and \code{struct_logdet()} the
+log-determinant with as many orders as asked for.
+}
+\details{
+The branch is written in the precision throughout, so the transport happens
+here and every method is the same arithmetic in both roles. Writing it twice
+would be two implementations of one prior.
+
+For a covariance structure, with \eqn{A_k} and \eqn{A_{kl}} the structure's
+own derivative arrays,
+
+\deqn{\Omega = \Sigma^{-}, \qquad \partial_k\Omega = -\Omega A_k \Omega,
+  \qquad \partial_{kl}\Omega = \Omega\left(A_k\Omega A_l
+    + A_l\Omega A_k\right)\Omega - \Omega A_{kl}\Omega,}
+
+and the log-determinant is negated at every order. For a precision structure
+each helper unwraps the structure's answer and returns it.
+
+Second-order components are keyed as \pkg{parameters7} keys them: the two
+free names joined by a colon, the pair sorted by position in \code{free_names}.
+The key is constructed from the pair, never parsed out of a name, since a
+free name may itself contain a colon.
+}
+\seealso{
+\code{\link[=structured_penalty]{structured_penalty()}} for the prior these serve,
+\code{\link[parameters7:param_d1]{parameters7::param_d1()}} and \code{\link[parameters7:param_dlogdet]{parameters7::param_dlogdet()}} for the
+contract they read.
 }
 \keyword{internal}

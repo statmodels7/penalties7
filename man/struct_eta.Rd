@@ -7,14 +7,20 @@
 struct_eta(pen, theta)
 }
 \arguments{
-\item{pen}{A \code{StructuredPenalty} object.}
+\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{theta}{The aligned hyperparameter list.}
+\item{theta}{The aligned hyperparameter list, as \code{\link[=align_ptheta]{align_ptheta()}} returns
+it.}
 }
 \value{
-A numeric vector.
+An unnamed numeric vector of length \code{length(pen@params)}.
 }
 \description{
-Unlists the aligned theta in the structure's own order.
+Unlists the aligned hyperparameter list into the numeric vector the
+structure's own generics take, in \code{pen@params} order, which is the
+structure's \code{free_names} order.
+}
+\seealso{
+\code{\link[=struct_omega]{struct_omega()}}, \code{\link[=align_ptheta]{align_ptheta()}}
 }
 \keyword{internal}

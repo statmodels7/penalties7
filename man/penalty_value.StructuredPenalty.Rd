@@ -2,35 +2,50 @@
 % Please edit documentation in R/structured_penalty.R
 \name{penalty_value.StructuredPenalty}
 \alias{penalty_value.StructuredPenalty}
-\alias{penalty_gradient.StructuredPenalty}
-\alias{penalty_hessian.StructuredPenalty}
-\alias{penalty_grad_theta.StructuredPenalty}
-\alias{penalty_hess_theta.StructuredPenalty}
-\alias{penalty_cross.StructuredPenalty}
-\alias{penalty_kinks.StructuredPenalty}
-\alias{is_proper.StructuredPenalty}
-\alias{is_quadratic.StructuredPenalty}
-\alias{penalty_matrix.StructuredPenalty}
-\alias{penalty_rank.StructuredPenalty}
-\alias{penalty_null_basis.StructuredPenalty}
-\alias{penalty_logpdet.StructuredPenalty}
-\title{Structured Penalty Methods}
+\title{Value of a Structured Penalty}
 \arguments{
-\item{pen}{A \code{StructuredPenalty} object.}
+\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}, already coerced by the
+generic.}
 
-\item{theta}{A named list of the structure's free values.}
+\item{theta}{A named list of the structure's free values, already aligned by
+the generic. The bounds are the whole line, so nothing is rejected here.}
 
-\item{scale}{Handled by the generic.}
-
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-See the generic pages.
+A single number.
 }
 \description{
-Every quantity from the structure's own contract; see
-\code{\link[=structured_penalty]{structured_penalty()}}.
+Returns the negative log-density of the Gaussian prior the structure
+describes, evaluated in the precision whichever of the two matrices the
+structure supplies.
+}
+\details{
+\deqn{\rho(\beta; \theta) = \tfrac{1}{2}\,\beta'\Omega(\theta)\beta
+  - \tfrac{1}{2}\log\mathrm{pdet}\,\Omega(\theta)
+  + \tfrac{r}{2}\log 2\pi,}
+
+with \eqn{r} the structure's rank, and the log-determinant negated where the
+structure is a covariance. For a full-rank structure this is exactly a
+multivariate normal log-density with mean zero.
+}
+\examples{
+# A covariance structure gives exactly a multivariate normal log-density.
+s <- parameters7::ar1(4, role = "covariance")
+pen <- structured_penalty(s)
+b <- c(0.3, -0.1, 0.4, 0.2)
+S <- unclass(parameters7::param_value(s, c(0.2, 0.5)))
+penalty_value(pen, b, list(log_scale = 0.2, z_rho = 0.5)) -
+  (0.5 * sum(b * solve(S, b)) +
+     0.5 * as.numeric(determinant(S, logarithm = TRUE)$modulus) +
+     2 * log(2 * pi))
+
+}
+\seealso{
+\code{\link[=structured_penalty]{structured_penalty()}} for the construction,
+\code{\link[=penalty_gradient.StructuredPenalty]{penalty_gradient.StructuredPenalty()}} for the coefficient derivatives,
+\code{\link[=struct_omega]{struct_omega()}} for the transport.
 }
 \keyword{internal}

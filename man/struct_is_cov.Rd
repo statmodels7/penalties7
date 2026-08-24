@@ -7,12 +7,18 @@
 struct_is_cov(pen)
 }
 \arguments{
-\item{pen}{A \code{StructuredPenalty} object.}
+\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 }
 \value{
-A single logical.
+A single logical. \code{FALSE} for a structure of role \code{"precision"},
+which is the only other value \code{\link[=structured_penalty]{structured_penalty()}} admits.
 }
 \description{
-Reads the structure's declared role.
+Reads the structure's declared role and answers \code{TRUE} for
+\code{"covariance"}. Every method of the branch is written in the precision, so
+this is the one place that decides whether a transport is needed.
+}
+\seealso{
+\code{\link[=struct_omega]{struct_omega()}} for the transport this gates
 }
 \keyword{internal}

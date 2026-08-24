@@ -40,22 +40,40 @@ real line.}
 \item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
 where the value is differentiable in it.}
 
-\item{structure}{The \pkg{parameters7} \code{matrix_parameter}.}
+\item{structure}{A \pkg{parameters7} \code{matrix_parameter} whose \code{role} is
+\code{"covariance"} or \code{"precision"}. It supplies the dimension, the rank, the
+null basis, the free names, the matrix and its derivative arrays.}
 }
 \value{
-An object of class \code{StructuredPenalty}.
+An S7 object of class \code{StructuredPenalty}, inheriting from
+\code{\link[=penalty]{penalty()}}, with the seven inherited properties and \code{structure}.
 }
 \description{
-The class \code{\link[=structured_penalty]{structured_penalty()}} instantiates: the Gaussian
-prior whose covariance or precision is a \pkg{parameters7} matrix
-parameter, so that the hyperparameters enter the matrix itself.
+The class \code{\link[=structured_penalty]{structured_penalty()}} builds: the Gaussian prior whose
+covariance or precision is a \pkg{parameters7} matrix parameter. It adds one
+property to \code{\link[=penalty]{penalty()}}, the structure itself, and every quantity the branch
+supplies is read off that structure's own contract.
+}
+\details{
+The hyperparameters are the structure's free vector, so \code{params} is its
+\code{free_names}, every entry of \code{params_bounds} is
+\eqn{(-\infty, \infty)} and every link is the identity. The constraint that
+keeps the matrix positive definite lives inside the structure, where a
+scalar link cannot express it. \code{map} is always \code{NULL}.
 }
 \examples{
-S7::S7_inherits(
-  structured_penalty(parameters7::log_cholesky(2, role = "precision")),
-  StructuredPenalty)
+pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
+S7::S7_inherits(pen, StructuredPenalty)
+
+# The hyperparameters are the structure's free names, unconstrained and
+# on identity links.
+pen@params
+pen@params_bounds
+
 }
 \seealso{
-\code{\link[=structured_penalty]{structured_penalty()}}
+\code{\link[=structured_penalty]{structured_penalty()}} for the constructor to use,
+\code{\link[=penalty_value.StructuredPenalty]{penalty_value.StructuredPenalty()}} for what the branch computes,
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} for the branch whose matrix is fixed.
 }
 \keyword{internal}
