@@ -4,24 +4,85 @@
 \alias{penalty_prox.DistribPenalty}
 \title{Proximal Operator of a Separable Penalty}
 \arguments{
-\item{pen}{A \code{DistribPenalty} object.}
+\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
-\item{v}{A numeric vector.}
+\item{v}{A numeric vector of length \code{pen@n_coef}.}
 
-\item{step}{The step length.}
+\item{step}{The step length \eqn{t}, a single positive number.}
 
 \item{theta}{A named list of hyperparameter values.}
 
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A numeric vector.
+A numeric vector of the same length as \code{v}.
 }
 \description{
-Closed form for the Gaussian (a shrinkage), the Laplace (a soft
-threshold) and the elastic net (the one followed by the other); for any
-other parent with a differentiable log-density, the
-coordinatewise root of \eqn{(\beta - v)/t = \ell^{(y)}(\beta)}, which is
-unique because the density is log-concave.
+Closed form for the three families that have one, and a coordinatewise root
+for every other parent with a differentiable log-density. A diagonal map is
+handled by rescaling; anything else is rejected.
+}
+\section{The closed forms}{
+\tabular{ll}{
+   parent \tab operator \cr
+   \code{gaussian1} \tab \eqn{(v - t g_0)/(1 + t/\sigma^2)}, with \eqn{g_0} the gradient at the origin \cr
+   \code{laplace}, \code{laplace2} \tab \eqn{\mathrm{sign}(v)(\lvert v\rvert - t\lambda)_{+}} \cr
+   \code{enet} \tab the soft threshold at \eqn{t\lambda\alpha}, then division by \eqn{1 + t\lambda(1-\alpha)} \cr
+}
+
+
+The elastic net's two steps come out of one stationary condition:
+\eqn{(\beta - v)/t + a\,\mathrm{sign}(\beta) + c\beta = 0} with
+\eqn{a = \lambda\alpha} and \eqn{c = \lambda(1-\alpha)} separates into the
+Laplace part's threshold followed by the Gaussian part's shrinkage.
+}
+
+\section{Where the parent must sit}{
+The Laplace and elastic-net forms are written for a parent centered at zero,
+and a family name does not say where a location is. The gradient at the
+origin is evaluated and required to vanish, and an off-center parent is
+rejected. The Gaussian needs no such restriction: its location enters the
+stationary condition linearly and is carried through as \eqn{g_0}.
+}
+
+\section{The root}{
+Any other parent is solved coordinatewise from
+\eqn{(\beta - v)/t = \ell^{(y)}(\beta)}, the right-hand side being
+\code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}}. For a log-concave density the difference
+of the two sides is strictly increasing, so the root is unique; the bracket
+starts one unit either side of \eqn{\min(v, 0)} and \eqn{\max(v, 0)} and is
+doubled up to sixty times, then \code{uniroot()} refines to \code{eps^0.75}. A parent
+declaring a kink and not among the closed-form families is rejected instead:
+the root is a smooth instrument and the kink is where the answer is.
+}
+
+\section{Errors}{
+
+A parent read in blocks, a map that is not diagonal, an off-center Laplace
+or elastic-net parent, a parent with an unrecognized kink, and a bracket
+that could not be found, each with a message naming the penalty and the
+reason.
+}
+
+\examples{
+v <- c(2, 0.3, -1.4)
+
+# The soft threshold sets everything within t * lambda of zero to zero.
+penalty_prox(lasso_penalty(n_coef = 3), v, 1, list(lambda = 1))
+
+# The elastic net thresholds first and then shrinks what survives.
+penalty_prox(elasticnet_penalty(n_coef = 3), v, 1,
+             list(lambda = 1, alpha = 0.6))
+sign(v) * pmax(abs(v) - 1 * 1 * 0.6, 0) / (1 + 1 * 1 * (1 - 0.6))
+
+# A Student t prior has no closed form. The root leaves the large
+# coordinate nearly where it was, which a Gaussian prior would not.
+penalty_prox(heavy_penalty(n_coef = 3), v, 1, list(sigma = 1, nu = 4))
+penalty_prox(ridge_penalty(n_coef = 3), v, 1, list(lambda = 1))
+
+}
+\seealso{
+\code{\link[=penalty_prox]{penalty_prox()}} for the generic, \code{\link[=distrib_penalty]{distrib_penalty()}} for the
+branch, \code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}} for the root's right-hand side.
 }
 \keyword{internal}

@@ -3,24 +3,60 @@
 \name{penalty_prox.QuadraticPenalty}
 \alias{penalty_prox.QuadraticPenalty}
 \alias{penalty_prox.StructuredPenalty}
-\title{Proximal Operator of a Quadratic Penalty}
+\title{Proximal Operator of a Quadratic or Structured Penalty}
 \arguments{
-\item{pen}{A \code{QuadraticPenalty} object.}
+\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} or \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{v}{A numeric vector.}
+\item{v}{A numeric vector of length \code{pen@n_coef}.}
 
-\item{step}{The step length.}
+\item{step}{The step length \eqn{t}, a single positive number.}
 
 \item{theta}{A named list of hyperparameter values.}
 
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A numeric vector.
+A numeric vector of the same length as \code{v}.
 }
 \description{
-One linear solve, \eqn{(I + tS)^{-1}v} with \eqn{S = \lambda D'PD} the
-penalty's Hessian, which holds for any map because the objective stays
-quadratic.
+One linear solve, \eqn{(I + tS)^{-1}v}, with \eqn{S} the penalty's Hessian:
+\eqn{\lambda D'PD} for a quadratic penalty and \eqn{\Omega(\theta)} for a
+structured one. The two branches share this body, the objective being
+quadratic in both.
+}
+\details{
+The subproblem is
+\eqn{\arg\min_\beta \{\tfrac{1}{2t}\lVert\beta - v\rVert^2 +
+\tfrac{1}{2}\beta'S\beta\}}, whose stationary condition is
+\eqn{(\beta - v)/t + S\beta = 0}. The normalizing constant does not depend
+on \eqn{\beta} and drops out.
+
+Because the objective stays quadratic under any linear map, this route needs
+no restriction on \eqn{D}, where the separable branches need the identity or
+a diagonal. The solve is dense and costs \eqn{O(q^3)} whatever the storage
+of \eqn{S}, which for a penalty built with \code{blocks > 1} is a \code{dgCMatrix}
+that is densified by \code{diag(length(v)) + step * S}.
+}
+\examples{
+v <- c(2, 0.3, -1.4)
+
+# With S = lambda I the solve is a plain shrinkage.
+penalty_prox(quadratic_penalty(diag(3)), v, 1, list(lambda = 1.5))
+v / (1 + 1.5)
+
+# A second-difference penalty pulls towards the straight lines it does not
+# charge for, rather than towards zero.
+penalty_prox(quadratic_penalty(crossprod(diff(diag(3)))), v, 1,
+             list(lambda = 5))
+
+# A structured penalty at a zero log-Cholesky free vector is the ridge.
+s <- structured_penalty(parameters7::log_cholesky(3, role = "precision"))
+penalty_prox(s, v, 1,
+             as.list(stats::setNames(rep(0, 6), s@params)))
+
+}
+\seealso{
+\code{\link[=penalty_prox]{penalty_prox()}} for the generic and the other branches,
+\code{\link[=penalty_hessian]{penalty_hessian()}} for the matrix solved against.
 }
 \keyword{internal}

@@ -4,23 +4,65 @@
 \alias{penalty_prox.ScadPenalty}
 \title{Proximal Operator of SCAD}
 \arguments{
-\item{pen}{A \code{ScadPenalty} object.}
+\item{pen}{A \code{\link[=ScadPenalty]{ScadPenalty()}} object.}
 
-\item{v}{A numeric vector.}
+\item{v}{A numeric vector of length \code{pen@n_coef}.}
 
-\item{step}{The step length.}
+\item{step}{The step length \eqn{t}, a single positive number below
+\eqn{a-1}.}
 
-\item{theta}{A named list containing \code{lambda} and \code{a}.}
+\item{theta}{A named list holding \code{lambda} and \code{a}.}
 
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A numeric vector.
+A numeric vector of the same length as \code{v}.
 }
 \description{
-The closed piecewise operator: a soft threshold near zero, a rescaled
-threshold on the tapering region, and the identity beyond \eqn{a\lambda}.
-The middle region is convex only while \eqn{t < a - 1}, and a longer
-step is rejected.
+The closed piecewise operator of Fan and Li (2001): a soft threshold near
+zero, a rescaled threshold over the tapering region, and the identity beyond
+\eqn{a\lambda}, so a large coefficient passes through untouched.
+}
+\details{
+With \eqn{u = \lvert v\rvert} and \eqn{s} its sign,
+
+\deqn{\mathrm{prox}(v) =
+  \begin{cases}
+    s\,(u - t\lambda)_{+} & u \le (1+t)\lambda \\
+    \dfrac{s\,(u - t a \lambda/(a-1))}{1 - t/(a-1)}
+      & (1+t)\lambda < u \le a\lambda \\
+    v & u > a\lambda.
+  \end{cases}}
+
+The middle piece divides by \eqn{1 - t/(a-1)}, which is where the step
+matters: SCAD's curvature is \eqn{-1/(a-1)} there, so the subproblem is
+convex only while \eqn{t < a-1}. At or beyond that the operator is
+set-valued and the call is rejected with the bound printed. Under a diagonal
+map the condition tightens to \eqn{t < (a-1)/d_j^2}.
+}
+\examples{
+th <- list(lambda = 1, a = 3.7)
+
+# One point in each region: thresholded, rescaled, untouched.
+penalty_prox(scad_penalty(n_coef = 3), c(1.5, 3, 6), 1, th)
+
+# Past a * lambda the operator is the identity, so a large coefficient is
+# not shrunk at all. The lasso shrinks the same point by t * lambda.
+penalty_prox(scad_penalty(n_coef = 1), 6, 1, th)
+penalty_prox(lasso_penalty(n_coef = 1), 6, 1, list(lambda = 1))
+
+# Beyond the convexity bound the operator is set-valued and rejects.
+try(penalty_prox(scad_penalty(n_coef = 1), 2, 2.7, th))
+
+}
+\references{
+Fan, J. and Li, R. (2001). Variable selection via nonconcave penalized
+likelihood and its oracle properties. \emph{Journal of the American Statistical
+Association} \strong{96}, 1348-1360.
+}
+\seealso{
+\code{\link[=penalty_prox]{penalty_prox()}} for the generic, \code{\link[=scad_penalty]{scad_penalty()}} for the penalty,
+\code{\link[=penalty_prox.McpPenalty]{penalty_prox.McpPenalty()}} for the sibling family,
+\code{\link[=penalty_prox_spec]{penalty_prox_spec()}} for the same operator as a table.
 }
 \keyword{internal}

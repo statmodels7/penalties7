@@ -7,35 +7,66 @@
 has_prox(pen)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch. Anything else is rejected.}
 }
 \value{
 A single logical.
 }
 \description{
-\code{TRUE} when \code{\link[=penalty_prox]{penalty_prox()}} can be evaluated for this
-penalty at a suitable step, so that a caller may choose a proximal
-method over a smooth one without provoking an error.
+\code{TRUE} when \code{\link[=penalty_prox]{penalty_prox()}} can be evaluated for this penalty, so that a
+caller may route a block to a proximal method without provoking an error.
+\code{FALSE} when the penalty has none, and then the block belongs to a smooth
+method or to a scheme of its own.
 }
-\details{
-The operator in question is
+\section{What it tests}{
+The predicate asks four things in turn: whether the class registers a
+\code{\link[=penalty_prox]{penalty_prox()}} method of its own rather than inheriting the base class's
+refusal; whether the penalty is quadratic or structured, in which case the
+operator is a linear solve at any map; whether a separable parent is read in
+blocks, whose coordinates do not separate; and otherwise whether the map is
+absent or diagonal.
 
-\deqn{\operatorname{prox}_{t\rho}(v)
-  = \arg\min_{\beta} \Bigl\{ \tfrac{1}{2}\lVert \beta - v \rVert^{2}
-    + t\, \rho(\beta; \theta) \Bigr\},}
-
-which a proximal gradient method evaluates once per iteration and which
-therefore has to be available in closed form, or as a solve, for the
-method to be worth using. A penalty carries one when it is quadratic or
-structured (one linear solve at any map), when it is separable with a
-parent whose operator is closed or whose stationarity condition has a
-coordinatewise root, or when it is SCAD or MCP over their convex
-regions.
+Measured over the shipped branches:\tabular{ll}{
+   penalty \tab \code{has_prox()} \cr
+   quadratic, at any map \tab \code{TRUE} \cr
+   structured \tab \code{TRUE} \cr
+   ridge, lasso, elastic net, heavy-tailed \tab \code{TRUE} \cr
+   lasso under a \strong{diagonal} map \tab \code{TRUE} \cr
+   SCAD, MCP \tab \code{TRUE} \cr
+   \strong{additive} \tab \code{FALSE} \cr
+   lasso under a \strong{general} map \tab \code{FALSE} \cr
+   a separable penalty read in blocks \tab \code{FALSE} \cr
 }
+}
+
+\section{What \code{TRUE} does not promise}{
+It says the penalty has an operator, not that every step reaches it. SCAD
+and MCP answer \code{TRUE} and still reject a step at or beyond \eqn{a - 1} and
+\eqn{\gamma}, where the subproblem is not convex and the operator is
+set-valued. A Laplace or elastic-net parent that is not centered at zero
+answers \code{TRUE} and rejects at the call. The predicate is about the penalty;
+those two conditions are about the step and the parent.
+}
+
 \examples{
-c(lasso = has_prox(lasso_penalty()), scad = has_prox(scad_penalty()))
+c(lasso = has_prox(lasso_penalty()),
+  scad  = has_prox(scad_penalty()),
+  ridge = has_prox(ridge_penalty()))
+
+# The additive branch is the one that ships without an operator.
+has_prox(additive_penalty(list(diag(3), diag(c(1, 1, 0)))))
+
+# A map decides it for a separable penalty: diagonal yes, general no.
+c(diagonal = has_prox(lasso_penalty(map = Matrix::Diagonal(x = c(1, 2, 3)))),
+  general  = has_prox(lasso_penalty(map = rbind(c(1, -1, 0), c(0, 1, -1)))))
+
+# TRUE does not mean every step works: SCAD needs step < a - 1.
+has_prox(scad_penalty(n_coef = 1))
+try(penalty_prox(scad_penalty(n_coef = 1), 2, 2.7, list(lambda = 1, a = 3.7)))
 
 }
 \seealso{
-\code{\link[=penalty_prox]{penalty_prox()}}
+\code{\link[=penalty_prox]{penalty_prox()}} for the operator, \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} for it as
+a table, \code{\link[=is_quadratic]{is_quadratic()}} and \code{\link[=is_proper]{is_proper()}} for the other two predicates a
+consumer routes on.
 }

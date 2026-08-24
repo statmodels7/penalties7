@@ -7,62 +7,131 @@
 penalty_prox(pen, v, step, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object. Ask \code{\link[=has_prox]{has_prox()}} first if you do not know
+the branch.}
 
-\item{v}{A numeric vector, the point to be pulled towards.}
+\item{v}{A numeric vector of length \code{pen@n_coef}, the point pulled towards.
+Coerced with \code{as.numeric()}.}
 
-\item{step}{The positive step length \eqn{t}.}
+\item{step}{The step length \eqn{t}, a single positive number. A vector is
+rejected; \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} is the interface that takes one per
+coefficient.}
 
-\item{theta}{A named list of hyperparameter values.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same, holding every name in \code{pen@params}.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
 A numeric vector of the same length as \code{v}.
 }
 \description{
-The point that minimizes the penalty plus a quadratic pull towards
+Returns the point that minimizes the penalty plus a quadratic pull towards
 \eqn{v},
+
 \deqn{\mathrm{prox}_{t\rho}(v) = \arg\min_{\beta}
   \left\{ \tfrac{1}{2t}\lVert \beta - v \rVert^{2} +
   \rho(\beta;\theta) \right\},}
-which is what a proximal-gradient method applies after each gradient
-step, and the only operation that lets a non-differentiable penalty be
-minimized without differencing it.
-}
-\details{
-Where the operator has a closed form, that form is used. A quadratic
-penalty gives one linear solve, \eqn{(I + tS)^{-1}v} with \eqn{S} the
-penalty's Hessian, and works for any linear map. The separable branches
-need the identity map, because with a general \eqn{D} the problem does
-not split by coordinate and has no elementary solution: that case is
-rejected rather than approximated.
 
-The named separable instances are exact: the Gaussian gives
-\eqn{v/(1+t\lambda)} and the Laplace the soft threshold
-\eqn{\mathrm{sign}(v)(\lvert v \rvert - t\lambda)_{+}}. SCAD and MCP
-have the closed piecewise operators of their defining papers, each
-valid only while the quadratic pull dominates the concave region of the
-penalty -- \eqn{t < a-1} for SCAD and \eqn{t < \gamma} for MCP -- so a
-step beyond that is rejected, the operator being set-valued there.
-
-Any other separable penalty built from a distribution with a
-differentiable log-density is solved coordinatewise from the stationary
-condition \eqn{(\beta - v)/t = \ell^{(y)}(\beta)}. The right-hand side
-is the response derivative
-\code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}}, closed form for every
-continuous family, and log-concavity of the density makes the left side
-minus the right side strictly increasing, so the root is unique and a
-bracketed search finds it.
+A proximal gradient method applies it after each gradient step. It is the
+operation that lets a penalty with a kink be minimized without
+differencing it, and the one that sets a coefficient exactly to zero where a
+gradient method only makes it small.
 }
+\section{The four routes}{
+\tabular{ll}{
+   branch \tab operator \cr
+   quadratic, structured \tab one linear solve, \eqn{(I + tS)^{-1}v} \cr
+   Gaussian prior \tab the shrinkage \eqn{v/(1 + t/\sigma^2)} \cr
+   Laplace prior \tab the soft threshold \eqn{\mathrm{sign}(v)(\lvert v\rvert - t\lambda)_{+}} \cr
+   elastic net \tab the soft threshold followed by the shrinkage \cr
+   SCAD, MCP \tab the closed piecewise operators of their papers \cr
+   any other separable parent \tab a coordinatewise root, found by bisection \cr
+}
+
+
+Checked against a direct minimization of the defining objective,
+coordinate by coordinate on a three-vector at a step of 1, all eight shipped
+penalties agree to \code{2.7e-08} or better, which is the accuracy of the
+minimizer used as the reference and not of the operator.
+}
+
+\section{The root, where there is no formula}{
+Any separable penalty whose parent has a differentiable log-density is
+solved from the stationary condition
+
+\deqn{\frac{\beta - v}{t} = \ell^{(y)}(\beta),}
+
+with the right-hand side \code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}}, closed form for
+every continuous family. Log-concavity of the density makes the left side
+minus the right side strictly increasing, so the root is unique; the
+bracket is widened up to sixty times and then \code{uniroot()} finds it to
+\code{eps^0.75}. A parent that declares a kink and is not one of the closed-form
+families is rejected instead, a smooth root being the wrong instrument
+there.
+}
+
+\section{Under a map}{
+The quadratic and structured branches take \strong{any} map, the objective
+staying quadratic. The separable branches need the identity map or a
+diagonal one, under which the operator is the unmapped one read at
+\eqn{dv} with the step \eqn{td^2}, divided back by \eqn{d}: that is what
+standardization comes to. A general \eqn{D} mixes coordinates and makes this
+the generalized-lasso problem, which needs an algorithm of its own, so it is
+rejected by name.
+}
+
+\section{What rejects}{
+\itemize{
+\item a penalty with no operator at all, \code{\link[=additive_penalty]{additive_penalty()}} being the one that
+ships, with a message naming \code{\link[=has_prox]{has_prox()}};
+\item a separable penalty under a map that is not diagonal;
+\item a separable penalty whose parent is read in blocks, whose coordinates do
+not separate;
+\item a Laplace or elastic-net parent not centered at zero, the closed form
+being written for one that is;
+\item SCAD at \code{step >= a - 1} and MCP at \code{step >= gamma}, where the subproblem
+is not convex and the operator is set-valued;
+\item a \code{step} that is not a single positive number, or a \code{v} whose length is
+not \code{pen@n_coef}.
+}
+}
+
 \examples{
-# the lasso: a soft threshold
-penalty_prox(lasso_penalty(n_coef = 3), c(2, 0.3, -1.4), 1, list(lambda = 1))
+v <- c(2, 0.3, -1.4)
 
-# the ridge: a shrinkage
-penalty_prox(ridge_penalty(n_coef = 2), c(2, -1), 1, list(lambda = 1))
+# The lasso: a soft threshold, so the middle coordinate becomes exactly 0.
+penalty_prox(lasso_penalty(n_coef = 3), v, 1, list(lambda = 1))
+
+# A ridge: a shrinkage towards zero, and nothing reaches it.
+penalty_prox(ridge_penalty(n_coef = 3), v, 1, list(lambda = 1.5))
+v / (1 + 1 * 1.5)
+
+# The elastic net is the one followed by the other.
+penalty_prox(elasticnet_penalty(n_coef = 3), v, 1,
+             list(lambda = 1, alpha = 0.6))
+
+# A heavy-tailed prior has no closed form, so this is a bracketed root.
+# It leaves the large coordinate nearly alone, which is the point of it.
+penalty_prox(heavy_penalty(n_coef = 3), v, 1, list(sigma = 1, nu = 4))
+
+# Every one of them minimizes the defining objective. Checking the lasso's
+# first coordinate directly:
+rho <- lasso_penalty(n_coef = 3)
+obj <- function(b1) {
+  x <- v; x[1] <- b1
+  0.5 * sum((x - v)^2) / 1 + penalty_value(rho, x, list(lambda = 1))
+}
+stats::optimize(obj, c(-5, 5), tol = 1e-12)$minimum
+
+# A branch with no operator says so rather than approximating.
+try(penalty_prox(additive_penalty(list(diag(3), diag(c(1, 1, 0)))),
+                 v, 1, list(lambda1 = 1, lambda2 = 1)))
 
 }
 \seealso{
-\code{\link[=has_prox]{has_prox()}}, \code{\link[=penalty_value]{penalty_value()}}
+\code{\link[=has_prox]{has_prox()}} to ask before calling, \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} for the
+same operator as a table a compiled loop can read, \code{\link[=penalty_kinks]{penalty_kinks()}} for
+where a gradient method would fail, \code{\link[=penalty_gradient]{penalty_gradient()}} for what to use
+where the penalty is smooth.
 }

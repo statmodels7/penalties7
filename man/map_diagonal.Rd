@@ -10,24 +10,32 @@ map_diagonal(pen)
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 }
 \value{
-A numeric vector, or \code{NULL}.
+A numeric vector of length \code{nrow(pen@map)}, or \code{NULL}. A unit
+diagonal object (\code{diag = "U"}) gives a vector of ones.
 }
 \description{
-The entries of \eqn{D} where the map is diagonal, and \code{NULL} where
-there is no map or the map is not diagonal.
+Returns the diagonal entries of \eqn{D} where the map is a \pkg{Matrix}
+diagonal object, and \code{NULL} where there is no map, where the map is of
+another class, or where a diagonal entry is zero or missing.
 }
 \details{
-A diagonal map RESCALES each coordinate on its own, and a separable
-penalty under one is still separable. That is what standardization comes
-to: penalizing a column divided by its own spread is penalizing
-\eqn{\rho(s_j\beta_j)}, so the scaling never has to touch the design and
-the sparsity of a block survives it. A general \eqn{D} mixes coordinates
-and turns the problem into the generalized-lasso one, which is a different
-algorithm rather than a different formula.
+A diagonal map rescales each coordinate on its own, and a separable penalty
+under one is still separable. That is what standardization comes to:
+penalizing a column divided by its own spread is penalizing
+\eqn{\rho(s_j\beta_j)}, so the scaling never has to touch the design and the
+sparsity of a block survives it. A general \eqn{D} mixes coordinates and
+turns the problem into the generalized-lasso one, which is a different
+algorithm and not a different formula.
 
-The map is recognized by its CLASS and not by inspecting its entries: a
+The map is recognized by its \strong{class} and not by inspecting its entries: a
 \pkg{Matrix} diagonal object says what it is and costs \eqn{q} numbers,
-where testing a dense matrix for diagonality would cost \eqn{q^2} and
-defeat the point.
+where testing a dense matrix for diagonality would cost \eqn{q^2} and defeat
+the point. A base matrix that happens to be diagonal therefore answers
+\code{NULL}, and a penalty carrying one has no proximal operator.
+
+A zero on the diagonal is rejected as well, the transport dividing by it.
+}
+\seealso{
+\code{\link[=has_prox]{has_prox()}}, \code{\link[=penalty_prox]{penalty_prox()}}, \code{\link[=spec_diag]{spec_diag()}}
 }
 \keyword{internal}

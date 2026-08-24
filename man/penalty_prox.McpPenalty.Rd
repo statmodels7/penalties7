@@ -4,22 +4,65 @@
 \alias{penalty_prox.McpPenalty}
 \title{Proximal Operator of MCP}
 \arguments{
-\item{pen}{An \code{McpPenalty} object.}
+\item{pen}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
 
-\item{v}{A numeric vector.}
+\item{v}{A numeric vector of length \code{pen@n_coef}.}
 
-\item{step}{The step length.}
+\item{step}{The step length \eqn{t}, a single positive number below
+\eqn{\gamma}.}
 
-\item{theta}{A named list containing \code{lambda} and \code{gamma}.}
+\item{theta}{A named list holding \code{lambda} and \code{gamma}.}
 
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A numeric vector.
+A numeric vector of the same length as \code{v}.
 }
 \description{
-The closed piecewise operator: a rescaled soft threshold below
-\eqn{\gamma\lambda} and the identity beyond it. Convex only while
-\eqn{t < \gamma}, and a longer step is rejected.
+The closed piecewise operator of Zhang (2010): a rescaled soft threshold
+below \eqn{\gamma\lambda} and the identity beyond it, so a large coefficient
+passes through untouched.
+}
+\details{
+With \eqn{u = \lvert v\rvert} and \eqn{s} its sign,
+
+\deqn{\mathrm{prox}(v) =
+  \begin{cases}
+    \dfrac{s\,(u - t\lambda)_{+}}{1 - t/\gamma}
+      & u \le \gamma\lambda \\
+    v & u > \gamma\lambda.
+  \end{cases}}
+
+MCP has two pieces where SCAD has three, its taper starting at the origin.
+The division by \eqn{1 - t/\gamma} is where the step matters: the curvature
+is a constant \eqn{-1/\gamma} inside the taper, so the subproblem is convex
+only while \eqn{t < \gamma}. At or beyond that the operator is set-valued
+and the call is rejected with the bound printed. Under a diagonal map the
+condition tightens to \eqn{t < \gamma/d_j^2}.
+}
+\examples{
+th <- list(lambda = 1, gamma = 3)
+
+# Inside the taper the threshold is rescaled upward by 1/(1 - t/gamma);
+# beyond gamma * lambda the point is returned unchanged.
+penalty_prox(mcp_penalty(n_coef = 3), c(1.5, 2.5, 6), 1, th)
+
+# The rescaling lets MCP reach the unpenalized answer sooner than SCAD at
+# the same lambda.
+penalty_prox(mcp_penalty(n_coef = 1), 2.5, 1, th)
+penalty_prox(scad_penalty(n_coef = 1), 2.5, 1, list(lambda = 1, a = 3.7))
+
+# Beyond the convexity bound the operator is set-valued and rejects.
+try(penalty_prox(mcp_penalty(n_coef = 1), 2, 3, th))
+
+}
+\references{
+Zhang, C.-H. (2010). Nearly unbiased variable selection under minimax
+concave penalty. \emph{Annals of Statistics} \strong{38}, 894-942.
+}
+\seealso{
+\code{\link[=penalty_prox]{penalty_prox()}} for the generic, \code{\link[=mcp_penalty]{mcp_penalty()}} for the penalty,
+\code{\link[=penalty_prox.ScadPenalty]{penalty_prox.ScadPenalty()}} for the sibling family,
+\code{\link[=penalty_prox_spec]{penalty_prox_spec()}} for the same operator as a table.
 }
 \keyword{internal}
