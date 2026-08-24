@@ -2,26 +2,28 @@
 % Please edit documentation in R/penalty_class.R
 \name{as_map}
 \alias{as_map}
-\title{A Map, in Whatever Form It Keeps}
+\title{A Map, in Whatever Storage It Arrived In}
 \usage{
 as_map(map)
 }
 \arguments{
-\item{map}{A matrix, a \pkg{Matrix}, or anything coercible to one.}
+\item{map}{A matrix, a \pkg{Matrix}, or anything \code{as.matrix()} accepts.}
 }
 \value{
-The map.
+The same object when it is a \pkg{Matrix}, and a base matrix
+otherwise.
 }
 \description{
-The map as the caller gave it, densified only where it is not already a
-matrix of some kind.
+Returns the map unchanged when it is already a \pkg{Matrix} object, and
+\code{as.matrix()} of it otherwise. Called once, by each branch's constructor, so
+that a map given as a data frame or a vector becomes a matrix while a sparse
+or diagonal one keeps its own storage.
 }
 \details{
-A \pkg{Matrix} object is kept as it is. Densifying a diagonal map would
-cost \eqn{q^2} numbers where it holds \eqn{q}, and a diagonal map is
-exactly what standardization is: a rescaling of each coordinate, under
-which a separable penalty stays separable and its proximal operator stays
-closed. Every arithmetic the map takes part in -- the product, the
-crossproduct -- works for both kinds.
+Densifying a diagonal map would cost \eqn{q^2} numbers where it holds
+\eqn{q}, and a diagonal map is exactly what standardization is: a rescaling
+of each coordinate, under which a separable penalty stays separable and its
+proximal operator stays closed. Every arithmetic the map takes part in, the
+product and the crossproduct, is defined for both kinds.
 }
 \keyword{internal}

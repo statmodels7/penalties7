@@ -10,18 +10,31 @@ map_quad(pen, h)
 map_quad_full(pen, m)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object, whose \code{map} is \eqn{D} with \eqn{m} rows
+and \eqn{q} columns, or \code{NULL}.}
 
-\item{h}{A numeric vector of diagonal entries.}
+\item{h}{A numeric vector of length \eqn{m}, the diagonal entries.
+\code{map_quad()} only.}
 
-\item{m}{A symmetric matrix.}
+\item{m}{A symmetric \eqn{m \times m} matrix. \code{map_quad_full()} only.}
 }
 \value{
-A \verb{q x q} symmetric matrix.
+A \eqn{q \times q} symmetric base matrix, from both.
 }
 \description{
-\eqn{D' \mathrm{diag}(h) D} for the separable Hessians, without forming
-the diagonal matrix, and \eqn{D' M D} for a parent read blockwise, whose
-middle matrix is block diagonal rather than diagonal.
+\code{map_quad()} computes \eqn{D' \mathrm{diag}(h) D} without forming the
+diagonal matrix, which is the Hessian of a separable penalty carried back to
+the coefficients. \code{map_quad_full()} computes \eqn{D'MD} for a parent read
+blockwise, whose middle matrix is block diagonal. With a \code{NULL} map the
+first returns \code{diag(h)} and the second returns \eqn{M}.
+}
+\details{
+Both return a base matrix even when the map is a \pkg{Matrix}. A
+\pkg{Matrix} map carries its class through the crossproduct, and the result
+would then be the one thing in the contract that is not a base matrix: the
+identity-map branch is already dense at any width, \code{\link[=map_back]{map_back()}} coerces its
+vector for the same reason, and a consumer writing this into a block of its
+own information fails on the class before it fails on the arithmetic. The
+coercion is done here, where the contract is stated.
 }
 \keyword{internal}

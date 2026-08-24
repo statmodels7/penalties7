@@ -15,36 +15,101 @@ penalty(
 )
 }
 \arguments{
-\item{penalty_name}{A string naming the penalty.}
+\item{penalty_name}{A single string naming the penalty, used by \code{print()}
+and by consumers that report which penalty a block carries.}
 
-\item{map}{The matrix \eqn{D}, or \code{NULL} for the identity.}
+\item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
+\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own storage;
+a diagonal map is what standardization comes to and is recognized by its
+class.}
 
-\item{n_coef}{The number of coefficients \eqn{q}.}
+\item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
 
-\item{params}{Hyperparameter names, in order.}
+\item{params}{The hyperparameter names, in the order every derivative list
+is keyed by. \code{character(0)} for a penalty with none.}
 
-\item{params_bounds}{A named list of open intervals.}
+\item{params_bounds}{A named list, one entry per hyperparameter, each a
+numeric pair giving an \strong{open} interval. A value at either endpoint is
+rejected, so \verb{(0, Inf)} excludes zero.}
 
-\item{link_params}{A named list of \pkg{linkfunctions7} links.}
+\item{link_params}{A named list, one \pkg{linkfunctions7} link per
+hyperparameter, carrying that hyperparameter's own interval onto the whole
+real line.}
 
-\item{params_smooth}{Logical vector; which hyperparameters are
-differentiable.}
+\item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
+where the value is differentiable in it.}
 }
 \value{
-An object inheriting from class \code{penalty}.
+An S7 object of class \code{penalty} carrying the seven properties
+above. The class is abstract: an object of exactly this class answers
+\code{print()}, and every generic that computes something rejects it.
 }
 \description{
-The abstract parent of every penalty. A penalty is
-\eqn{\rho(D\beta;\theta)}: a linear map \eqn{D}, a scalar function
-\eqn{\rho} and hyperparameters \eqn{\theta}. Each hyperparameter travels
-with a \pkg{linkfunctions7} link, so a consumer can optimize on the
-unconstrained scale.
+The abstract parent of every penalty in this package. A penalty is a scalar
+function of the coefficients, written \eqn{\rho(D\beta; \theta)}: a linear
+map \eqn{D} that selects or combines coefficients, a scalar function
+\eqn{\rho} applied to what the map returns, and hyperparameters \eqn{\theta}
+that scale or shape it. The class holds no mathematics of its own; it
+records the pieces every branch needs, so that a consumer can read a
+penalty's size, its hyperparameter names and their bounds without knowing
+which branch it holds.
 }
+\section{What the properties mean}{
+With \eqn{q} coefficients and a map of \eqn{m} rows, \code{beta} is a vector of
+length \eqn{q}, \eqn{D\beta} has length \eqn{m}, and every derivative in the
+coefficients comes back at length \eqn{q} or shape \eqn{q \times q}. A
+\code{NULL} map is the identity, and then \eqn{m = q} and no arithmetic is done.
+
+Each hyperparameter carries a \pkg{linkfunctions7} link in \code{link_params},
+mapping its own open interval onto the whole real line. A penalty is
+therefore optimizable on the unconstrained scale: a caller works in
+\eqn{\eta = g(\theta)}, never has to police the bounds, and
+\code{\link[=penalty_grad_theta]{penalty_grad_theta()}} and its second-order siblings answer on either scale
+through their \code{scale} argument.
+
+\code{params_smooth} records which hyperparameters the value is differentiable
+in. It is \code{TRUE} for every hyperparameter of every shipped branch; the slot
+exists so that a branch with a non-differentiable hyperparameter can say so,
+as \pkg{distributions7} does for a Laplace location.
+}
+
+\section{What a subclass owes}{
+Construct this class directly only to write a branch of your own. The
+generics registered on \code{penalty} itself are the refusals and the defaults:
+\code{\link[=penalty_value]{penalty_value()}} has no method here at all and a bare \code{penalty} object
+rejects it, while \code{\link[=is_quadratic]{is_quadratic()}}, \code{\link[=is_proper]{is_proper()}}, \code{\link[=penalty_matrix]{penalty_matrix()}} and
+the three quantities beside it answer \code{FALSE} or reject. A subclass supplies
+the value, the gradient, the Hessian, the three hyperparameter blocks and
+\code{\link[=penalty_kinks]{penalty_kinks()}}, and \code{\link[=check_penalty]{check_penalty()}} then says whether they agree with
+each other.
+
+The four branches that ship are \code{\link[=quadratic_penalty]{quadratic_penalty()}},
+\code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=scad_penalty]{scad_penalty()}} with \code{\link[=mcp_penalty]{mcp_penalty()}}, and
+\code{\link[=additive_penalty]{additive_penalty()}}, with \code{\link[=structured_penalty]{structured_penalty()}} a fifth built on a
+\pkg{parameters7} matrix parameter.
+}
+
 \examples{
-S7::S7_inherits(quadratic_penalty(diag(3)), penalty)
+# Every branch inherits from this class, so a consumer can test for it.
+pen <- quadratic_penalty(crossprod(diff(diag(4))), map = NULL)
+S7::S7_inherits(pen, penalty)
+
+# The properties a consumer reads without knowing the branch.
+pen@penalty_name
+pen@n_coef
+pen@params
+pen@params_bounds
+
+# A second-difference penalty over four coefficients, restricted to the
+# first three by a map: three coefficients in, two rows out.
+D <- diff(diag(3))
+mapped <- quadratic_penalty(diag(2), map = D)
+mapped
 
 }
 \seealso{
-\code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=distrib_penalty]{distrib_penalty()}},
-\code{\link[=scad_penalty]{scad_penalty()}}
+\code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=scad_penalty]{scad_penalty()}},
+\code{\link[=additive_penalty]{additive_penalty()}} and \code{\link[=structured_penalty]{structured_penalty()}} for the branches;
+\code{\link[=penalty_value]{penalty_value()}} and \code{\link[=penalty_gradient]{penalty_gradient()}} for what a branch supplies;
+\code{\link[=check_penalty]{check_penalty()}} to verify one.
 }

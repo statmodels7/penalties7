@@ -10,17 +10,23 @@ map_apply(pen, beta)
 map_back(pen, g)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object, whose \code{map} is \eqn{D} with \eqn{m} rows
+and \eqn{q} columns, or \code{NULL}.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \eqn{q}. \code{map_apply()} only.}
 
-\item{g}{A numeric vector of length \code{nrow(D)}.}
+\item{g}{A numeric vector of length \eqn{m}. \code{map_back()} only.}
 }
 \value{
-A numeric vector.
+\code{map_apply()} a numeric vector of length \eqn{m}; \code{map_back()} a
+numeric vector of length \eqn{q}. Both are plain numeric even when the map
+is a \pkg{Matrix}, so a consumer never meets a one-column \code{Matrix} where it
+expected a vector.
 }
 \description{
-\code{map_apply} computes \eqn{t = D\beta} and \code{map_back} computes
-\eqn{D'g}; a \code{NULL} map is the identity and pays nothing.
+\code{map_apply()} computes \eqn{t = D\beta}, carrying a coefficient vector to
+the argument \eqn{\rho} is evaluated at. \code{map_back()} computes \eqn{D'g},
+carrying a gradient in \eqn{t} back to a gradient in \eqn{\beta}. A \code{NULL}
+map is the identity and both return their argument untouched.
 }
 \keyword{internal}

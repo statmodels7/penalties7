@@ -4,14 +4,30 @@
 \alias{print.penalty}
 \title{Print a Penalty}
 \arguments{
-\item{x}{A \code{\link[=penalty]{penalty()}} object.}
+\item{x}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{...}{Unused.}
+\item{...}{Unused, accepted for consistency with \code{\link[=print]{print()}}.}
 }
 \value{
 \code{x}, invisibly.
 }
 \description{
-One line: the name, the sizes, the hyperparameters.
+Writes one line naming the penalty, the number of coefficients it takes, the
+number of rows its map returns, and its hyperparameters. The row count is
+\code{nrow(map)}, or \code{n_coef} when the map is \code{NULL}, so an unmapped penalty
+shows the same number twice.
+}
+\examples{
+quadratic_penalty(diag(3))
+
+# A map narrows what the penalty sees: three coefficients, two differences.
+quadratic_penalty(diag(2), map = diff(diag(3)))
+
+# A penalty with no hyperparameters says so.
+distrib_penalty(
+  distributions7::fixed(distributions7::gaussian1_distrib(),
+                        mu = 0, sigma = 1),
+  n_coef = 3)
+
 }
 \keyword{internal}

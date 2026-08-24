@@ -7,13 +7,32 @@
 ptheta_pairs(params)
 }
 \arguments{
-\item{params}{The hyperparameter names.}
+\item{params}{A character vector of hyperparameter names, in the order the
+penalty holds them. Length at least one.}
 }
 \value{
-A character vector.
+A named list of length \eqn{p(p+1)/2}. Each element is a character
+pair naming the two hyperparameters differentiated in, and each name is
+those two joined by an underscore.
 }
 \description{
-The component names of a penalty's second theta derivatives: diagonals
-first, then the upper off-diagonal pairs, joined by an underscore.
+The keys of a penalty's second hyperparameter derivatives, and the pairs
+they stand for: the \eqn{p} diagonals first, in \code{params} order, then the
+\eqn{p(p-1)/2} upper off-diagonal pairs, each joined by an underscore. For
+\code{c("lambda", "alpha")} the keys are \code{lambda_lambda}, \code{alpha_alpha},
+\code{lambda_alpha}. This is the order \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} returns and the
+order \code{\link[=ptheta_to_link]{ptheta_to_link()}} reads.
+}
+\details{
+Diagonals first rather than lexicographically, because a consumer reading
+only the variances can take the first \eqn{p} entries. The same convention
+names \pkg{distributions7}'s Hessian components.
+
+\code{params} must carry at least one name. With \code{character(0)} the function
+raises \verb{'names' attribute [1] must be the same length as the vector [0]},
+because \code{paste0(character(0), "_", character(0))} recycles to the single
+string \code{"_"} while the list of pairs is empty. A penalty with no
+hyperparameters therefore cannot reach \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}; see the
+package's \code{QUESTIONS.md}.
 }
 \keyword{internal}

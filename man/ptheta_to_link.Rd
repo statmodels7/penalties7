@@ -2,27 +2,54 @@
 % Please edit documentation in R/penalty_class.R
 \name{ptheta_to_link}
 \alias{ptheta_to_link}
-\title{Carry Theta Derivatives Onto the Link Scale}
+\title{Carry Hyperparameter Derivatives Onto the Unconstrained Scale}
 \usage{
 ptheta_to_link(pen, theta, g = NULL, H = NULL, cross = NULL)
 }
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{theta}{The aligned hyperparameters.}
+\item{theta}{The aligned hyperparameters, as \code{\link[=align_ptheta]{align_ptheta()}} returns them.}
 
-\item{g}{The parameter-scale gradient list, or \code{NULL}.}
+\item{g}{The parameter-scale gradient list, keyed by \code{pen@params}. Required
+for the gradient and for the Hessian; \code{NULL} otherwise.}
 
-\item{H}{The parameter-scale Hessian list, or \code{NULL}.}
+\item{H}{The parameter-scale Hessian list, keyed as \code{\link[=ptheta_pairs]{ptheta_pairs()}} keys
+it. Supply it with \code{g} to get the second order.}
 
-\item{cross}{The parameter-scale mixed list, or \code{NULL}.}
+\item{cross}{The parameter-scale mixed list, keyed by \code{pen@params}, each
+element a vector of length \code{pen@n_coef}. Supplied alone.}
 }
 \value{
-Whichever of the three was supplied, transformed.
+Whichever kind was supplied, on the unconstrained scale, with the
+same names and shapes as the input. \code{cross} takes precedence over \code{H},
+and \code{H} over \code{g}, when more than one is given.
 }
 \description{
-The order 1-2 chain rule with the diagonal Jacobian of the links: the
-same interception \pkg{distributions7} applies, restricted to the two
-orders a penalty consumer needs.
+Applies the chain rule that turns a derivative in \eqn{\theta} into one in
+\eqn{\eta = g(\theta)}, at first and second order, using the diagonal
+Jacobian the links supply. Handles one of the three derivative kinds per
+call, whichever of \code{g}, \code{H} and \code{cross} is given.
+}
+\details{
+The links are scalar and one per hyperparameter, so the Jacobian is diagonal
+and the chain rule needs no partition sums. Writing \eqn{h = g^{-1}} and
+\eqn{\eta_i = g_i(\theta_i)},
+
+\deqn{\frac{\partial\rho}{\partial\eta_i}
+  = \frac{\partial\rho}{\partial\theta_i}\, h_i'(\eta_i), \qquad
+  \frac{\partial^2\rho}{\partial\eta_i \partial\eta_j}
+  = \frac{\partial^2\rho}{\partial\theta_i \partial\theta_j}\,
+    h_i'(\eta_i)\, h_j'(\eta_j)
+  + \delta_{ij}\, \frac{\partial\rho}{\partial\theta_i}\, h_i''(\eta_i).}
+
+The second-derivative term appears on the diagonal alone, which is why the
+Hessian branch needs the gradient as well. The mixed block
+\eqn{\partial^2\rho / \partial\beta\,\partial\theta_i} is first order in
+\eqn{\theta} and picks up one factor of \eqn{h_i'}, the coefficient
+direction being untouched by a reparametrization of the hyperparameters.
+
+This is \pkg{distributions7}'s interception, restricted to the two orders a
+penalty consumer needs.
 }
 \keyword{internal}

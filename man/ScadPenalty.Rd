@@ -26,20 +26,29 @@ McpPenalty(
 )
 }
 \arguments{
-\item{penalty_name}{A string naming the penalty.}
+\item{penalty_name}{A single string naming the penalty, used by \code{print()}
+and by consumers that report which penalty a block carries.}
 
-\item{map}{The matrix \eqn{D}, or \code{NULL} for the identity.}
+\item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
+\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own storage;
+a diagonal map is what standardization comes to and is recognized by its
+class.}
 
-\item{n_coef}{The number of coefficients \eqn{q}.}
+\item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
 
-\item{params}{Hyperparameter names, in order.}
+\item{params}{The hyperparameter names, in the order every derivative list
+is keyed by. \code{character(0)} for a penalty with none.}
 
-\item{params_bounds}{A named list of open intervals.}
+\item{params_bounds}{A named list, one entry per hyperparameter, each a
+numeric pair giving an \strong{open} interval. A value at either endpoint is
+rejected, so \verb{(0, Inf)} excludes zero.}
 
-\item{link_params}{A named list of \pkg{linkfunctions7} links.}
+\item{link_params}{A named list, one \pkg{linkfunctions7} link per
+hyperparameter, carrying that hyperparameter's own interval onto the whole
+real line.}
 
-\item{params_smooth}{Logical vector; which hyperparameters are
-differentiable.}
+\item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
+where the value is differentiable in it.}
 }
 \value{
 An object of class \code{ScadPenalty} or \code{McpPenalty}.
