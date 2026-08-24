@@ -10,15 +10,42 @@ scad_parts(t, lam, a)
 mcp_parts(t, lam, gam)
 }
 \arguments{
-\item{t}{The mapped coefficients \eqn{D\beta}.}
+\item{t}{The mapped coefficients \eqn{D\beta}, a numeric vector.}
 
-\item{lam, a, gam}{The hyperparameters.}
+\item{lam}{The hyperparameter \eqn{\lambda}, a single positive number.}
+
+\item{a}{SCAD's shape parameter, a single number above 2. \code{scad_parts()}
+only.}
+
+\item{gam}{MCP's shape parameter, a single number above 1. \code{mcp_parts()}
+only.}
 }
 \value{
-A list of vectors.
+\code{scad_parts()} a list of five vectors as long as \code{t}: \code{s} the sign,
+\code{u} the absolute value, and the logical indicators \code{r1} (\eqn{u \le
+  \lambda}), \code{r2} (the taper) and \code{r3} (\eqn{u > a\lambda}).
+\code{mcp_parts()} a list of three: \code{s}, \code{u}, and \code{r1} for \eqn{u \le
+  \gamma\lambda}, the complement needing no name.
 }
 \description{
-The sign, the absolute value and the region indicators of
-each element, shared by every method below.
+Split the mapped coefficients into the regions each family's formulas are
+written over, and return the sign and the absolute value alongside. Shared
+by every method of the two branches, so a formula reads as one \code{ifelse()}
+over indicators instead of recomputing the comparisons.
+}
+\details{
+SCAD has three regions and MCP has two, which is the whole difference
+between the two helpers. Every derivative of either family is even in
+\eqn{t} up to the sign carried out front, so the formulas are written in
+\code{u = abs(t)} and multiplied by \code{s = sign(t)} where an odd order needs it.
+
+At \code{t = 0} the sign is \code{0}, so a coefficient sitting exactly at the kink
+gets a gradient of zero: one element of the subdifferential
+\eqn{[-\lambda, \lambda]}, chosen for being the one a smooth method can
+use.
+}
+\seealso{
+\code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=penalty_value.ScadPenalty]{penalty_value.ScadPenalty()}},
+\code{\link[=penalty_value.McpPenalty]{penalty_value.McpPenalty()}}
 }
 \keyword{internal}

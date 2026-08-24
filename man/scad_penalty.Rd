@@ -20,44 +20,123 @@ mcp_penalty(
 )
 }
 \arguments{
-\item{map}{The matrix \eqn{D}, or \code{NULL} (default) for the identity.}
+\item{map}{The matrix \eqn{D}, with one column per coefficient, or \code{NULL}
+(the default) for the identity. Given a map, \code{n_coef} is taken from its
+column count and the argument is ignored.}
 
-\item{n_coef}{The number of coefficients when \code{map} is \code{NULL}.}
+\item{n_coef}{The number of coefficients when \code{map} is \code{NULL}. A single
+whole number, \code{1L} by default.}
 
-\item{link_lambda}{The link carrying \eqn{\lambda}.}
+\item{link_lambda}{The \pkg{linkfunctions7} link carrying \eqn{\lambda} onto
+the whole real line. \code{linkfunctions7::log_link()} by default,
+\eqn{\lambda} being positive.}
 
-\item{link_a, link_gamma}{The link carrying the shoulder parameter, lower
-bounded at 2 (SCAD) or 1 (MCP).}
+\item{link_a}{The link carrying SCAD's shape parameter, bounded below at 2.
+\code{linkfunctions7::bounded_link(lwr = 2)} by default. \code{scad_penalty()} only.}
+
+\item{link_gamma}{The link carrying MCP's shape parameter, bounded below at
+\enumerate{
+\item \code{linkfunctions7::bounded_link(lwr = 1)} by default. \code{mcp_penalty()}
+only.
+}}
 }
 \value{
-An object of class \code{ScadPenalty} or \code{McpPenalty}.
+\code{scad_penalty()} a \code{\link[=ScadPenalty]{ScadPenalty()}} object with hyperparameters
+\code{lambda} on \eqn{(0, \infty)} and \code{a} on \eqn{(2, \infty)}.
+\code{mcp_penalty()} an \code{\link[=McpPenalty]{McpPenalty()}} object with \code{lambda} on
+\eqn{(0, \infty)} and \code{gamma} on \eqn{(1, \infty)}.
 }
 \description{
-SCAD (Fan and Li, 2001) is defined by its derivative on \eqn{t \ge 0},
-\deqn{\rho'(t) = \lambda \;\; (t \le \lambda), \qquad
-  \rho'(t) = \dfrac{a\lambda - t}{a - 1} \;\; (\lambda < t \le a\lambda),
-  \qquad \rho'(t) = 0 \;\; (t > a\lambda),}
-extended evenly, with \eqn{a > 2}; MCP (Zhang, 2010) by
-\eqn{\rho'(t) = (\lambda - t/\gamma)_+} with \eqn{\gamma > 1}. Every
-quantity -- the value, the derivatives in \eqn{\beta} and in the
-hyperparameters, and the mixed block -- is a closed piecewise form. Both
-report kinks at zero, where the second derivative additionally jumps at
-the region boundaries; \code{\link[=check_penalty]{check_penalty()}} keeps its grids away
-from all of them by asking the object.
+The two non-convex selection penalties that shrink small coefficients like
+the lasso and leave large ones alone. Both are defined by their derivative
+on \eqn{t \ge 0} and extended evenly, so \code{scad_penalty()} and
+\code{mcp_penalty()} build objects whose value is the closed antiderivative
+anchored at \eqn{\rho(0) = 0}.
 }
+\section{The two derivatives}{
+SCAD, after Fan and Li (2001), holds the lasso's slope up to \eqn{\lambda},
+tapers it linearly to zero over the next \eqn{(a-1)\lambda}, and stops:
+
+\deqn{\rho'(t) = \lambda \;\; (t \le \lambda), \qquad
+  \rho'(t) = \frac{a\lambda - t}{a - 1} \;\; (\lambda < t \le a\lambda),
+  \qquad \rho'(t) = 0 \;\; (t > a\lambda).}
+
+MCP, after Zhang (2010), starts tapering at once:
+
+\deqn{\rho'(t) = \left(\lambda - t/\gamma\right)_{+}.}
+
+Integrating gives the values, which saturate at
+\eqn{(a+1)\lambda^2/2} and \eqn{\gamma\lambda^2/2}. Both agree with a
+quadrature of the published derivative to \code{4e-15} or better at every
+argument, in each of the three regions and at the boundaries between them.
+}
+
+\section{What the shape parameter buys}{
+Near zero both behave like a lasso at rate \eqn{\lambda}, so they threshold
+and produce exact zeros. Far from zero both are flat, so a large coefficient
+is estimated without shrinkage, so the lasso's bias is gone. The
+shape parameter says how quickly the transition happens: \eqn{a \to \infty}
+and \eqn{\gamma \to \infty} recover the lasso, while small values approach
+hard thresholding. The literature's defaults are \eqn{a = 3.7} and
+\eqn{\gamma = 3}, and neither constructor supplies one, the value being
+the caller's to set or a path's to sweep.
+}
+
+\section{Where they are not smooth}{
+Both have a kink at zero, and both change branch again where the taper
+begins or ends. \code{\link[=penalty_kinks]{penalty_kinks()}} returns all of them: \code{0}, \eqn{\pm\lambda}
+and \eqn{\pm a\lambda} for SCAD, \code{0} and \eqn{\pm\gamma\lambda} for MCP. At
+the outer points the first derivative is continuous and the second jumps.
+\code{\link[=check_penalty]{check_penalty()}} asks the object and keeps its grids away from all of them.
+}
+
+\section{What they are not}{
+Both are improper: \eqn{\rho} is bounded, so \eqn{\exp(-\rho)} is not a
+density at any constant. \code{\link[=is_proper]{is_proper()}} is \code{FALSE}, \code{\link[=is_quadratic]{is_quadratic()}} is
+\code{FALSE}, and \code{\link[=penalty_matrix]{penalty_matrix()}} and its three siblings reject. A marginal
+criterion cannot reach these hyperparameters; a path or cross-validation
+can.
+}
+
 \examples{
+# SCAD at the literature's shape. Small coefficients pay the lasso's rate,
+# large ones pay a constant.
 pen <- scad_penalty(n_coef = 3)
-penalty_value(pen, c(0.5, 2, 5), list(lambda = 1, a = 3.7))
-is_proper(pen)
+th <- list(lambda = 1, a = 3.7)
+penalty_value(pen, c(0.5, 2, 5), th)
+
+# The value saturates at (a + 1) lambda^2 / 2 per coefficient.
+penalty_value(scad_penalty(n_coef = 1), 100, th)
+(3.7 + 1) * 1^2 / 2
+
+# So the gradient of a large coefficient is exactly zero: no shrinkage.
+penalty_gradient(pen, c(0.5, 2, 5), th)
+
+# MCP saturates sooner, at gamma lambda^2 / 2.
+mcp <- mcp_penalty(n_coef = 3)
+penalty_value(mcp, c(0.5, 2, 5), list(lambda = 1, gamma = 3))
+penalty_gradient(mcp, c(0.5, 2, 5), list(lambda = 1, gamma = 3))
+
+# Both are bounded, so neither is a density.
+c(scad = is_proper(pen), mcp = is_proper(mcp))
+
+# Letting the shape run recovers the lasso's linear penalty.
+sapply(c(3.7, 50, 1000),
+       function(a) penalty_value(scad_penalty(n_coef = 1), 2,
+                                 list(lambda = 1, a = a)))
 
 }
 \references{
 Fan, J. and Li, R. (2001). Variable selection via nonconcave penalized
-likelihood and its oracle properties. \emph{JASA} 96, 1348-1360.
+likelihood and its oracle properties. \emph{Journal of the American Statistical
+Association} \strong{96}, 1348-1360.
 
 Zhang, C.-H. (2010). Nearly unbiased variable selection under minimax
-concave penalty. \emph{Annals of Statistics} 38, 894-942.
+concave penalty. \emph{Annals of Statistics} \strong{38}, 894-942.
 }
 \seealso{
-\code{\link[=ridge_penalty]{ridge_penalty()}}, \code{\link[=is_proper]{is_proper()}}, \code{\link[=penalty_prox]{penalty_prox()}}
+\code{\link[=lasso_penalty]{lasso_penalty()}} for the convex penalty these improve on,
+\code{\link[=penalty_prox]{penalty_prox()}} for the closed operator each has over its convex
+region, \code{\link[=penalty_kinks]{penalty_kinks()}} for where they change branch,
+\code{\link[=is_proper]{is_proper()}} for why no marginal criterion reaches them.
 }

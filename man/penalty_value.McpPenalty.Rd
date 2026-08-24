@@ -2,29 +2,52 @@
 % Please edit documentation in R/scad_mcp.R
 \name{penalty_value.McpPenalty}
 \alias{penalty_value.McpPenalty}
-\alias{penalty_gradient.McpPenalty}
-\alias{penalty_hessian.McpPenalty}
-\alias{penalty_grad_theta.McpPenalty}
-\alias{penalty_hess_theta.McpPenalty}
-\alias{penalty_cross.McpPenalty}
-\alias{penalty_kinks.McpPenalty}
-\alias{is_proper.McpPenalty}
-\title{MCP Methods}
+\title{Value of an MCP Penalty}
 \arguments{
-\item{pen}{An \code{McpPenalty} object.}
+\item{pen}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}, already coerced by the
+generic.}
 
-\item{theta}{A list containing \code{lambda} and \code{gamma}.}
+\item{theta}{A list holding \code{lambda} and \code{gamma}, already aligned and
+bound-checked by the generic.}
 
-\item{scale}{Handled by the generic.}
-
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-See the generic pages.
+A single number, the sum over coordinates. Bounded above by
+\code{pen@n_coef * gamma * lambda^2 / 2}.
 }
 \description{
-The closed piecewise forms; see \code{\link[=mcp_penalty]{mcp_penalty()}}.
+Returns the closed antiderivative of MCP's defining \eqn{\rho'}, summed over
+the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. No
+constant is added, MCP being improper.
+}
+\details{
+With \eqn{u = \lvert t\rvert} on each coordinate,
+
+\deqn{\rho(u) = \lambda u - \frac{u^2}{2\gamma} \;\;
+    (u \le \gamma\lambda), \qquad
+  \rho(u) = \frac{\gamma\lambda^2}{2} \;\; (u > \gamma\lambda),}
+
+the two pieces meeting continuously at \eqn{\gamma\lambda}. Where SCAD holds
+the lasso's slope over an interval before tapering, MCP starts tapering at
+once, so its value is a downward parabola from the origin.
+}
+\examples{
+pen <- mcp_penalty(n_coef = 1)
+th <- list(lambda = 1, gamma = 3)
+
+# Inside the taper and beyond it.
+sapply(c(0.5, 2, 100), function(t) penalty_value(pen, t, th))
+
+# The flat value is gamma lambda^2 / 2.
+3 / 2
+
+}
+\seealso{
+\code{\link[=mcp_penalty]{mcp_penalty()}} for the construction,
+\code{\link[=penalty_gradient.McpPenalty]{penalty_gradient.McpPenalty()}} for the derivative it integrates,
+\code{\link[=penalty_value.ScadPenalty]{penalty_value.ScadPenalty()}} for the sibling family.
 }
 \keyword{internal}

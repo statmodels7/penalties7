@@ -2,29 +2,53 @@
 % Please edit documentation in R/scad_mcp.R
 \name{penalty_value.ScadPenalty}
 \alias{penalty_value.ScadPenalty}
-\alias{penalty_gradient.ScadPenalty}
-\alias{penalty_hessian.ScadPenalty}
-\alias{penalty_grad_theta.ScadPenalty}
-\alias{penalty_hess_theta.ScadPenalty}
-\alias{penalty_cross.ScadPenalty}
-\alias{penalty_kinks.ScadPenalty}
-\alias{is_proper.ScadPenalty}
-\title{SCAD Methods}
+\title{Value of a SCAD Penalty}
 \arguments{
-\item{pen}{A \code{ScadPenalty} object.}
+\item{pen}{A \code{\link[=ScadPenalty]{ScadPenalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}, already coerced by the
+generic.}
 
-\item{theta}{A list containing \code{lambda} and \code{a}.}
+\item{theta}{A list holding \code{lambda} and \code{a}, already aligned and
+bound-checked by the generic.}
 
-\item{scale}{Handled by the generic.}
-
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-See the generic pages.
+A single number, the sum over coordinates. Bounded above by
+\code{pen@n_coef * (a + 1) * lambda^2 / 2}.
 }
 \description{
-The closed piecewise forms; see \code{\link[=scad_penalty]{scad_penalty()}}.
+Returns the closed antiderivative of SCAD's defining \eqn{\rho'}, summed
+over the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. No
+constant is added, SCAD being improper.
+}
+\details{
+With \eqn{u = \lvert t\rvert} on each coordinate,
+
+\deqn{\rho(u) = \lambda u \;\; (u \le \lambda), \qquad
+  \rho(u) = \frac{2a\lambda u - u^2 - \lambda^2}{2(a-1)}
+    \;\; (\lambda < u \le a\lambda), \qquad
+  \rho(u) = \frac{(a+1)\lambda^2}{2} \;\; (u > a\lambda),}
+
+the three pieces meeting continuously at \eqn{\lambda} and \eqn{a\lambda}.
+The value saturates, leaving a large coefficient unshrunk and making the
+penalty improper.
+}
+\examples{
+pen <- scad_penalty(n_coef = 1)
+th <- list(lambda = 1, a = 3.7)
+
+# One coordinate in each region: linear, tapering, flat.
+sapply(c(0.5, 2, 100), function(t) penalty_value(pen, t, th))
+
+# The flat value is (a + 1) lambda^2 / 2.
+(3.7 + 1) / 2
+
+}
+\seealso{
+\code{\link[=scad_penalty]{scad_penalty()}} for the construction,
+\code{\link[=penalty_gradient.ScadPenalty]{penalty_gradient.ScadPenalty()}} for the derivative it integrates,
+\code{\link[=penalty_value.McpPenalty]{penalty_value.McpPenalty()}} for the sibling family.
 }
 \keyword{internal}

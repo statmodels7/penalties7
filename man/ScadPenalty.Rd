@@ -51,19 +51,41 @@ real line.}
 where the value is differentiable in it.}
 }
 \value{
-An object of class \code{ScadPenalty} or \code{McpPenalty}.
+An S7 object of class \code{ScadPenalty} or \code{McpPenalty}, inheriting from
+\code{\link[=penalty]{penalty()}} and carrying its seven properties and no others.
 }
 \description{
-The classes \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}}
-instantiate: families the literature defines by \eqn{\rho'} and whose
-\eqn{\rho} follows by the closed piecewise antiderivative anchored at
-\eqn{\rho(0) = 0}. Both are improper: \eqn{\rho} is bounded, so
-\eqn{\exp(-\rho)} does not integrate.
+\code{ScadPenalty} is the class \code{\link[=scad_penalty]{scad_penalty()}} builds and \code{McpPenalty} the one
+\code{\link[=mcp_penalty]{mcp_penalty()}} builds. Both are families the literature defines by
+\eqn{\rho'} rather than by \eqn{\rho}, and whose value follows from the
+closed piecewise antiderivative anchored at \eqn{\rho(0) = 0}. Neither adds
+a property to \code{\link[=penalty]{penalty()}}: everything the branch needs is the two
+hyperparameters and the map, and every quantity is computed from them.
+}
+\details{
+Both are improper. \eqn{\rho'} is exactly zero beyond \eqn{a\lambda} for
+SCAD and beyond \eqn{\gamma\lambda} for MCP, so \eqn{\rho} is bounded and
+flat far from the origin and \eqn{\exp(-\rho)} does not integrate over
+\eqn{\mathbb{R}^q} at any constant. \code{\link[=is_proper]{is_proper()}} returns \code{FALSE} for both,
+and the four quantities a marginal criterion reads are unavailable: their
+hyperparameters have to be chosen along a path or by cross-validation.
+
+The two differ in which shape parameter they carry and where it is bounded:
+SCAD's is \code{a}, on \eqn{(2, \infty)}, and MCP's is \code{gamma}, on
+\eqn{(1, \infty)}.
 }
 \examples{
 S7::S7_inherits(scad_penalty(), ScadPenalty)
+S7::S7_inherits(mcp_penalty(), McpPenalty)
+
+# Neither adds a property to the base class.
+setdiff(names(S7::props(scad_penalty())),
+        names(S7::props(quadratic_penalty(diag(1)))))
+
 }
 \seealso{
-\code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}}
+\code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}} for the constructors,
+\code{\link[=penalty_value.ScadPenalty]{penalty_value.ScadPenalty()}} and \code{\link[=penalty_value.McpPenalty]{penalty_value.McpPenalty()}} for what
+each computes, \code{\link[=penalty_prox]{penalty_prox()}} for the operator a fit steps with.
 }
 \keyword{internal}
