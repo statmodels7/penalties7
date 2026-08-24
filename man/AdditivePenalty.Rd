@@ -41,25 +41,45 @@ real line.}
 \item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
 where the value is differentiable in it.}
 
-\item{mats}{The list of penalty matrices, already carried through the
-map.}
+\item{mats}{A list of symmetric positive semidefinite matrices of the same
+side, already carried through the map, so each is \code{n_coef} by \code{n_coef}.
+One smoothing parameter goes with each, named \code{lambda1}, \code{lambda2} and so
+on in this order.}
 
-\item{p_rank}{The rank of the sum, the same at every positive parameter
-value.}
+\item{p_rank}{The rank of the sum, a single whole number, the same at every
+positive setting of the parameters.}
 }
 \value{
-An object of class \code{AdditivePenalty}.
+An S7 object of class \code{AdditivePenalty}, inheriting from \code{\link[=penalty]{penalty()}},
+with the seven inherited properties and the two above. Its \code{map} is always
+\code{NULL}, a map given to the constructor having been absorbed into \code{mats}.
 }
 \description{
-The class \code{\link[=additive_penalty]{additive_penalty()}} instantiates: several
-quadratic penalties added together, each with a smoothing parameter of
-its own.
+The class \code{\link[=additive_penalty]{additive_penalty()}} builds: several quadratic penalties added
+together, each with a smoothing parameter of its own. Beyond the seven
+properties every penalty carries it stores the list of component matrices,
+already carried through the map, and the rank of the sum.
+}
+\details{
+The rank is stored because it is a property of the components and not of any
+one setting of the parameters: the null space of a sum of positive
+semidefinite matrices is the intersection of the components' null spaces.
+Reading it off the assembled \eqn{S(\lambda)} instead would make it fall as
+the parameters spread apart, which \code{\link[=additive_penalty]{additive_penalty()}} measures.
 }
 \examples{
-S7::S7_inherits(additive_penalty(list(diag(3), diag(c(1, 0, 0)))),
-                AdditivePenalty)
+pen <- additive_penalty(list(diag(3), diag(c(1, 0, 0))))
+S7::S7_inherits(pen, AdditivePenalty)
+
+# One hyperparameter per component, and a rank fixed at construction.
+pen@params
+pen@p_rank
+length(pen@mats)
+
 }
 \seealso{
-\code{\link[=additive_penalty]{additive_penalty()}}
+\code{\link[=additive_penalty]{additive_penalty()}} for the constructor to use,
+\code{\link[=penalty_value.AdditivePenalty]{penalty_value.AdditivePenalty()}} for what the branch computes,
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} for one matrix with one scale.
 }
 \keyword{internal}

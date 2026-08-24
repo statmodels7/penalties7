@@ -7,16 +7,32 @@
 additive_sum(pen, theta)
 }
 \arguments{
-\item{pen}{An \code{AdditivePenalty} object.}
+\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{theta}{The aligned hyperparameter list.}
+\item{theta}{The aligned hyperparameter list, as \code{\link[=align_ptheta]{align_ptheta()}} returns
+it.}
 }
 \value{
-A list with the matrix \code{S}, its pseudo-inverse \code{Sp},
-and the log pseudo-determinant \code{logpdet}.
+A list of three: \code{S}, the assembled symmetric matrix of side
+\code{pen@n_coef}; \code{Sp}, its Moore-Penrose pseudo-inverse over the leading
+\code{pen@p_rank} eigendirections, of the same side; and \code{logpdet}, a single
+number, the sum of the logarithms of those eigenvalues.
 }
 \description{
-\eqn{S(\lambda)} and the pseudo-inverse the log pseudo-determinant and
-its derivatives are written in, from one eigendecomposition.
+Assembles \eqn{S(\lambda) = \sum_k \lambda_k P_k}, takes one
+eigendecomposition of it, and returns the matrix, its pseudo-inverse and its
+log pseudo-determinant together. The value, the hyperparameter derivatives
+and \code{\link[=penalty_logpdet]{penalty_logpdet()}} all need some of these three, and this is the only
+place the decomposition happens.
+}
+\details{
+The pseudo-inverse is taken over the \code{p_rank} largest eigenvalues, that rank
+having been fixed at construction from the components rather than counted
+here. Selecting by rank instead of by a tolerance is what keeps the answer
+steady when the parameters differ by many orders of magnitude, which is
+exactly when a count would lose directions the penalty still spans.
+}
+\seealso{
+\code{\link[=additive_penalty]{additive_penalty()}}, \code{\link[=penalty_logpdet.AdditivePenalty]{penalty_logpdet.AdditivePenalty()}}
 }
 \keyword{internal}

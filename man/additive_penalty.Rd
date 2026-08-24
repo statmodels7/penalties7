@@ -12,60 +12,125 @@ additive_penalty(
 )
 }
 \arguments{
-\item{mats}{A list of symmetric positive semidefinite matrices of the
-same dimension.}
+\item{mats}{A list of symmetric positive semidefinite matrices, all of the
+same side, and at least one. Each is symmetrized, and a component that is
+zero, negative definite, or not symmetric to a relative \code{1e-8} is
+rejected by number.}
 
-\item{map}{The matrix \eqn{D}, or \code{NULL} (default) for the
-identity.}
+\item{map}{The matrix \eqn{D}, with as many rows as the components and one
+column per coefficient, or \code{NULL} (the default) for the identity. A map is
+absorbed at construction, each component becoming \eqn{D'P_kD}, so the
+stored \code{map} is always \code{NULL}.}
 
-\item{link_lambda}{The link carrying each smoothing parameter to the
-unconstrained scale. Defaults to the log.}
+\item{link_lambda}{The \pkg{linkfunctions7} link carrying each smoothing
+parameter onto the whole real line. \code{linkfunctions7::log_link()} by
+default, and the same link is used for all of them.}
 
-\item{tol}{The relative tolerance below which an eigenvalue counts as
-zero.}
+\item{tol}{The relative eigenvalue tolerance, \code{1e-10} by default. Used twice:
+to reject a component whose smallest eigenvalue is below \code{-tol} times its
+largest, and to count the rank of the normalized stack.}
 }
 \value{
-An object of class \code{\link[=AdditivePenalty]{AdditivePenalty()}}.
+An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object with one hyperparameter per component,
+named \code{lambda1}, \code{lambda2}, ..., each bounded on \eqn{(0, \infty)}.
 }
 \description{
-The gaussian prior whose precision is a weighted sum of fixed matrices,
+Builds the Gaussian prior whose precision is a weighted sum of fixed
+matrices, one smoothing parameter to each. This is what an anisotropic
+tensor-product smooth needs: one parameter per margin, so a fit may be rough
+in one direction and smooth in another, where a single parameter would force
+every direction to be smoothed alike.
+}
+\section{The value}{
 \deqn{\rho(\beta;\lambda) = \tfrac{1}{2}\beta^\top S(\lambda)\beta
   - \tfrac{1}{2}\log\mathrm{pdet}\,S(\lambda)
   + \tfrac{r}{2}\log 2\pi, \qquad
   S(\lambda) = \sum_{k} \lambda_k P_k,}
-with one smoothing parameter per component. This is what a tensor-product
-smooth needs: one parameter per margin, so that the fit may be rough in
-one direction and smooth in another.
+
+with \eqn{r} the rank of the sum. The hyperparameters are named \code{lambda1},
+\code{lambda2} and so on, in the order the components were given, and each is
+positive on a log link.
 }
-\details{
-\code{\link[=quadratic_penalty]{quadratic_penalty()}} carries a single matrix and one scale,
-which forces every direction to be smoothed alike. Here the components
-keep their own parameters, and the quantities a marginal criterion reads
-follow from one eigendecomposition of the sum:
+
+\section{The determinant's derivatives}{
+One eigendecomposition of \eqn{S(\lambda)} gives the pseudo-inverse
+\eqn{S^{+}}, and the quantities a marginal criterion reads follow from it:
+
 \deqn{\frac{\partial}{\partial\lambda_k}\log\mathrm{pdet}\,S
   = \operatorname{tr}(S^{+}P_k), \qquad
   \frac{\partial^{2}}{\partial\lambda_k\partial\lambda_l}
   \log\mathrm{pdet}\,S = -\operatorname{tr}(S^{+}P_kS^{+}P_l).}
 
-\strong{The rank is not read off the sum.} Counting the eigenvalues of
-\eqn{S(\lambda)} above a tolerance gives the right answer only while the
-parameters are comparable: once they differ by orders of magnitude the
-small contributions sink below any fixed tolerance and are counted as
-zeros, so the rank appears to fall as the fit is smoothed. The null space
-of a sum of positive semidefinite matrices is the intersection of their
-null spaces, which does not depend on the parameters at all, so the rank
-is fixed once at construction from the components stacked and
-individually normalized.
+Both are exact, and both agree with the assembled quantity to 0.
 }
+
+\section{The rank is not read off the sum}{
+Counting the eigenvalues of \eqn{S(\lambda)} above a tolerance gives the
+right answer only while the parameters are comparable. Once they differ by
+orders of magnitude the small contributions sink below any fixed tolerance
+and are counted as zeros, so the rank appears to fall as the fit is
+smoothed. Measured on first and second differences over five coefficients,
+whose intersected null space is the constants:\tabular{lll}{
+   \eqn{\lambda_2/\lambda_1} \tab eigenvalues above \code{1e-10} \tab stored rank \cr
+   1 to 1e8 \tab 4 \tab 4 \cr
+   1e10 to 1e14 \tab \strong{3} \tab 4 \cr
+}
+
+
+while the null basis annihilates the assembled sum to \code{1e-16} relative at
+every one of those settings. So the rank is fixed once at construction, from
+the components stacked and individually normalized, and the object's answer
+cannot move. A test pins both halves.
+}
+
+\section{What this branch does not supply}{
+\code{\link[=is_quadratic]{is_quadratic()}} answers \code{FALSE} here, although the penalty is a quadratic
+form in the coefficients. \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}} and
+\code{\link[=penalty_logpdet]{penalty_logpdet()}} answer all the same; \code{\link[=penalty_null_basis]{penalty_null_basis()}} rejects. Two
+consequences follow and neither is guessable: a consumer that routes on
+\code{is_quadratic()} will not reach these quantities, and \code{\link[=check_penalty]{check_penalty()}} runs
+none of its three quadratic rows for this branch, so the rank and the log
+pseudo-determinant go untested.
+
+\code{penalty_logpdet()} also answers in a different shape here: \code{grad} is an
+unnamed numeric vector and \code{hess} a matrix, where the other quadratic
+branches return named lists keyed by hyperparameter and by pair.
+}
+
 \examples{
-# curvature in two directions, penalized separately
-P1 <- crossprod(diff(diag(4), differences = 2))
-pen <- additive_penalty(list(kronecker(diag(4), P1),
-                             kronecker(P1, diag(4))))
+# An anisotropic tensor smooth over a 4 x 4 grid: curvature along each
+# margin, penalized separately.
+P <- crossprod(diff(diag(4), differences = 2))
+pen <- additive_penalty(list(kronecker(diag(4), P), kronecker(P, diag(4))))
 pen@params
-penalty_value(pen, rnorm(16), list(lambda1 = 1, lambda2 = 100))
+c(n_coef = pen@n_coef, rank = penalty_rank(pen))
+
+# Raising one parameter charges for roughness along that margin alone.
+set.seed(2)
+b <- rnorm(16)
+penalty_value(pen, b, list(lambda1 = 1, lambda2 = 1))
+penalty_value(pen, b, list(lambda1 = 1, lambda2 = 100))
+
+# With one component the branch is the plain quadratic penalty.
+P2 <- crossprod(diff(diag(5), differences = 2))
+bb <- c(0.4, -1.1, 0.7, 0.2, -0.3)
+penalty_value(additive_penalty(list(P2)), bb, list(lambda1 = 3)) -
+  penalty_value(quadratic_penalty(P2), bb, list(lambda = 3))
+
+# The stored rank does not move as the parameters spread apart, where an
+# eigenvalue count of the assembled sum does.
+a <- additive_penalty(list(crossprod(diff(diag(5))), P2))
+penalty_rank(a)
+sapply(c(1, 1e10), function(r) {
+  S <- penalty_matrix(a, list(lambda1 = 1, lambda2 = r))
+  ev <- eigen(S, symmetric = TRUE, only.values = TRUE)$values
+  sum(ev > 1e-10 * max(ev))
+})
 
 }
 \seealso{
-\code{\link[=quadratic_penalty]{quadratic_penalty()}}
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} for one matrix with one scale,
+\code{\link[=structured_penalty]{structured_penalty()}} for a matrix whose entries move with the
+hyperparameters, \code{\link[=penalty_logpdet.AdditivePenalty]{penalty_logpdet.AdditivePenalty()}} for the determinant
+and its derivatives, \code{\link[=additive_sum]{additive_sum()}} for the decomposition they share.
 }

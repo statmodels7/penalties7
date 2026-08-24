@@ -2,32 +2,55 @@
 % Please edit documentation in R/additive_penalty.R
 \name{penalty_value.AdditivePenalty}
 \alias{penalty_value.AdditivePenalty}
-\alias{penalty_gradient.AdditivePenalty}
-\alias{penalty_hessian.AdditivePenalty}
-\alias{penalty_grad_theta.AdditivePenalty}
-\alias{penalty_hess_theta.AdditivePenalty}
-\alias{penalty_cross.AdditivePenalty}
-\alias{penalty_kinks.AdditivePenalty}
-\alias{is_proper.AdditivePenalty}
-\alias{penalty_matrix.AdditivePenalty}
-\alias{penalty_rank.AdditivePenalty}
-\alias{penalty_logpdet.AdditivePenalty}
-\title{Additive Penalty Methods}
+\title{Value of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{AdditivePenalty} object.}
+\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}, already coerced by the
+generic.}
 
-\item{theta}{A named list of smoothing parameters.}
+\item{theta}{A named list of \code{lambda1}, \code{lambda2}, ..., already aligned and
+bound-checked by the generic.}
 
-\item{scale}{Handled by the generic.}
-
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-See the generic pages.
+A single number.
 }
 \description{
-The closed forms; see \code{\link[=additive_penalty]{additive_penalty()}}.
+Returns the negative log-density of the Gaussian prior whose precision is
+the weighted sum \eqn{S(\lambda) = \sum_k \lambda_k P_k}, with the
+normalizing constant taken over the range of the sum.
+}
+\details{
+\deqn{\rho(\beta;\lambda) = \tfrac{1}{2}\beta^\top S(\lambda)\beta
+  - \tfrac{1}{2}\log\mathrm{pdet}\,S(\lambda)
+  + \tfrac{r}{2}\log 2\pi,}
+
+with \eqn{r} the stored rank. One eigendecomposition of the sum, through
+\code{\link[=additive_sum]{additive_sum()}}, supplies both the quadratic form's matrix and the log
+pseudo-determinant.
+
+With a single component the value is the plain quadratic penalty's, and the
+two agree to \code{3.6e-15}.
+}
+\examples{
+P1 <- crossprod(diff(diag(5)))
+P2 <- crossprod(diff(diag(5), differences = 2))
+pen <- additive_penalty(list(P1, P2))
+b <- c(0.4, -1.1, 0.7, 0.2, -0.3)
+
+penalty_value(pen, b, list(lambda1 = 2, lambda2 = 0.5))
+
+# A constant vector lies in the intersected null space, so only the
+# normalizing constant remains.
+penalty_value(pen, rep(1, 5), list(lambda1 = 2, lambda2 = 0.5))
+penalty_value(pen, rep(0, 5), list(lambda1 = 2, lambda2 = 0.5))
+
+}
+\seealso{
+\code{\link[=additive_penalty]{additive_penalty()}} for the construction,
+\code{\link[=penalty_gradient.AdditivePenalty]{penalty_gradient.AdditivePenalty()}} for the coefficient derivatives,
+\code{\link[=additive_sum]{additive_sum()}} for the decomposition it reads.
 }
 \keyword{internal}
