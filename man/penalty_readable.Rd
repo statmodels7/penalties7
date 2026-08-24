@@ -7,48 +7,75 @@
 penalty_readable(pen, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{theta}{A named list of hyperparameter values.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same, holding every name in \code{pen@params}.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-\code{NULL}, or a list with \code{value}, \code{jacobian},
-\code{transform} and \code{block}, as
-\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} returns them.
+\code{NULL}, or a list of four as \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} returns
+them: \code{value}, a named numeric vector of the reported quantities;
+\code{jacobian}, their derivatives with respect to the hyperparameters, one row
+per quantity and one column per hyperparameter; \code{transform}, a character
+vector naming the scale each interval is built on (\code{"log"}, \code{"atanh"},
+\code{"identity"}); and \code{block}, a character vector grouping the quantities for
+printing.
 }
 \description{
-The quantities a reader reads, where the hyperparameters are coordinates of
-a chart rather than the quantities themselves, with the Jacobian from those
-coordinates and the scale each one's interval belongs on.
+Returns the quantities a reader reads, for a penalty whose hyperparameters
+are coordinates of a chart and not the quantities themselves, together with
+the Jacobian from those coordinates and the scale each one's interval
+belongs on. Returns \code{NULL} where the hyperparameters already are the
+quantities, which is every branch but one.
 }
-\details{
-The case this exists for is a penalty whose prior is a multivariate family:
-its hyperparameters are the free values of a matrix parameter -- the
-logarithms of the diagonal of a Cholesky factor and the entries below it --
-and nobody reads those. What the prior is about is the standard deviations
-and the correlations of the effects it describes, and
-\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} declares them, so this is the same
-distinction \code{\link[parameters7:param_readable]{parameters7::param_readable()}} makes for a matrix
-parameter and \code{term_readable} for a fitted term.
+\section{The case this exists for}{
+A penalty whose prior is a multivariate family carries the free values of a
+matrix parameter as its hyperparameters: the logarithms of the diagonal of a
+Cholesky factor and the entries below it. Nobody reads those. What the prior
+is about is the standard deviations and the correlations of the effects it
+describes, so \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} declares them and this generic
+passes them through. It is the same distinction
+\code{\link[parameters7:param_readable]{parameters7::param_readable()}} makes for a matrix parameter.
 
-The base method returns \code{NULL}, which says that the hyperparameters
-ARE the quantities and a consumer should report them as they stand. That is
-the honest answer for every other branch: a smoothing parameter, a rate, a
-shape are each read on their own scale already.
+The Jacobian is what a delta-method standard error needs: with \eqn{V} the
+variance matrix of the hyperparameters, the reported quantities have
+variance \eqn{JVJ^\top}. The \code{transform} element says which scale each
+quantity's confidence interval should be built on and mapped back from, so
+that a standard deviation stays positive and a correlation stays inside
+\eqn{(-1, 1)}.
 }
+
+\section{The base method}{
+\code{NULL} says that the hyperparameters are the quantities and a consumer
+should report them as they stand. That is the answer for every other branch:
+a smoothing parameter, a rate and a shape are each read on their own scale
+already.
+}
+
 \examples{
+# A bivariate Gaussian prior on three pairs of effects. Its hyperparameters
+# are log-Cholesky coordinates, which nobody interprets.
 pen <- distrib_penalty(
   distributions7::fixed(distributions7::mvgaussian_distrib(2),
                         mu1 = 0, mu2 = 0), n_coef = 6)
-penalty_readable(pen, list(sigma_log_L1 = 0.2, sigma_log_L2 = -0.1,
-                           sigma_L2.1 = 0.5))$value
+pen@params
 
-# a smoothing parameter is already the quantity it names
+# What the prior is about is two standard deviations and a correlation.
+r <- penalty_readable(pen, list(sigma_log_L1 = 0.2, sigma_log_L2 = -0.1,
+                                sigma_L2.1 = 0.5))
+r$value
+r$transform
+dim(r$jacobian)
+
+# A smoothing parameter is already the quantity it names, so there is
+# nothing to derive.
 penalty_readable(quadratic_penalty(diag(2)), list(lambda = 1))
 
 }
 \seealso{
-\code{\link[=penalty_value]{penalty_value()}}, \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}}
+\code{\link[=penalty_value]{penalty_value()}}, \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} for the
+declaration this passes through, \code{\link[parameters7:param_readable]{parameters7::param_readable()}} for the
+same distinction on a matrix parameter.
 }

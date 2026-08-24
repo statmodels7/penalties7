@@ -7,27 +7,74 @@
 penalty_value(pen, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. Coerced with
+\code{as.numeric()} in the generic, so an integer vector or a one-column
+matrix is accepted.}
 
-\item{theta}{A named list of hyperparameter values.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same, holding every name in \code{pen@params}. Reordered
+and checked against the penalty's open bounds before dispatch. Pass
+\code{list()} for a penalty with no hyperparameters.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-A single number.
+A single number. Never \code{NA} for an argument inside the bounds; a
+penalty whose value is infinite at some \eqn{\beta} returns \code{Inf}.
 }
 \description{
-The scalar \eqn{\rho(D\beta;\theta)}, with the normalizing constant
-included whenever the penalty is proper, so that the value is exactly the
-negative log-density of the prior.
+Returns the scalar \eqn{\rho(D\beta; \theta)}, the amount a set of
+coefficients is penalized by. The normalizing constant is included whenever
+the penalty is proper, so the value is exactly the negative log-density of
+the prior and can be added to a negative log-likelihood without a further
+term. An improper penalty returns the bare \eqn{\rho}; ask \code{\link[=is_proper]{is_proper()}}
+which you have.
 }
+\section{Why the constant is kept}{
+Dropping the normalizing constant makes no difference to a fit at a fixed
+hyperparameter, since it does not depend on \eqn{\beta}. It makes the
+hyperparameter itself unestimable: with the constant dropped, driving
+\eqn{\lambda} to zero drives the penalty to zero and the joint maximum runs
+away. With it kept, a proper penalty is a density in \eqn{\beta} for every
+\eqn{\lambda}, so the joint objective has an interior maximum and a marginal
+criterion has something to expand around. Estimating the degrees of freedom
+of a heavy-tailed prior needs the constant for the same reason.
+}
+
+\section{The map}{
+\eqn{\rho} is evaluated at \eqn{t = D\beta}, not at \eqn{\beta}. With the
+map \code{NULL}, the default of every constructor, \eqn{t = \beta} and no
+arithmetic is done. A map of \eqn{m} rows means \eqn{\rho} sees \eqn{m}
+numbers, so a second-difference map penalizes curvature and leaves the level
+and the slope alone.
+}
+
 \examples{
+# A ridge over three coefficients, with the Gaussian constant kept.
 pen <- quadratic_penalty(diag(3))
 penalty_value(pen, c(1, 0, -1), list(lambda = 2))
 
+# Which is exactly the negative log-density of a N(0, 1/lambda) prior.
+-sum(stats::dnorm(c(1, 0, -1), sd = 1 / sqrt(2), log = TRUE))
+
+# The constant is why the value moves with lambda even at beta = 0.
+sapply(c(0.5, 1, 2, 8),
+       function(l) penalty_value(pen, c(0, 0, 0), list(lambda = l)))
+
+# A map sends rho the second differences, so only curvature is charged for.
+# A straight line contributes nothing to the quadratic part and the value
+# falls to the constant, the same value the zero vector gives.
+curve <- quadratic_penalty(diag(2), map = diff(diag(4), differences = 2))
+penalty_value(curve, c(1, 2, 3, 4), list(lambda = 5))
+penalty_value(curve, c(0, 0, 0, 0), list(lambda = 5))
+penalty_value(curve, c(1, 2, 4, 8), list(lambda = 5))
+
 }
 \seealso{
-\code{\link[=penalty_gradient]{penalty_gradient()}}, \code{\link[=penalty_hessian]{penalty_hessian()}}, \code{\link[=penalty_grad_theta]{penalty_grad_theta()}}, \code{\link[=penalty_cross]{penalty_cross()}}, \code{\link[=penalty_kinks]{penalty_kinks()}}
+\code{\link[=penalty_gradient]{penalty_gradient()}} and \code{\link[=penalty_hessian]{penalty_hessian()}} for the coefficient
+derivatives, \code{\link[=penalty_grad_theta]{penalty_grad_theta()}} for the hyperparameter ones,
+\code{\link[=is_proper]{is_proper()}} for whether the constant is there, \code{\link[=penalty_kinks]{penalty_kinks()}} for
+where the value is not differentiable.
 }

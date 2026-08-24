@@ -2,31 +2,78 @@
 % Please edit documentation in R/generics.R
 \name{penalty_kinks}
 \alias{penalty_kinks}
-\title{The Non-Differentiable Points of a Penalty}
+\title{Where a Penalty Stops Being Smooth}
 \usage{
 penalty_kinks(pen, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{theta}{A named list of hyperparameter values.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same, holding every name in \code{pen@params}. Required
+even for a smooth penalty, whose answer does not depend on it.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-A numeric vector, possibly empty.
+A numeric vector of the points, unsorted and possibly empty, in the
+units of \eqn{t = D\beta}. \code{numeric(0)} for a penalty that is smooth
+everywhere.
 }
 \description{
-The values of \eqn{t = D\beta} at which \eqn{\rho} is not differentiable
-in its argument: empty for the smooth penalties, \code{0} for the lasso,
-SCAD and MCP. \code{\link[=check_penalty]{check_penalty()}} places its grids away from
-them, and a solver may consult them.
+Returns the values of \eqn{t = D\beta} at which some derivative of
+\eqn{\rho} is discontinuous, so that a numerical reference straddling one of
+them measures the break and not the formula. \code{\link[=check_penalty]{check_penalty()}} places its
+grids clear of these points, and a solver consults them to decide whether a
+block can go to a gradient method at all.
 }
+\section{The set is wider than the kinks alone}{
+A kink proper is a point where the value is continuous and the first
+derivative jumps: \eqn{t = 0} for the lasso, the elastic net, SCAD and MCP,
+where the subdifferential opens into an interval and a coefficient can be
+held exactly at zero. What is returned is the larger set of points where any
+derivative breaks, because that is what a consumer of the second derivative
+needs as well. Measured at \eqn{\lambda = 1, a = 3.7, \gamma = 3}:\tabular{lll}{
+   penalty \tab returned \tab what breaks there \cr
+   quadratic, ridge, structured, additive \tab \code{numeric(0)} \tab nothing, the value is smooth \cr
+   lasso, elastic net \tab \code{0} \tab the first derivative \cr
+   SCAD \tab \verb{0, -1, 1, -3.7, 3.7} \tab the first at 0, the second at \eqn{\pm\lambda} and \eqn{\pm a\lambda} \cr
+   MCP \tab \verb{0, -3, 3} \tab the first at 0, the second at \eqn{\pm\gamma\lambda} \cr
+}
+
+
+At \eqn{\pm\lambda} SCAD's derivative is continuous, both branches giving
+\eqn{\lambda}, while its second derivative jumps from \eqn{0} to
+\eqn{-1/(a-1)}. The same holds for MCP at \eqn{\pm\gamma\lambda}.
+}
+
+\section{The set moves with the hyperparameters}{
+Only \eqn{0} is fixed. SCAD's outer points are at \eqn{\pm\lambda} and
+\eqn{\pm a\lambda} and MCP's at \eqn{\pm\gamma\lambda}, so the answer
+depends on \code{theta} and the argument is not optional. This is also what a
+hyperparameter path is walked over: the size of the kink, rather than the
+hyperparameter itself, is the quantity that scales the same way across
+branches.
+}
+
 \examples{
+# Smooth penalties return nothing.
 penalty_kinks(quadratic_penalty(diag(2)), list(lambda = 1))
+
+# The lasso breaks at the origin alone.
 penalty_kinks(lasso_penalty(), list(lambda = 1))
+
+# SCAD returns five points: the kink at zero and the two pairs where its
+# second derivative changes branch.
+penalty_kinks(scad_penalty(), list(lambda = 1, a = 3.7))
+
+# Which move with the hyperparameters.
+penalty_kinks(scad_penalty(), list(lambda = 2, a = 3.7))
 
 }
 \seealso{
-\code{\link[=penalty_value]{penalty_value()}}, \code{\link[=penalty_gradient]{penalty_gradient()}}, \code{\link[=penalty_hessian]{penalty_hessian()}}, \code{\link[=penalty_grad_theta]{penalty_grad_theta()}}, \code{\link[=penalty_cross]{penalty_cross()}}
+\code{\link[=penalty_gradient]{penalty_gradient()}} for what the first derivative returns at a
+kink, \code{\link[=penalty_prox]{penalty_prox()}} for the operator that steps over one,
+\code{\link[=has_prox]{has_prox()}} for whether the penalty has such an operator,
+\code{\link[=check_penalty]{check_penalty()}} for the caller that uses this to place a grid.
 }

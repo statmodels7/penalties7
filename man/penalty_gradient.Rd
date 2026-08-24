@@ -10,29 +10,69 @@ penalty_gradient(pen, beta, theta, ...)
 penalty_hessian(pen, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}, coerced with
+\code{as.numeric()} in the generic.}
 
-\item{theta}{A named list of hyperparameter values.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same, holding every name in \code{pen@params}.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-\code{penalty_gradient} a numeric vector of length \code{q};
-\code{penalty_hessian} a \verb{q x q} symmetric matrix.
+\code{penalty_gradient()} a numeric vector of length \code{pen@n_coef};
+\code{penalty_hessian()} a symmetric numeric matrix of that side, a base matrix
+even where the map is a \pkg{Matrix}.
 }
 \description{
-\code{penalty_gradient} returns \eqn{\partial\rho/\partial\beta} and
-\code{penalty_hessian} returns \eqn{\partial^2\rho/\partial\beta^2}, both
-exact.
+\code{penalty_gradient()} returns \eqn{\partial\rho/\partial\beta} and
+\code{penalty_hessian()} returns \eqn{\partial^2\rho/\partial\beta^2}, both in
+closed form for every shipped branch and both already carried back through
+the map. These are the two quantities a penalized fit adds to the score and
+to the information at each iteration.
 }
+\section{Through the map}{
+\eqn{\rho} is a function of \eqn{t = D\beta}, so the chain rule gives
+
+\deqn{\frac{\partial\rho}{\partial\beta} = D^\top \frac{\partial\rho}{\partial t},
+  \qquad
+  \frac{\partial^2\rho}{\partial\beta^2}
+    = D^\top \frac{\partial^2\rho}{\partial t^2} D,}
+
+and the map is applied here, once, so a caller adds the result straight into
+a system in \eqn{\beta}. For a separable penalty the middle matrix is
+diagonal and the product is formed without building it.
+}
+
+\section{At a kink}{
+Where \eqn{\rho} is not differentiable the returned gradient is one element
+of the subdifferential, chosen by the branch, and the Hessian is whatever
+the branch's own formula gives there. A lasso at \eqn{\beta_j = 0} is the
+case that matters: the subdifferential is the whole interval
+\eqn{[-\lambda, \lambda]} and a single number cannot stand for it. Route the
+block to \code{\link[=penalty_prox]{penalty_prox()}} instead of to a gradient method, and use
+\code{\link[=penalty_kinks]{penalty_kinks()}} to find out where the difficulty is.
+}
+
 \examples{
 pen <- quadratic_penalty(diag(2))
 penalty_gradient(pen, c(1, -1), list(lambda = 3))
 penalty_hessian(pen, c(1, -1), list(lambda = 3))
 
+# A quadratic penalty has a constant Hessian, so the gradient is linear.
+all.equal(penalty_gradient(pen, c(1, -1), list(lambda = 3)),
+          drop(penalty_hessian(pen, c(1, -1), list(lambda = 3)) \%*\% c(1, -1)))
+
+# The lasso's gradient is lambda times a sign, and at zero it is one
+# element of the interval [-lambda, lambda] rather than a derivative.
+penalty_gradient(lasso_penalty(n_coef = 3), c(2, -0.5, 0),
+                 list(lambda = 1.5))
+
 }
 \seealso{
-\code{\link[=penalty_value]{penalty_value()}}, \code{\link[=penalty_grad_theta]{penalty_grad_theta()}}, \code{\link[=penalty_kinks]{penalty_kinks()}}
+\code{\link[=penalty_value]{penalty_value()}} for the quantity differentiated,
+\code{\link[=penalty_grad_theta]{penalty_grad_theta()}} for the hyperparameter derivatives,
+\code{\link[=penalty_prox]{penalty_prox()}} for the operator to use where the gradient does not
+exist, \code{\link[=check_penalty]{check_penalty()}} to verify both against a numerical route.
 }

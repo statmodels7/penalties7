@@ -7,24 +7,58 @@
 is_proper(pen, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
 A single logical.
 }
 \description{
-\code{TRUE} when \eqn{\exp(-\rho)} integrates to one over the penalized
-coordinates, so that the value is exactly a negative log-density;
-\code{FALSE} for the improper ones (a rank-deficient quadratic, SCAD,
-MCP), whose value is the bare \eqn{\rho}.
+\code{TRUE} when \eqn{\exp(-\rho)} integrates to one over the coefficients, so
+the value returned by \code{\link[=penalty_value]{penalty_value()}} is exactly the negative log-density
+of a prior and may be added to a negative log-likelihood as it stands.
+\code{FALSE} when it does not, and then the value is the bare \eqn{\rho} with no
+constant attached.
+}
+\details{
+Two things make a penalty improper, and they are different failures.
+
+A \strong{rank-deficient quadratic} puts no cost at all on its null directions,
+so \eqn{\exp(-\rho)} is flat along them and its integral diverges. This is
+the ordinary case for a smoothing penalty: second differences over
+\eqn{q} coefficients leave the level and the slope free and have rank
+\eqn{q - 2}. The penalty is still usable, because the likelihood supplies the
+missing curvature; what changes is that the normalizing constant is the log
+\strong{pseudo}-determinant over the range, which \code{\link[=penalty_logpdet]{penalty_logpdet()}} returns.
+
+\strong{SCAD and MCP} are improper for a different reason: both are defined by
+their derivative, which is exactly zero beyond \eqn{a\lambda} and
+\eqn{\gamma\lambda}, so \eqn{\rho} is flat in every direction far from the
+origin and no constant makes \eqn{\exp(-\rho)} integrable. There is no
+density behind them at all, and no marginal criterion reaches them.
+
+The predicate is a statement about the penalty as constructed, so it does
+not depend on \code{theta} and takes none.
 }
 \examples{
+# A full-rank quadratic is a proper Gaussian prior.
 is_proper(quadratic_penalty(diag(2)))
-is_proper(scad_penalty())
+
+# Second differences leave the level and the slope unpenalized.
+is_proper(quadratic_penalty(crossprod(diff(diag(4), differences = 2))))
+penalty_rank(quadratic_penalty(crossprod(diff(diag(4), differences = 2))))
+
+# The lasso is a proper Laplace prior; SCAD and MCP are densities of
+# nothing.
+c(lasso = is_proper(lasso_penalty()),
+  scad  = is_proper(scad_penalty()),
+  mcp   = is_proper(mcp_penalty()))
 
 }
 \seealso{
-\code{\link[=is_quadratic]{is_quadratic()}}, \code{\link[=has_prox]{has_prox()}}, \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}}, \code{\link[=penalty_logpdet]{penalty_logpdet()}}
+\code{\link[=penalty_value]{penalty_value()}} for the constant this is about,
+\code{\link[=penalty_logpdet]{penalty_logpdet()}} for the pseudo-determinant a deficient quadratic
+uses, \code{\link[=is_quadratic]{is_quadratic()}} and \code{\link[=has_prox]{has_prox()}} for the other two predicates a
+consumer routes on.
 }

@@ -13,38 +13,101 @@ penalty_hess_theta(pen, beta, theta, scale = c("parameter", "link"), ...)
 penalty_cross(pen, beta, theta, scale = c("parameter", "link"), ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}, coerced with
+\code{as.numeric()} in the generic.}
 
-\item{theta}{A named list of hyperparameter values.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same, holding every name in \code{pen@params}.}
 
-\item{scale}{Either \code{"parameter"} (default) or \code{"link"}; on the
-link scale the derivatives are with respect to the unconstrained
-values, carried by the chain rule in the generic body, so methods
-always return the parameter scale.}
+\item{scale}{\code{"parameter"}, the default, gives derivatives in \eqn{\theta}.
+\code{"link"} gives them in the unconstrained values \eqn{\eta = g(\theta)},
+which is the scale an optimizer works on and the scale a hyperparameter's
+standard error is built on.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-A named list: one number per hyperparameter for the gradient, one
-number per pair for the Hessian, one numeric vector of length \code{q}
-per hyperparameter for the mixed block.
+All three return a named list.
+\code{penalty_grad_theta()} has one element per hyperparameter, each a single
+number, named by \code{pen@params}.
+\code{penalty_hess_theta()} has \eqn{p(p+1)/2} elements, each a single number,
+keyed by pairs as described above.
+\code{penalty_cross()} has one element per hyperparameter, each a numeric
+vector of length \code{pen@n_coef}.
 }
 \description{
-\code{penalty_grad_theta} returns \eqn{\partial\rho/\partial\theta} as a
-named list, \code{penalty_hess_theta} the second derivatives keyed with
-diagonals first, and \code{penalty_cross} the mixed block
-\eqn{\partial^2\rho/\partial\beta\,\partial\theta_k}, one coefficient
-vector per hyperparameter -- the block a joint estimation of coefficients
-and hyperparameters needs.
+The three blocks a consumer needs to move the hyperparameters rather than
+the coefficients. \code{penalty_grad_theta()} returns
+\eqn{\partial\rho/\partial\theta_k}, \code{penalty_hess_theta()} returns
+\eqn{\partial^2\rho/\partial\theta_k\partial\theta_l}, and
+\code{penalty_cross()} returns the mixed block
+\eqn{\partial^2\rho/\partial\beta\,\partial\theta_k}, one coefficient vector
+per hyperparameter. Each answers on the parameter scale or on the
+unconstrained scale, chosen by \code{scale}.
 }
+\section{What each is for}{
+The gradient and the Hessian in \eqn{\theta} are what a joint maximization
+of coefficients and hyperparameters steps with, and what the Laplace term of
+a marginal criterion differentiates. The mixed block is the off-diagonal
+corner of that joint system, and it is also what the implicit function
+theorem needs: the penalized mode moves with a hyperparameter as
+\eqn{\partial\hat\beta/\partial\theta_k = -(H + S)^{-1}
+\partial^2\rho/\partial\beta\,\partial\theta_k}, so a criterion computed at
+the mode cannot be differentiated without it.
+}
+
+\section{The two scales}{
+Each hyperparameter carries a link \eqn{g} mapping its open interval onto
+the whole line. With \code{scale = "link"} the derivatives are taken in
+\eqn{\eta = g(\theta)}, the coordinates an unconstrained optimizer moves.
+The chain rule is applied in the generic body, so a method always returns
+the parameter scale and a branch written by a user gets both scales for
+free. Writing \eqn{h = g^{-1}},
+
+\deqn{\frac{\partial\rho}{\partial\eta_k}
+  = \frac{\partial\rho}{\partial\theta_k} h_k'(\eta_k), \qquad
+  \frac{\partial^2\rho}{\partial\eta_k \partial\eta_l}
+  = \frac{\partial^2\rho}{\partial\theta_k \partial\theta_l}
+    h_k'(\eta_k) h_l'(\eta_l)
+  + \delta_{kl} \frac{\partial\rho}{\partial\theta_k} h_k''(\eta_k),}
+
+with the mixed block picking up one factor of \eqn{h_k'} and no second-order
+term, a reparametrization of the hyperparameters leaving the coefficient
+direction alone.
+}
+
+\section{The keying}{
+The gradient and the mixed block are keyed by \code{pen@params}. The Hessian is
+keyed by pairs, \strong{diagonals first} in \code{params} order and then the upper
+off-diagonal pairs, each joined by an underscore: for an elastic net the
+keys are \code{lambda_lambda}, \code{alpha_alpha}, \code{lambda_alpha}. Only the upper
+triangle is returned, the matrix being symmetric.
+}
+
 \examples{
 pen <- quadratic_penalty(diag(2))
 penalty_grad_theta(pen, c(1, -1), list(lambda = 3))
+penalty_hess_theta(pen, c(1, -1), list(lambda = 3))
 penalty_cross(pen, c(1, -1), list(lambda = 3))
+
+# An elastic net has two hyperparameters, so three Hessian keys.
+enet <- elasticnet_penalty(n_coef = 3)
+names(penalty_hess_theta(enet, c(1, -0.4, 0.2),
+                         list(lambda = 2, alpha = 0.4)))
+
+# The link scale is the parameter scale times the chain factor. lambda
+# rides a log link, so h'(eta) is lambda itself.
+g_par  <- penalty_grad_theta(pen, c(1, -1), list(lambda = 3))
+g_link <- penalty_grad_theta(pen, c(1, -1), list(lambda = 3),
+                             scale = "link")
+all.equal(g_link$lambda, g_par$lambda * 3)
 
 }
 \seealso{
-\code{\link[=penalty_value]{penalty_value()}}, \code{\link[=penalty_gradient]{penalty_gradient()}}, \code{\link[=penalty_kinks]{penalty_kinks()}}
+\code{\link[=penalty_value]{penalty_value()}} for the quantity differentiated,
+\code{\link[=penalty_gradient]{penalty_gradient()}} for the coefficient derivatives,
+\code{\link[=penalty_dhessian]{penalty_dhessian()}} for the third-order blocks a marginal criterion
+reads, \code{\link[=check_penalty]{check_penalty()}} to verify all three against numerical routes.
 }

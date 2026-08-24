@@ -2,27 +2,31 @@
 % Please edit documentation in R/generics.R
 \name{is_quadratic}
 \alias{is_quadratic}
-\title{Is a Penalty Quadratic?}
+\title{Is a Penalty a Quadratic Form With One Scale?}
 \usage{
 is_quadratic(pen, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
 A single logical.
 }
 \description{
-\code{TRUE} only for \code{\link[=quadratic_penalty]{quadratic_penalty()}}, whose matrix, rank,
-null basis and log pseudo-determinant the marginal-likelihood generics
-expose.
+\code{TRUE} for \code{\link[=quadratic_penalty]{quadratic_penalty()}} and \code{\link[=structured_penalty]{structured_penalty()}}, the two
+branches whose value is \eqn{\tfrac{1}{2}(D\beta)^\top S(\theta) (D\beta)}
+for a matrix that a consumer can ask for. \code{FALSE} everywhere else. A
+marginal likelihood criterion routes on this: where it is \code{TRUE} the
+penalty's contribution to the criterion is a log determinant, which
+\code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}} and
+\code{\link[=penalty_logpdet]{penalty_logpdet()}} supply, and where it is \code{FALSE} those four reject.
 }
-\details{
+\section{The quantity behind it}{
 A quadratic penalty carries a fixed matrix \eqn{P} and one smoothing
-parameter \eqn{\lambda}, and is the negative log-density of the improper
-Gaussian prior with precision \eqn{\lambda P} on \eqn{D\beta}:
+parameter \eqn{\lambda}, and is the negative log-density of the Gaussian
+prior with precision \eqn{\lambda P} on \eqn{D\beta}:
 
 \deqn{\rho(\beta; \lambda)
   = \tfrac{\lambda}{2} (D\beta)^\top P (D\beta)
@@ -32,17 +36,38 @@ Gaussian prior with precision \eqn{\lambda P} on \eqn{D\beta}:
     = r \log \lambda + \log^{+}\lvert P \rvert,}
 
 with \eqn{\log^{+}} the log pseudo-determinant and
-\eqn{r = \operatorname{rank}(P)}. Those are the quantities
-\code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}},
-\code{\link[=penalty_null_basis]{penalty_null_basis()}} and \code{\link[=penalty_logpdet]{penalty_logpdet()}}
-report and a REML or marginal-likelihood criterion needs; a penalty for
-which this is \code{FALSE} has no such matrix and those generics reject.
+\eqn{r = \operatorname{rank}(P)}. A structured penalty is the same shape
+with \eqn{S(\theta)} a \pkg{parameters7} matrix parameter in place of
+\eqn{\lambda P}, so its matrix moves with several hyperparameters and its
+log-determinant is not linear in any one of them.
 }
+
+\section{The exception to know about}{
+\code{\link[=additive_penalty]{additive_penalty()}} answers \code{FALSE} and yet supplies \code{penalty_matrix()},
+\code{penalty_rank()} and \code{penalty_logpdet()}, rejecting only
+\code{penalty_null_basis()}. It is quadratic in the coefficients, its matrix
+being \eqn{\sum_k \lambda_k P_k}, and it is kept out of the predicate. A
+consumer that routes on \code{is_quadratic()} alone will not reach the additive
+branch's marginal quantities, and \code{\link[=check_penalty]{check_penalty()}} does not test them.
+}
+
 \examples{
+# The two branches this is TRUE for.
 is_quadratic(quadratic_penalty(diag(2)))
 is_quadratic(ridge_penalty())
+is_quadratic(structured_penalty(
+  parameters7::log_cholesky(2, role = "precision")))
+
+# And the ones it is FALSE for, including the additive branch, which has a
+# rank all the same.
+add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
+is_quadratic(add)
+penalty_rank(add)
+is_quadratic(lasso_penalty())
 
 }
 \seealso{
-\code{\link[=is_proper]{is_proper()}}, \code{\link[=has_prox]{has_prox()}}, \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}}, \code{\link[=penalty_logpdet]{penalty_logpdet()}}
+\code{\link[=penalty_matrix]{penalty_matrix()}} and the three quantities beside it,
+\code{\link[=is_proper]{is_proper()}} and \code{\link[=has_prox]{has_prox()}} for the other two predicates,
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} and \code{\link[=structured_penalty]{structured_penalty()}} for the branches.
 }

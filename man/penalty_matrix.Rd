@@ -16,34 +16,94 @@ penalty_null_basis(pen, ...)
 penalty_logpdet(pen, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object. Must be quadratic, or additive for the
+three it supplies.}
 
-\item{theta}{A named list of hyperparameter values.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same. \code{penalty_matrix()} and \code{penalty_logpdet()} only.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-\code{penalty_matrix} a \verb{q x q} matrix; \code{penalty_rank}
-an integer; \code{penalty_null_basis} a matrix with \code{q} rows (zero
-columns when the penalty is full rank); \code{penalty_logpdet} a list
-with elements \code{value}, \code{grad} and \code{hess}.
+\code{penalty_matrix()} a symmetric \verb{q x q} base matrix, where \code{q} is
+\code{pen@n_coef}.
+\code{penalty_rank()} a single integer, fixed at construction.
+\code{penalty_null_basis()} a \verb{q x (q - r)} matrix with orthonormal columns
+spanning the null space, and a \verb{q x 0} matrix when the penalty is full
+rank.
+\code{penalty_logpdet()} a list of three: \code{value}, a single number; \code{grad}, a
+named list of one number per hyperparameter; and \code{hess}, a named list of
+one number per hyperparameter pair, keyed diagonals first as
+\code{\link[=penalty_hess_theta]{penalty_hess_theta()}} is.
 }
 \description{
-For a quadratic penalty: \code{penalty_matrix} returns
-\eqn{\lambda D'PD}, \code{penalty_rank} its rank (fixed at construction),
-\code{penalty_null_basis} the exact null basis for the model layer to
-intersect across terms, and \code{penalty_logpdet} the log
-pseudo-determinant \eqn{r\log\lambda + \log\mathrm{pdet}(P)} with its
-first two theta derivatives. Every other penalty rejects: a marginal
-criterion for a non-Gaussian prior is not a determinant, and pretending
-otherwise would produce numbers silently.
+The four quantities a REML or marginal likelihood criterion needs from a
+quadratic penalty. \code{penalty_matrix()} returns the matrix \eqn{S(\theta)} of
+the quadratic form, \code{penalty_rank()} its rank, \code{penalty_null_basis()} an
+orthonormal basis of the directions it does not penalize, and
+\code{penalty_logpdet()} the log pseudo-determinant with its first two derivatives
+in the hyperparameters.
 }
+\section{Why the criterion needs them}{
+A marginal criterion integrates the coefficients out under the prior the
+penalty describes, and a Laplace expansion at the penalized mode leaves
+\eqn{\tfrac{1}{2}\log^{+}\lvert S(\theta)\rvert -
+\tfrac{1}{2}\log\lvert H + S(\theta)\rvert}. The first term is what these
+generics supply. It is a \strong{pseudo}-determinant, taken over the range of
+\eqn{S} alone, because a smoothing penalty is rank deficient by design and
+the ordinary determinant is zero.
+
+The rank and the null basis are fixed at construction and do not move with
+\code{theta}, which is why neither takes it. That is deliberate and it matters:
+counting eigenvalues of the assembled \eqn{S(\theta)} above a tolerance
+gives a count that falls as several smoothing parameters spread apart, while
+the null space of a sum of positive semidefinite matrices is the
+intersection of theirs and does not move at all.
+}
+
+\section{The log pseudo-determinant}{
+For the plain quadratic branch \eqn{S = \lambda D'PD} and
+
+\deqn{\log^{+}\lvert S \rvert = r\log\lambda + \log^{+}\lvert P \rvert,}
+
+so the gradient is \eqn{r/\lambda} and the second derivative
+\eqn{-r/\lambda^2}, both exact and both returned. For the structured branch
+the derivatives come from the \pkg{parameters7} parametrization's own
+log-determinant contract. Both are on the parameter scale; there is no
+\code{scale} argument here.
+}
+
+\section{What rejects}{
+All four reject for a penalty that is not quadratic, with a message naming
+\code{\link[=is_quadratic]{is_quadratic()}}. The exception is \code{\link[=additive_penalty]{additive_penalty()}}, which answers
+\code{is_quadratic()} as \code{FALSE} and supplies the first, second and fourth of
+these anyway; \code{penalty_null_basis()} is the one it rejects.
+}
+
 \examples{
-pen <- quadratic_penalty(crossprod(diff(diag(4))))
+# Second differences over four coefficients: rank 2, a two-dimensional
+# null space holding the level and the slope.
+pen <- quadratic_penalty(crossprod(diff(diag(4), differences = 2)))
 penalty_rank(pen)
-penalty_logpdet(pen, list(lambda = 2))$value
+N <- penalty_null_basis(pen)
+dim(N)
+
+# The matrix annihilates that basis exactly.
+max(abs(penalty_matrix(pen, list(lambda = 2)) \%*\% N))
+
+# And a straight line, which the null space spans, costs nothing.
+penalty_gradient(pen, c(1, 2, 3, 4), list(lambda = 2))
+
+# The log pseudo-determinant is r log(lambda) plus a constant, so its
+# derivatives are r/lambda and -r/lambda^2.
+lp <- penalty_logpdet(pen, list(lambda = 2))
+c(lp$grad$lambda, lp$hess$lambda_lambda)
+c(penalty_rank(pen) / 2, -penalty_rank(pen) / 4)
 
 }
 \seealso{
-\code{\link[=is_quadratic]{is_quadratic()}}, \code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=additive_penalty]{additive_penalty()}}
+\code{\link[=is_quadratic]{is_quadratic()}} for the predicate that gates these,
+\code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=structured_penalty]{structured_penalty()}} and \code{\link[=additive_penalty]{additive_penalty()}}
+for the branches that supply them, \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} for the keying
+of \code{penalty_logpdet()}'s \code{hess}.
 }
