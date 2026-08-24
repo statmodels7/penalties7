@@ -7,43 +7,66 @@
 distrib_kinks(d)
 }
 \arguments{
-\item{d}{A univariate \pkg{distributions7} object.}
+\item{d}{A univariate \pkg{distributions7} object. An object carrying
+neither \code{parent_distrib} nor \code{fixed_params} gets \code{numeric(0)} without
+further inspection.}
 }
 \value{
-A numeric vector, possibly empty.
+A numeric vector of the confirmed kink points, possibly empty, with
+duplicates and non-finite candidates removed.
 }
 \description{
-The points a separable penalty is not differentiable at, derived from the
-distribution it is built on.
+Returns the points at which a separable penalty built on this distribution
+would not be differentiable, derived from the distribution itself. Returns
+\code{numeric(0)} where there are none, which is the answer for every family the
+toolkit ships except the Laplace and the elastic net.
 }
-\details{
+\section{How a candidate is found}{
 A distribution records which of its parameters the log-likelihood is
 differentiable in, through \code{params_smooth}, and for a location family a
 location that is not smooth is a kink in the argument at that location. A
 penalty is the negative log-density read in the coefficient, so a
-\code{\link[distributions7:fixed]{distributions7::fixed()}} wrapper holding such a parameter at a
-value puts the kink there: \code{fixed(laplace_distrib(), mu = 0)} is the
-lasso and has a kink at zero.
+\code{\link[distributions7:fixed]{distributions7::fixed()}} wrapper holding such a parameter at a value puts
+the kink there: \code{fixed(laplace_distrib(), mu = 0)} is the lasso and has a
+kink at zero, while \code{fixed(laplace_distrib(), mu = 2)} has one at two.
 
+Nothing is taken from a parameter that is \strong{free}, its value being whatever
+the hyperparameters say at the time. A Laplace with an unfixed location
+therefore reports no kink at all.
+}
+
+\section{And how it is confirmed}{
 Each candidate is the value its parameter is held at, and whether it is a
 kink is then measured rather than inferred, by comparing the one-sided
-derivatives of the log-density across it. Inferring alone would put a kink
-on any family whose non-smooth parameter is not a location; measuring alone
-would need somewhere to look. A candidate whose derivative does not jump is
+derivatives of the log-density across it at a probe point
+(\code{\link[=probe_theta]{probe_theta()}}, \code{\link[=has_jump]{has_jump()}}). Inferring alone would put a kink on any
+family whose non-smooth parameter is not a location; measuring alone would
+need somewhere to look. A candidate whose derivative does not jump is
 dropped.
 
-A parent that declares every parameter smooth, or that fixes none of the
-ones it declares non-smooth, has no candidate and gets \code{numeric(0)}.
-Nothing is taken from a parameter that is free, its value being whatever the
-hyperparameters say at the time.
+The wrapper is recognized by the properties it carries, \code{parent_distrib}
+and \code{fixed_params}, and not by its class: the two \code{fixed} classes are not
+exported, and a family written outside \pkg{distributions7} may hold its
+parameters the same way.
 }
+
 \examples{
+# The lasso's parent: a kink at the location it is held at.
 distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),
                                     mu = 0))
+distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),
+                                    mu = 2))
+
+# A Gaussian is smooth everywhere, so there is no candidate to confirm.
 distrib_kinks(distributions7::fixed(distributions7::gaussian1_distrib(),
                                     mu = 0))
 
+# And a free location gives nothing, its value not being settled.
+distrib_kinks(distributions7::laplace_distrib())
+
 }
 \seealso{
-\code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=penalty_kinks]{penalty_kinks()}}
+\code{\link[=distrib_penalty]{distrib_penalty()}}, which calls this unless told the kinks
+directly, \code{\link[=penalty_kinks]{penalty_kinks()}} for what a built penalty reports,
+\code{\link[=has_jump]{has_jump()}} for the measurement.
 }

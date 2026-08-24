@@ -7,19 +7,37 @@
 dp_blockdiag(pen, h, nblk)
 }
 \arguments{
-\item{pen}{A \code{DistribPenalty} object.}
+\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object with \code{pen@block} above one.}
 
-\item{h}{The parent's \code{distrib_hess_y}.}
+\item{h}{The parent's \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}}: a
+\eqn{p \times p} matrix or a \eqn{p \times p \times n} array.}
 
-\item{nblk}{The number of blocks.}
+\item{nblk}{The number of blocks, a single whole number.}
 }
 \value{
-A symmetric matrix of side \code{nblk * pen@block}.
+A symmetric base matrix of side \code{nblk * pen@block}, block diagonal
+with \code{nblk} blocks.
 }
 \description{
-Assembles \eqn{\partial^2\ell/\partial b\partial b'} over the blocks. The
-parent returns one \eqn{p \times p} matrix when its response Hessian does
-not depend on the observation, as the gaussian's does not, and a
-\eqn{p \times p \times n} array when it does.
+Assembles the parent's \eqn{\partial^2\ell/\partial b\partial b'} into the
+block-diagonal matrix a multivariate separable penalty's Hessian is
+sandwiched with: one \eqn{p \times p} block per block of coefficients, and
+zeros between them.
+}
+\details{
+The zeros between the blocks are the separability. Coordinates in different
+blocks are independent under the prior, so the Hessian has no entry linking
+them, however dependent the coordinates within a block are.
+
+Two input shapes are accepted because \pkg{distributions7} returns two. A
+family whose response Hessian does not depend on the observation, as the
+multivariate gaussian's does not, returns one \eqn{p \times p} matrix and it
+is placed in every block; a family whose does returns a
+\eqn{p \times p \times n} array and each slice goes to its own block. The
+two are told apart with \code{is.matrix()}.
+}
+\seealso{
+\code{\link[=dp_arg]{dp_arg()}}, and \code{\link[=map_quad_full]{map_quad_full()}}, which carries this through the
+map.
 }
 \keyword{internal}

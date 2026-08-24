@@ -10,10 +10,25 @@ probe_theta(d)
 \item{d}{A \pkg{distributions7} object.}
 }
 \value{
-A named list.
+A named list of one number per element of \code{d@params}, in that order.
+\code{list()} for a distribution with no free parameters.
 }
 \description{
-The midpoint of each free parameter's bounds, the probe rule the toolkit
-already uses where a value is needed and none is in force.
+Returns one value per free parameter, at which the parent can be evaluated
+when no hyperparameters are in force. Used by \code{\link[=distrib_kinks]{distrib_kinks()}}, which has
+to differentiate the log-density before any penalty exists.
+}
+\details{
+The rule is the toolkit's probe rule: the midpoint of a parameter's bounds
+where both are finite, one above the lower bound where only that is finite,
+one below the upper where only that is, and \code{1} where neither is. So a scale
+on \eqn{(0, \infty)} is probed at 1 and a mixing weight on \eqn{(0, 1)} at
+0.5.
+
+Whether a point is a kink does not depend on where the other parameters sit,
+so any admissible point serves and the rule only has to give one.
+}
+\seealso{
+\code{\link[=distrib_kinks]{distrib_kinks()}}, \code{\link[=has_jump]{has_jump()}}
 }
 \keyword{internal}

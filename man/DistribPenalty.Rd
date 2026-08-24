@@ -42,27 +42,49 @@ real line.}
 \item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
 where the value is differentiable in it.}
 
-\item{parent}{The \pkg{distributions7} object.}
+\item{parent}{The \pkg{distributions7} object the log-density comes from,
+usually a \code{\link[distributions7:fixed]{distributions7::fixed()}} wrapper holding the location at zero.}
 
-\item{kinks}{The declared non-differentiable points of the parent's
-log-density in its argument.}
+\item{kinks}{A numeric vector of the points where the parent's log-density
+is not differentiable in its argument, possibly empty. Derived by
+\code{\link[=distrib_kinks]{distrib_kinks()}} unless the constructor was told otherwise.}
 
-\item{block}{The block width, \code{1} for a univariate parent and the
-parent's dimension otherwise.}
+\item{block}{The block width: \code{1L} for a univariate parent and the parent's
+\code{n_dim} for a multivariate one.}
 }
 \value{
-An object of class \code{DistribPenalty}.
+An S7 object of class \code{DistribPenalty}, inheriting from \code{\link[=penalty]{penalty()}},
+with the seven inherited properties and the three above.
 }
 \description{
-The class \code{\link[=distrib_penalty]{distrib_penalty()}} instantiates: a penalty built by
-applying a \pkg{distributions7} log-density to the successive blocks of
-\eqn{D\beta}, the block being one coordinate for a univariate parent and
-\eqn{p} of them for a \eqn{p}-variate one.
+The class \code{\link[=distrib_penalty]{distrib_penalty()}} builds: a penalty formed by applying a
+\pkg{distributions7} log-density to the successive blocks of \eqn{D\beta}.
+Beyond the seven properties every penalty carries it stores the parent
+distribution, the points where the parent's log-density has a kink, and the
+block width, which is one for a univariate parent and the dimension for a
+multivariate one.
+}
+\details{
+The hyperparameters are the parent's own free parameters, and \code{params},
+\code{params_bounds} and \code{link_params} are read straight off the distribution
+object. A caller who knows the parent therefore knows the penalty's
+hyperparameters, their bounds and their links without being told again.
 }
 \examples{
-S7::S7_inherits(lasso_penalty(n_coef = 2), DistribPenalty)
+pen <- lasso_penalty(n_coef = 2)
+S7::S7_inherits(pen, DistribPenalty)
+
+# The parent is a fixed Laplace, the kink is at zero, blocks are single
+# coordinates, and the hyperparameter is the parent's own rate.
+pen@parent
+pen@kinks
+pen@block
+pen@params
+
 }
 \seealso{
-\code{\link[=distrib_penalty]{distrib_penalty()}}
+\code{\link[=distrib_penalty]{distrib_penalty()}} for the constructor to use,
+\code{\link[=ridge_penalty]{ridge_penalty()}} and its siblings for the named instances,
+\code{\link[=penalty_value.DistribPenalty]{penalty_value.DistribPenalty()}} for what the branch computes.
 }
 \keyword{internal}

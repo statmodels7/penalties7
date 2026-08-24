@@ -5,7 +5,7 @@
 \alias{lasso_penalty}
 \alias{elasticnet_penalty}
 \alias{heavy_penalty}
-\title{Named Separable Penalties}
+\title{The Named Penalties}
 \usage{
 ridge_penalty(map = NULL, n_coef = 1L)
 
@@ -16,54 +16,122 @@ elasticnet_penalty(map = NULL, n_coef = 1L)
 heavy_penalty(map = NULL, n_coef = 1L)
 }
 \arguments{
-\item{map}{The matrix \eqn{D}, or \code{NULL} (default) for the identity.}
+\item{map}{The matrix \eqn{D}, with one column per coefficient, or \code{NULL}
+(the default) for the identity. Given a map, the number of coefficients is
+\code{ncol(map)} and \code{n_coef} is ignored.}
 
-\item{n_coef}{The number of coefficients when \code{map} is \code{NULL}.}
+\item{n_coef}{The number of coefficients when \code{map} is \code{NULL}. A single
+whole number, \code{1L} by default.}
 }
 \value{
-An object of class \code{DistribPenalty}.
+\code{ridge_penalty()} a \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} with the hyperparameter
+\code{lambda}, a precision, on \eqn{(0, \infty)}.
+\code{lasso_penalty()} a \code{\link[=DistribPenalty]{DistribPenalty()}} with \code{lambda}, a rate, on
+\eqn{(0, \infty)} and a kink at zero.
+\code{elasticnet_penalty()} a \code{\link[=DistribPenalty]{DistribPenalty()}} with \code{lambda} on
+\eqn{(0, \infty)} and \code{alpha} on \eqn{(0, 1)}, and a kink at zero.
+\code{heavy_penalty()} a \code{\link[=DistribPenalty]{DistribPenalty()}} with \code{sigma} and \code{nu} both on
+\eqn{(0, \infty)}, and no kink.
 }
 \description{
-The canonical instances of \code{\link[=distrib_penalty]{distrib_penalty()}}, shipped as
-constructors so the model layer can name what it means. Each is written
-on the chart whose hyperparameter MEASURES THE SHRINKAGE, so that a larger
-value shrinks harder in all of them. Ridge is the exception to the branch
-rather than to the rule: it is the Gaussian prior at zero, and that prior
-written by its PRECISION is exactly the quadratic penalty at the identity,
-the same value to the last bit, so it is built there and its
-hyperparameter is the lambda that branch already carries -- one name for
-one number. The lasso is the Laplace in location
-and rate (\code{laplace2}) at zero, so the free hyperparameter is the rate
-\eqn{\lambda} and the value is \eqn{\lambda\lVert D\beta\rVert_1} up to
-its constant, with the kink declared; the heavy-tailed prior is the
-Student t at zero,
-whose \eqn{\nu} is estimable exactly because the normalizing constant is
-kept. The elastic net is the product of the Laplace and the Gaussian at
-zero, normalized (\code{\link[distributions7:enet_distrib]{distributions7::enet_distrib()}}), so its
-hyperparameters are the overall rate \eqn{\lambda} and the mixing weight
-\eqn{\alpha} and its value is
-\eqn{\lambda\{\alpha\lVert D\beta\rVert_1 +
-(1-\alpha)\lVert D\beta\rVert_2^2/2\}} up to a constant. That constant
-depends on both hyperparameters, which is what makes them estimable by a
-marginal criterion and what a penalty written as a formula would not
-have.
+The four penalties a modelling layer names directly: \code{ridge_penalty()},
+\code{lasso_penalty()}, \code{elasticnet_penalty()} and \code{heavy_penalty()}. Each is a
+particular prior centered at zero, and each is written on the chart whose
+hyperparameter \strong{measures the shrinkage}, so that a larger value shrinks
+harder in all four.
 }
+\section{Ridge, which is on the other branch}{
+\code{ridge_penalty()} is the Gaussian prior at zero, and that prior written by
+its \strong{precision} is exactly \code{\link[=quadratic_penalty]{quadratic_penalty()}} at the identity matrix,
+the same value to the last bit. It is therefore built there, and its
+hyperparameter is the \code{lambda} that branch already carries: one name for one
+number. It is the only one of the four that is not a \code{DistribPenalty}, and
+\code{\link[=is_quadratic]{is_quadratic()}} answers \code{TRUE} for it alone.
+
+The separable twin still exists and is one line,
+\code{distrib_penalty(fixed(gaussian1_distrib(), mu = 0), n_coef = q)}, whose
+hyperparameter is the standard deviation \eqn{\sigma} instead. Reach for it
+when a standard deviation is the quantity you want reported.
+}
+
+\section{Lasso}{
+The Laplace in location and rate (\code{laplace2}) held at zero, so the free
+hyperparameter is the rate \eqn{\lambda} and
+
+\deqn{\rho(\beta;\lambda) = \lambda\lVert D\beta\rVert_1
+  - q\log(\lambda/2),}
+
+with \eqn{q} the number of values the penalty is read at. The kink at zero
+is declared, so \code{\link[=penalty_kinks]{penalty_kinks()}} reports it and \code{\link[=penalty_prox]{penalty_prox()}} gives the
+soft threshold.
+}
+
+\section{Elastic net}{
+The product of the Laplace and the Gaussian at zero, normalized
+(\code{\link[distributions7:enet_distrib]{distributions7::enet_distrib()}}), so the hyperparameters are the overall
+rate \eqn{\lambda} and the mixing weight \eqn{\alpha} on \eqn{(0, 1)}:
+
+\deqn{\rho(\beta;\lambda,\alpha) = \lambda\left\{
+  \alpha\lVert D\beta\rVert_1
+  + (1-\alpha)\lVert D\beta\rVert_2^2/2\right\} + c(\lambda, \alpha).}
+
+The constant depends on \strong{both} hyperparameters, which is why a marginal
+criterion can estimate them: measured at
+\eqn{(\lambda, \alpha)} of \eqn{(1, 0.5)}, \eqn{(2, 0.5)} and
+\eqn{(1, 0.9)}, the per-coordinate constant is \code{0.7805}, \code{0.2711} and
+\code{0.7001}. A penalty written as a formula, with no constant, would have
+neither hyperparameter identified.
+}
+
+\section{The heavy-tailed prior}{
+The Student t at zero, with a free scale \eqn{\sigma} and a free
+\eqn{\nu}. Its \eqn{\nu} is estimable exactly because the normalizing
+constant is kept, and estimating it is the point: a small \eqn{\nu} shrinks
+small coefficients like a Gaussian prior and leaves large ones nearly alone,
+which a Gaussian cannot do at any scale. Alone among the four it declares no
+kink, so it produces no exact zeros.
+}
+
 \examples{
-pen <- ridge_penalty(n_coef = 2)
-penalty_gradient(pen, c(1, -1), list(lambda = 1))
+b <- c(1, -0.5, 0.3)
+
+# Ridge is on the quadratic branch, so its lambda is a precision.
+r <- ridge_penalty(n_coef = 3)
+class(r)[1]
+is_quadratic(r)
+penalty_gradient(r, b, list(lambda = 2))
+
+# The lasso's value is lambda times the L1 norm, plus its constant.
+l <- lasso_penalty(n_coef = 3)
+penalty_value(l, b, list(lambda = 0.5))
+0.5 * sum(abs(b)) - 3 * log(0.5 / 2)
+
+# Only the lasso and the elastic net have a kink, so only they can set a
+# coefficient exactly to zero.
+penalty_kinks(l, list(lambda = 1))
+penalty_kinks(heavy_penalty(n_coef = 3), list(sigma = 1, nu = 4))
+
+# The heavy-tailed prior shrinks a large coefficient far less than a
+# ridge at a comparable scale, and the small ones about as much.
+penalty_prox(heavy_penalty(n_coef = 3), c(4, 0.3, -1), 1,
+             list(sigma = 1, nu = 3))
+penalty_prox(r, c(4, 0.3, -1), 1, list(lambda = 1))
 
 }
 \references{
-Hoerl, A. E. and Kennard, R. W. (1970). Ridge regression: biased
-estimation for nonorthogonal problems. \emph{Technometrics} 12, 55-67.
+Hoerl, A. E. and Kennard, R. W. (1970). Ridge regression: biased estimation
+for nonorthogonal problems. \emph{Technometrics} \strong{12}, 55-67.
 
 Tibshirani, R. (1996). Regression shrinkage and selection via the lasso.
-\emph{Journal of the Royal Statistical Society, Series B} 58, 267-288.
+\emph{Journal of the Royal Statistical Society, Series B} \strong{58}, 267-288.
 
 Zou, H. and Hastie, T. (2005). Regularization and variable selection via
 the elastic net. \emph{Journal of the Royal Statistical Society, Series B}
-67, 301-320.
+\strong{67}, 301-320.
 }
 \seealso{
-\code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=quadratic_penalty]{quadratic_penalty()}}
+\code{\link[=distrib_penalty]{distrib_penalty()}} for the construction behind three of them,
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} for the one behind ridge,
+\code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}} for the non-convex alternatives,
+\code{\link[=penalty_prox]{penalty_prox()}} for the operators these have.
 }

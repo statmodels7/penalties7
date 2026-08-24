@@ -9,16 +9,37 @@ has_jump(d, theta, at, eps = 1e-05)
 \arguments{
 \item{d}{A \pkg{distributions7} object.}
 
-\item{theta}{Where to read it.}
+\item{theta}{A named list of parameter values to read it at, as
+\code{\link[=probe_theta]{probe_theta()}} returns.}
 
-\item{at}{The candidate point.}
+\item{at}{The candidate point, a single number.}
 
-\item{eps}{How far either side.}
+\item{eps}{How far either side to look, \code{1e-5} by default. Large enough that
+the one-sided derivatives are not dominated by rounding, small enough that
+a second feature does not fall inside the window.}
 }
 \value{
-A single logical.
+A single logical, \code{TRUE} when the slope jumps.
 }
 \description{
-Compares the derivative in the argument just either side of it.
+Compares the derivative of the log-density in its argument just either side
+of a candidate point, and answers \code{TRUE} when the two differ by more than a
+relative threshold. This is the measurement that turns a candidate kink,
+inferred from \code{params_smooth}, into a confirmed one.
+}
+\details{
+The comparison is \code{abs(grad_y(at + eps) - grad_y(at - eps))} against
+\code{1e-6 * max(1, abs(at))}, so the threshold is absolute near the origin and
+relative away from it. At a genuine kink the difference is of the order of
+the jump itself and does not shrink with \code{eps}: for a Laplace at zero it is
+twice the rate. At a smooth point it is \eqn{O(\varepsilon)} and falls well
+below the threshold.
+
+A parent that cannot be differentiated at either point returns \code{NA} from
+\code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}} or raises, and both are caught and read
+as \code{FALSE}: an unconfirmed candidate is dropped rather than assumed.
+}
+\seealso{
+\code{\link[=distrib_kinks]{distrib_kinks()}}, \code{\link[=probe_theta]{probe_theta()}}
 }
 \keyword{internal}

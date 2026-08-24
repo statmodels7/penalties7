@@ -2,31 +2,50 @@
 % Please edit documentation in R/distrib_penalty.R
 \name{penalty_value.DistribPenalty}
 \alias{penalty_value.DistribPenalty}
-\alias{penalty_gradient.DistribPenalty}
-\alias{penalty_hessian.DistribPenalty}
-\alias{penalty_grad_theta.DistribPenalty}
-\alias{penalty_hess_theta.DistribPenalty}
-\alias{penalty_cross.DistribPenalty}
-\alias{penalty_kinks.DistribPenalty}
-\alias{is_proper.DistribPenalty}
-\alias{penalty_readable.DistribPenalty}
-\title{Separable Penalty Methods}
+\title{Value of a Separable Penalty}
 \arguments{
-\item{pen}{A \code{DistribPenalty} object.}
+\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}, already coerced by the
+generic.}
 
-\item{theta}{A named list of the parent's free parameters.}
+\item{theta}{A named list of the parent's free parameters, already aligned
+and bound-checked by the generic against the parent's own bounds.}
 
-\item{scale}{Handled by the generic.}
-
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-See the generic pages.
+A single number.
 }
 \description{
-The parent distribution's quantities, reassembled through the map; see
-\code{\link[=distrib_penalty]{distrib_penalty()}}.
+Returns \eqn{-\sum_i \log f(b_i;\theta)}, the negative log-density of the
+parent summed over the blocks of \eqn{D\beta}. Because the parent supplies
+its own normalizing constant, the value is exactly the negative log prior
+density and needs nothing added.
+}
+\details{
+The map is applied, the result reshaped into the parent's argument by
+\code{\link[=dp_arg]{dp_arg()}}, and one call to \code{\link[distributions7:distrib_pdf]{distributions7::distrib_pdf()}} with
+\code{log = TRUE} gives every block's contribution at once. A univariate parent
+sees the vector; a \eqn{p}-variate one sees a matrix of one row per block.
+}
+\examples{
+# A Gaussian prior at zero, which is the negative log-density of one.
+pen <- distrib_penalty(
+  distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
+  n_coef = 3)
+b <- c(1, 0, -1)
+penalty_value(pen, b, list(sigma = 2))
+-sum(stats::dnorm(b, sd = 2, log = TRUE))
+
+# The lasso's value is lambda times the L1 norm plus -q log(lambda/2).
+penalty_value(lasso_penalty(n_coef = 3), b, list(lambda = 0.5))
+0.5 * sum(abs(b)) - 3 * log(0.5 / 2)
+
+}
+\seealso{
+\code{\link[=distrib_penalty]{distrib_penalty()}} for the construction,
+\code{\link[=penalty_gradient.DistribPenalty]{penalty_gradient.DistribPenalty()}} for the coefficient derivatives,
+\code{\link[=ridge_penalty]{ridge_penalty()}} and its siblings for the named instances.
 }
 \keyword{internal}
