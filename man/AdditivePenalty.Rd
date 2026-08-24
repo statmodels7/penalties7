@@ -61,8 +61,8 @@ properties every penalty carries it stores the list of component matrices,
 already carried through the map, and the rank of the sum.
 }
 \details{
-The rank is stored because it is a property of the components and not of any
-one setting of the parameters: the null space of a sum of positive
+The rank is stored because it is a property of the components alone: the
+null space of a sum of positive
 semidefinite matrices is the intersection of the components' null spaces.
 Reading it off the assembled \eqn{S(\lambda)} instead would make it fall as
 the parameters spread apart, which \code{\link[=additive_penalty]{additive_penalty()}} measures.

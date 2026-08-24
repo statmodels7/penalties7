@@ -23,7 +23,7 @@ everywhere.
 \description{
 Returns the values of \eqn{t = D\beta} at which some derivative of
 \eqn{\rho} is discontinuous, so that a numerical reference straddling one of
-them measures the break and not the formula. \code{\link[=check_penalty]{check_penalty()}} places its
+them measures the break instead of the formula. \code{\link[=check_penalty]{check_penalty()}} places its
 grids clear of these points, and a solver consults them to decide whether a
 block can go to a gradient method at all.
 }

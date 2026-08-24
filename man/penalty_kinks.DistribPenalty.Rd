@@ -26,7 +26,7 @@ properties of where the parent's location is held, settled by
 \code{\link[=distrib_kinks]{distrib_kinks()}} when the penalty was built. The lasso and the elastic net
 report \code{0}; every other shipped parent reports \code{numeric(0)}.
 
-Properness is a shape test and not a distributional one. The parent is a
+Properness here is a test on the map's shape. The parent is a
 density by construction, so \eqn{\exp(-\rho)} integrates over the values the
 penalty reads; what can fail is that a map with fewer rows than columns
 leaves directions of \eqn{\beta} the penalty never sees, and along those the

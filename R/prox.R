@@ -31,8 +31,8 @@ NULL
 #'
 #' Checked against a direct minimization of the defining objective,
 #' coordinate by coordinate on a three-vector at a step of 1, all eight shipped
-#' penalties agree to `2.7e-08` or better, which is the accuracy of the
-#' minimizer used as the reference and not of the operator.
+#' penalties agree to `2.7e-08` or better, which is the reference minimizer's
+#' own accuracy.
 #'
 #' # The root, where there is no formula
 #'
@@ -485,7 +485,7 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' of the two sides is strictly increasing, so the root is unique; the bracket
 #' starts one unit either side of \eqn{\min(v, 0)} and \eqn{\max(v, 0)} and is
 #' doubled up to sixty times, then `uniroot()` refines to `eps^0.75`. A parent
-#' declaring a kink and not among the closed-form families is rejected instead:
+#' declaring a kink, and outside the closed-form families, is rejected instead:
 #' the root is a smooth instrument and the kink is where the answer is.
 #'
 #' @param pen A [DistribPenalty()] object.

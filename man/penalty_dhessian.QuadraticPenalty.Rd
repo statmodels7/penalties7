@@ -7,20 +7,55 @@
 \alias{beta_quadratic.QuadraticPenalty}
 \title{Marginal Derivatives of a Quadratic Penalty}
 \arguments{
-\item{pen}{A \code{QuadraticPenalty} object.}
+\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. Unused: no quantity
+here depends on the coefficients.}
 
-\item{theta}{A named list of hyperparameters.}
+\item{theta}{A named list holding \code{lambda}. Unused for the same reason.}
 
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A named list of matrices, of vectors, or a logical.
+\code{penalty_dhessian()} a list of one matrix named \code{lambda}.
+\code{penalty_d2hessian()} a list of one zero matrix named \code{lambda_lambda}.
+\code{penalty_dcross()} a list of one zero vector named \code{lambda_lambda}.
+\code{beta_quadratic()} the single logical \code{TRUE}.
 }
 \description{
-\eqn{S = \lambda D'PD} is linear in \eqn{\lambda} and free of the
-coefficients, so \eqn{\partial S/\partial\lambda = D'PD} and every higher
-derivative is zero.
+One page for the branch's answers to the four generics a marginal criterion
+asks beyond the second order. \eqn{S = \lambda D'PD} is linear in
+\eqn{\lambda} and free of the coefficients, so \code{penalty_dhessian()} returns
+\eqn{D'PD}, \code{penalty_d2hessian()} and \code{penalty_dcross()} return zeros, and
+\code{beta_quadratic()} returns \code{TRUE}.
+}
+\details{
+\code{penalty_dhessian()} returns the stored \eqn{D'PD} \strong{in whatever storage the
+penalty keeps it}, \code{unclass()}ed to strip the attributes a base matrix may
+carry and leaving an S4 matrix untouched. A penalty built with \code{blocks > 1}
+therefore answers with a \code{dgCMatrix}, and a consumer that needs a base
+matrix coerces where the two meet.
+
+The zeros are exact. The Hessian is \eqn{\lambda \cdot} a constant, so its
+second derivative in \eqn{\lambda} vanishes identically, and so does the
+third derivative of the value in \eqn{\beta} and two hyperparameters.
+}
+\examples{
+pen <- quadratic_penalty(crossprod(diff(diag(3))))
+b <- c(1, -0.5, 0.3)
+
+# The derivative is D'PD, so it does not move with lambda at all.
+max(abs(penalty_dhessian(pen, b, list(lambda = 2))$lambda -
+          penalty_dhessian(pen, b, list(lambda = 99))$lambda))
+
+# And everything above first order is exactly zero.
+max(abs(unlist(penalty_d2hessian(pen, b, list(lambda = 2)))))
+max(abs(unlist(penalty_dcross(pen, b, list(lambda = 2)))))
+beta_quadratic(pen, list(lambda = 2))
+
+}
+\seealso{
+\code{\link[=penalty_dhessian]{penalty_dhessian()}} and its siblings for the generics,
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} for the branch, \code{\link[=zero_pairs]{zero_pairs()}} for the zeros.
 }
 \keyword{internal}

@@ -9,12 +9,33 @@ reject_kinked(pen, what)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{what}{The generic's name.}
+\item{what}{The generic's name, a single string, quoted back in the message.}
 }
 \value{
-\code{NULL}, invisibly, or signals an error.
+\code{NULL}, invisibly, when there is no kink.
 }
 \description{
-Signals that a penalty with a kink has no derivative of this order.
+Signals an error naming the penalty and the generic when the penalty carries
+a kink, and returns invisibly otherwise. Called at the head of each of the
+separable branch's three marginal derivative methods.
+}
+\details{
+A marginal criterion is a Laplace expansion at the penalized mode, and a
+kinked penalty puts coefficients exactly at the kink, where the third
+derivative does not exist. Rejecting there is better than returning the
+one-sided value, which would give a criterion no one could interpret.
+
+The kinks are read straight off \code{pen@kinks} rather than through
+\code{\link[=penalty_kinks]{penalty_kinks()}}, which takes a \code{theta} this is asked before there is one
+to pass. An object without that property, which no shipped branch is, is
+treated as having none.
+}
+\section{Errors}{
+
+\verb{'<penalty>' has a kink, so <what>() does not exist there and its hyperparameters cannot be estimated by a marginal criterion.}
+}
+
+\seealso{
+\code{\link[=penalty_dhessian.DistribPenalty]{penalty_dhessian.DistribPenalty()}}, \code{\link[=penalty_kinks]{penalty_kinks()}}
 }
 \keyword{internal}

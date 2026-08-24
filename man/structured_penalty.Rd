@@ -82,7 +82,7 @@ both cases.
 \section{No map}{
 There is no \code{map} argument. A linear image of a structured precision is a
 different precision, and composing it into the structure, where its
-log-determinant stays exact, belongs to the structure and not here.
+log-determinant stays exact, is the structure's own business.
 }
 
 \examples{

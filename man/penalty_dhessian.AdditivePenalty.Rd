@@ -7,20 +7,57 @@
 \alias{beta_quadratic.AdditivePenalty}
 \title{Marginal Derivatives of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{AdditivePenalty} object.}
+\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. Unused.}
 
-\item{theta}{A named list of hyperparameters.}
+\item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... Unused.}
 
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A named list of matrices, of vectors, or a logical.
+\code{penalty_dhessian()} a list of one matrix per component, named by
+\code{pen@params}.
+\code{penalty_d2hessian()} a list of zero matrices, one per unordered pair.
+\code{penalty_dcross()} a list of zero vectors, one per unordered pair.
+\code{beta_quadratic()} the single logical \code{TRUE}.
 }
 \description{
-\eqn{S = \sum_k \lambda_k P_k} is linear in the smoothing parameters, so
-\eqn{\partial S/\partial\lambda_k = P_k} and every higher derivative is
-zero.
+One page for the branch's answers to the four generics a marginal criterion
+asks beyond the second order. \eqn{S = \sum_k \lambda_k P_k} is linear in
+the smoothing parameters and free of the coefficients, so
+\code{penalty_dhessian()} returns the components themselves,
+\code{penalty_d2hessian()} and \code{penalty_dcross()} return zeros, and
+\code{beta_quadratic()} returns \code{TRUE}.
+}
+\details{
+Every entry is exact and none is computed at call time: the components were
+fixed at construction, already carried through the map, so the first
+derivative is a lookup and the higher ones are zeros of the right shape.
+
+This is the one branch whose marginal derivatives are reachable while
+\code{\link[=is_quadratic]{is_quadratic()}} answers \code{FALSE} for it. A consumer routing on that
+predicate rather than on these methods will not find them; see
+\code{\link[=additive_penalty]{additive_penalty()}}.
+}
+\examples{
+add <- additive_penalty(list(crossprod(diff(diag(4))), diag(4)))
+b <- c(1, -0.5, 0.3, 0.2)
+th <- list(lambda1 = 2, lambda2 = 0.5)
+
+# The derivative in each parameter is that parameter's own component.
+d <- penalty_dhessian(add, b, th)
+names(d)
+max(abs(d$lambda2 - diag(4)))
+
+# Everything above first order is zero, over all three pairs.
+names(penalty_d2hessian(add, b, th))
+max(abs(unlist(penalty_d2hessian(add, b, th))))
+
+}
+\seealso{
+\code{\link[=penalty_dhessian]{penalty_dhessian()}} and its siblings for the generics,
+\code{\link[=additive_penalty]{additive_penalty()}} for the branch and for what \code{is_quadratic()} costs
+it.
 }
 \keyword{internal}

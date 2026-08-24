@@ -52,7 +52,7 @@ Any other parent is solved coordinatewise from
 of the two sides is strictly increasing, so the root is unique; the bracket
 starts one unit either side of \eqn{\min(v, 0)} and \eqn{\max(v, 0)} and is
 doubled up to sixty times, then \code{uniroot()} refines to \code{eps^0.75}. A parent
-declaring a kink and not among the closed-form families is rejected instead:
+declaring a kink, and outside the closed-form families, is rejected instead:
 the root is a smooth instrument and the kink is where the answer is.
 }
 

@@ -9,29 +9,76 @@ beta_quadratic(pen, theta, ...)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{theta}{A named list of hyperparameters.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same. Read by the separable branch, to evaluate the
+parent; the other branches answer a constant.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-A single logical.
+A single logical. \code{FALSE} from the base class, so a penalty that
+says nothing is treated as needing the third derivative.
 }
 \description{
-\code{TRUE} when \eqn{\partial^3\rho/\partial\beta^3} is exactly zero, which
-spares a consumer that third derivative altogether.
+\code{TRUE} when \eqn{\partial^3\rho/\partial\beta^3} is exactly zero, so a
+consumer can skip that third derivative altogether. Asked of the penalty
+rather than measured by a consumer, which would be guessing at a property
+the penalty knows.
 }
-\details{
-Distinct from \code{\link[=is_quadratic]{is_quadratic()}}, which is about the whole
-construction of \code{\link[=quadratic_penalty]{quadratic_penalty()}}: a structured penalty is
-quadratic in the coefficients and is not a quadratic penalty, and a
-\code{\link[=distrib_penalty]{distrib_penalty()}} over a gaussian parent is quadratic in the
-coefficients while its Hessian is not linear in its hyperparameters. The
-three properties are independent and each is asked of the penalty.
+\section{Three independent properties}{
+This is not \code{\link[=is_quadratic]{is_quadratic()}}, which is about the whole construction. The
+three questions a consumer may ask are independent:\tabular{llll}{
+   penalty \tab \code{is_quadratic()} \tab \code{beta_quadratic()} \tab \eqn{S} linear in \eqn{\theta} \cr
+   \code{\link[=quadratic_penalty]{quadratic_penalty()}} \tab \code{TRUE} \tab \code{TRUE} \tab yes \cr
+   \code{\link[=structured_penalty]{structured_penalty()}} \tab \code{TRUE} \tab \code{TRUE} \tab no \cr
+   \code{\link[=additive_penalty]{additive_penalty()}} \tab \code{FALSE} \tab \code{TRUE} \tab yes \cr
+   a Gaussian \code{\link[=distrib_penalty]{distrib_penalty()}} \tab \code{FALSE} \tab \code{TRUE} \tab no \cr
+   \code{\link[=heavy_penalty]{heavy_penalty()}} \tab \code{FALSE} \tab \code{FALSE} \tab no \cr
 }
+}
+
+\section{How the separable branch answers}{
+By probing, not by differentiating three times. The log-density is quadratic
+in the response exactly when its second derivative there does not depend on
+it, so \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}} is read at four points and
+compared for constancy at a tolerance of \code{1e-12}. The question is put to the
+second derivative because that one is analytic for almost every family,
+where the third is often a finite difference whose noise no threshold
+separates from a true zero.
+}
+
+\section{What \code{TRUE} does not promise}{
+It does not say the marginal derivatives are available. A lasso answers
+\code{TRUE}, its log-density being linear in the response away from the kink, and
+\code{\link[=penalty_dhessian]{penalty_dhessian()}} still rejects for it: the third derivative is zero
+where it exists and undefined at the kink, which is where a selecting fit
+puts its coefficients.
+}
+
 \examples{
+# The two branches that answer TRUE to both predicates.
 beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
+beta_quadratic(structured_penalty(
+  parameters7::log_cholesky(2, role = "precision")),
+  list(log_L1 = 0, log_L2 = 0, L2.1 = 0))
+
+# A Gaussian prior is quadratic in beta and is not a quadratic penalty.
+g <- distrib_penalty(
+  distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
+  n_coef = 3)
+c(beta_quadratic(g, list(sigma = 1)), is_quadratic(g))
+
+# A Student t prior is neither.
+beta_quadratic(heavy_penalty(n_coef = 3), list(sigma = 1, nu = 4))
+
+# And TRUE does not mean the marginal derivatives exist.
+beta_quadratic(lasso_penalty(n_coef = 3), list(lambda = 1))
+try(penalty_dhessian(lasso_penalty(n_coef = 3), c(1, 0, -1),
+                     list(lambda = 1)))
 
 }
 \seealso{
-\code{\link[=penalty_dhessian]{penalty_dhessian()}}
+\code{\link[=is_quadratic]{is_quadratic()}} for the different question about the
+construction, \code{\link[=penalty_dhessian]{penalty_dhessian()}} for what a consumer skips when this is
+\code{TRUE}, \code{\link[=penalty_hessian]{penalty_hessian()}} for the derivative that is then constant.
 }

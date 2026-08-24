@@ -52,8 +52,8 @@ gradient method only makes it small.
 
 Checked against a direct minimization of the defining objective,
 coordinate by coordinate on a three-vector at a step of 1, all eight shipped
-penalties agree to \code{2.7e-08} or better, which is the accuracy of the
-minimizer used as the reference and not of the operator.
+penalties agree to \code{2.7e-08} or better, which is the reference minimizer's
+own accuracy.
 }
 
 \section{The root, where there is no formula}{

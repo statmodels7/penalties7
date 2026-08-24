@@ -91,8 +91,9 @@ penalty takes shorter steps.
 }
 
 \section{What has no table}{
-\code{NULL} comes back for a quadratic or structured penalty, whose operator is a
-linear solve and not a coordinatewise map; for a separable penalty under a
+\code{NULL} comes back for a quadratic or structured penalty, whose operator is
+one linear solve over every coordinate at once; for a separable penalty under
+a
 map that is not diagonal, which is the generalized-lasso problem; for one
 whose parent is read blockwise, whose coordinates do not separate; for one
 whose operator is a root rather than a formula, such as the heavy-tailed

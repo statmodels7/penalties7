@@ -9,34 +9,60 @@ penalty_d2hessian(pen, beta, theta, ...)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. Read only by the
+separable branch.}
 
-\item{theta}{A named list of hyperparameters.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-A named list of matrices, keyed by hyperparameter pair.
+A named list of one matrix per unordered pair of hyperparameters,
+each of side \code{pen@n_coef}, keyed diagonals first. A penalty with \eqn{p}
+hyperparameters gives \eqn{p(p+1)/2} entries.
 }
 \description{
-\eqn{\partial^2 S/\partial\theta_m\partial\theta_l =
+Returns \eqn{\partial^2 S/\partial\theta_m\partial\theta_l =
 \partial^4\rho/\partial\beta^2\partial\theta_m\partial\theta_l}, one matrix
-per unordered pair.
+per unordered pair. A marginal criterion differentiated twice in the
+hyperparameters needs it, and so does an exact outer Hessian.
 }
 \details{
-Zero for every penalty whose Hessian is linear in its hyperparameters, which
-is the quadratic and additive branches; the structured branch reads the
-matrix parameter's \code{param_d2}, and the separable branch the second
-\eqn{\theta}-derivative of the parent's response curvature.
+It is \strong{exactly zero} for every penalty whose Hessian is linear in its
+hyperparameters, which is the quadratic branch, where
+\eqn{S = \lambda D'PD}, and the additive branch, where
+\eqn{S = \sum_k \lambda_k P_k}. The structured branch reads the matrix
+parameter's \code{param_d2}, and the separable branch the second
+\eqn{\theta}-derivative of the parent's response curvature, through
+\code{\link[distributions7:distrib_grad_y_hess]{distributions7::distrib_hess_y_hess()}}.
 
-The keys are those of \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}, so a consumer
-looking a pair up need not know which order it was written in.
+The keys are \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}'s: diagonals first in \code{pen@params}
+order, then the upper off-diagonal pairs, each joined by an underscore. A
+consumer looking a pair up therefore need not know which order it was
+written in.
+
+A penalty with a kink rejects, and so does the base class.
 }
 \examples{
+b <- c(1, -0.5, 0.3)
+
+# Zero for a quadratic penalty, whose Hessian is linear in lambda.
 pen <- quadratic_penalty(diag(3))
-penalty_d2hessian(pen, c(1, 2, 3), list(lambda = 2))
+penalty_d2hessian(pen, b, list(lambda = 2))
+
+# And for an additive one, keyed diagonals first over three pairs.
+add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
+names(penalty_d2hessian(add, b, list(lambda1 = 2, lambda2 = 0.5)))
+
+# Not zero for a structured penalty, whose matrix is not linear in any
+# one free value.
+s <- structured_penalty(parameters7::log_cholesky(2, role = "precision"))
+th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
+penalty_d2hessian(s, c(1, -0.5), th)$log_L1_log_L1
 
 }
 \seealso{
-\code{\link[=penalty_dhessian]{penalty_dhessian()}}
+\code{\link[=penalty_dhessian]{penalty_dhessian()}} for the first order, \code{\link[=penalty_dcross]{penalty_dcross()}} for
+the mixed one, \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} for the keying.
 }

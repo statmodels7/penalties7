@@ -9,12 +9,25 @@ zero_pairs(pen, z)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{z}{The zero object, a matrix or a vector.}
+\item{z}{The zero object: a \code{pen@n_coef} by \code{pen@n_coef} matrix for
+\code{\link[=penalty_d2hessian]{penalty_d2hessian()}}, a numeric vector of that length for
+\code{\link[=penalty_dcross]{penalty_dcross()}}.}
 }
 \value{
-A named list keyed by hyperparameter pair.
+A named list of \eqn{p(p+1)/2} entries, keyed as
+\code{\link[=ptheta_pairs]{ptheta_pairs()}} keys them, each holding \code{z}.
 }
 \description{
-The answer of a penalty whose Hessian is linear in its hyperparameters.
+Returns a list holding the same zero object under every hyperparameter-pair
+key, which is the answer of a penalty whose Hessian is linear in its
+hyperparameters.
+}
+\details{
+The quadratic and additive branches use it for both
+\code{\link[=penalty_d2hessian]{penalty_d2hessian()}} and \code{\link[=penalty_dcross]{penalty_dcross()}}, the two differing only in the
+shape of the zero.
+}
+\seealso{
+\code{\link[=penalty_d2hessian]{penalty_d2hessian()}}, \code{\link[=penalty_dcross]{penalty_dcross()}}, \code{\link[=ptheta_pairs]{ptheta_pairs()}}
 }
 \keyword{internal}

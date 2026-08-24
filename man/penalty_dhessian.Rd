@@ -9,41 +9,76 @@ penalty_dhessian(pen, beta, theta, ...)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. Read only by the
+separable branch, whose parent's derivatives depend on the argument; the
+quadratic, additive and structured branches ignore it.}
 
-\item{theta}{A named list of hyperparameters.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-A named list of matrices, one per hyperparameter.
+A named list of one matrix per hyperparameter, each of side
+\code{pen@n_coef}, named by \code{pen@params}. The quadratic branch returns the
+stored matrix in whatever storage it keeps, so a penalty built with
+\code{blocks > 1} gives a \code{dgCMatrix}.
 }
 \description{
-\eqn{\partial S/\partial\theta_m = \partial^3\rho/\partial\beta^2\,
-\partial\theta_m}, one matrix per hyperparameter.
+Returns \eqn{\partial S/\partial\theta_m = \partial^3\rho/\partial\beta^2\,
+\partial\theta_m}, one matrix per hyperparameter, saying how the penalty's
+curvature in the coefficients moves as each hyperparameter moves. This is
+the third-order quantity a marginal likelihood criterion needs and that the
+value, the gradient and the Hessian cannot supply between them.
 }
-\details{
-\code{penalty_hessian} says how curved the penalty is in the coefficients;
-this says how that curvature moves with each hyperparameter. It is the piece
-a marginal criterion needs to differentiate \eqn{\log|H+S|}.
+\section{Why a criterion needs it}{
+Estimating hyperparameters by a marginal likelihood means differentiating a
+Laplace approximation, whose determinant is \eqn{\lvert H + S\rvert} with
+\eqn{S} the penalty's Hessian in the coefficients. Differentiating
+\eqn{\log\lvert H+S\rvert} in \eqn{\theta_m} needs
+\eqn{\partial S/\partial\theta_m}, and nothing below third order gives it.
+}
 
-Every branch answers in closed form. For \code{\link[=quadratic_penalty]{quadratic_penalty()}} the
-Hessian is \eqn{\lambda D'PD} and the derivative is \eqn{D'PD}; for
-\code{\link[=additive_penalty]{additive_penalty()}} it is the component \eqn{P_k} of each
-smoothing parameter; for \code{\link[=structured_penalty]{structured_penalty()}} it is the matrix
-parameter's own \code{param_d1}; for \code{\link[=distrib_penalty]{distrib_penalty()}} it is
-\eqn{-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D}, which
-\pkg{distributions7} supplies as \code{distrib_cross2_y}. A penalty defined
-by its derivative rather than by a density -- \code{\link[=scad_penalty]{scad_penalty()}},
-\code{\link[=mcp_penalty]{mcp_penalty()}} -- has no such quantity where its kinks are and
-rejects.
+\section{What each branch answers}{
+\tabular{ll}{
+   branch \tab \eqn{\partial S/\partial\theta_m} \cr
+   \code{\link[=quadratic_penalty]{quadratic_penalty()}} \tab \eqn{D'PD}, free of both \eqn{\lambda} and \eqn{\beta} \cr
+   \code{\link[=additive_penalty]{additive_penalty()}} \tab the component \eqn{P_k} of each smoothing parameter \cr
+   \code{\link[=structured_penalty]{structured_penalty()}} \tab the matrix parameter's own \code{param_d1} \cr
+   \code{\link[=distrib_penalty]{distrib_penalty()}} \tab \eqn{-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D}, from \code{\link[distributions7:distrib_cross2_y]{distributions7::distrib_cross2_y()}} \cr
+   \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}} \tab rejects \cr
 }
+
+
+Every one of the first four is closed form. The base class rejects, naming
+what is missing, so a penalty written later either supplies the three
+methods and works in a marginal criterion, or says plainly that it cannot.
+
+A separable penalty with a \strong{kink} rejects as well, whatever its parent:
+the third derivative does not exist there, and the mode a marginal criterion
+expands around is exactly where a kinked penalty puts coefficients.
+}
+
 \examples{
-pen <- quadratic_penalty(diag(3))
-penalty_dhessian(pen, c(1, 2, 3), list(lambda = 2))
+# A quadratic penalty's Hessian is lambda D'PD, so the derivative is D'PD
+# and does not move with lambda.
+pen <- quadratic_penalty(crossprod(diff(diag(3))))
+b <- c(1, -0.5, 0.3)
+penalty_dhessian(pen, b, list(lambda = 2))$lambda
+identical(penalty_dhessian(pen, b, list(lambda = 2)),
+          penalty_dhessian(pen, b, list(lambda = 99)))
+
+# An additive penalty answers with its components, one per parameter.
+add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
+names(penalty_dhessian(add, b, list(lambda1 = 2, lambda2 = 0.5)))
+
+# A penalty with a kink has no such quantity and says so.
+try(penalty_dhessian(lasso_penalty(n_coef = 3), b, list(lambda = 1)))
 
 }
 \seealso{
-\code{\link[=penalty_hessian]{penalty_hessian()}}, \code{\link[=penalty_d2hessian]{penalty_d2hessian()}},
-\code{\link[=penalty_dcross]{penalty_dcross()}}
+\code{\link[=penalty_hessian]{penalty_hessian()}} for the quantity differentiated,
+\code{\link[=penalty_d2hessian]{penalty_d2hessian()}} and \code{\link[=penalty_dcross]{penalty_dcross()}} for the other two a marginal
+criterion asks for, \code{\link[=beta_quadratic]{beta_quadratic()}} for the predicate that says whether
+a third \eqn{\beta}-derivative is needed at all.
 }

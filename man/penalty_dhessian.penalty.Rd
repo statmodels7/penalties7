@@ -5,23 +5,40 @@
 \alias{penalty_d2hessian.penalty}
 \alias{penalty_dcross.penalty}
 \alias{beta_quadratic.penalty}
-\title{What the Base Class Answers}
+\title{What the Base Class Answers to the Marginal Generics}
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of a class registering none of these.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of coefficients. Unused.}
 
-\item{theta}{A named list of hyperparameters.}
+\item{theta}{A named list of hyperparameter values. Unused.}
 
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-Signals an error.
+\code{penalty_dhessian()}, \code{penalty_d2hessian()} and \code{penalty_dcross()}
+signal an error. \code{beta_quadratic()} returns the single logical \code{FALSE}.
 }
 \description{
-Each of these rejects, naming what is missing. A marginal criterion is a
-Laplace approximation and asks for derivatives beyond the second; a penalty
-that does not supply them cannot be estimated by one, and reporting that is
-better than a criterion assembled from a quantity nobody wrote.
+One page for the base class's answers to the four generics a marginal
+criterion asks beyond the second order. \code{penalty_dhessian()},
+\code{penalty_d2hessian()} and \code{penalty_dcross()} each reject, naming the penalty
+and the generic; \code{beta_quadratic()} answers \code{FALSE}.
+}
+\details{
+A marginal criterion is a Laplace approximation and asks for derivatives
+beyond the second. A penalty that does not supply them cannot be estimated
+by one, and reporting that is better than a criterion assembled from a
+quantity nobody wrote. \code{penalty_dhessian()}'s message says so in full; the
+other two name the generic alone, a caller who has reached the second having
+already read the first.
+
+\code{beta_quadratic()}'s \code{FALSE} is the conservative default: a penalty that
+says nothing about its third \eqn{\beta}-derivative is treated as having
+one.
+}
+\seealso{
+\code{\link[=penalty_dhessian]{penalty_dhessian()}} and its siblings for the generics,
+\code{\link[=penalty_dhessian.QuadraticPenalty]{penalty_dhessian.QuadraticPenalty()}} for a branch that answers.
 }
 \keyword{internal}

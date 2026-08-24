@@ -9,31 +9,57 @@ penalty_dcross(pen, beta, theta, ...)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. Read by the structured
+and separable branches; the quadratic and additive ones answer zero
+whatever it is.}
 
-\item{theta}{A named list of hyperparameters.}
+\item{theta}{A named list of hyperparameter values, or a named numeric
+vector carrying the same.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-A named list of numeric vectors, keyed by hyperparameter pair.
+A named list of one numeric vector of length \code{pen@n_coef} per
+unordered pair, keyed diagonals first.
 }
 \description{
-\eqn{\partial^3\rho/\partial\beta\,\partial\theta_m\partial\theta_l}, one
-vector per unordered pair.
+Returns \eqn{\partial^3\rho/\partial\beta\,\partial\theta_m\partial\theta_l},
+one coefficient vector per unordered pair. Where \code{\link[=penalty_cross]{penalty_cross()}} says how
+the coefficient gradient moves with one hyperparameter, this says how that
+movement itself moves with a second.
 }
 \details{
-\code{\link[=penalty_cross]{penalty_cross()}} is how the coefficient gradient moves with one
-hyperparameter; this is how that movement itself moves with a second. It is
-what a marginal criterion needs to differentiate the mode's own derivative,
-and it is exactly zero wherever the penalty is quadratic in the
-coefficients with a Hessian linear in the hyperparameters.
+A marginal criterion is evaluated at the penalized mode, and the mode moves
+with the hyperparameters. Differentiating the criterion twice therefore
+needs the derivative of the mode's own derivative, and this is the penalty's
+contribution to it.
+
+It is \strong{exactly zero} wherever the penalty is quadratic in the coefficients
+with a Hessian linear in the hyperparameters, which covers the quadratic and
+additive branches. The structured branch answers
+\eqn{(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta}, reusing
+\code{\link[=penalty_d2hessian]{penalty_d2hessian()}}, and the separable branch reads the parent's
+\code{\link[distributions7:distrib_grad_y_hess]{distributions7::distrib_grad_y_hess()}}.
+
+The keys are \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}'s, diagonals first.
 }
 \examples{
-pen <- quadratic_penalty(diag(3))
-penalty_dcross(pen, c(1, 2, 3), list(lambda = 2))
+b <- c(1, -0.5, 0.3)
+
+# Zero on the quadratic branch.
+penalty_dcross(quadratic_penalty(diag(3)), b, list(lambda = 2))
+
+# And not on the structured one, where it is d2 Omega / dtheta^2 times
+# the coefficients.
+s <- structured_penalty(parameters7::log_cholesky(2, role = "precision"))
+th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
+bb <- c(1, -0.5)
+penalty_dcross(s, bb, th)$log_L1_log_L1
+drop(penalty_d2hessian(s, bb, th)$log_L1_log_L1 \%*\% bb)
 
 }
 \seealso{
-\code{\link[=penalty_cross]{penalty_cross()}}, \code{\link[=penalty_dhessian]{penalty_dhessian()}}
+\code{\link[=penalty_cross]{penalty_cross()}} for the first order,
+\code{\link[=penalty_dhessian]{penalty_dhessian()}} and \code{\link[=penalty_d2hessian]{penalty_d2hessian()}} for the other two
+quantities a marginal criterion asks for.
 }

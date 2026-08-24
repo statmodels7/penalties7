@@ -7,22 +7,70 @@
 \alias{beta_quadratic.StructuredPenalty}
 \title{Marginal Derivatives of a Structured Penalty}
 \arguments{
-\item{pen}{A \code{StructuredPenalty} object.}
+\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{beta}{A numeric vector of coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. Read by
+\code{penalty_dcross()}; the other three ignore it.}
 
-\item{theta}{A named list of hyperparameters.}
+\item{theta}{A named list of the structure's free values.}
 
-\item{...}{Unused.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A named list of matrices, of vectors, or a logical.
+\code{penalty_dhessian()} a list of one matrix per free value, named by
+\code{pen@params} and with dimnames stripped.
+\code{penalty_d2hessian()} a list of one matrix per unordered pair, keyed
+diagonals first.
+\code{penalty_dcross()} a list of one numeric vector of length \code{pen@n_coef} per
+unordered pair, keyed the same way.
+\code{beta_quadratic()} the single logical \code{TRUE}.
 }
 \description{
-\eqn{S = \Omega(\theta)} is the matrix parameter itself, so its derivatives
-in the hyperparameters are the structure's own \code{param_d1} and
-\code{param_d2}, which \pkg{parameters7} supplies exactly. It is quadratic
-in the coefficients, so the mixed third derivative is
-\eqn{\partial^2\Omega/\partial\theta_m\partial\theta_l\,\beta}.
+One page for the branch's answers to the four generics a marginal criterion
+asks beyond the second order. \eqn{S = \Omega(\theta)} is the matrix
+parameter itself, so \code{penalty_dhessian()} and \code{penalty_d2hessian()} are the
+structure's own \code{param_d1} and \code{param_d2}, \code{penalty_dcross()} is the second
+of those applied to the coefficients, and \code{beta_quadratic()} is \code{TRUE}.
+}
+\details{
+Nothing is differentiated here: \pkg{parameters7} supplies both derivative
+arrays exactly for every structure it ships, and this branch unwraps and
+re-keys them.
+
+Since the value is quadratic in the coefficients, the mixed third derivative
+is \eqn{(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta}, so
+\code{penalty_dcross()} calls \code{penalty_d2hessian()} and multiplies.
+}
+\section{The keying}{
+\code{param_d2} is a \strong{flat} list whose keys join the free names with a
+separator of its own, so an entry is located through
+\code{\link[parameters7:param_tuple_indices]{parameters7::param_tuple_indices()}}, which enumerates the tuples in exactly
+the order the components are in. Nothing here depends on the spelling of a
+key, which matters because a free name may itself contain the separator. A
+pair with no component raises rather than returning something of the wrong
+shape.
+}
+
+\examples{
+s <- structured_penalty(parameters7::log_cholesky(2, role = "precision"))
+th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
+b <- c(1, -0.5)
+
+# Three free values, so three first derivatives and six pairs.
+names(penalty_dhessian(s, b, th))
+names(penalty_d2hessian(s, b, th))
+
+# Unlike the quadratic branch, the second order does not vanish.
+penalty_d2hessian(s, b, th)$log_L1_log_L1
+
+# And the mixed block is that matrix applied to the coefficients.
+all.equal(penalty_dcross(s, b, th)$log_L1_log_L1,
+          drop(penalty_d2hessian(s, b, th)$log_L1_log_L1 \%*\% b))
+
+}
+\seealso{
+\code{\link[=penalty_dhessian]{penalty_dhessian()}} and its siblings for the generics,
+\code{\link[=structured_penalty]{structured_penalty()}} for the branch,
+\code{\link[parameters7:param_d1]{parameters7::param_d1()}} for the arrays it reads.
 }
 \keyword{internal}
