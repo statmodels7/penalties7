@@ -232,7 +232,7 @@ S7::method(penalty_prox_spec, DistribPenalty) <- function(pen, theta, step,
   fam <- .prox_family(pen)
   q <- as.integer(pen@n_coef)
   # the closed forms are written for a parent centered where the quadratic
-  # pull is, and the table is odd, so an off-centre parent has none
+  # pull is, and the table is odd, so an off-center parent has none
   g0 <- penalty_gradient(pen, rep(0, q), theta)
   if (identical(fam, "gaussian1")) {
     if (max(abs(g0)) > 1e-8) return(NULL)

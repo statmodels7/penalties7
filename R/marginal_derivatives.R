@@ -15,7 +15,7 @@ NULL
 # criterion with no change anywhere else.
 #
 # The base class rejects. A penalty that cannot answer says so, rather than
-# being read through a test of its behaviour -- a consumer that measured
+# being read through a test of its behavior -- a consumer that measured
 # whether a Hessian happened to be linear in the hyperparameters would be
 # guessing at a property the penalty knows.
 

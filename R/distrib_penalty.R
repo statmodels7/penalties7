@@ -367,7 +367,7 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #' @title The Named Penalties
 #'
 #' @description
-#' The four penalties a modelling layer names directly: `ridge_penalty()`,
+#' The four penalties a modeling layer names directly: `ridge_penalty()`,
 #' `lasso_penalty()`, `elasticnet_penalty()` and `heavy_penalty()`. Each is a
 #' particular prior centered at zero, and each is written on the chart whose
 #' hyperparameter **measures the shrinkage**, so that a larger value shrinks

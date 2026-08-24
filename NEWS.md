@@ -209,7 +209,7 @@
   `penalty_prox()` itself across every breakpoint and at the breakpoints
   exactly, at three step lengths and five families. A penalty with no such
   description -- a quadratic under a general matrix, an operator that is a
-  root rather than a formula, a parent not centred where the quadratic
+  root rather than a formula, a parent not centered where the quadratic
   pull is, a step past the convex region of SCAD or MCP -- returns `NULL`.
 
 # penalties7 0.8.0
