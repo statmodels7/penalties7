@@ -3,11 +3,14 @@
 Penalties for regularized and Bayesian regression as 'S7' objects: a
 linear map, a scalar function and hyperparameters, with the value, the
 exact derivatives in the coefficients and in the hyperparameters, the
-mixed block, and, for quadratic penalties, the rank, the null space and
-the log pseudo-determinant that a marginal likelihood criterion
-consumes. Normalizing constants are kept, so a proper penalty is exactly
-the negative log-density of its prior. Part of the 'statmodels7'
-toolkit.
+mixed block, the kinks at which the penalty is not differentiable, and
+the proximal operator a non-smooth fit steps with. A quadratic penalty
+adds the rank, the null space and the log pseudo-determinant that a
+marginal likelihood criterion consumes. Normalizing constants are kept,
+so a proper penalty is exactly the negative log-density of its prior.
+Smoothers of the absolute value, differentiable to fifth order, stand in
+for a kink where a method needs a differentiable objective. Part of the
+'statmodels7' toolkit.
 
 ## See also
 

@@ -1,6 +1,8 @@
 # The Structure's Free Vector From the Aligned Hyperparameters
 
-Unlists the aligned theta in the structure's own order.
+Unlists the aligned hyperparameter list into the numeric vector the
+structure's own generics take, in `pen@params` order, which is the
+structure's `free_names` order.
 
 ## Usage
 
@@ -12,12 +14,21 @@ struct_eta(pen, theta)
 
 - pen:
 
-  A `StructuredPenalty` object.
+  A
+  [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md)
+  object.
 
 - theta:
 
-  The aligned hyperparameter list.
+  The aligned hyperparameter list, as
+  [`align_ptheta()`](https://statmodels7.github.io/penalties7/reference/align_ptheta.md)
+  returns it.
 
 ## Value
 
-A numeric vector.
+An unnamed numeric vector of length `length(pen@params)`.
+
+## See also
+
+[`struct_omega()`](https://statmodels7.github.io/penalties7/reference/struct_omega.md),
+[`align_ptheta()`](https://statmodels7.github.io/penalties7/reference/align_ptheta.md)

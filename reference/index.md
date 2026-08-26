@@ -18,13 +18,13 @@ block, and the kink set a non-smooth method needs.
   [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
   : Hyperparameter Derivatives of a Penalty
 - [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-  : The Non-Differentiable Points of a Penalty
+  : Where a Penalty Stops Being Smooth
 - [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
   : What a Penalty's Hyperparameters Are About
 - [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
   : Is a Penalty a Proper Prior?
 - [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-  : Is a Penalty Quadratic?
+  : Is a Penalty a Quadratic Form With One Scale?
 - [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
   [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
   [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
@@ -86,7 +86,7 @@ the two, and the heavy-tailed prior a Student t.
   [`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
   [`elasticnet_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
   [`heavy_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
-  : Named Separable Penalties
+  : The Named Penalties
 - [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
   : S7 Class for the Separable Penalty
 

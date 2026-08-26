@@ -1,5 +1,123 @@
 # Changelog
 
+## penalties7 0.19.0
+
+- [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
+  answers `TRUE` for an
+  [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md).
+  It inherited `FALSE` from the base class while
+  [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+  [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  and
+  [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  all answered for that branch and
+  [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  rejected with a message pointing at a predicate that would have told
+  the reader nothing. A sum of quadratic forms is a quadratic form.
+
+- [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  has a method there. The null space of the sum is the intersection of
+  the components’, so it does not move with the hyperparameters, and the
+  constructor already decomposed the normalized components to read the
+  rank; what changed is that it keeps the vectors.
+
+- [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  on that branch returns its gradient and Hessian as named lists keyed
+  by hyperparameter and by pair, which is the shape the quadratic and
+  structured branches use. It returned an unnamed numeric vector and a
+  square matrix. Nothing outside this package read either: every
+  consumer routed on
+  [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
+  first and never arrived.
+
+- [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+  therefore runs its three quadratic rows on an additive penalty, which
+  it did not. A two-component one goes from 8 rows to 11, gaining the
+  three-point identity, the log pseudo-determinant’s gradient against
+  `numDeriv` and the null basis against the matrix, and its rank, matrix
+  and log pseudo-determinant stop being untested.
+
+- The proximal route is unchanged.
+  [`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
+  asks whether
+  [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+  is registered on the base class before it asks
+  [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md),
+  and this branch registers none, so it still answers `FALSE`.
+
+## penalties7 0.18.0
+
+- [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+  leaves the caller’s random stream as it found it. With `beta` at its
+  default the function called `set.seed(7)` and never restored what was
+  there, so a call inside a simulation silently changed the simulation.
+  Measured, `set.seed(99); runif(1)` gave 0.5847119 and the same with a
+  [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+  call in between gave 0.3400624; passing `beta` skipped the draw and
+  left the stream alone, which is what identified the branch.
+
+  The seed stays fixed, so a validator still reports the same worst
+  error on two runs, and the draw itself is unchanged, so no reported
+  number moves: the default report is identical to the one taken at the
+  beta that seed produces. What is new is the restore, through
+  [`on.exit()`](https://rdrr.io/r/base/on.exit.html), so it happens even
+  when a check signals. A caller who had drawn nothing is left with no
+  `.Random.seed` rather than with this one.
+
+  This is the same habit
+  [`parameters7::check_parameter()`](https://statmodels7.github.io/parameters7/reference/check_parameter.html)
+  had, fixed in parameters7 0.13.0.
+
+## penalties7 0.17.0
+
+- A penalty with no free hyperparameters answers on the whole public
+  surface. A fully known prior is a legitimate object:
+  [`distributions7::fixed()`](https://statmodels7.github.io/distributions7/reference/fixed.html)
+  documents `n_params = 0` as legal, and it is what a caller builds to
+  hold a penalty at a value the outer search must not touch. Eight
+  generics answered for one and three stopped, for two unrelated
+  reasons.
+
+  [`ptheta_pairs()`](https://statmodels7.github.io/penalties7/reference/ptheta_pairs.md)
+  built its names with `paste0(params, "_", params)`, which recycles a
+  zero-length argument against the length-one literal and gives the
+  single string `"_"` while the list of pairs is empty, so
+  [`setNames()`](https://rdrr.io/r/stats/setNames.html) raised
+  `'names' attribute [1] must be the same length as the vector [0]`
+  three frames below the call, naming neither the penalty nor the
+  argument. That stopped
+  [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+  and, through it,
+  [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md),
+  so such a penalty could not be validated at all. It returns the empty
+  named list now, which is the shape
+  [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+  and
+  [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+  already had for the same case.
+
+  [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+  read its hyperparameter as `theta[[which(pen@params == "sigma")]]`,
+  and [`which()`](https://rdrr.io/r/base/which.html) of an empty
+  comparison is `integer(0)`, so the subscript raised *attempt to select
+  less than one element in get1index*. A held parameter is not absent,
+  only kept elsewhere:
+  [`.prox_param()`](https://statmodels7.github.io/penalties7/reference/dot-prox_param.md)
+  takes it from `theta` when the penalty carries it free and from the
+  parent’s `fixed_params` when `fixed()` holds it. Measured, the three
+  closed-form families now return exactly what the same penalty with the
+  parameter free returns at that value, to the bit, for the operator and
+  for the piecewise table the compiled coordinate descent reads;
+  [`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md)
+  already agreed. A parent carrying no such parameter is named in the
+  message.
+
+  This also removes a contradiction:
+  [`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
+  answered `TRUE` for a penalty whose
+  [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+  stopped.
+
 ## penalties7 0.16.0
 
 - New class `abs_smoother`: a smooth replacement `s(u)` for `|u|`
@@ -261,9 +379,9 @@
   itself across every breakpoint and at the breakpoints exactly, at
   three step lengths and five families. A penalty with no such
   description – a quadratic under a general matrix, an operator that is
-  a root rather than a formula, a parent not centred where the quadratic
-  pull is, a step past the convex region of SCAD or MCP – returns
-  `NULL`.
+  a root rather than a formula, a parent not centered where the
+  quadratic pull is, a step past the convex region of SCAD or MCP –
+  returns `NULL`.
 
 ## penalties7 0.8.0
 

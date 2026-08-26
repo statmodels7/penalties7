@@ -14,7 +14,7 @@ carry_pairs(pen, comp, carry)
 - pen:
 
   A
-  [`penalty`](https://statmodels7.github.io/penalties7/reference/penalty.md)
+  [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
   object.
 
 - comp:
