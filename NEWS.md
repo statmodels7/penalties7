@@ -1,3 +1,22 @@
+# penalties7 0.18.0
+
+* `check_penalty()` leaves the caller's random stream as it found it. With
+  `beta` at its default the function called `set.seed(7)` and never restored
+  what was there, so a call inside a simulation silently changed the
+  simulation. Measured, `set.seed(99); runif(1)` gave 0.5847119 and the same
+  with a `check_penalty()` call in between gave 0.3400624; passing `beta` skipped
+  the draw and left the stream alone, which is what identified the branch.
+
+  The seed stays fixed, so a validator still reports the same worst error on two
+  runs, and the draw itself is unchanged, so no reported number moves: the
+  default report is identical to the one taken at the beta that seed produces.
+  What is new is the restore, through `on.exit()`, so it happens even when a
+  check signals. A caller who had drawn nothing is left with no `.Random.seed`
+  rather than with this one.
+
+  This is the same habit `parameters7::check_parameter()` had, fixed in
+  parameters7 0.13.0.
+
 # penalties7 0.17.0
 
 * A penalty with no free hyperparameters answers on the whole public surface. A

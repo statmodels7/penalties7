@@ -12,8 +12,9 @@ check_penalty(pen, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
 \item{beta}{A numeric coefficient vector of length \code{pen@n_coef}. \code{NULL},
 the default, draws one from \code{rnorm(sd = 1.3)} rounded to two places and
 shifted by \code{0.11}, then pushes it clear of the kinks as above.
-\strong{The default draw calls \code{\link[=set.seed]{set.seed()}} and does not restore the caller's
-random state}; pass \code{beta} to leave it alone.}
+The draw is taken from a fixed seed, so the report is the same on two runs,
+and the caller's own \code{.Random.seed} is restored on exit, so a call in the
+middle of a simulation leaves that simulation unchanged.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
 vector carrying the same. \code{NULL}, the default, places each hyperparameter

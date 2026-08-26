@@ -69,8 +69,9 @@ NULL
 #' @param beta A numeric coefficient vector of length `pen@n_coef`. `NULL`,
 #'   the default, draws one from `rnorm(sd = 1.3)` rounded to two places and
 #'   shifted by `0.11`, then pushes it clear of the kinks as above.
-#'   **The default draw calls [set.seed()] and does not restore the caller's
-#'   random state**; pass `beta` to leave it alone.
+#'   The draw is taken from a fixed seed, so the report is the same on two runs,
+#'   and the caller's own `.Random.seed` is restored on exit, so a call in the
+#'   middle of a simulation leaves that simulation unchanged.
 #' @param theta A named list of hyperparameter values, or a named numeric
 #'   vector carrying the same. `NULL`, the default, places each hyperparameter
 #'   six tenths of the way across its own bounds, reading an infinite lower
@@ -136,6 +137,25 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
   theta <- align_ptheta(pen, theta)
   q <- pen@n_coef
   if (is.null(beta)) {
+    # The seed is fixed so that two runs report the same worst error: a
+    # validator whose grid moves reports a different number every time. The
+    # caller's own state is put back on exit, so a call in the middle of a
+    # simulation leaves that simulation unchanged, and a caller who had drawn
+    # nothing is left with no .Random.seed rather than with this one.
+    old_seed <- if (exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+      get(".Random.seed", envir = globalenv(), inherits = FALSE)
+    } else {
+      NULL
+    }
+    on.exit({
+      if (is.null(old_seed)) {
+        if (exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
+          rm(".Random.seed", envir = globalenv())
+        }
+      } else {
+        assign(".Random.seed", old_seed, envir = globalenv())
+      }
+    }, add = TRUE)
     set.seed(7)
     beta <- round(stats::rnorm(q, sd = 1.3), 2) + 0.11
     # push t = D beta away from the declared kink set
