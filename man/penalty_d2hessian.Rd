@@ -35,7 +35,7 @@ hyperparameters, which is the quadratic branch, where
 \eqn{S = \sum_k \lambda_k P_k}. The structured branch reads the matrix
 parameter's \code{param_d2}, and the separable branch the second
 \eqn{\theta}-derivative of the parent's response curvature, through
-\code{\link[distributions7:distrib_grad_y_hess]{distributions7::distrib_hess_y_hess()}}.
+\code{\link[distributions7:distrib_hess_y_hess]{distributions7::distrib_hess_y_hess()}}.
 
 The keys are \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}'s: diagonals first in \code{pen@params}
 order, then the upper off-diagonal pairs, each joined by an underscore. A

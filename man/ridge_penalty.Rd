@@ -34,7 +34,7 @@ whole number, \code{1L} by default.}
 \eqn{(0, \infty)}, and no kink.
 }
 \description{
-The four penalties a modelling layer names directly: \code{ridge_penalty()},
+The four penalties a modeling layer names directly: \code{ridge_penalty()},
 \code{lasso_penalty()}, \code{elasticnet_penalty()} and \code{heavy_penalty()}. Each is a
 particular prior centered at zero, and each is written on the chart whose
 hyperparameter \strong{measures the shrinkage}, so that a larger value shrinks

@@ -36,7 +36,7 @@ the parent's own higher components carried through the same map.
 \tabular{ll}{
    generic \tab parent's component \cr
    \code{penalty_dhessian()} \tab \code{\link[distributions7:distrib_cross2_y]{distributions7::distrib_cross2_y()}} \cr
-   \code{penalty_d2hessian()} \tab \code{\link[distributions7:distrib_grad_y_hess]{distributions7::distrib_hess_y_hess()}} \cr
+   \code{penalty_d2hessian()} \tab \code{\link[distributions7:distrib_hess_y_hess]{distributions7::distrib_hess_y_hess()}} \cr
    \code{penalty_dcross()} \tab \code{\link[distributions7:distrib_grad_y_hess]{distributions7::distrib_grad_y_hess()}} \cr
 }
 
