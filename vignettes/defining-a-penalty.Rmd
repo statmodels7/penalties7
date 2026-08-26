@@ -60,14 +60,16 @@ numerical guard can switch itself off where it would be measuring a kink.
 
 ## The methods
 
-One helper reads the aligned hyperparameters and the branch each coefficient
-falls in, so the eight methods share it:
+Every generic aligns `theta` before it dispatches, reordering it to
+`pen@params`, stripping stray names off the values and checking it against
+`params_bounds`. A method therefore receives a list already in the family's own
+order and does not align it again. One helper reads it and works out the branch
+each coefficient falls in, so the eight methods share it:
 
 ```{r}
 .berhu <- function(pen, beta, theta) {
-  th <- align_ptheta(pen, theta)
-  list(lam = th$lambda, del = th$delta,
-       a = abs(beta), big = abs(beta) > th$delta)
+  list(lam = theta$lambda, del = theta$delta,
+       a = abs(beta), big = abs(beta) > theta$delta)
 }
 ```
 
