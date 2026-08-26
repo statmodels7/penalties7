@@ -8,12 +8,12 @@ ptheta_pairs(params)
 }
 \arguments{
 \item{params}{A character vector of hyperparameter names, in the order the
-penalty holds them. Length at least one.}
+penalty holds them. May be empty.}
 }
 \value{
-A named list of length \eqn{p(p+1)/2}. Each element is a character
-pair naming the two hyperparameters differentiated in, and each name is
-those two joined by an underscore.
+A named list of length \eqn{p(p+1)/2}, empty when \code{params} is. Each
+element is a character pair naming the two hyperparameters differentiated
+in, and each name is those two joined by an underscore.
 }
 \description{
 The keys of a penalty's second hyperparameter derivatives, and the pairs
@@ -28,11 +28,14 @@ Diagonals first rather than lexicographically, because a consumer reading
 only the variances can take the first \eqn{p} entries. The same convention
 names \pkg{distributions7}'s Hessian components.
 
-\code{params} must carry at least one name. With \code{character(0)} the function
-raises \verb{'names' attribute [1] must be the same length as the vector [0]},
-because \code{paste0(character(0), "_", character(0))} recycles to the single
-string \code{"_"} while the list of pairs is empty. A penalty with no
-hyperparameters therefore cannot reach \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}; see the
-package's \code{QUESTIONS.md}.
+\code{character(0)} gives the empty \strong{named} list, which is what a penalty with
+no free hyperparameters has to differentiate in, and what keeps
+\code{\link[=penalty_hess_theta]{penalty_hess_theta()}} the same shape as its two siblings
+\code{\link[=penalty_grad_theta]{penalty_grad_theta()}} and \code{\link[=penalty_cross]{penalty_cross()}}, both of which already answered
+for that case. The guard is needed rather than incidental:
+\code{paste0(character(0), "_", character(0))} recycles the zero-length argument
+against the length-one literal and gives the single string \code{"_"}, so without
+it the names are one element long while the list of pairs is empty and
+\code{\link[stats:setNames]{stats::setNames()}} raises.
 }
 \keyword{internal}

@@ -236,20 +236,20 @@ S7::method(penalty_prox_spec, DistribPenalty) <- function(pen, theta, step,
   g0 <- penalty_gradient(pen, rep(0, q), theta)
   if (identical(fam, "gaussian1")) {
     if (max(abs(g0)) > 1e-8) return(NULL)
-    s <- theta[[which(pen@params == "sigma")]]
+    s <- .prox_param(pen, theta, "sigma")
     return(prox_table(step, q, function(t)
       rbind(Inf, 1 / (1 + t / s^2), 0)))
   }
   if (identical(fam, "laplace2") || identical(fam, "laplace")) {
-    lam <- if (identical(fam, "laplace2")) theta[[which(pen@params == "lambda")]]
-      else 1 / theta[[which(pen@params == "sigma")]]
+    lam <- if (identical(fam, "laplace2")) .prox_param(pen, theta, "lambda")
+      else 1 / .prox_param(pen, theta, "sigma")
     if (max(abs(g0)) > 1e-8 * max(1, lam)) return(NULL)
     return(prox_table(step, q, function(t)
       rbind(c(t * lam, Inf), c(0, 1), c(0, -t * lam))))
   }
   if (identical(fam, "enet")) {
-    lam <- theta[[which(pen@params == "lambda")]]
-    al <- theta[[which(pen@params == "alpha")]]
+    lam <- .prox_param(pen, theta, "lambda")
+    al <- .prox_param(pen, theta, "alpha")
     if (max(abs(g0)) > 1e-8 * max(1, lam)) return(NULL)
     a <- lam * al
     cc <- lam * (1 - al)

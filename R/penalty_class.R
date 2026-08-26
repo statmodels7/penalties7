@@ -285,23 +285,31 @@ map_quad_full <- function(pen, m) {
 #' only the variances can take the first \eqn{p} entries. The same convention
 #' names \pkg{distributions7}'s Hessian components.
 #'
-#' `params` must carry at least one name. With `character(0)` the function
-#' raises `'names' attribute [1] must be the same length as the vector [0]`,
-#' because `paste0(character(0), "_", character(0))` recycles to the single
-#' string `"_"` while the list of pairs is empty. A penalty with no
-#' hyperparameters therefore cannot reach [penalty_hess_theta()]; see the
-#' package's `QUESTIONS.md`.
+#' `character(0)` gives the empty **named** list, which is what a penalty with
+#' no free hyperparameters has to differentiate in, and what keeps
+#' [penalty_hess_theta()] the same shape as its two siblings
+#' [penalty_grad_theta()] and [penalty_cross()], both of which already answered
+#' for that case. The guard is needed rather than incidental:
+#' `paste0(character(0), "_", character(0))` recycles the zero-length argument
+#' against the length-one literal and gives the single string `"_"`, so without
+#' it the names are one element long while the list of pairs is empty and
+#' [stats::setNames()] raises.
 #'
 #' @param params A character vector of hyperparameter names, in the order the
-#'   penalty holds them. Length at least one.
+#'   penalty holds them. May be empty.
 #'
-#' @return A named list of length \eqn{p(p+1)/2}. Each element is a character
-#'   pair naming the two hyperparameters differentiated in, and each name is
-#'   those two joined by an underscore.
+#' @return A named list of length \eqn{p(p+1)/2}, empty when `params` is. Each
+#'   element is a character pair naming the two hyperparameters differentiated
+#'   in, and each name is those two joined by an underscore.
 #'
 #' @keywords internal
 ptheta_pairs <- function(params) {
   p <- length(params)
+  # paste0 recycles a zero-length argument against the length-one literal, so
+  # without this the names are the single string "_" while the list of pairs is
+  # empty, and setNames() raises. A penalty with no free hyperparameters has no
+  # pairs to differentiate in; align_ptheta() answers the same way.
+  if (p == 0L) return(stats::setNames(list(), character(0)))
   nm <- paste0(params, "_", params)
   prs <- lapply(params, function(x) c(x, x))
   if (p > 1L) {

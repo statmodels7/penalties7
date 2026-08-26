@@ -1,3 +1,35 @@
+# penalties7 0.17.0
+
+* A penalty with no free hyperparameters answers on the whole public surface. A
+  fully known prior is a legitimate object: `distributions7::fixed()` documents
+  `n_params = 0` as legal, and it is what a caller builds to hold a penalty at a
+  value the outer search must not touch. Eight generics answered for one and
+  three stopped, for two unrelated reasons.
+
+  `ptheta_pairs()` built its names with `paste0(params, "_", params)`, which
+  recycles a zero-length argument against the length-one literal and gives the
+  single string `"_"` while the list of pairs is empty, so `setNames()` raised
+  `'names' attribute [1] must be the same length as the vector [0]` three frames
+  below the call, naming neither the penalty nor the argument. That stopped
+  `penalty_hess_theta()` and, through it, `check_penalty()`, so such a penalty
+  could not be validated at all. It returns the empty named list now, which is
+  the shape `penalty_grad_theta()` and `penalty_cross()` already had for the
+  same case.
+
+  `penalty_prox()` read its hyperparameter as `theta[[which(pen@params ==
+  "sigma")]]`, and `which()` of an empty comparison is `integer(0)`, so the
+  subscript raised *attempt to select less than one element in get1index*. A
+  held parameter is not absent, only kept elsewhere: `.prox_param()` takes it
+  from `theta` when the penalty carries it free and from the parent's
+  `fixed_params` when `fixed()` holds it. Measured, the three closed-form
+  families now return exactly what the same penalty with the parameter free
+  returns at that value, to the bit, for the operator and for the piecewise
+  table the compiled coordinate descent reads; `penalty_value()` already agreed.
+  A parent carrying no such parameter is named in the message.
+
+  This also removes a contradiction: `has_prox()` answered `TRUE` for a penalty
+  whose `penalty_prox()` stopped.
+
 # penalties7 0.16.0
 
 * New class `abs_smoother`: a smooth replacement `s(u)` for `|u|` carrying

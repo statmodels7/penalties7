@@ -447,6 +447,42 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
   sub("^fixed ", "", sub(" \\[.*$", "", nm))
 }
 
+#' The Value of a Parent's Parameter, Free or Held
+#'
+#' @description
+#' Returns the parent distribution's parameter `name`: from the aligned
+#' hyperparameter list when the penalty carries it as a free hyperparameter,
+#' and from the parent's `fixed_params` when [distributions7::fixed()] holds it
+#' at a value.
+#'
+#' @details
+#' The closed forms below need the number, not the place it is kept. A penalty
+#' whose scale is held is the same penalty as one whose scale is free, read at
+#' that scale: `penalty_value()`, `penalty_gradient()` and `penalty_hessian()`
+#' all already answer identically for the two. Reading only `theta` made
+#' `penalty_prox()` the one generic that did not, and it stopped with
+#' `attempt to select less than one element in get1index` rather than saying so,
+#' because `which()` of an empty comparison is `integer(0)`.
+#'
+#' @param pen A [DistribPenalty()] object.
+#' @param theta The aligned hyperparameter list, as [align_ptheta()] returns it.
+#' @param name The parameter's name, a single string.
+#'
+#' @return A single number.
+#'
+#' @seealso [penalty_prox.DistribPenalty()], [penalty_prox_spec()]
+#'
+#' @keywords internal
+.prox_param <- function(pen, theta, name) {
+  if (name %in% pen@params) return(theta[[name]])
+  fx <- pen@parent@fixed_params
+  if (!is.null(fx) && name %in% names(fx)) return(fx[[name]])
+  stop(sprintf(paste0(
+    "the parent of penalty '%s' carries no parameter '%s', neither as a free\n",
+    "  hyperparameter nor held at a value by distributions7::fixed()."),
+    pen@penalty_name, name), call. = FALSE)
+}
+
 #' @title Proximal Operator of a Separable Penalty
 #' @name penalty_prox.DistribPenalty
 #'
@@ -544,14 +580,14 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
   g0 <- penalty_gradient(pen, rep(0, length(v)), theta)
 
   if (identical(fam, "gaussian1")) {
-    s <- theta[[which(pen@params == "sigma")]]
+    s <- .prox_param(pen, theta, "sigma")
     return((v - step * g0) / (1 + step / s^2))
   }
   if (identical(fam, "laplace2") || identical(fam, "laplace")) {
     lam <- if (identical(fam, "laplace2")) {
-      theta[[which(pen@params == "lambda")]]
+      .prox_param(pen, theta, "lambda")
     } else {
-      1 / theta[[which(pen@params == "sigma")]]
+      1 / .prox_param(pen, theta, "sigma")
     }
     if (max(abs(g0)) > 1e-8 * max(1, lam)) {
       stop(paste("the Laplace proximal operator is written for a parent",
@@ -560,8 +596,8 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
     return(sign(v) * pmax(abs(v) - step * lam, 0))
   }
   if (identical(fam, "enet")) {
-    lam <- theta[[which(pen@params == "lambda")]]
-    al <- theta[[which(pen@params == "alpha")]]
+    lam <- .prox_param(pen, theta, "lambda")
+    al <- .prox_param(pen, theta, "alpha")
     if (max(abs(g0)) > 1e-8 * max(1, lam)) {
       stop(paste("the elastic-net proximal operator is written for a parent",
                  "centered at zero; this one is not."), call. = FALSE)
