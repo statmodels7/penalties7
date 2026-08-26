@@ -2,6 +2,10 @@
 % Please edit documentation in R/generics.R
 \name{penalty_matrix}
 \alias{penalty_matrix}
+\alias{penalty_matrix.penalty}
+\alias{penalty_rank.penalty}
+\alias{penalty_null_basis.penalty}
+\alias{penalty_logpdet.penalty}
 \alias{penalty_rank}
 \alias{penalty_null_basis}
 \alias{penalty_logpdet}
@@ -80,6 +84,14 @@ All four reject for a penalty that is not quadratic, with a message naming
 \code{\link[=is_quadratic]{is_quadratic()}}. The exception is \code{\link[=additive_penalty]{additive_penalty()}}, which answers
 \code{is_quadratic()} as \code{FALSE} and supplies the first, second and fourth of
 these anyway; \code{penalty_null_basis()} is the one it rejects.
+}
+
+\section{Methods}{
+
+All four methods on the base class \code{\link[=penalty]{penalty()}} signal an error naming
+\code{\link[=is_quadratic]{is_quadratic()}}, which is the predicate to ask first: a penalty that is not
+quadratic has no matrix, no rank, no null basis and no log pseudo-determinant
+to report, and an error is the answer to a question that does not apply.
 }
 
 \examples{

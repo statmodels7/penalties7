@@ -117,6 +117,15 @@ NULL
 #' try(penalty_prox(additive_penalty(list(diag(3), diag(c(1, 1, 0)))),
 #'                  v, 1, list(lambda1 = 1, lambda2 = 1)))
 #'
+#' @section Methods:
+#' The method on the base class [penalty()] signals an error naming the penalty
+#' and pointing at [has_prox()]. A penalty supplies the operator when it is
+#' quadratic, or separable under a map that is the identity or diagonal;
+#' a separable penalty under a general map is the generalized-lasso problem and
+#' has no closed operator, so it is rejected rather than approximated.
+#'
+#' @aliases penalty_prox.penalty
+#'
 #' @seealso [has_prox()] to ask before calling, [penalty_prox_spec()] for the
 #'   same operator as a table a compiled loop can read, [penalty_kinks()] for
 #'   where a gradient method would fail, [penalty_gradient()] for what to use

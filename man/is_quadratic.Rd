@@ -2,6 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{is_quadratic}
 \alias{is_quadratic}
+\alias{is_quadratic.penalty}
 \title{Is a Penalty a Quadratic Form With One Scale?}
 \usage{
 is_quadratic(pen, ...)
@@ -49,6 +50,13 @@ log-determinant is not linear in any one of them.
 being \eqn{\sum_k \lambda_k P_k}, and it is kept out of the predicate. A
 consumer that routes on \code{is_quadratic()} alone will not reach the additive
 branch's marginal quantities, and \code{\link[=check_penalty]{check_penalty()}} does not test them.
+}
+
+\section{Methods}{
+
+The method on the base class \code{\link[=penalty]{penalty()}} returns \code{FALSE}, so a branch that
+is quadratic says so by registering a method of its own and every other
+branch is answered without one.
 }
 
 \examples{

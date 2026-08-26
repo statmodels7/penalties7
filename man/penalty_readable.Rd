@@ -2,6 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{penalty_readable}
 \alias{penalty_readable}
+\alias{penalty_readable.penalty}
 \title{What a Penalty's Hyperparameters Are About}
 \usage{
 penalty_readable(pen, theta, ...)
@@ -52,6 +53,13 @@ that a standard deviation stays positive and a correlation stays inside
 should report them as they stand. That is the answer for every other branch:
 a smoothing parameter, a rate and a shape are each read on their own scale
 already.
+}
+
+\section{Methods}{
+
+The method on the base class \code{\link[=penalty]{penalty()}} returns \code{NULL}, which is the answer
+for every branch whose hyperparameters already are the quantities a reader
+reads. Only a branch that carries them on a chart registers a method.
 }
 
 \examples{

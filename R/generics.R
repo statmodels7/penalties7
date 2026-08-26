@@ -476,6 +476,13 @@ is_proper <- S7::new_generic("is_proper", "pen")
 #' penalty_rank(add)
 #' is_quadratic(lasso_penalty())
 #'
+#' @section Methods:
+#' The method on the base class [penalty()] returns `FALSE`, so a branch that
+#' is quadratic says so by registering a method of its own and every other
+#' branch is answered without one.
+#'
+#' @aliases is_quadratic.penalty
+#'
 #' @seealso [penalty_matrix()] and the three quantities beside it,
 #'   [is_proper()] and [has_prox()] for the other two predicates,
 #'   [quadratic_penalty()] and [structured_penalty()] for the branches.
@@ -569,6 +576,17 @@ S7::method(is_quadratic, penalty) <- function(pen, ...) FALSE
 #' lp <- penalty_logpdet(pen, list(lambda = 2))
 #' c(lp$grad$lambda, lp$hess$lambda_lambda)
 #' c(penalty_rank(pen) / 2, -penalty_rank(pen) / 4)
+#'
+#' @section Methods:
+#' All four methods on the base class [penalty()] signal an error naming
+#' [is_quadratic()], which is the predicate to ask first: a penalty that is not
+#' quadratic has no matrix, no rank, no null basis and no log pseudo-determinant
+#' to report, and an error is the answer to a question that does not apply.
+#'
+#' @aliases penalty_matrix.penalty
+#' @aliases penalty_rank.penalty
+#' @aliases penalty_null_basis.penalty
+#' @aliases penalty_logpdet.penalty
 #'
 #' @seealso [is_quadratic()] for the predicate that gates these,
 #'   [quadratic_penalty()], [structured_penalty()] and [additive_penalty()]
@@ -680,6 +698,13 @@ S7::method(penalty_logpdet, penalty) <- function(pen, theta, ...) {
 #' # A smoothing parameter is already the quantity it names, so there is
 #' # nothing to derive.
 #' penalty_readable(quadratic_penalty(diag(2)), list(lambda = 1))
+#'
+#' @section Methods:
+#' The method on the base class [penalty()] returns `NULL`, which is the answer
+#' for every branch whose hyperparameters already are the quantities a reader
+#' reads. Only a branch that carries them on a chart registers a method.
+#'
+#' @aliases penalty_readable.penalty
 #'
 #' @seealso [penalty_value()], [distributions7::mv_derived()] for the
 #'   declaration this passes through, [parameters7::param_readable()] for the

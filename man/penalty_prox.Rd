@@ -2,6 +2,7 @@
 % Please edit documentation in R/prox.R
 \name{penalty_prox}
 \alias{penalty_prox}
+\alias{penalty_prox.penalty}
 \title{Proximal Operator of a Penalty}
 \usage{
 penalty_prox(pen, v, step, theta, ...)
@@ -95,6 +96,15 @@ is not convex and the operator is set-valued;
 \item a \code{step} that is not a single positive number, or a \code{v} whose length is
 not \code{pen@n_coef}.
 }
+}
+
+\section{Methods}{
+
+The method on the base class \code{\link[=penalty]{penalty()}} signals an error naming the penalty
+and pointing at \code{\link[=has_prox]{has_prox()}}. A penalty supplies the operator when it is
+quadratic, or separable under a map that is the identity or diagonal;
+a separable penalty under a general map is the generalized-lasso problem and
+has no closed operator, so it is rejected rather than approximated.
 }
 
 \examples{
