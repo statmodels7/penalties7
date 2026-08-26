@@ -28,8 +28,8 @@ Diagonals first rather than lexicographically, because a consumer reading
 only the variances can take the first \eqn{p} entries. The same convention
 names \pkg{distributions7}'s Hessian components.
 
-\code{character(0)} gives the empty \strong{named} list, which is what a penalty with
-no free hyperparameters has to differentiate in, and what keeps
+\code{character(0)} gives the empty \strong{named} list. A penalty with no free
+hyperparameters has no pair to differentiate in, and the named form keeps
 \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} the same shape as its two siblings
 \code{\link[=penalty_grad_theta]{penalty_grad_theta()}} and \code{\link[=penalty_cross]{penalty_cross()}}, both of which already answered
 for that case. The guard is needed rather than incidental:

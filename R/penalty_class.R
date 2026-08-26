@@ -285,8 +285,8 @@ map_quad_full <- function(pen, m) {
 #' only the variances can take the first \eqn{p} entries. The same convention
 #' names \pkg{distributions7}'s Hessian components.
 #'
-#' `character(0)` gives the empty **named** list, which is what a penalty with
-#' no free hyperparameters has to differentiate in, and what keeps
+#' `character(0)` gives the empty **named** list. A penalty with no free
+#' hyperparameters has no pair to differentiate in, and the named form keeps
 #' [penalty_hess_theta()] the same shape as its two siblings
 #' [penalty_grad_theta()] and [penalty_cross()], both of which already answered
 #' for that case. The guard is needed rather than incidental:
