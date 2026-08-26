@@ -1,3 +1,34 @@
+# penalties7 0.19.0
+
+* `is_quadratic()` answers `TRUE` for an `additive_penalty()`. It inherited
+  `FALSE` from the base class while `penalty_matrix()`, `penalty_rank()`
+  and `penalty_logpdet()` all answered for that branch and
+  `penalty_null_basis()` rejected with a message pointing at a predicate
+  that would have told the reader nothing. A sum of quadratic forms is a
+  quadratic form.
+
+* `penalty_null_basis()` has a method there. The null space of the sum is
+  the intersection of the components', so it does not move with the
+  hyperparameters, and the constructor already decomposed the normalized
+  components to read the rank; what changed is that it keeps the vectors.
+
+* `penalty_logpdet()` on that branch returns its gradient and Hessian as
+  named lists keyed by hyperparameter and by pair, which is the shape the
+  quadratic and structured branches use. It returned an unnamed numeric
+  vector and a square matrix. Nothing outside this package read either:
+  every consumer routed on `is_quadratic()` first and never arrived.
+
+* `check_penalty()` therefore runs its three quadratic rows on an additive
+  penalty, which it did not. A two-component one goes from 8 rows to 11,
+  gaining the three-point identity, the log pseudo-determinant's gradient
+  against `numDeriv` and the null basis against the matrix, and its rank,
+  matrix and log pseudo-determinant stop being untested.
+
+* The proximal route is unchanged. `has_prox()` asks whether
+  `penalty_prox()` is registered on the base class before it asks
+  `is_quadratic()`, and this branch registers none, so it still answers
+  `FALSE`.
+
 # penalties7 0.18.0
 
 * `check_penalty()` leaves the caller's random stream as it found it. With

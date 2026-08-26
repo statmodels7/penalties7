@@ -448,14 +448,14 @@ is_proper <- S7::new_generic("is_proper", "pen")
 #' \eqn{\lambda P}, so its matrix moves with several hyperparameters and its
 #' log-determinant is not linear in any one of them.
 #'
-#' # The exception to know about
+#' # The three branches it is TRUE for
 #'
-#' [additive_penalty()] answers `FALSE` and yet supplies `penalty_matrix()`,
-#' `penalty_rank()` and `penalty_logpdet()`, rejecting only
-#' `penalty_null_basis()`. It is quadratic in the coefficients, its matrix
-#' being \eqn{\sum_k \lambda_k P_k}, and it is kept out of the predicate. A
-#' consumer that routes on `is_quadratic()` alone will not reach the additive
-#' branch's marginal quantities, and [check_penalty()] does not test them.
+#' [additive_penalty()] is the third, its matrix being
+#' \eqn{\sum_k \lambda_k P_k}: a sum of quadratic forms is a quadratic form,
+#' so it has all four quantities. What is particular about it is that the
+#' matrix moves with one hyperparameter per component rather than with a
+#' single scale, which is the property [check_penalty()] routes on when it
+#' decides whether to read a slope or to compare a gradient.
 #'
 #' @param pen A [penalty()] object of any branch.
 #' @param ... Passed to methods. No shipped method reads it.
@@ -469,11 +469,11 @@ is_proper <- S7::new_generic("is_proper", "pen")
 #' is_quadratic(structured_penalty(
 #'   parameters7::log_cholesky(2, role = "precision")))
 #'
-#' # And the ones it is FALSE for, including the additive branch, which has a
-#' # rank all the same.
+#' # The third, whose matrix moves with one hyperparameter per component.
 #' add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
-#' is_quadratic(add)
-#' penalty_rank(add)
+#' c(quadratic = is_quadratic(add), rank = penalty_rank(add))
+#'
+#' # A penalty with a kink has none of it.
 #' is_quadratic(lasso_penalty())
 #'
 #' @section Methods:
@@ -484,8 +484,9 @@ is_proper <- S7::new_generic("is_proper", "pen")
 #' @aliases is_quadratic.penalty
 #'
 #' @seealso [penalty_matrix()] and the three quantities beside it,
-#'   [is_proper()] and [has_prox()] for the other two predicates,
-#'   [quadratic_penalty()] and [structured_penalty()] for the branches.
+#'   [is_proper()] and [has_prox()] for the other two predicates, and
+#'   [quadratic_penalty()], [structured_penalty()] and
+#'   [additive_penalty()] for the branches.
 #' @export
 is_quadratic <- S7::new_generic("is_quadratic", "pen")
 

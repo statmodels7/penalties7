@@ -7,14 +7,15 @@ NULL
 #' The class [additive_penalty()] builds: several quadratic penalties added
 #' together, each with a smoothing parameter of its own. Beyond the seven
 #' properties every penalty carries it stores the list of component matrices,
-#' already carried through the map, and the rank of the sum.
+#' already carried through the map, and the rank and null basis of the sum.
 #'
 #' @details
-#' The rank is stored because it is a property of the components alone: the
-#' null space of a sum of positive
-#' semidefinite matrices is the intersection of the components' null spaces.
-#' Reading it off the assembled \eqn{S(\lambda)} instead would make it fall as
-#' the parameters spread apart, which [additive_penalty()] measures.
+#' The rank and the null basis are stored because both are properties of the
+#' components alone: the null space of a sum of positive semidefinite
+#' matrices is the intersection of the components' null spaces, so neither
+#' moves with the parameters. Reading the rank off the assembled
+#' \eqn{S(\lambda)} instead would make it fall as the parameters spread
+#' apart, which [additive_penalty()] measures.
 #'
 #' @inheritParams penalty
 #' @param mats A list of symmetric positive semidefinite matrices of the same
@@ -23,10 +24,14 @@ NULL
 #'   on in this order.
 #' @param p_rank The rank of the sum, a single whole number, the same at every
 #'   positive setting of the parameters.
+#' @param null_basis An orthonormal basis of the components' shared null
+#'   space, `n_coef` by `n_coef - p_rank`, read from the same
+#'   eigendecomposition as `p_rank` and equally fixed.
 #'
 #' @return An S7 object of class `AdditivePenalty`, inheriting from [penalty()],
-#'   with the seven inherited properties and the two above. Its `map` is always
-#'   `NULL`, a map given to the constructor having been absorbed into `mats`.
+#'   with the seven inherited properties and the three above. Its `map` is
+#'   always `NULL`, a map given to the constructor having been absorbed into
+#'   `mats`.
 #'
 #' @seealso [additive_penalty()] for the constructor to use,
 #'   [penalty_value.AdditivePenalty()] for what the branch computes,
@@ -38,7 +43,7 @@ NULL
 #'
 #' # One hyperparameter per component, and a rank fixed at construction.
 #' pen@params
-#' pen@p_rank
+#' c(rank = pen@p_rank, null_width = ncol(pen@null_basis))
 #' length(pen@mats)
 #'
 #' @keywords internal
@@ -48,7 +53,8 @@ AdditivePenalty <- S7::new_class(
   parent = penalty,
   properties = list(
     mats = S7::class_list,
-    p_rank = S7::class_numeric
+    p_rank = S7::class_numeric,
+    null_basis = S7::class_any
   )
 )
 
@@ -104,19 +110,19 @@ AdditivePenalty <- S7::new_class(
 #' the components stacked and individually normalized, and the object's answer
 #' cannot move. A test pins both halves.
 #'
-#' # What this branch does not supply
+#' # What this branch supplies
 #'
-#' [is_quadratic()] answers `FALSE` here, although the penalty is a quadratic
-#' form in the coefficients. [penalty_matrix()], [penalty_rank()] and
-#' [penalty_logpdet()] answer all the same; [penalty_null_basis()] rejects. Two
-#' consequences follow and neither is guessable: a consumer that routes on
-#' `is_quadratic()` will not reach these quantities, and [check_penalty()] runs
-#' none of its three quadratic rows for this branch, so the rank and the log
-#' pseudo-determinant go untested.
+#' [is_quadratic()] answers `TRUE`, a sum of quadratic forms being a quadratic
+#' form, so [penalty_matrix()], [penalty_rank()], [penalty_null_basis()] and
+#' [penalty_logpdet()] all answer and [check_penalty()] runs its three
+#' quadratic rows here. What is particular is that the matrix moves with one
+#' hyperparameter per component rather than with a single scale, so the log
+#' pseudo-determinant is linear in none of them and the row that checks it
+#' compares a gradient against `numDeriv` where the plain quadratic branch
+#' reads a slope.
 #'
-#' `penalty_logpdet()` also answers in a different shape here: `grad` is an
-#' unnamed numeric vector and `hess` a matrix, where the other quadratic
-#' branches return named lists keyed by hyperparameter and by pair.
+#' [has_prox()] answers `FALSE`, this branch registering no
+#' [penalty_prox()], which is asked before `is_quadratic()` is.
 #'
 #' @param mats A list of symmetric positive semidefinite matrices, all of the
 #'   same side, and at least one. Each is symmetrized, and a component that is
@@ -226,8 +232,13 @@ additive_penalty <- function(mats, map = NULL,
   # there. Reading it off S(lambda) would make the rank fall as the
   # parameters spread apart.
   stacked <- Reduce(`+`, lapply(mats, function(P) P / max(abs(P))))
-  ev <- eigen(stacked, symmetric = TRUE, only.values = TRUE)$values
-  r <- sum(ev > tol * max(ev))
+  es <- eigen(stacked, symmetric = TRUE)
+  keep <- es$values > tol * max(es$values)
+  r <- sum(keep)
+  # the null space of the sum is the intersection of the components', so
+  # these vectors span the null space of S(lambda) at every admissible
+  # lambda, which is what makes it a property of the family
+  nb <- es$vectors[, !keep, drop = FALSE]
 
   nm <- paste0("lambda", seq_along(mats))
   AdditivePenalty(
@@ -240,7 +251,8 @@ additive_penalty <- function(mats, map = NULL,
       replicate(length(nm), link_lambda, simplify = FALSE), nm),
     params_smooth = stats::setNames(rep(TRUE, length(nm)), nm),
     mats = mats,
-    p_rank = r
+    p_rank = r,
+    null_basis = nb
   )
 }
 
@@ -567,10 +579,13 @@ S7::method(is_proper, AdditivePenalty) <- function(pen, ...) {
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return `penalty_matrix()` a symmetric base matrix of side `pen@n_coef`.
-#'   `penalty_rank()` a single integer.
-#'   `penalty_logpdet()` a list of `value` (a single number), `grad` (an
-#'   unnamed numeric vector, one entry per component) and `hess` (a square
-#'   numeric matrix, one row and column per component).
+#'   `penalty_rank()` a single integer, and `penalty_null_basis()` an
+#'   orthonormal basis of the components' shared null space, `pen@n_coef` by
+#'   `pen@n_coef - penalty_rank(pen)`.
+#'   `penalty_logpdet()` a list of `value` (a single number), `grad` (a list
+#'   keyed by `pen@params`) and `hess` (a list keyed by the pairs
+#'   `penalty_hess_theta()` uses), which is the shape the quadratic and
+#'   structured branches answer in.
 #'
 #' @examples
 #' P1 <- crossprod(diff(diag(5)))
@@ -588,7 +603,12 @@ S7::method(is_proper, AdditivePenalty) <- function(pen, ...) {
 #' k <- order(e$values, decreasing = TRUE)[seq_len(penalty_rank(pen))]
 #' Sp <- e$vectors[, k, drop = FALSE] %*% (t(e$vectors[, k, drop = FALSE]) /
 #'                                           e$values[k])
-#' max(abs(lp$grad - c(sum(Sp * P1), sum(Sp * P2))))
+#' max(abs(unlist(lp$grad) - c(sum(Sp * P1), sum(Sp * P2))))
+#'
+#' # The null space of the sum is the intersection of the components', so it
+#' # does not move with the hyperparameters.
+#' nb <- penalty_null_basis(pen)
+#' c(width = ncol(nb), annihilated = max(abs(S %*% nb)) < 1e-12)
 #'
 #' # And the value is the sum of the logarithms of the non-zero eigenvalues.
 #' lp$value - sum(log(e$values[k]))
@@ -613,9 +633,40 @@ S7::method(penalty_rank, AdditivePenalty) <- function(pen, ...) pen@p_rank
 #' @keywords internal
 S7::method(penalty_logpdet, AdditivePenalty) <- function(pen, theta, ...) {
   a <- additive_sum(pen, theta)
-  list(value = a$logpdet,
-       grad = vapply(pen@mats, function(P) sum(a$Sp * P), numeric(1)),
-       hess = outer(seq_along(pen@mats), seq_along(pen@mats),
-                    Vectorize(function(k, l)
-                      -sum(t(a$Sp %*% pen@mats[[k]]) * (a$Sp %*% pen@mats[[l]])))))
+  prs <- ptheta_pairs(pen@params)
+  list(
+    value = a$logpdet,
+    grad = stats::setNames(lapply(pen@mats, function(P) sum(a$Sp * P)),
+                           pen@params),
+    hess = stats::setNames(lapply(names(prs), function(nm) {
+      ij <- prs[[nm]]
+      k <- match(ij[1], pen@params)
+      l <- match(ij[2], pen@params)
+      -sum(t(a$Sp %*% pen@mats[[k]]) * (a$Sp %*% pen@mats[[l]]))
+    }), names(prs))
+  )
 }
+#' @rdname penalty_matrix.AdditivePenalty
+#' @name penalty_null_basis.AdditivePenalty
+#' @keywords internal
+S7::method(penalty_null_basis, AdditivePenalty) <- function(pen, ...) {
+  pen@null_basis
+}
+
+
+#' @title An Additive Penalty Is Quadratic in the Coefficients
+#' @name is_quadratic.AdditivePenalty
+#' @description
+#' Answers `TRUE`. A sum of quadratic forms is a quadratic form, so this branch
+#' has the matrix, the rank, the null basis and the log pseudo-determinant that
+#' [is_quadratic()] gates, and a marginal criterion can read them. What is
+#' particular about it is that the matrix moves with one hyperparameter per
+#' component rather than with a single scale, so the log pseudo-determinant is
+#' not linear in any one of them and [check_penalty()] compares its gradient
+#' against `numDeriv` rather than reading a slope.
+#' @param pen An [additive_penalty()] object.
+#' @param ... Unused, and accepted so the signature matches the generic's.
+#' @return `TRUE`.
+#' @seealso [penalty_matrix.AdditivePenalty()] for the quantities this admits.
+#' @keywords internal
+S7::method(is_quadratic, AdditivePenalty) <- function(pen, ...) TRUE

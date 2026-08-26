@@ -51,10 +51,18 @@ NULL
 #' [penalty_dcross()] or [penalty_readable()]. It calls [penalty_kinks()] to
 #' place the grid but never tests the kinks themselves.
 #'
-#' An [additive_penalty()] reports `is_quadratic()` as `FALSE`, so none of the
-#' three quadratic rows runs for it and its rank, matrix and log
-#' pseudo-determinant go untested. A two-component additive penalty therefore
-#' produces the bare 8 rows its two hyperparameters earn.
+#' # Which logpdet row a quadratic branch gets
+#'
+#' The three quadratic rows run for every branch [is_quadratic()] answers
+#' `TRUE` for, and the middle one comes in two shapes. Where the matrix is one
+#' scale times a constant, which is `"lambda" %in% pen@params`, the log
+#' pseudo-determinant is linear in `log lambda` with slope the rank, and that
+#' identity is read directly. Where it moves with several hyperparameters, as
+#' in a structured or an additive penalty, there is no such slope and the row
+#' compares the reported gradient against `numDeriv` instead. A two-component
+#' additive penalty therefore produces 11 rows: the 8 its two hyperparameters
+#' earn, plus the three-point identity, the log pseudo-determinant's gradient
+#' and the null basis.
 #'
 #' # Where the grid is placed
 #'

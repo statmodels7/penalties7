@@ -83,11 +83,19 @@ marginal criterion reads. It does not touch \code{\link[=penalty_prox]{penalty_p
 \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=penalty_dhessian]{penalty_dhessian()}}, \code{\link[=penalty_d2hessian]{penalty_d2hessian()}},
 \code{\link[=penalty_dcross]{penalty_dcross()}} or \code{\link[=penalty_readable]{penalty_readable()}}. It calls \code{\link[=penalty_kinks]{penalty_kinks()}} to
 place the grid but never tests the kinks themselves.
+}
 
-An \code{\link[=additive_penalty]{additive_penalty()}} reports \code{is_quadratic()} as \code{FALSE}, so none of the
-three quadratic rows runs for it and its rank, matrix and log
-pseudo-determinant go untested. A two-component additive penalty therefore
-produces the bare 8 rows its two hyperparameters earn.
+\section{Which logpdet row a quadratic branch gets}{
+The three quadratic rows run for every branch \code{\link[=is_quadratic]{is_quadratic()}} answers
+\code{TRUE} for, and the middle one comes in two shapes. Where the matrix is one
+scale times a constant, which is \code{"lambda" \%in\% pen@params}, the log
+pseudo-determinant is linear in \verb{log lambda} with slope the rank, and that
+identity is read directly. Where it moves with several hyperparameters, as
+in a structured or an additive penalty, there is no such slope and the row
+compares the reported gradient against \code{numDeriv} instead. A two-component
+additive penalty therefore produces 11 rows: the 8 its two hyperparameters
+earn, plus the three-point identity, the log pseudo-determinant's gradient
+and the null basis.
 }
 
 \section{Where the grid is placed}{

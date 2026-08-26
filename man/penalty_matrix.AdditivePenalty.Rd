@@ -4,6 +4,7 @@
 \alias{penalty_matrix.AdditivePenalty}
 \alias{penalty_rank.AdditivePenalty}
 \alias{penalty_logpdet.AdditivePenalty}
+\alias{penalty_null_basis.AdditivePenalty}
 \title{Marginal Quantities of an Additive Penalty}
 \arguments{
 \item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
@@ -15,10 +16,13 @@ and \code{penalty_logpdet()} only.}
 }
 \value{
 \code{penalty_matrix()} a symmetric base matrix of side \code{pen@n_coef}.
-\code{penalty_rank()} a single integer.
-\code{penalty_logpdet()} a list of \code{value} (a single number), \code{grad} (an
-unnamed numeric vector, one entry per component) and \code{hess} (a square
-numeric matrix, one row and column per component).
+\code{penalty_rank()} a single integer, and \code{penalty_null_basis()} an
+orthonormal basis of the components' shared null space, \code{pen@n_coef} by
+\code{pen@n_coef - penalty_rank(pen)}.
+\code{penalty_logpdet()} a list of \code{value} (a single number), \code{grad} (a list
+keyed by \code{pen@params}) and \code{hess} (a list keyed by the pairs
+\code{penalty_hess_theta()} uses), which is the shape the quadratic and
+structured branches answer in.
 }
 \description{
 Three of the four pieces a marginal criterion reads. \code{penalty_matrix()}
@@ -62,7 +66,12 @@ e <- eigen(S, symmetric = TRUE)
 k <- order(e$values, decreasing = TRUE)[seq_len(penalty_rank(pen))]
 Sp <- e$vectors[, k, drop = FALSE] \%*\% (t(e$vectors[, k, drop = FALSE]) /
                                           e$values[k])
-max(abs(lp$grad - c(sum(Sp * P1), sum(Sp * P2))))
+max(abs(unlist(lp$grad) - c(sum(Sp * P1), sum(Sp * P2))))
+
+# The null space of the sum is the intersection of the components', so it
+# does not move with the hyperparameters.
+nb <- penalty_null_basis(pen)
+c(width = ncol(nb), annihilated = max(abs(S \%*\% nb)) < 1e-12)
 
 # And the value is the sum of the logarithms of the non-zero eigenvalues.
 lp$value - sum(log(e$values[k]))

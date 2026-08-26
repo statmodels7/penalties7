@@ -43,13 +43,13 @@ with \eqn{S(\theta)} a \pkg{parameters7} matrix parameter in place of
 log-determinant is not linear in any one of them.
 }
 
-\section{The exception to know about}{
-\code{\link[=additive_penalty]{additive_penalty()}} answers \code{FALSE} and yet supplies \code{penalty_matrix()},
-\code{penalty_rank()} and \code{penalty_logpdet()}, rejecting only
-\code{penalty_null_basis()}. It is quadratic in the coefficients, its matrix
-being \eqn{\sum_k \lambda_k P_k}, and it is kept out of the predicate. A
-consumer that routes on \code{is_quadratic()} alone will not reach the additive
-branch's marginal quantities, and \code{\link[=check_penalty]{check_penalty()}} does not test them.
+\section{The three branches it is TRUE for}{
+\code{\link[=additive_penalty]{additive_penalty()}} is the third, its matrix being
+\eqn{\sum_k \lambda_k P_k}: a sum of quadratic forms is a quadratic form,
+so it has all four quantities. What is particular about it is that the
+matrix moves with one hyperparameter per component rather than with a
+single scale, which is the property \code{\link[=check_penalty]{check_penalty()}} routes on when it
+decides whether to read a slope or to compare a gradient.
 }
 
 \section{Methods}{
@@ -66,16 +66,17 @@ is_quadratic(ridge_penalty())
 is_quadratic(structured_penalty(
   parameters7::log_cholesky(2, role = "precision")))
 
-# And the ones it is FALSE for, including the additive branch, which has a
-# rank all the same.
+# The third, whose matrix moves with one hyperparameter per component.
 add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
-is_quadratic(add)
-penalty_rank(add)
+c(quadratic = is_quadratic(add), rank = penalty_rank(add))
+
+# A penalty with a kink has none of it.
 is_quadratic(lasso_penalty())
 
 }
 \seealso{
 \code{\link[=penalty_matrix]{penalty_matrix()}} and the three quantities beside it,
-\code{\link[=is_proper]{is_proper()}} and \code{\link[=has_prox]{has_prox()}} for the other two predicates,
-\code{\link[=quadratic_penalty]{quadratic_penalty()}} and \code{\link[=structured_penalty]{structured_penalty()}} for the branches.
+\code{\link[=is_proper]{is_proper()}} and \code{\link[=has_prox]{has_prox()}} for the other two predicates, and
+\code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=structured_penalty]{structured_penalty()}} and
+\code{\link[=additive_penalty]{additive_penalty()}} for the branches.
 }

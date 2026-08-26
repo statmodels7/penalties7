@@ -13,7 +13,8 @@ AdditivePenalty(
   link_params = list(),
   params_smooth = logical(0),
   mats = list(),
-  p_rank = integer(0)
+  p_rank = integer(0),
+  null_basis = NULL
 )
 }
 \arguments{
@@ -48,24 +49,30 @@ on in this order.}
 
 \item{p_rank}{The rank of the sum, a single whole number, the same at every
 positive setting of the parameters.}
+
+\item{null_basis}{An orthonormal basis of the components' shared null
+space, \code{n_coef} by \code{n_coef - p_rank}, read from the same
+eigendecomposition as \code{p_rank} and equally fixed.}
 }
 \value{
 An S7 object of class \code{AdditivePenalty}, inheriting from \code{\link[=penalty]{penalty()}},
-with the seven inherited properties and the two above. Its \code{map} is always
-\code{NULL}, a map given to the constructor having been absorbed into \code{mats}.
+with the seven inherited properties and the three above. Its \code{map} is
+always \code{NULL}, a map given to the constructor having been absorbed into
+\code{mats}.
 }
 \description{
 The class \code{\link[=additive_penalty]{additive_penalty()}} builds: several quadratic penalties added
 together, each with a smoothing parameter of its own. Beyond the seven
 properties every penalty carries it stores the list of component matrices,
-already carried through the map, and the rank of the sum.
+already carried through the map, and the rank and null basis of the sum.
 }
 \details{
-The rank is stored because it is a property of the components alone: the
-null space of a sum of positive
-semidefinite matrices is the intersection of the components' null spaces.
-Reading it off the assembled \eqn{S(\lambda)} instead would make it fall as
-the parameters spread apart, which \code{\link[=additive_penalty]{additive_penalty()}} measures.
+The rank and the null basis are stored because both are properties of the
+components alone: the null space of a sum of positive semidefinite
+matrices is the intersection of the components' null spaces, so neither
+moves with the parameters. Reading the rank off the assembled
+\eqn{S(\lambda)} instead would make it fall as the parameters spread
+apart, which \code{\link[=additive_penalty]{additive_penalty()}} measures.
 }
 \examples{
 pen <- additive_penalty(list(diag(3), diag(c(1, 0, 0))))
@@ -73,7 +80,7 @@ S7::S7_inherits(pen, AdditivePenalty)
 
 # One hyperparameter per component, and a rank fixed at construction.
 pen@params
-pen@p_rank
+c(rank = pen@p_rank, null_width = ncol(pen@null_basis))
 length(pen@mats)
 
 }

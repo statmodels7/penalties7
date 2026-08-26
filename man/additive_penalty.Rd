@@ -83,18 +83,18 @@ the components stacked and individually normalized, and the object's answer
 cannot move. A test pins both halves.
 }
 
-\section{What this branch does not supply}{
-\code{\link[=is_quadratic]{is_quadratic()}} answers \code{FALSE} here, although the penalty is a quadratic
-form in the coefficients. \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}} and
-\code{\link[=penalty_logpdet]{penalty_logpdet()}} answer all the same; \code{\link[=penalty_null_basis]{penalty_null_basis()}} rejects. Two
-consequences follow and neither is guessable: a consumer that routes on
-\code{is_quadratic()} will not reach these quantities, and \code{\link[=check_penalty]{check_penalty()}} runs
-none of its three quadratic rows for this branch, so the rank and the log
-pseudo-determinant go untested.
+\section{What this branch supplies}{
+\code{\link[=is_quadratic]{is_quadratic()}} answers \code{TRUE}, a sum of quadratic forms being a quadratic
+form, so \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}} and
+\code{\link[=penalty_logpdet]{penalty_logpdet()}} all answer and \code{\link[=check_penalty]{check_penalty()}} runs its three
+quadratic rows here. What is particular is that the matrix moves with one
+hyperparameter per component rather than with a single scale, so the log
+pseudo-determinant is linear in none of them and the row that checks it
+compares a gradient against \code{numDeriv} where the plain quadratic branch
+reads a slope.
 
-\code{penalty_logpdet()} also answers in a different shape here: \code{grad} is an
-unnamed numeric vector and \code{hess} a matrix, where the other quadratic
-branches return named lists keyed by hyperparameter and by pair.
+\code{\link[=has_prox]{has_prox()}} answers \code{FALSE}, this branch registering no
+\code{\link[=penalty_prox]{penalty_prox()}}, which is asked before \code{is_quadratic()} is.
 }
 
 \examples{

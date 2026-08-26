@@ -127,3 +127,61 @@ test_that("a single component reproduces the quadratic penalty", {
                penalty_value(q, b, list(lambda = 2)))
   expect_equal(penalty_rank(a), penalty_rank(q))
 })
+test_that("the additive branch is quadratic and answers as one", {
+  # A sum of quadratic forms is a quadratic form. is_quadratic() inherited
+  # FALSE from the base class while penalty_matrix(), penalty_rank() and
+  # penalty_logpdet() all answered and penalty_null_basis() rejected, pointing
+  # the reader at a predicate that would have told them nothing.
+  P1 <- crossprod(diff(diag(5)))
+  P2 <- crossprod(diff(diag(5), differences = 2))
+  pen <- additive_penalty(list(P1, P2))
+
+  expect_true(is_quadratic(pen))
+
+  # the null space of the sum is the intersection of the components', which for
+  # these two is the constants, and it does not move with the hyperparameters
+  nb <- penalty_null_basis(pen)
+  expect_identical(dim(nb), c(5L, 1L))
+  for (th in list(list(lambda1 = 1, lambda2 = 1),
+                  list(lambda1 = 1e-6, lambda2 = 1e6))) {
+    S <- penalty_matrix(pen, th)
+    expect_lt(max(abs(S %*% nb)) / max(abs(S)), 1e-12)
+  }
+  # the count is an integer, sum() over a logical, as it was before this
+  expect_identical(penalty_rank(pen), 4L)
+
+  # the log pseudo-determinant answers in the shape the other two quadratic
+  # branches use: named lists keyed by hyperparameter and by pair. It returned
+  # an unnamed numeric vector and a matrix, so the row that now reaches it,
+  # which reads lp$grad[[p]], would have been an error rather than a number.
+  th <- list(lambda1 = 0.7, lambda2 = 2.5)
+  lp <- penalty_logpdet(pen, th)
+  expect_identical(names(lp$grad), pen@params)
+  expect_identical(names(lp$hess), names(penalty_hess_theta(
+    pen, rep(0.1, pen@n_coef), th)))
+  expect_type(lp$grad, "list")
+  expect_type(lp$hess, "list")
+
+  for (p in pen@params) {
+    ref <- numDeriv::grad(function(v) {
+      t2 <- th; t2[[p]] <- v
+      penalty_logpdet(pen, t2)$value
+    }, th[[p]])
+    expect_equal(lp$grad[[p]], ref, tolerance = 1e-7)
+  }
+
+  # check_penalty() runs the three quadratic rows on the branch now, and they
+  # pass: 8 rows before, 11 after
+  res <- check_penalty(pen, theta = th, verbose = FALSE)
+  expect_identical(nrow(res), 11L)
+  expect_true(all(res$status == "OK"),
+              info = paste(res$check[res$status != "OK"], collapse = ", "))
+  expect_true(all(c("quadratic three-point identity",
+                    "logpdet gradient vs numDeriv",
+                    "null basis annihilates the matrix") %in% res$check))
+
+  # and the proximal route is unchanged: has_prox() asks whether penalty_prox
+  # is registered on the base class before it asks is_quadratic(), and this
+  # branch registers none
+  expect_false(has_prox(pen))
+})
