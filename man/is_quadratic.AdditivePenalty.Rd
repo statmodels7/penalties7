@@ -16,9 +16,10 @@ Answers \code{TRUE}. A sum of quadratic forms is a quadratic form, so this branc
 has the matrix, the rank, the null basis and the log pseudo-determinant that
 \code{\link[=is_quadratic]{is_quadratic()}} gates, and a marginal criterion can read them. What is
 particular about it is that the matrix moves with one hyperparameter per
-component rather than with a single scale, so the log pseudo-determinant is
+component, where the plain quadratic branch has one scale, so the log
+pseudo-determinant is
 not linear in any one of them and \code{\link[=check_penalty]{check_penalty()}} compares its gradient
-against \code{numDeriv} rather than reading a slope.
+against \code{numDeriv} where the plain quadratic branch reads a slope.
 }
 \seealso{
 \code{\link[=penalty_matrix.AdditivePenalty]{penalty_matrix.AdditivePenalty()}} for the quantities this admits.

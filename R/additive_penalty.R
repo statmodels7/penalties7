@@ -116,7 +116,8 @@ AdditivePenalty <- S7::new_class(
 #' form, so [penalty_matrix()], [penalty_rank()], [penalty_null_basis()] and
 #' [penalty_logpdet()] all answer and [check_penalty()] runs its three
 #' quadratic rows here. What is particular is that the matrix moves with one
-#' hyperparameter per component rather than with a single scale, so the log
+#' hyperparameter per component, where the plain quadratic branch has a
+#' single scale, so the log
 #' pseudo-determinant is linear in none of them and the row that checks it
 #' compares a gradient against `numDeriv` where the plain quadratic branch
 #' reads a slope.
@@ -661,9 +662,10 @@ S7::method(penalty_null_basis, AdditivePenalty) <- function(pen, ...) {
 #' has the matrix, the rank, the null basis and the log pseudo-determinant that
 #' [is_quadratic()] gates, and a marginal criterion can read them. What is
 #' particular about it is that the matrix moves with one hyperparameter per
-#' component rather than with a single scale, so the log pseudo-determinant is
+#' component, where the plain quadratic branch has one scale, so the log
+#' pseudo-determinant is
 #' not linear in any one of them and [check_penalty()] compares its gradient
-#' against `numDeriv` rather than reading a slope.
+#' against `numDeriv` where the plain quadratic branch reads a slope.
 #' @param pen An [additive_penalty()] object.
 #' @param ... Unused, and accepted so the signature matches the generic's.
 #' @return `TRUE`.

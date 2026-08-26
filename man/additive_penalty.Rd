@@ -88,7 +88,8 @@ cannot move. A test pins both halves.
 form, so \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}} and
 \code{\link[=penalty_logpdet]{penalty_logpdet()}} all answer and \code{\link[=check_penalty]{check_penalty()}} runs its three
 quadratic rows here. What is particular is that the matrix moves with one
-hyperparameter per component rather than with a single scale, so the log
+hyperparameter per component, where the plain quadratic branch has a
+single scale, so the log
 pseudo-determinant is linear in none of them and the row that checks it
 compares a gradient against \code{numDeriv} where the plain quadratic branch
 reads a slope.
