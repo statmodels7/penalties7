@@ -19,7 +19,7 @@ Part of the [statmodels7](https://statmodels7.github.io) toolkit.
 pak::pak("statmodels7/penalties7")
 ```
 
-## The four branches
+## The branches
 
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
 carries a fixed matrix $`P`$ and one smoothing parameter, so it is the
@@ -36,6 +36,21 @@ c(rank = penalty_rank(pen), nullity = ncol(penalty_null_basis(pen)))
 #>       4       2
 penalty_value(pen, rep(1, 6), list(lambda = 1))
 #> [1] 1.348774
+```
+
+The `blocks` argument covers the penalty of $`I_m \otimes P`$, which is
+what a smooth repeated over the levels of a factor needs, and builds it
+from one block: the eigenvalues of the Kronecker product are $`P`$’s
+repeated $`m`$ times, so the rank, the log pseudo-determinant and the
+null basis all follow from the small matrix and the large one is never
+formed.
+
+``` r
+
+blocked <- quadratic_penalty(P, blocks = 50)
+c(rank = penalty_rank(blocked), columns = 6 * 50)
+#>    rank columns 
+#>     200     300
 ```
 
 [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
@@ -59,18 +74,16 @@ penalty_rank(add)
 applies a univariate
 [distributions7](https://statmodels7.github.io/distributions7/)
 log-density coordinatewise, which is what a separable penalty *is*:
-[`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
-is a Gaussian at zero,
 [`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
-a Laplace,
+is a Laplace at zero,
 [`elasticnet_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
-the product of the two, and
+the product of a Laplace and a Gaussian, and
 [`heavy_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
-a Student t.
+a Student t whose degrees of freedom are estimable because the
+normalizing constant travels with the density.
 
 ``` r
 
-ridge <- ridge_penalty(n_coef = 3)
 lasso <- lasso_penalty(n_coef = 3)
 enet  <- elasticnet_penalty(n_coef = 3)
 
@@ -80,22 +93,48 @@ penalty_kinks(lasso, list(lambda = 2))   # where the density is not smooth
 #> [1] 0
 ```
 
+[`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
+is the exception, and it is an exception to the branch rather than to
+the rule. The Gaussian at zero written by its **precision** is exactly
+the quadratic penalty at the identity matrix, to the last bit, so it is
+built there and its hyperparameter is the `lambda` that construction
+already carries. Every penalty here is then written on the chart where a
+larger value shrinks harder.
+
+``` r
+
+ridge <- ridge_penalty(n_coef = 3)
+penalty_value(ridge, c(1, -1, 2), list(lambda = 1))
+#> [1] 5.756816
+
+# the separable Gaussian is kept as the twin the quadratic one is held to
+twin <- distrib_penalty(
+  distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
+  n_coef = 3)
+penalty_value(twin, c(1, -1, 2), list(sigma = 1))
+#> [1] 5.756816
+```
+
 [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
 takes a [parameters7](https://statmodels7.github.io/parameters7/) matrix
 parameter as the **precision**, so the hyperparameters are that
 structure’s free values and every derivative comes from its derivative
 arrays. At a zero log-Cholesky free vector it is the plain ridge.
 
+Which of the two matrices of the prior the parameter is has to be said,
+and the parameter says it: a structure declaring itself usable as either
+is rejected rather than guessed at, the two readings differing in the
+sign of the log-determinant term.
+
 ``` r
 
-st <- structured_penalty(parameters7::log_cholesky(3))
+st <- structured_penalty(parameters7::log_cholesky(3, role = "precision"))
 st@params
 #> [1] "log_L1" "log_L2" "log_L3" "L2.1"   "L3.1"   "L3.2"
 eta <- as.list(stats::setNames(rep(0, length(st@params)), st@params))
 
 c(structured = penalty_value(st, c(1, -1, 2), eta),
-  ridge      = penalty_value(ridge_penalty(n_coef = 3), c(1, -1, 2),
-                             list(sigma = 1)))
+  ridge      = penalty_value(ridge, c(1, -1, 2), list(lambda = 1)))
 #> structured      ridge 
 #>   5.756816   5.756816
 ```
@@ -103,19 +142,70 @@ c(structured = penalty_value(st, c(1, -1, 2), eta),
 [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
 and
 [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
-are defined by their derivative and are improper by construction, so
-they have no normalizing constant and
+are defined by their derivative rather than by a density. Both are the
+lasso near the origin and flat far from it, so a large coefficient is
+left alone where the lasso would go on shrinking it; a second
+hyperparameter says how quickly the penalty flattens. Having no
+integrable density they carry no normalizing constant, and
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
-says so.
+says which penalties do.
 
 ``` r
 
-vapply(list(ridge = ridge, lasso = lasso, scad = scad_penalty(),
-            mcp = mcp_penalty()),
+scad <- scad_penalty(n_coef = 3)
+mcp  <- mcp_penalty(n_coef = 3)
+
+vapply(list(ridge = ridge, lasso = lasso, scad = scad, mcp = mcp),
        is_proper, logical(1))
 #> ridge lasso  scad   mcp 
 #>  TRUE  TRUE FALSE FALSE
+
+# the derivative: the lasso's slope near zero, nothing past the threshold
+b <- c(0.2, 2, 8)
+rbind(lasso = penalty_gradient(lasso, b, list(lambda = 1)),
+      scad  = penalty_gradient(scad,  b, list(lambda = 1, a = 3.7)),
+      mcp   = penalty_gradient(mcp,   b, list(lambda = 1, gamma = 3)))
+#>            [,1]      [,2] [,3]
+#> lasso 1.0000000 1.0000000    1
+#> scad  1.0000000 0.6296296    0
+#> mcp   0.9333333 0.3333333    0
 ```
+
+## Smoothing the absolute value
+
+An `abs_smoother` replaces $`\lvert u \rvert`$ with a smooth $`s(u)`$
+carrying its derivatives to fifth order as functions, which is what a
+term with a break-point needs to become an ordinary differentiable
+model.
+[`smooth_probit()`](https://statmodels7.github.io/penalties7/reference/smooth_probit.md)
+is the one to reach for first: its tails are exact and the convolution
+it performs against a Gaussian is corrected in closed form.
+
+``` r
+
+sm <- smooth_probit(h = 0.2)
+u  <- c(-1, -0.1, 0, 0.1, 1)
+rbind(abs = abs(u), smooth = smoother_deriv(sm, u, order = 0))
+#>        [,1]      [,2]      [,3]      [,4] [,5]
+#> abs       1 0.1000000 0.0000000 0.1000000    1
+#> smooth    1 0.1791186 0.1595769 0.1791186    1
+```
+
+The width cannot be made arbitrarily small.
+[`smoother_width_floor()`](https://statmodels7.github.io/penalties7/reference/smoother_width_floor.md)
+derives the smallest one the design can carry, from the observation that
+the Jacobian column near the kink is of order $`1/h`$ against columns of
+order the range of the data.
+
+``` r
+
+smoother_width_floor(sm, scale = 10)   # a covariate spanning ten units
+#> [1] 1.490116e-07
+```
+
+[`check_abs_smoother()`](https://statmodels7.github.io/penalties7/reference/check_abs_smoother.md)
+validates a smoother of one’s own, each order against one numerical
+differentiation of the analytical order below it.
 
 ## The proximal operator
 
