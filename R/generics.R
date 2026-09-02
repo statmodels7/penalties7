@@ -467,7 +467,7 @@ is_proper <- S7::new_generic("is_proper", "pen")
 #' is_quadratic(quadratic_penalty(diag(2)))
 #' is_quadratic(ridge_penalty())
 #' is_quadratic(structured_penalty(
-#'   parameters7::log_cholesky(2, role = "precision")))
+#'   parameters7::log_cholesky(2)))
 #'
 #' # The third, whose matrix moves with one hyperparameter per component.
 #' add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
@@ -685,7 +685,7 @@ S7::method(penalty_logpdet, penalty) <- function(pen, theta, ...) {
 #' # A bivariate Gaussian prior on three pairs of effects. Its hyperparameters
 #' # are log-Cholesky coordinates, which nobody interprets.
 #' pen <- distrib_penalty(
-#'   distributions7::fixed(distributions7::mvgaussian_distrib(2),
+#'   distributions7::fixed(distributions7::mvgaussian1_distrib(2),
 #'                         mu1 = 0, mu2 = 0), n_coef = 6)
 #' pen@params
 #'

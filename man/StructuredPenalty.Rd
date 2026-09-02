@@ -40,17 +40,17 @@ real line.}
 \item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
 where the value is differentiable in it.}
 
-\item{structure}{A \pkg{parameters7} \code{matrix_parameter} whose \code{role} is
-\code{"covariance"} or \code{"precision"}. It supplies the dimension, the rank, the
-null basis, the free names, the matrix and its derivative arrays.}
+\item{structure}{A \pkg{parameters7} \code{matrix_parameter}, read as the prior's
+precision. It supplies the dimension, the rank, the null basis, the free
+names, the matrix and its derivative arrays.}
 }
 \value{
 An S7 object of class \code{StructuredPenalty}, inheriting from
 \code{\link[=penalty]{penalty()}}, with the seven inherited properties and \code{structure}.
 }
 \description{
-The class \code{\link[=structured_penalty]{structured_penalty()}} builds: the Gaussian prior whose
-covariance or precision is a \pkg{parameters7} matrix parameter. It adds one
+The class \code{\link[=structured_penalty]{structured_penalty()}} builds: the Gaussian prior whose precision
+is a \pkg{parameters7} matrix parameter. It adds one
 property to \code{\link[=penalty]{penalty()}}, the structure itself, and every quantity the branch
 supplies is read off that structure's own contract.
 }
@@ -62,7 +62,7 @@ keeps the matrix positive definite lives inside the structure, where a
 scalar link cannot express it. \code{map} is always \code{NULL}.
 }
 \examples{
-pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
+pen <- structured_penalty(parameters7::ar1(4))
 S7::S7_inherits(pen, StructuredPenalty)
 
 # The hyperparameters are the structure's free names, unconstrained and

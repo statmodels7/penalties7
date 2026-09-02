@@ -32,7 +32,7 @@ is admitted only as a precision, is improper and its constant is the log
 pseudo-determinant over the range.
 }
 \examples{
-pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
+pen <- structured_penalty(parameters7::ar1(4))
 penalty_kinks(pen, list(log_scale = 0.2, z_rho = 0.5))
 is_quadratic(pen)
 is_proper(pen)

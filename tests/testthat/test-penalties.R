@@ -144,9 +144,9 @@ test_that("the base class refuses the marginal pieces off the quadratic branch",
 
 test_that("the structured prior passes its battery on three structures", {
   skip_if_not_installed("numDeriv")
-  for (s in list(parameters7::log_cholesky(3, role = "precision"),
-                 parameters7::ar1(4, role = "precision"),
-                 parameters7::compound_symmetry(3, role = "precision"))) {
+  for (s in list(parameters7::log_cholesky(3),
+                 parameters7::ar1(4),
+                 parameters7::compound_symmetry(3))) {
     pen <- structured_penalty(s)
     set.seed(5)
     th <- stats::setNames(as.list(round(rnorm(s@n_free, sd = 0.3), 2)),
@@ -166,7 +166,7 @@ test_that("the structured prior at the identity precision is the plain ridge", {
   # object, compared with no tolerance to choose
   q <- 3
   beta <- c(0.4, -1.1, 2.2)
-  s <- parameters7::log_cholesky(q, role = "precision")
+  s <- parameters7::log_cholesky(q)
   pen <- structured_penalty(s)
   th <- stats::setNames(as.list(rep(0, s@n_free)), s@free_names)
   ref <- quadratic_penalty(diag(q))
@@ -316,21 +316,34 @@ test_that("a Matrix map does not decide the class of what a penalty returns", {
 # the structured prior reads its structure's role
 # ---------------------------------------------------------------------------
 
-test_that("a structure that does not say which matrix it is is rejected", {
-  # "either" is a statement about the structure, not about this prior, and the
-  # two readings differ in the sign of the log-determinant term: a guess would
-  # give a fit converging to a different matrix without saying so
-  expect_error(structured_penalty(parameters7::log_cholesky(2)), "role")
-  expect_error(structured_penalty(parameters7::ar1(3)), "role")
-  expect_silent(structured_penalty(parameters7::ar1(3, role = "covariance")))
+test_that("the structure is read as the precision, whatever it is", {
+  # the prior has one matrix and this branch says which: no argument, no
+  # label, no guess
+  for (s in list(parameters7::log_cholesky(2), parameters7::ar1(3),
+                 parameters7::compound_symmetry(3),
+                 parameters7::inverse_of(parameters7::ar1(3)))) {
+    expect_silent(structured_penalty(s))
+  }
+  # and the Hessian IS the structure's matrix, which is what "precision" means
+  pen <- structured_penalty(parameters7::ar1(4))
+  th <- list(log_scale = 0.2, z_rho = 0.5)
+  expect_equal(
+    unname(penalty_hessian(pen, c(0.3, -0.1, 0.4, 0.2), th)),
+    unname(unclass(parameters7::param_value(parameters7::ar1(4), c(0.2, 0.5))))
+  )
+  # a parameter that is not a matrix has no prior to give
+  expect_error(structured_penalty(parameters7::simplex(3)), "matrix_parameter")
 })
 
 
-test_that("a rank-deficient covariance is rejected and a precision is not", {
-  d <- parameters7::scaled_matrix(diag(c(1, 1, 0)), role = "covariance")
-  expect_error(structured_penalty(d), "no inverse")
-  ok <- parameters7::scaled_matrix(diag(c(1, 1, 0)), role = "precision")
+test_that("a rank-deficient structure is an improper prior, and has no inverse", {
+  # deficient as a precision: the improper prior the log pseudo-determinant is
+  # written for
+  ok <- parameters7::scaled_matrix(diag(c(1, 1, 0)))
   expect_false(is_proper(structured_penalty(ok)))
+  # and the covariance reading of it does not exist, which is now where the
+  # refusal lives: a singular matrix has no inverse
+  expect_error(parameters7::inverse_of(ok), "rank")
 })
 
 
@@ -339,11 +352,13 @@ test_that("the covariance branch at Sigma is the precision branch at Sigma^-1", 
   # two are the same prior, so every quantity agrees to the last bit
   set.seed(11)
   for (d in 2:4) {
-    sc <- parameters7::log_cholesky(d, role = "covariance")
-    sp <- parameters7::log_cholesky(d, role = "precision")
+    sc <- parameters7::inverse_of(parameters7::log_cholesky(d))
+    sp <- parameters7::log_cholesky(d)
     eta <- stats::rnorm(sc@n_free, sd = 0.4)
     b <- stats::rnorm(d)
-    om <- solve(unclass(parameters7::param_value(sc, eta)))
+    # sc's VALUE is already the precision the prior reads: its inner family
+    # supplies the covariance, and inverse_of inverts it
+    om <- unclass(parameters7::param_value(sc, eta))
     th_c <- stats::setNames(as.list(eta), sc@free_names)
     th_p <- stats::setNames(as.list(parameters7::param_free(sp, om)),
                             sp@free_names)
@@ -355,8 +370,9 @@ test_that("the covariance branch at Sigma is the precision branch at Sigma^-1", 
                  tolerance = 1e-12)
     expect_equal(unname(penalty_hessian(pc, b, th_c)),
                  unname(penalty_hessian(pp, b, th_p)), tolerance = 1e-12)
-    # and the value IS the negative log-density of N(0, Sigma)
-    sig <- unclass(parameters7::param_value(sc, eta))
+    # and the value IS the negative log-density of N(0, Sigma), with Sigma the
+    # inner family's own value
+    sig <- unclass(parameters7::param_value(parameters7::log_cholesky(d), eta))
     ref <- -(-d / 2 * log(2 * pi) -
              determinant(sig, logarithm = TRUE)$modulus[1] / 2 -
              sum(b * solve(sig, b)) / 2)
@@ -371,7 +387,7 @@ test_that("the covariance branch's theta derivatives agree with numDeriv", {
   # second derivative in two DIFFERENT free values exists
   set.seed(12)
   for (d in 2:4) {
-    s <- parameters7::log_cholesky(d, role = "covariance")
+    s <- parameters7::inverse_of(parameters7::log_cholesky(d))
     pen <- structured_penalty(s)
     eta <- stats::rnorm(s@n_free, sd = 0.35)
     b <- stats::rnorm(d)
@@ -400,9 +416,9 @@ test_that("the covariance branch's theta derivatives agree with numDeriv", {
 
 test_that("the covariance branch passes check_penalty", {
   skip_if_not_installed("numDeriv")
-  for (s in list(parameters7::log_cholesky(3, role = "covariance"),
-                 parameters7::ar1(4, role = "covariance"),
-                 parameters7::compound_symmetry(3, role = "covariance"))) {
+  for (s in list(parameters7::inverse_of(parameters7::log_cholesky(3)),
+                 parameters7::inverse_of(parameters7::ar1(4)),
+                 parameters7::inverse_of(parameters7::compound_symmetry(3)))) {
     pen <- structured_penalty(s)
     set.seed(5)
     th <- stats::setNames(as.list(round(stats::rnorm(s@n_free, sd = 0.3), 2)),

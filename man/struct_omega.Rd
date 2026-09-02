@@ -20,9 +20,9 @@ struct_logdet(pen, eta, order = 2L)
 
 \item{eta}{The structure's free vector, as \code{\link[=struct_eta]{struct_eta()}} returns it.}
 
-\item{omega}{The precision, when the caller already has it, so that a
-covariance structure is not inverted twice. \code{NULL} computes it.
-\code{struct_d1()} and \code{struct_d2()} only.}
+\item{omega}{Accepted and unused, kept so the call sites that pass a
+precision they already hold need no branch. \code{struct_d1()} and
+\code{struct_d2()} only.}
 
 \item{order}{The highest derivative wanted, 0, 1 or 2.}
 }
@@ -39,25 +39,17 @@ named list, one number per pair, keyed as \code{struct_d2()} is).
 }
 \description{
 The four helpers that read the prior's precision and its derivatives off the
-structure, transporting from the covariance where that is what the structure
-describes. \code{struct_omega()} returns \eqn{\Omega}, \code{struct_d1()} its first
+structure. \code{struct_omega()} returns \eqn{\Omega}, \code{struct_d1()} its first
 derivatives, \code{struct_d2()} its second, and \code{struct_logdet()} the
 log-determinant with as many orders as asked for.
 }
 \details{
-The branch is written in the precision throughout, so the transport happens
-here and every method is the same arithmetic in both roles. Writing it twice
-would be two implementations of one prior.
-
-For a covariance structure, with \eqn{A_k} and \eqn{A_{kl}} the structure's
-own derivative arrays,
-
-\deqn{\Omega = \Sigma^{-}, \qquad \partial_k\Omega = -\Omega A_k \Omega,
-  \qquad \partial_{kl}\Omega = \Omega\left(A_k\Omega A_l
-    + A_l\Omega A_k\right)\Omega - \Omega A_{kl}\Omega,}
-
-and the log-determinant is negated at every order. For a precision structure
-each helper unwraps the structure's answer and returns it.
+The structure is the precision, so each helper unwraps the structure's own
+answer and returns it, and no transport happens here. A caller who wants a
+structure read as a covariance passes
+\code{parameters7::inverse_of()} of it, which carries
+\eqn{\partial_k\Omega = -\Omega A_k \Omega} and its higher orders inside
+the structure, where the log-determinant stays exact.
 
 Second-order components are keyed as \pkg{parameters7} keys them: the two
 free names joined by a colon, the pair sorted by position in \code{free_names}.

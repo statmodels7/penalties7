@@ -66,7 +66,7 @@ reads. Only a branch that carries them on a chart registers a method.
 # A bivariate Gaussian prior on three pairs of effects. Its hyperparameters
 # are log-Cholesky coordinates, which nobody interprets.
 pen <- distrib_penalty(
-  distributions7::fixed(distributions7::mvgaussian_distrib(2),
+  distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                         mu1 = 0, mu2 = 0), n_coef = 6)
 pen@params
 

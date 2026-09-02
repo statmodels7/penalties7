@@ -33,7 +33,7 @@ multivariate normal log-density with mean zero.
 }
 \examples{
 # A covariance structure gives exactly a multivariate normal log-density.
-s <- parameters7::ar1(4, role = "covariance")
+s <- parameters7::inverse_of(parameters7::ar1(4))
 pen <- structured_penalty(s)
 b <- c(0.3, -0.1, 0.4, 0.2)
 S <- unclass(parameters7::param_value(s, c(0.2, 0.5)))

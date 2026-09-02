@@ -55,7 +55,7 @@ the two free names joined by a colon and sorted by position, and the key is
 constructed from the pair rather than parsed out of a name.
 }
 \examples{
-pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
+pen <- structured_penalty(parameters7::ar1(4))
 th <- list(log_scale = 0.2, z_rho = 0.5)
 b <- c(0.3, -0.1, 0.4, 0.2)
 

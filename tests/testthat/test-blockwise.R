@@ -3,7 +3,7 @@
 
 .mv_centered <- function(p, ...) {
   do.call(distributions7::fixed,
-          c(list(distributions7::mvgaussian_distrib(p, ...)),
+          c(list(distributions7::mvgaussian1_distrib(p, ...)),
             stats::setNames(as.list(rep(0, p)), paste0("mu", seq_len(p)))))
 }
 
@@ -34,7 +34,7 @@ test_that("the value is the negative log density of the blocks", {
     th <- stats::setNames(as.list(eta), pen@params)
     b <- stats::rnorm(m * p)
     sig <- distributions7::mv_sigma(
-      distributions7::mvgaussian_distrib(p),
+      distributions7::mvgaussian1_distrib(p),
       c(stats::setNames(as.list(rep(0, p)), paste0("mu", seq_len(p))), th))
     B <- matrix(b, ncol = p, byrow = TRUE)
     ref <- sum(apply(B, 1, function(r) {
@@ -106,7 +106,7 @@ test_that("a block whose covariance is diagonal IS a product of univariates", {
   # with no tolerance to choose. The chart of diagonal_matrix is the log of the
   # DIAGONAL ENTRY, i.e. of the variance, so the univariate scale is its root.
   mv <- do.call(distributions7::fixed,
-    list(distributions7::mvgaussian_distrib(
+    list(distributions7::mvgaussian1_distrib(
       2, sigma = parameters7::diagonal_matrix(2)), mu1 = 0, mu2 = 0))
   pb <- distrib_penalty(mv, n_coef = 6)
   th <- stats::setNames(as.list(c(log(1.5), log(0.7))), pb@params)
@@ -251,7 +251,7 @@ test_that("the marginal pieces work for a Student t parent too", {
   p <- 2
   m <- 3
   mvt <- do.call(distributions7::fixed,
-                 list(distributions7::mvstudent_t_distrib(p),
+                 list(distributions7::mvstudent_t1_distrib(p),
                       mu1 = 0, mu2 = 0))
   pen <- distrib_penalty(mvt, n_coef = m * p)
   nm <- pen@params

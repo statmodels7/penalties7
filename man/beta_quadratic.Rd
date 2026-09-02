@@ -59,7 +59,7 @@ puts its coefficients.
 # The two branches that answer TRUE to both predicates.
 beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
 beta_quadratic(structured_penalty(
-  parameters7::log_cholesky(2, role = "precision")),
+  parameters7::log_cholesky(2)),
   list(log_L1 = 0, log_L2 = 0, L2.1 = 0))
 
 # A Gaussian prior is quadratic in beta and is not a quadratic penalty.

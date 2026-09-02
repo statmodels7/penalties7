@@ -133,7 +133,7 @@ DistribPenalty <- S7::new_class(
 #'
 #' # A correlated prior over two coefficients per block, three blocks. The
 #' # hyperparameters are the matrix parameter's free values.
-#' mv <- distributions7::fixed(distributions7::mvgaussian_distrib(2),
+#' mv <- distributions7::fixed(distributions7::mvgaussian1_distrib(2),
 #'                             mu1 = 0, mu2 = 0)
 #' pen2 <- distrib_penalty(mv, n_coef = 6)
 #' pen2@block
@@ -698,7 +698,7 @@ S7::method(penalty_value, DistribPenalty) <- function(pen, beta, theta, ...) {
 #' # A multivariate parent gives a block-diagonal Hessian: dependence within
 #' # a block, none between blocks.
 #' mv <- distrib_penalty(
-#'   distributions7::fixed(distributions7::mvgaussian_distrib(2),
+#'   distributions7::fixed(distributions7::mvgaussian1_distrib(2),
 #'                         mu1 = 0, mu2 = 0), n_coef = 4)
 #' round(penalty_hessian(mv, c(1, 0, -1, 0.5),
 #'                       list(sigma_log_L1 = 0, sigma_log_L2 = 0,
@@ -916,7 +916,7 @@ S7::method(is_proper, DistribPenalty) <- function(pen, ...) {
 #'
 #' # A bivariate Gaussian prior: two standard deviations and a correlation.
 #' mv <- distrib_penalty(
-#'   distributions7::fixed(distributions7::mvgaussian_distrib(2),
+#'   distributions7::fixed(distributions7::mvgaussian1_distrib(2),
 #'                         mu1 = 0, mu2 = 0), n_coef = 6)
 #' r <- penalty_readable(mv, list(sigma_log_L1 = 0.2, sigma_log_L2 = -0.1,
 #'                                sigma_L2.1 = 0.5))

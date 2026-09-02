@@ -64,7 +64,7 @@ branch is answered without one.
 is_quadratic(quadratic_penalty(diag(2)))
 is_quadratic(ridge_penalty())
 is_quadratic(structured_penalty(
-  parameters7::log_cholesky(2, role = "precision")))
+  parameters7::log_cholesky(2)))
 
 # The third, whose matrix moves with one hyperparameter per component.
 add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))

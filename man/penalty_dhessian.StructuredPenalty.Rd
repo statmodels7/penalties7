@@ -52,7 +52,7 @@ shape.
 }
 
 \examples{
-s <- structured_penalty(parameters7::log_cholesky(2, role = "precision"))
+s <- structured_penalty(parameters7::log_cholesky(2))
 th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
 b <- c(1, -0.5)
 

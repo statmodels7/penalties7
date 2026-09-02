@@ -44,7 +44,7 @@ every free vector. \code{penalty_null_basis()} reshapes a vector-valued null
 basis into a one-column matrix, so its return is always a matrix.
 }
 \examples{
-pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
+pen <- structured_penalty(parameters7::ar1(4))
 th <- list(log_scale = 0.2, z_rho = 0.5)
 
 penalty_rank(pen)

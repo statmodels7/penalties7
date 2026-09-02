@@ -1,3 +1,35 @@
+# penalties7 0.20.0
+
+* `structured_penalty()` reads its structure as the prior's **precision**,
+  always. It no longer reads `parameters7`'s `role`, which that package
+  removes at 0.19.0, and it no longer rejects a structure that declares
+  itself usable as either -- there is nothing left to declare.
+
+  The prior is a negative log-density and the matrix it needs is the one in
+  the quadratic form, so the side is a property of the construction rather
+  than a choice offered to the caller. The book has said so in
+  `sec-penalty-structured` since it was written.
+
+* A caller who wants the structure on the covariance side writes
+  `structured_penalty(parameters7::inverse_of(s))`. Nothing becomes
+  inexpressible: `inverse_of()` carries the chain rule for an inverse to
+  fourth order inside the structure, where the log-determinant stays exact,
+  and for `ar1()` and `autoregressive()` the inverse has a name of its own.
+  The twin that made the sign verifiable -- the covariance reading at Sigma
+  against the precision reading at Sigma^-1, agreeing to the last bit -- is
+  kept, rewritten through the wrapper.
+
+* `struct_is_cov()` is gone and the four helpers `struct_omega()`,
+  `struct_d1()`, `struct_d2()` and `struct_logdet()` no longer transport: a
+  structure meant for the other side is a different structure and supplies
+  its own arrays. `penalty_name` drops the role it used to carry, reading
+  `structured [ar1]` rather than `structured [ar1, precision]`.
+
+* A rank-deficient structure is admitted without qualification, giving the
+  improper prior the log pseudo-determinant is written for. The refusal that
+  used to sit here for the covariance reading now sits in `inverse_of()`,
+  where it belongs: a singular matrix has no inverse.
+
 # penalties7 0.19.0
 
 * `is_quadratic()` answers `TRUE` for an `additive_penalty()`. It inherited

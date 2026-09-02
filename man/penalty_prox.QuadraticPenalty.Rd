@@ -50,7 +50,7 @@ penalty_prox(quadratic_penalty(crossprod(diff(diag(3)))), v, 1,
              list(lambda = 5))
 
 # A structured penalty at a zero log-Cholesky free vector is the ridge.
-s <- structured_penalty(parameters7::log_cholesky(3, role = "precision"))
+s <- structured_penalty(parameters7::log_cholesky(3))
 penalty_prox(s, v, 1,
              as.list(stats::setNames(rep(0, 6), s@params)))
 

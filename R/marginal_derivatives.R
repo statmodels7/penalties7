@@ -149,7 +149,7 @@ penalty_dhessian <- S7::new_generic("penalty_dhessian", "pen",
 #'
 #' # Not zero for a structured penalty, whose matrix is not linear in any
 #' # one free value.
-#' s <- structured_penalty(parameters7::log_cholesky(2, role = "precision"))
+#' s <- structured_penalty(parameters7::log_cholesky(2))
 #' th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
 #' penalty_d2hessian(s, c(1, -0.5), th)$log_L1_log_L1
 #'
@@ -208,7 +208,7 @@ penalty_d2hessian <- S7::new_generic("penalty_d2hessian", "pen",
 #'
 #' # And not on the structured one, where it is d2 Omega / dtheta^2 times
 #' # the coefficients.
-#' s <- structured_penalty(parameters7::log_cholesky(2, role = "precision"))
+#' s <- structured_penalty(parameters7::log_cholesky(2))
 #' th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
 #' bb <- c(1, -0.5)
 #' penalty_dcross(s, bb, th)$log_L1_log_L1
@@ -280,7 +280,7 @@ penalty_dcross <- S7::new_generic("penalty_dcross", "pen",
 #' # The two branches that answer TRUE to both predicates.
 #' beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
 #' beta_quadratic(structured_penalty(
-#'   parameters7::log_cholesky(2, role = "precision")),
+#'   parameters7::log_cholesky(2)),
 #'   list(log_L1 = 0, log_L2 = 0, L2.1 = 0))
 #'
 #' # A Gaussian prior is quadratic in beta and is not a quadratic penalty.
@@ -571,7 +571,7 @@ S7::method(beta_quadratic, AdditivePenalty) <- function(pen, theta, ...) TRUE
 #'   `beta_quadratic()` the single logical `TRUE`.
 #'
 #' @examples
-#' s <- structured_penalty(parameters7::log_cholesky(2, role = "precision"))
+#' s <- structured_penalty(parameters7::log_cholesky(2))
 #' th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
 #' b <- c(1, -0.5)
 #'

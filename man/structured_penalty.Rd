@@ -7,19 +7,15 @@
 structured_penalty(structure)
 }
 \arguments{
-\item{structure}{A \pkg{parameters7} \code{matrix_parameter} whose \code{role} says
-which matrix of the prior it is.
+\item{structure}{A \pkg{parameters7} \code{matrix_parameter}, read as the prior's
+precision. Pass \code{parameters7::inverse_of(s)} to put \code{s} on the covariance
+side instead.
 
-A structure declared \code{"precision"} may be rank deficient, giving an
-improper prior: \code{\link[=is_proper]{is_proper()}} then answers \code{FALSE} and the constant uses
-the rank and the log pseudo-determinant.
-
-A structure declared \code{"covariance"} may not be rank deficient. A
-covariance of deficient rank has no inverse, and a direction of zero
-variance is a constraint on the coefficients and not a prior over them;
-the constructor rejects it, naming the rank and the dimension.
-
-A structure declaring \code{"either"} is rejected, with the two roles named.}
+It may be rank deficient, giving an improper prior: \code{\link[=is_proper]{is_proper()}} then
+answers \code{FALSE} and the constant uses the rank and the log
+pseudo-determinant. That is the one case the covariance reading cannot
+have, and \code{parameters7::inverse_of()} rejects it there for the reason a
+deficient covariance has no inverse.}
 }
 \value{
 A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object whose hyperparameters are the
@@ -34,8 +30,8 @@ there one scale multiplies a constant matrix, here the hyperparameters reach
 every entry.
 }
 \section{The value}{
-Writing \eqn{\Omega} for the precision, whether the structure supplies it
-directly or through the covariance it describes,
+Writing \eqn{\Omega} for the precision, which is what the structure
+supplies,
 
 \deqn{\rho(\beta; \theta) = \tfrac{1}{2}\,\beta'\Omega(\theta)\beta
   - \tfrac{1}{2}\log\mathrm{pdet}\,\Omega(\theta)
@@ -46,37 +42,37 @@ with \eqn{r} the structure's rank. For a full-rank structure this is exactly
 against a hand-written one.
 }
 
-\section{The two roles}{
-The structure's \code{role} says which matrix of the prior it is, and the two
-readings are different priors from the same free vector. A structure of
-role \code{"precision"} at \eqn{\eta} gives \eqn{\Omega = M(\eta)}; one of role
-\code{"covariance"} gives \eqn{\Omega = M(\eta)^{-1}}. There is in general no
-free vector that makes the two agree: the inverse of an AR(1) covariance is
-tridiagonal and is not an AR(1) covariance at any parameters.
+\section{The structure is the precision}{
+The matrix the structure supplies is the prior's \strong{precision}:
+\eqn{\Omega = M(\eta)}. That is a property of the construction and not a
+choice offered to the caller, \eqn{\rho} being a negative log-density and
+the matrix it needs being the one in the quadratic form.
 
-A structure that declares \code{"either"} is rejected. The two readings differ in
-the sign of the log-determinant term, and nothing in the matrix says which
-was meant, so a default would give a fit that converges to a different prior
-without saying so.
+Which side a structure is meant for still matters, because the two are
+different priors: there is in general no free vector at which they agree,
+the inverse of an AR(1) covariance being tridiagonal and not an AR(1) at any
+parameters. A caller who wants the structure on the covariance side says so
+by building the family whose value is its inverse,
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{structured_penalty(parameters7::inverse_of(s))
+}\if{html}{\out{</div>}}
+
+which carries \eqn{\partial_k \Sigma^{-1} = -\Sigma^{-1}A_k\Sigma^{-1}} and
+its higher orders inside the structure, where the log-determinant stays
+exact. For \code{\link[parameters7:ar1]{parameters7::ar1()}} and \code{\link[parameters7:autoregressive]{parameters7::autoregressive()}} the
+inverse has a name of its own, \code{\link[parameters7:ar1_inv]{parameters7::ar1_inv()}} and
+\code{\link[parameters7:autoregressive_inv]{parameters7::autoregressive_inv()}}, and for a structure closed under
+inversion nothing is needed at all.
 }
 
 \section{The derivatives}{
-Every derivative comes from the structure's own contract. Where the
-structure is the precision, the hyperparameter gradient is
+Every derivative comes from the structure's own contract. The hyperparameter
+gradient is
 \eqn{\tfrac{1}{2}\beta'A_k\beta - \tfrac{1}{2}\partial_k\log\mathrm{pdet}}
 with \eqn{A_k} the structure's \code{param_d1}, the Hessian adds \code{param_d2}, and
-the mixed block is \eqn{A_k\beta}. Where it is the covariance the same
-expressions are read at the precision it implies, whose derivatives follow
-from the chain rule for an inverse,
-
-\deqn{\partial_k\Omega = -\Omega A_k \Omega, \qquad
-  \partial_{kl}\Omega = \Omega\left(A_k\Omega A_l
-    + A_l\Omega A_k\right)\Omega - \Omega A_{kl}\Omega,}
-
-with \eqn{\log\lvert\Omega\rvert = -\log\lvert\Sigma\rvert} and its
-derivatives negated termwise. The transport is done once, in
-\code{\link[=struct_omega]{struct_omega()}} and its siblings, so the methods are the same arithmetic in
-both cases.
+the mixed block is \eqn{A_k\beta}. Nothing is transported here: a structure
+meant for the other side is a different structure, and it supplies its own
+arrays.
 }
 
 \section{No map}{
@@ -88,20 +84,20 @@ log-determinant stays exact, is the structure's own business.
 \examples{
 # An AR(1) prior on four coefficients: two hyperparameters reach every
 # entry of the precision.
-pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
+pen <- structured_penalty(parameters7::ar1(4))
 pen@params
 theta <- list(log_scale = 0.2, z_rho = 0.5)
 b <- c(0.3, -0.1, 0.4, 0.2)
 penalty_value(pen, b, theta)
 
 # The Hessian is the structure's own matrix, read as a precision.
-Om <- parameters7::param_value(parameters7::ar1(4, role = "precision"),
+Om <- parameters7::param_value(parameters7::ar1(4),
                                c(0.2, 0.5))
 max(abs(penalty_hessian(pen, b, theta) - unclass(Om)))
 
 # The same structure read as a covariance is a DIFFERENT prior at the same
 # free values: there the Hessian is the inverse of that matrix.
-cov <- structured_penalty(parameters7::ar1(4, role = "covariance"))
+cov <- structured_penalty(parameters7::inverse_of(parameters7::ar1(4)))
 max(abs(penalty_hessian(cov, b, theta) - solve(unclass(Om))))
 c(precision = penalty_value(pen, b, theta),
   covariance = penalty_value(cov, b, theta))
@@ -115,7 +111,7 @@ penalty_value(cov, b, theta) -
 
 # At a zero log-Cholesky free vector the structure is the identity, so the
 # penalty is the plain ridge at lambda = 1, to the last bit.
-s <- structured_penalty(parameters7::log_cholesky(3, role = "precision"))
+s <- structured_penalty(parameters7::log_cholesky(3))
 z <- as.list(stats::setNames(rep(0, length(s@params)), s@params))
 bb <- c(0.4, -1.1, 0.7)
 penalty_value(s, bb, z) - penalty_value(ridge_penalty(n_coef = 3), bb,
