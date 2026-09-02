@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.20.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,16 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.20.0" id="penalties7-0200">penalties7 0.20.0<a class="anchor" aria-label="anchor" href="#penalties7-0200"></a></h2>
+<ul><li>
+<p><code><a href="../reference/structured_penalty.html">structured_penalty()</a></code> reads its structure as the prior’s <strong>precision</strong>, always. It no longer reads <code>parameters7</code>’s <code>role</code>, which that package removes at 0.19.0, and it no longer rejects a structure that declares itself usable as either – there is nothing left to declare.</p>
+<p>The prior is a negative log-density and the matrix it needs is the one in the quadratic form, so the side is a property of the construction rather than a choice offered to the caller. The book has said so in <code>sec-penalty-structured</code> since it was written.</p>
+</li>
+<li><p>A caller who wants the structure on the covariance side writes <code>structured_penalty(parameters7::inverse_of(s))</code>. Nothing becomes inexpressible: <code>inverse_of()</code> carries the chain rule for an inverse to fourth order inside the structure, where the log-determinant stays exact, and for <code>ar1()</code> and <code>autoregressive()</code> the inverse has a name of its own. The twin that made the sign verifiable – the covariance reading at Sigma against the precision reading at Sigma^-1, agreeing to the last bit – is kept, rewritten through the wrapper.</p></li>
+<li><p><code>struct_is_cov()</code> is gone and the four helpers <code><a href="../reference/struct_omega.html">struct_omega()</a></code>, <code><a href="../reference/struct_omega.html">struct_d1()</a></code>, <code><a href="../reference/struct_omega.html">struct_d2()</a></code> and <code><a href="../reference/struct_omega.html">struct_logdet()</a></code> no longer transport: a structure meant for the other side is a different structure and supplies its own arrays. <code>penalty_name</code> drops the role it used to carry, reading <code>structured [ar1]</code> rather than <code>structured [ar1, precision]</code>.</p></li>
+<li><p>A rank-deficient structure is admitted without qualification, giving the improper prior the log pseudo-determinant is written for. The refusal that used to sit here for the covariance reading now sits in <code>inverse_of()</code>, where it belongs: a singular matrix has no inverse.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.19.0" id="penalties7-0190">penalties7 0.19.0<a class="anchor" aria-label="anchor" href="#penalties7-0190"></a></h2>
 <ul><li><p><code><a href="../reference/is_quadratic.html">is_quadratic()</a></code> answers <code>TRUE</code> for an <code><a href="../reference/additive_penalty.html">additive_penalty()</a></code>. It inherited <code>FALSE</code> from the base class while <code><a href="../reference/penalty_matrix.html">penalty_matrix()</a></code>, <code><a href="../reference/penalty_matrix.html">penalty_rank()</a></code> and <code><a href="../reference/penalty_matrix.html">penalty_logpdet()</a></code> all answered for that branch and <code><a href="../reference/penalty_matrix.html">penalty_null_basis()</a></code> rejected with a message pointing at a predicate that would have told the reader nothing. A sum of quadratic forms is a quadratic form.</p></li>

@@ -88,7 +88,7 @@ names(penalty_d2hessian(add, b, list(lambda1 = 2, lambda2 = 0.5)))
 
 # Not zero for a structured penalty, whose matrix is not linear in any
 # one free value.
-s <- structured_penalty(parameters7::log_cholesky(2, role = "precision"))
+s <- structured_penalty(parameters7::log_cholesky(2))
 th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
 penalty_d2hessian(s, c(1, -0.5), th)$log_L1_log_L1
 #>           [,1]      [,2]

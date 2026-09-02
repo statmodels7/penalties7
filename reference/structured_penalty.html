@@ -17,7 +17,7 @@ every entry."><meta property="og:image" content="https://statmodels7.github.io/p
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.20.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,16 +62,14 @@ every entry.</p>
 
 
 <dl><dt id="arg-structure">structure<a class="anchor" aria-label="anchor" href="#arg-structure"></a></dt>
-<dd><p>A <span class="pkg">parameters7</span> <code>matrix_parameter</code> whose <code>role</code> says
-which matrix of the prior it is.</p>
-<p>A structure declared <code>"precision"</code> may be rank deficient, giving an
-improper prior: <code><a href="is_proper.html">is_proper()</a></code> then answers <code>FALSE</code> and the constant uses
-the rank and the log pseudo-determinant.</p>
-<p>A structure declared <code>"covariance"</code> may not be rank deficient. A
-covariance of deficient rank has no inverse, and a direction of zero
-variance is a constraint on the coefficients and not a prior over them;
-the constructor rejects it, naming the rank and the dimension.</p>
-<p>A structure declaring <code>"either"</code> is rejected, with the two roles named.</p></dd>
+<dd><p>A <span class="pkg">parameters7</span> <code>matrix_parameter</code>, read as the prior's
+precision. Pass <code>parameters7::inverse_of(s)</code> to put <code>s</code> on the covariance
+side instead.</p>
+<p>It may be rank deficient, giving an improper prior: <code><a href="is_proper.html">is_proper()</a></code> then
+answers <code>FALSE</code> and the constant uses the rank and the log
+pseudo-determinant. That is the one case the covariance reading cannot
+have, and <code><a href="https://statmodels7.github.io/parameters7/reference/inverse_of.html" class="external-link">parameters7::inverse_of()</a></code> rejects it there for the reason a
+deficient covariance has no inverse.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -81,8 +79,8 @@ structure's <code>free_names</code>, each unconstrained and on an identity link.
     </div>
     <div class="section level2">
     <h2 id="the-value">The value<a class="anchor" aria-label="anchor" href="#the-value"></a></h2>
-    <p>Writing \(\Omega\) for the precision, whether the structure supplies it
-directly or through the covariance it describes,</p>
+    <p>Writing \(\Omega\) for the precision, which is what the structure
+supplies,</p>
 <p>$$\rho(\beta; \theta) = \tfrac{1}{2}\,\beta'\Omega(\theta)\beta
   - \tfrac{1}{2}\log\mathrm{pdet}\,\Omega(\theta)
   + \tfrac{r}{2}\log 2\pi,$$</p>
@@ -91,34 +89,33 @@ directly or through the covariance it describes,</p>
 against a hand-written one.</p>
     </div>
     <div class="section level2">
-    <h2 id="the-two-roles">The two roles<a class="anchor" aria-label="anchor" href="#the-two-roles"></a></h2>
-    <p>The structure's <code>role</code> says which matrix of the prior it is, and the two
-readings are different priors from the same free vector. A structure of
-role <code>"precision"</code> at \(\eta\) gives \(\Omega = M(\eta)\); one of role
-<code>"covariance"</code> gives \(\Omega = M(\eta)^{-1}\). There is in general no
-free vector that makes the two agree: the inverse of an AR(1) covariance is
-tridiagonal and is not an AR(1) covariance at any parameters.</p>
-<p>A structure that declares <code>"either"</code> is rejected. The two readings differ in
-the sign of the log-determinant term, and nothing in the matrix says which
-was meant, so a default would give a fit that converges to a different prior
-without saying so.</p>
+    <h2 id="the-structure-is-the-precision">The structure is the precision<a class="anchor" aria-label="anchor" href="#the-structure-is-the-precision"></a></h2>
+    <p>The matrix the structure supplies is the prior's <strong>precision</strong>:
+\(\Omega = M(\eta)\). That is a property of the construction and not a
+choice offered to the caller, \(\rho\) being a negative log-density and
+the matrix it needs being the one in the quadratic form.</p>
+<p>Which side a structure is meant for still matters, because the two are
+different priors: there is in general no free vector at which they agree,
+the inverse of an AR(1) covariance being tridiagonal and not an AR(1) at any
+parameters. A caller who wants the structure on the covariance side says so
+by building the family whose value is its inverse,</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">structured_penalty</span>(parameters7<span class="sc">::</span><span class="fu">inverse_of</span>(s))</span></code></pre><p></p></div>
+<p>which carries \(\partial_k \Sigma^{-1} = -\Sigma^{-1}A_k\Sigma^{-1}\) and
+its higher orders inside the structure, where the log-determinant stays
+exact. For <code><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">parameters7::ar1()</a></code> and <code><a href="https://statmodels7.github.io/parameters7/reference/autoregressive.html" class="external-link">parameters7::autoregressive()</a></code> the
+inverse has a name of its own, <code><a href="https://statmodels7.github.io/parameters7/reference/ar1_inv.html" class="external-link">parameters7::ar1_inv()</a></code> and
+<code><a href="https://statmodels7.github.io/parameters7/reference/autoregressive_inv.html" class="external-link">parameters7::autoregressive_inv()</a></code>, and for a structure closed under
+inversion nothing is needed at all.</p>
     </div>
     <div class="section level2">
     <h2 id="the-derivatives">The derivatives<a class="anchor" aria-label="anchor" href="#the-derivatives"></a></h2>
-    <p>Every derivative comes from the structure's own contract. Where the
-structure is the precision, the hyperparameter gradient is
+    <p>Every derivative comes from the structure's own contract. The hyperparameter
+gradient is
 \(\tfrac{1}{2}\beta'A_k\beta - \tfrac{1}{2}\partial_k\log\mathrm{pdet}\)
 with \(A_k\) the structure's <code>param_d1</code>, the Hessian adds <code>param_d2</code>, and
-the mixed block is \(A_k\beta\). Where it is the covariance the same
-expressions are read at the precision it implies, whose derivatives follow
-from the chain rule for an inverse,</p>
-<p>$$\partial_k\Omega = -\Omega A_k \Omega, \qquad
-  \partial_{kl}\Omega = \Omega\left(A_k\Omega A_l
-    + A_l\Omega A_k\right)\Omega - \Omega A_{kl}\Omega,$$</p>
-<p>with \(\log\lvert\Omega\rvert = -\log\lvert\Sigma\rvert\) and its
-derivatives negated termwise. The transport is done once, in
-<code><a href="struct_omega.html">struct_omega()</a></code> and its siblings, so the methods are the same arithmetic in
-both cases.</p>
+the mixed block is \(A_k\beta\). Nothing is transported here: a structure
+meant for the other side is a different structure, and it supplies its own
+arrays.</p>
     </div>
     <div class="section level2">
     <h2 id="no-map">No map<a class="anchor" aria-label="anchor" href="#no-map"></a></h2>
@@ -140,7 +137,7 @@ standard deviations and correlations.</p></div>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># An AR(1) prior on four coefficients: two hyperparameters reach every</span></span></span>
 <span class="r-in"><span><span class="co"># entry of the precision.</span></span></span>
-<span class="r-in"><span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu">structured_penalty</span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">ar1</a></span><span class="op">(</span><span class="fl">4</span>, role <span class="op">=</span> <span class="st">"precision"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu">structured_penalty</span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">ar1</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pen</span><span class="op">@</span><span class="va">params</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "log_scale" "z_rho"    </span>
 <span class="r-in"><span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>log_scale <span class="op">=</span> <span class="fl">0.2</span>, z_rho <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
@@ -149,14 +146,14 @@ standard deviations and correlations.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.858268</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The Hessian is the structure's own matrix, read as a precision.</span></span></span>
-<span class="r-in"><span><span class="va">Om</span> <span class="op">&lt;-</span> <span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/param_value.html" class="external-link">param_value</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">ar1</a></span><span class="op">(</span><span class="fl">4</span>, role <span class="op">=</span> <span class="st">"precision"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span><span class="va">Om</span> <span class="op">&lt;-</span> <span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/param_value.html" class="external-link">param_value</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">ar1</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                               <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="penalty_gradient.html">penalty_hessian</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">b</span>, <span class="va">theta</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">unclass</a></span><span class="op">(</span><span class="va">Om</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The same structure read as a covariance is a DIFFERENT prior at the same</span></span></span>
 <span class="r-in"><span><span class="co"># free values: there the Hessian is the inverse of that matrix.</span></span></span>
-<span class="r-in"><span><span class="va">cov</span> <span class="op">&lt;-</span> <span class="fu">structured_penalty</span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">ar1</a></span><span class="op">(</span><span class="fl">4</span>, role <span class="op">=</span> <span class="st">"covariance"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cov</span> <span class="op">&lt;-</span> <span class="fu">structured_penalty</span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/inverse_of.html" class="external-link">inverse_of</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">ar1</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="penalty_gradient.html">penalty_hessian</a></span><span class="op">(</span><span class="va">cov</span>, <span class="va">b</span>, <span class="va">theta</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">unclass</a></span><span class="op">(</span><span class="va">Om</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.110223e-16</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>precision <span class="op">=</span> <span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">b</span>, <span class="va">theta</span><span class="op">)</span>,</span></span>
@@ -174,7 +171,7 @@ standard deviations and correlations.</p></div>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># At a zero log-Cholesky free vector the structure is the identity, so the</span></span></span>
 <span class="r-in"><span><span class="co"># penalty is the plain ridge at lambda = 1, to the last bit.</span></span></span>
-<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">structured_penalty</span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/log_cholesky.html" class="external-link">log_cholesky</a></span><span class="op">(</span><span class="fl">3</span>, role <span class="op">=</span> <span class="st">"precision"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">structured_penalty</span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/log_cholesky.html" class="external-link">log_cholesky</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">s</span><span class="op">@</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>, <span class="va">s</span><span class="op">@</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">bb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="op">-</span><span class="fl">1.1</span>, <span class="fl">0.7</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">bb</span>, <span class="va">z</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">ridge_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="va">bb</span>,</span></span>

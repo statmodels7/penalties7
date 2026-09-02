@@ -128,7 +128,7 @@ sign of the log-determinant term.
 
 ``` r
 
-st <- structured_penalty(parameters7::log_cholesky(3, role = "precision"))
+st <- structured_penalty(parameters7::log_cholesky(3))
 st@params
 #> [1] "log_L1" "log_L2" "log_L3" "L2.1"   "L3.1"   "L3.2"
 eta <- as.list(stats::setNames(rep(0, length(st@params)), st@params))

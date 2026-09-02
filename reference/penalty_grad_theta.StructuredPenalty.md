@@ -80,7 +80,7 @@ for the determinant's own derivatives.
 ## Examples
 
 ``` r
-pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
+pen <- structured_penalty(parameters7::ar1(4))
 th <- list(log_scale = 0.2, z_rho = 0.5)
 b <- c(0.3, -0.1, 0.4, 0.2)
 

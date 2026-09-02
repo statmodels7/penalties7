@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.20.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,7 +117,7 @@
 <p><code><a href="reference/structured_penalty.html">structured_penalty()</a></code> takes a <a href="https://statmodels7.github.io/parameters7/" class="external-link">parameters7</a> matrix parameter as the <strong>precision</strong>, so the hyperparameters are that structure’s free values and every derivative comes from its derivative arrays. At a zero log-Cholesky free vector it is the plain ridge.</p>
 <p>Which of the two matrices of the prior the parameter is has to be said, and the parameter says it: a structure declaring itself usable as either is rejected rather than guessed at, the two readings differing in the sign of the log-determinant term.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">st</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/structured_penalty.html">structured_penalty</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/log_cholesky.html" class="external-link">log_cholesky</a></span><span class="op">(</span><span class="fl">3</span>, role <span class="op">=</span> <span class="st">"precision"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">st</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/structured_penalty.html">structured_penalty</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/log_cholesky.html" class="external-link">log_cholesky</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">st</span><span class="op">@</span><span class="va">params</span></span>
 <span><span class="co">#&gt; [1] "log_L1" "log_L2" "log_L3" "L2.1"   "L3.1"   "L3.2"</span></span>
 <span><span class="va">eta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">st</span><span class="op">@</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>, <span class="va">st</span><span class="op">@</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span>

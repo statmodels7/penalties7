@@ -87,7 +87,7 @@ for the derivative that is then constant.
 beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
 #> [1] TRUE
 beta_quadratic(structured_penalty(
-  parameters7::log_cholesky(2, role = "precision")),
+  parameters7::log_cholesky(2)),
   list(log_L1 = 0, log_L2 = 0, L2.1 = 0))
 #> [1] TRUE
 

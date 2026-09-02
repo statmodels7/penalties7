@@ -15,7 +15,7 @@ quantities, which is every branch but one."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.20.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,7 +124,7 @@ same distinction on a matrix parameter.</p></div>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A bivariate Gaussian prior on three pairs of effects. Its hyperparameters</span></span></span>
 <span class="r-in"><span><span class="co"># are log-Cholesky coordinates, which nobody interprets.</span></span></span>
 <span class="r-in"><span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu"><a href="distrib_penalty.html">distrib_penalty</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">fixed</a></span><span class="op">(</span><span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/mvgaussian_distrib.html" class="external-link">mvgaussian_distrib</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">fixed</a></span><span class="op">(</span><span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/mvgaussian1_distrib.html" class="external-link">mvgaussian1_distrib</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                        mu1 <span class="op">=</span> <span class="fl">0</span>, mu2 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, n_coef <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pen</span><span class="op">@</span><span class="va">params</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "sigma_log_L1" "sigma_log_L2" "sigma_L2.1"  </span>

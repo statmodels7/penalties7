@@ -53,7 +53,7 @@ for the hyperparameter blocks.
 ## Examples
 
 ``` r
-pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
+pen <- structured_penalty(parameters7::ar1(4))
 th <- list(log_scale = 0.2, z_rho = 0.5)
 b <- c(0.3, -0.1, 0.4, 0.2)
 
@@ -66,7 +66,7 @@ dimnames(penalty_hessian(pen, b, th))[[1]]
 #> [1] "v1" "v2" "v3" "v4"
 
 # And the Hessian is the structure's own matrix.
-Om <- parameters7::param_value(parameters7::ar1(4, role = "precision"),
+Om <- parameters7::param_value(parameters7::ar1(4),
                                c(0.2, 0.5))
 max(abs(penalty_hessian(pen, b, th) - unclass(Om)))
 #> [1] 0

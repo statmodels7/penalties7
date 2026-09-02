@@ -11,7 +11,7 @@ structure supplies."><meta property="og:image" content="https://statmodels7.gith
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.20.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,7 @@ multivariate normal log-density with mean zero.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A covariance structure gives exactly a multivariate normal log-density.</span></span></span>
-<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">ar1</a></span><span class="op">(</span><span class="fl">4</span>, role <span class="op">=</span> <span class="st">"covariance"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/inverse_of.html" class="external-link">inverse_of</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">ar1</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu"><a href="structured_penalty.html">structured_penalty</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.4</span>, <span class="fl">0.2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">unclass</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/param_value.html" class="external-link">param_value</a></span><span class="op">(</span><span class="va">s</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -97,7 +97,7 @@ multivariate normal log-density with mean zero.</p>
 <span class="r-in"><span>  <span class="op">(</span><span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">b</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">S</span>, <span class="va">b</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
 <span class="r-in"><span>     <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/det.html" class="external-link">determinant</a></span><span class="op">(</span><span class="va">S</span>, logarithm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">modulus</span><span class="op">)</span> <span class="op">+</span></span></span>
 <span class="r-in"><span>     <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.02738634</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

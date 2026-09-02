@@ -53,7 +53,7 @@ penalty_readable(lasso_penalty(n_coef = 3), list(lambda = 1))
 
 # A bivariate Gaussian prior: two standard deviations and a correlation.
 mv <- distrib_penalty(
-  distributions7::fixed(distributions7::mvgaussian_distrib(2),
+  distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                         mu1 = 0, mu2 = 0), n_coef = 6)
 r <- penalty_readable(mv, list(sigma_log_L1 = 0.2, sigma_log_L2 = -0.1,
                                sigma_L2.1 = 0.5))

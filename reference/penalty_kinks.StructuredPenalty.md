@@ -57,7 +57,7 @@ gates.
 ## Examples
 
 ``` r
-pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
+pen <- structured_penalty(parameters7::ar1(4))
 penalty_kinks(pen, list(log_scale = 0.2, z_rho = 0.5))
 #> numeric(0)
 is_quadratic(pen)

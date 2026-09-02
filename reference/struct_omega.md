@@ -1,10 +1,9 @@
 # Precision, and Its Derivatives, From the Structure
 
 The four helpers that read the prior's precision and its derivatives off
-the structure, transporting from the covariance where that is what the
-structure describes. `struct_omega()` returns \\\Omega\\, `struct_d1()`
-its first derivatives, `struct_d2()` its second, and `struct_logdet()`
-the log-determinant with as many orders as asked for.
+the structure. `struct_omega()` returns \\\Omega\\, `struct_d1()` its
+first derivatives, `struct_d2()` its second, and `struct_logdet()` the
+log-determinant with as many orders as asked for.
 
 ## Usage
 
@@ -34,9 +33,8 @@ struct_logdet(pen, eta, order = 2L)
 
 - omega:
 
-  The precision, when the caller already has it, so that a covariance
-  structure is not inverted twice. `NULL` computes it. `struct_d1()` and
-  `struct_d2()` only.
+  Accepted and unused, kept so the call sites that pass a precision they
+  already hold need no branch. `struct_d1()` and `struct_d2()` only.
 
 - order:
 
@@ -54,19 +52,13 @@ and `d2` (a named list, one number per pair, keyed as `struct_d2()` is).
 
 ## Details
 
-The branch is written in the precision throughout, so the transport
-happens here and every method is the same arithmetic in both roles.
-Writing it twice would be two implementations of one prior.
-
-For a covariance structure, with \\A_k\\ and \\A\_{kl}\\ the structure's
-own derivative arrays,
-
-\$\$\Omega = \Sigma^{-}, \qquad \partial_k\Omega = -\Omega A_k \Omega,
-\qquad \partial\_{kl}\Omega = \Omega\left(A_k\Omega A_l + A_l\Omega
-A_k\right)\Omega - \Omega A\_{kl}\Omega,\$\$
-
-and the log-determinant is negated at every order. For a precision
-structure each helper unwraps the structure's answer and returns it.
+The structure is the precision, so each helper unwraps the structure's
+own answer and returns it, and no transport happens here. A caller who
+wants a structure read as a covariance passes
+[`parameters7::inverse_of()`](https://statmodels7.github.io/parameters7/reference/inverse_of.html)
+of it, which carries \\\partial_k\Omega = -\Omega A_k \Omega\\ and its
+higher orders inside the structure, where the log-determinant stays
+exact.
 
 Second-order components are keyed as parameters7 keys them: the two free
 names joined by a colon, the pair sorted by position in `free_names`.

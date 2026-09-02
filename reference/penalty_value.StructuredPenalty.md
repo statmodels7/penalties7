@@ -53,7 +53,7 @@ for the transport.
 
 ``` r
 # A covariance structure gives exactly a multivariate normal log-density.
-s <- parameters7::ar1(4, role = "covariance")
+s <- parameters7::inverse_of(parameters7::ar1(4))
 pen <- structured_penalty(s)
 b <- c(0.3, -0.1, 0.4, 0.2)
 S <- unclass(parameters7::param_value(s, c(0.2, 0.5)))
@@ -61,5 +61,5 @@ penalty_value(pen, b, list(log_scale = 0.2, z_rho = 0.5)) -
   (0.5 * sum(b * solve(S, b)) +
      0.5 * as.numeric(determinant(S, logarithm = TRUE)$modulus) +
      2 * log(2 * pi))
-#> [1] 0
+#> [1] 0.02738634
 ```

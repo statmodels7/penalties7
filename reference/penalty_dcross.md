@@ -82,7 +82,7 @@ penalty_dcross(quadratic_penalty(diag(3)), b, list(lambda = 2))
 
 # And not on the structured one, where it is d2 Omega / dtheta^2 times
 # the coefficients.
-s <- structured_penalty(parameters7::log_cholesky(2, role = "precision"))
+s <- structured_penalty(parameters7::log_cholesky(2))
 th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
 bb <- c(1, -0.5)
 penalty_dcross(s, bb, th)$log_L1_log_L1

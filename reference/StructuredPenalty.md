@@ -2,8 +2,8 @@
 
 The class
 [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
-builds: the Gaussian prior whose covariance or precision is a
-parameters7 matrix parameter. It adds one property to
+builds: the Gaussian prior whose precision is a parameters7 matrix
+parameter. It adds one property to
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md),
 the structure itself, and every quantity the branch supplies is read off
 that structure's own contract.
@@ -64,9 +64,9 @@ StructuredPenalty(
 
 - structure:
 
-  A parameters7 `matrix_parameter` whose `role` is `"covariance"` or
-  `"precision"`. It supplies the dimension, the rank, the null basis,
-  the free names, the matrix and its derivative arrays.
+  A parameters7 `matrix_parameter`, read as the prior's precision. It
+  supplies the dimension, the rank, the null basis, the free names, the
+  matrix and its derivative arrays.
 
 ## Value
 
@@ -94,7 +94,7 @@ for the branch whose matrix is fixed.
 ## Examples
 
 ``` r
-pen <- structured_penalty(parameters7::ar1(4, role = "precision"))
+pen <- structured_penalty(parameters7::ar1(4))
 S7::S7_inherits(pen, StructuredPenalty)
 #> [1] TRUE
 

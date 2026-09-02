@@ -126,7 +126,7 @@ penalty_value(pen, c(1, 0, -1), list(sigma = 2))
 
 # A correlated prior over two coefficients per block, three blocks. The
 # hyperparameters are the matrix parameter's free values.
-mv <- distributions7::fixed(distributions7::mvgaussian_distrib(2),
+mv <- distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                             mu1 = 0, mu2 = 0)
 pen2 <- distrib_penalty(mv, n_coef = 6)
 pen2@block

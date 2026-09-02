@@ -95,7 +95,7 @@ is_quadratic(quadratic_penalty(diag(2)))
 is_quadratic(ridge_penalty())
 #> [1] TRUE
 is_quadratic(structured_penalty(
-  parameters7::log_cholesky(2, role = "precision")))
+  parameters7::log_cholesky(2)))
 #> [1] TRUE
 
 # The third, whose matrix moves with one hyperparameter per component.

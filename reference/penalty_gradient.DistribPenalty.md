@@ -91,7 +91,7 @@ penalty_gradient(lasso_penalty(n_coef = 3), b, list(lambda = 1.5))
 # A multivariate parent gives a block-diagonal Hessian: dependence within
 # a block, none between blocks.
 mv <- distrib_penalty(
-  distributions7::fixed(distributions7::mvgaussian_distrib(2),
+  distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                         mu1 = 0, mu2 = 0), n_coef = 4)
 round(penalty_hessian(mv, c(1, 0, -1, 0.5),
                       list(sigma_log_L1 = 0, sigma_log_L2 = 0,
