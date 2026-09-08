@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.20.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.21.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,13 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.21.0" id="penalties7-0210">penalties7 0.21.0<a class="anchor" aria-label="anchor" href="#penalties7-0210"></a></h2>
+<ul><li><p><code><a href="../reference/penalty_draw.html">penalty_draw()</a></code> draws from a penalty read as a prior. A penalty is a negative log-density – which is why the normalizing constant is kept – so it is something one can draw from, and a simulation that carries a random effect, a ridge or a lasso should take those coefficients from that distribution rather than from a normal chosen by whoever wrote the simulation.</p></li>
+<li><p>A separable penalty draws coordinatewise from its own parent family, so a Gaussian prior gives Gaussian effects, a Laplace prior gives Laplace ones and a Student t prior heavy-tailed ones. Checked against the parent’s own distribution function, which the draw does not read: a Laplace draw passes that test and fails the Gaussian of the same variance at 1e-6.</p></li>
+<li><p>A quadratic, additive or structured penalty is a Gaussian prior with precision S(theta), and two of its shapes are cheap: a diagonal S, which is a ridge and a Demmler-Reinsch smooth, is drawn coordinatewise at 1/sqrt(S_jj), and a full-rank S through one Cholesky factor. Measured against the inverse of the precision itself, the sampled covariance agrees to 0.03 over 60000 draws.</p></li>
+<li><p>A coordinate the prior does not determine comes back <code>NA</code> rather than zero: the unpenalized direction of a smooth, every coordinate of SCAD and MCP, which are improper by construction, a deficient non-diagonal precision, and a separable penalty under a general map, where the prior leaves the coefficients underdetermined. Zero would be indistinguishable from a prior that concentrates there, and a caller filling the rest by a rule of its own could not tell which coordinates those are.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.20.0" id="penalties7-0200">penalties7 0.20.0<a class="anchor" aria-label="anchor" href="#penalties7-0200"></a></h2>
 <ul><li>

@@ -1,5 +1,38 @@
 # Changelog
 
+## penalties7 0.21.0
+
+- [`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
+  draws from a penalty read as a prior. A penalty is a negative
+  log-density – which is why the normalizing constant is kept – so it is
+  something one can draw from, and a simulation that carries a random
+  effect, a ridge or a lasso should take those coefficients from that
+  distribution rather than from a normal chosen by whoever wrote the
+  simulation.
+
+- A separable penalty draws coordinatewise from its own parent family,
+  so a Gaussian prior gives Gaussian effects, a Laplace prior gives
+  Laplace ones and a Student t prior heavy-tailed ones. Checked against
+  the parent’s own distribution function, which the draw does not read:
+  a Laplace draw passes that test and fails the Gaussian of the same
+  variance at 1e-6.
+
+- A quadratic, additive or structured penalty is a Gaussian prior with
+  precision S(theta), and two of its shapes are cheap: a diagonal S,
+  which is a ridge and a Demmler-Reinsch smooth, is drawn coordinatewise
+  at 1/sqrt(S_jj), and a full-rank S through one Cholesky factor.
+  Measured against the inverse of the precision itself, the sampled
+  covariance agrees to 0.03 over 60000 draws.
+
+- A coordinate the prior does not determine comes back `NA` rather than
+  zero: the unpenalized direction of a smooth, every coordinate of SCAD
+  and MCP, which are improper by construction, a deficient non-diagonal
+  precision, and a separable penalty under a general map, where the
+  prior leaves the coefficients underdetermined. Zero would be
+  indistinguishable from a prior that concentrates there, and a caller
+  filling the rest by a rule of its own could not tell which coordinates
+  those are.
+
 ## penalties7 0.20.0
 
 - [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)

@@ -49,6 +49,8 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_dhessian.StructuredPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_dhessian.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_dhessian.penalty.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/penalty_draw.DistribPenalty.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/penalty_draw.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.AdditivePenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.DistribPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.McpPenalty.html</loc></url>
