@@ -1,6 +1,6 @@
 Package: penalties7
 Title: Penalties as Objects with Exact Derivatives
-Version: 0.20.0
+Version: 0.21.0
 Authors@R:
     person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
 Description: Penalties for regularized and Bayesian regression as 'S7'
@@ -56,4 +56,5 @@ Collate:
     'marginal_derivatives.R'
     'penalties7-package.R'
     'prox.R'
+    'penalty_draw.R'
     'prox_spec.R'
