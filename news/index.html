@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.22.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.22.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,11 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.22.1" id="penalties7-0221">penalties7 0.22.1<a class="anchor" aria-label="anchor" href="#penalties7-0221"></a></h2>
+<ul><li>
+<code>DESCRIPTION</code> declares the <code>distributions7</code> minimum the package already requires. It imported <code>distributions7</code> with no version at all while <code>R/distrib_penalty.R</code>, <code>R/generics.R</code> and two test files name <code>mvgaussian1_distrib</code> and <code>mvstudent_t1_distrib</code>, both of which enter distributions7’s namespace at 0.43.0 (commit eceae35b, 2026-09-02). Nothing was broken, which is what made it worth fixing: master carries 0.53.0 and CI resolves that, so the gap shows only for an installation against an older distributions7 – and it shows as an object not found at run time rather than as a version at dependency resolution.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.22.0" id="penalties7-0220">penalties7 0.22.0<a class="anchor" aria-label="anchor" href="#penalties7-0220"></a></h2>
 <ul><li><p><code><a href="../reference/beta_quadratic.html">beta_quadratic()</a></code> reads a MULTIVARIATE parent’s response Hessian between readings rather than between the entries of one of them. The predicate decides whether the penalized objective is quadratic in the coefficients, hence whether the inner problem is one linear solve, and it asked whether every entry of <code>distrib_hess_y()</code> equals the first. For a parent over more than one coordinate that compares an off-diagonal with a diagonal: measured on the multivariate gaussian a covariance class declares, whose Hessian is the constant -Sigma^-1 reading -1, 0, 0, -1, the predicate answered FALSE where the prior is exactly quadratic, at every dimension from two to four. It answers TRUE now, and a multivariate Student t, whose Hessian carries the (nu + p)/(nu + q) reweighting and so does move with the response, still answers FALSE – which is what says the change is not simply answering TRUE for anything multivariate.</p></li>

@@ -1,5 +1,17 @@
 # Changelog
 
+## penalties7 0.22.1
+
+- `DESCRIPTION` declares the `distributions7` minimum the package
+  already requires. It imported `distributions7` with no version at all
+  while `R/distrib_penalty.R`, `R/generics.R` and two test files name
+  `mvgaussian1_distrib` and `mvstudent_t1_distrib`, both of which enter
+  distributions7’s namespace at 0.43.0 (commit eceae35b, 2026-09-02).
+  Nothing was broken, which is what made it worth fixing: master carries
+  0.53.0 and CI resolves that, so the gap shows only for an installation
+  against an older distributions7 – and it shows as an object not found
+  at run time rather than as a version at dependency resolution.
+
 ## penalties7 0.22.0
 
 - [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
