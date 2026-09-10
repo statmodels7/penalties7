@@ -677,7 +677,13 @@ S7::method(beta_quadratic, StructuredPenalty) <- function(pen, theta, ...) TRUE
 #' # How `beta_quadratic()` decides
 #'
 #' By probing the parent's [distributions7::distrib_hess_y()] at four points
-#' and asking whether it is constant to `1e-12`. The log-density is quadratic
+#' and asking whether it is constant to `1e-12` BETWEEN THEM. A point is
+#' `pen@block` numbers, so a multivariate parent answers with one
+#' \eqn{p \times p} matrix per point, or with a single one where that matrix
+#' does not move, and the comparison is between the readings rather than
+#' between the entries of one of them -- asking whether every entry equals
+#' the first compares an off-diagonal with a diagonal and is false for any
+#' prior over more than one coordinate. The log-density is quadratic
 #' in the response exactly when its second derivative there does not depend on
 #' it, and that second derivative is analytic for almost every family, where
 #' the third is often a difference whose noise no threshold separates from a
@@ -778,13 +784,41 @@ S7::method(beta_quadratic, DistribPenalty) <- function(pen, theta, ...) {
   # not to a third derivative, because the second is analytic for almost every
   # family while the third is often a difference, whose noise no threshold
   # separates from a true zero.
-  t <- c(-1.73, -0.29, 0.61, 2.04)
+  #
+  # ⚠️ THE PROBE IS SHAPED BY dp_arg(), and the comparison is between
+  # OBSERVATIONS rather than between the entries of one reading. A
+  # multivariate parent answers with one p by p matrix per observation, or
+  # with a single one where that matrix does not move -- which is itself the
+  # proof of quadraticity -- so asking whether every entry equals the first
+  # compares an off-diagonal with a diagonal and is false for any prior over
+  # more than one coordinate. Measured on the multivariate gaussian a
+  # covariance class declares: hess_y is the constant -Sigma^-1, whose
+  # entries read -1, 0, 0, -1, and the old form returned FALSE where the
+  # prior is exactly quadratic. A slice is k = block^2 numbers, one for a
+  # univariate parent, so the two cases are one expression.
+  # FOUR PROBE POINTS, of pen@block coordinates each. A p-variate parent
+  # reads a point as p numbers, so four VALUES laid out with p columns give
+  # two rows at p = 2 or 3 and ONE from p = 4 up -- and a single slice takes
+  # the branch below, which answers TRUE without comparing anything.
+  # Measured on a multivariate Student t prior, whose hess_y does move with
+  # the response: four values answer FALSE at p = 2 and 3 and TRUE at 4 and
+  # 5, where the truth is FALSE at every p. The offset is zero at p = 1, so
+  # a univariate parent is probed at exactly the four values it always was.
+  p <- as.integer(pen@block)
+  t <- dp_arg(pen, rep(c(-1.73, -0.29, 0.61, 2.04), each = p) +
+                     0.37 * (rep(seq_len(p), 4L) - 1L))
   h <- tryCatch(distributions7::distrib_hess_y(pen@parent, t,
                                                align_ptheta(pen, theta)),
                 error = function(e) NULL)
-  !is.null(h) && length(h) > 1L &&
-    isTRUE(all.equal(as.numeric(h), rep(as.numeric(h)[1L], length(h)),
-                     tolerance = 1e-12))
+  if (is.null(h) || !length(h)) return(FALSE)
+  k <- as.integer(pen@block)^2L
+  if (length(h) %% k) return(FALSE)
+  n <- length(h) %/% k
+  # a reading carrying no observation dimension does not move with the
+  # response, which is the answer rather than a case to compare
+  if (n <= 1L) return(k > 1L || length(h) > 1L)
+  v <- as.numeric(h)
+  isTRUE(all.equal(v, rep(v[seq_len(k)], n), tolerance = 1e-12))
 }
 
 

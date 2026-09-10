@@ -62,7 +62,13 @@ log-density is linear in the response away from the kink.
 
 \section{How \code{beta_quadratic()} decides}{
 By probing the parent's \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}} at four points
-and asking whether it is constant to \code{1e-12}. The log-density is quadratic
+and asking whether it is constant to \code{1e-12} BETWEEN THEM. A point is
+\code{pen@block} numbers, so a multivariate parent answers with one
+\eqn{p \times p} matrix per point, or with a single one where that matrix
+does not move, and the comparison is between the readings rather than
+between the entries of one of them -- asking whether every entry equals
+the first compares an off-diagonal with a diagonal and is false for any
+prior over more than one coordinate. The log-density is quadratic
 in the response exactly when its second derivative there does not depend on
 it, and that second derivative is analytic for almost every family, where
 the third is often a difference whose noise no threshold separates from a

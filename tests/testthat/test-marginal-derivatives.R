@@ -125,6 +125,100 @@ test_that("a heavy-tailed prior answers too, and is not beta-quadratic", {
   expect_false(beta_quadratic(pen, th))
 })
 
+# beta_quadratic compares the parent's response Hessian BETWEEN readings and
+# not between the entries of one of them, and it probes at four POINTS rather
+# than at four values. Each half has its own negative control below, written
+# out as the form it replaces, so neither can be satisfied by weakening the
+# predicate.
+
+# penalties7 0.21.0: every entry of one reading against the first entry
+bq_entrywise <- function(pen, theta) {
+  t <- c(-1.73, -0.29, 0.61, 2.04)
+  h <- tryCatch(distributions7::distrib_hess_y(pen@parent, t,
+                                               align_ptheta(pen, theta)),
+                error = function(e) NULL)
+  !is.null(h) && length(h) > 1L &&
+    isTRUE(all.equal(as.numeric(h), rep(as.numeric(h)[1L], length(h)),
+                     tolerance = 1e-12))
+}
+
+# the same comparison between readings, but probed at four VALUES laid out
+# with pen@block columns rather than at four points
+bq_four_values <- function(pen, theta) {
+  h <- tryCatch(distributions7::distrib_hess_y(
+    pen@parent, suppressWarnings(dp_arg(pen, c(-1.73, -0.29, 0.61, 2.04))),
+    align_ptheta(pen, theta)), error = function(e) NULL)
+  if (is.null(h) || !length(h)) return(FALSE)
+  k <- as.integer(pen@block)^2L
+  if (length(h) %% k) return(FALSE)
+  n <- length(h) %/% k
+  if (n <= 1L) return(k > 1L || length(h) > 1L)
+  v <- as.numeric(h)
+  isTRUE(all.equal(v, rep(v[seq_len(k)], n), tolerance = 1e-12))
+}
+
+# the mean is flattened into mu1..mup, so fixed() is given one name each
+mv_zero_mean <- function(d, p) {
+  do.call(distributions7::fixed,
+          c(list(d), as.list(stats::setNames(rep(0, p),
+                                             paste0("mu", seq_len(p))))))
+}
+mv_theta <- function(d) {
+  as.list(stats::setNames(rep(0, length(d@params)), d@params))
+}
+
+test_that("a multivariate gaussian prior is beta-quadratic at every width", {
+  for (p in 2:4) {
+    par <- mv_zero_mean(distributions7::mvgaussian1_distrib(
+      p, parameters7::log_cholesky(p)), p)
+    pen <- distrib_penalty(par, n_coef = 4L * p)
+    th <- mv_theta(par)
+    expect_identical(pen@block, p)
+    # hess_y is the constant -Sigma^{-1}, so the prior is exactly quadratic
+    expect_true(beta_quadratic(pen, th))
+    # and the entrywise form compares an off-diagonal with a diagonal, so it
+    # answers FALSE precisely where the prior is quadratic
+    expect_false(bq_entrywise(pen, th))
+  }
+})
+
+test_that("a multivariate t prior is not, at a width four values cannot see", {
+  pens <- lapply(c(2L, 4L), function(p) {
+    par <- mv_zero_mean(distributions7::mvstudent_t1_distrib(
+      p, parameters7::log_cholesky(p)), p)
+    th <- mv_theta(par)
+    th[["nu"]] <- 6
+    list(pen = distrib_penalty(par, n_coef = 4L * p), th = th)
+  })
+  for (cs in pens) {
+    # hess_y carries the (nu + p)/(nu + q) reweighting, so it moves with the
+    # response and the prior is quadratic at no width
+    expect_false(beta_quadratic(cs$pen, cs$th))
+  }
+  # the negative control here is the WIDTH. Four values laid out with p
+  # columns are two points at p = 2 and ONE from p = 4 up, and a single
+  # reading takes the branch that answers without comparing anything: the
+  # four-value probe sees the p = 2 case and reports the p = 4 one quadratic.
+  expect_false(bq_four_values(pens[[1L]]$pen, pens[[1L]]$th))
+  expect_true(bq_four_values(pens[[2L]]$pen, pens[[2L]]$th))
+})
+
+test_that("a univariate parent's answer did not move", {
+  g <- distrib_penalty(distributions7::fixed(
+    distributions7::gaussian1_distrib(), mu = 0), n_coef = 4L)
+  cases <- list(list(g, list(sigma = 1.3), TRUE),
+                list(heavy_penalty(n_coef = 4L), list(sigma = 1, nu = 4),
+                     FALSE),
+                list(lasso_penalty(n_coef = 4L), list(lambda = 1), TRUE))
+  for (cs in cases) {
+    expect_identical(cs[[1L]]@block, 1L)
+    expect_identical(beta_quadratic(cs[[1L]], cs[[2L]]), cs[[3L]])
+    # a block of one coordinate reads the same under both forms, which is
+    # what says the change is confined to the multivariate branch
+    expect_identical(bq_entrywise(cs[[1L]], cs[[2L]]), cs[[3L]])
+  }
+})
+
 test_that("a kinked penalty rejects, naming what it cannot do", {
   pen <- lasso_penalty(n_coef = 3L)
   b <- c(0.2, -0.4, 0.6)
