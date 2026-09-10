@@ -1,6 +1,6 @@
 Package: penalties7
 Title: Penalties as Objects with Exact Derivatives
-Version: 0.22.0
+Version: 0.22.1
 Authors@R:
     person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
 Description: Penalties for regularized and Bayesian regression as 'S7'
@@ -21,7 +21,7 @@ RoxygenNote: 7.3.3
 URL: https://github.com/statmodels7/penalties7, https://statmodels7.github.io/penalties7/
 BugReports: https://github.com/statmodels7/penalties7/issues
 Imports:
-    distributions7,
+    distributions7 (>= 0.43.0),
     Matrix,
     methods,
     linkfunctions7,
