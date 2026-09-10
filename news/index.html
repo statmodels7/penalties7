@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.21.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.22.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,13 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.22.0" id="penalties7-0220">penalties7 0.22.0<a class="anchor" aria-label="anchor" href="#penalties7-0220"></a></h2>
+<ul><li><p><code><a href="../reference/beta_quadratic.html">beta_quadratic()</a></code> reads a MULTIVARIATE parent’s response Hessian between readings rather than between the entries of one of them. The predicate decides whether the penalized objective is quadratic in the coefficients, hence whether the inner problem is one linear solve, and it asked whether every entry of <code>distrib_hess_y()</code> equals the first. For a parent over more than one coordinate that compares an off-diagonal with a diagonal: measured on the multivariate gaussian a covariance class declares, whose Hessian is the constant -Sigma^-1 reading -1, 0, 0, -1, the predicate answered FALSE where the prior is exactly quadratic, at every dimension from two to four. It answers TRUE now, and a multivariate Student t, whose Hessian carries the (nu + p)/(nu + q) reweighting and so does move with the response, still answers FALSE – which is what says the change is not simply answering TRUE for anything multivariate.</p></li>
+<li><p>The probe is four POINTS of <code>pen@block</code> coordinates each rather than four VALUES. A p-variate parent reads a point as p numbers, so four values laid out with p columns are two points at p = 2 or 3 and ONE from p = 4 up, and a single reading takes the branch that answers without comparing anything. Measured on a multivariate Student t prior, where the truth is FALSE at every width, four values answer FALSE at p = 2 and 3 and TRUE at 4 and 5; four points answer FALSE at all of them. Four values also recycled at an odd width, so <code><a href="../reference/beta_quadratic.html">beta_quadratic()</a></code> of a three-variate parent emitted a <code>data length [4] is not a sub-multiple</code> warning from inside a fit.</p></li>
+<li><p>A UNIVARIATE parent is untouched, and the offset that spaces the points is exactly zero at a block width of one, so such a parent is probed at the same four values it always was. Measured against the form this release replaces, a Gaussian prior, a Student t prior and a Laplace prior answer TRUE, FALSE and TRUE under both.</p></li>
+<li><p><code>test-marginal-derivatives.R</code> had no multivariate case at all, which is how this survived. It carries three now, and each of the two halves has its own negative control written out as the form it replaces: restoring the entrywise comparison fails the gaussian block three times, once per width, and restoring the four-value probe fails the Student t block and emits the recycling warning with it. The univariate block stays green under both, which is what says the change is confined to the multivariate branch.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.21.0" id="penalties7-0210">penalties7 0.21.0<a class="anchor" aria-label="anchor" href="#penalties7-0210"></a></h2>
 <ul><li><p><code><a href="../reference/penalty_draw.html">penalty_draw()</a></code> draws from a penalty read as a prior. A penalty is a negative log-density – which is why the normalizing constant is kept – so it is something one can draw from, and a simulation that carries a random effect, a ridge or a lasso should take those coefficients from that distribution rather than from a normal chosen by whoever wrote the simulation.</p></li>

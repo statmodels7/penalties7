@@ -1,5 +1,50 @@
 # Changelog
 
+## penalties7 0.22.0
+
+- [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
+  reads a MULTIVARIATE parent’s response Hessian between readings rather
+  than between the entries of one of them. The predicate decides whether
+  the penalized objective is quadratic in the coefficients, hence
+  whether the inner problem is one linear solve, and it asked whether
+  every entry of `distrib_hess_y()` equals the first. For a parent over
+  more than one coordinate that compares an off-diagonal with a
+  diagonal: measured on the multivariate gaussian a covariance class
+  declares, whose Hessian is the constant -Sigma^-1 reading -1, 0, 0,
+  -1, the predicate answered FALSE where the prior is exactly quadratic,
+  at every dimension from two to four. It answers TRUE now, and a
+  multivariate Student t, whose Hessian carries the (nu + p)/(nu + q)
+  reweighting and so does move with the response, still answers FALSE –
+  which is what says the change is not simply answering TRUE for
+  anything multivariate.
+
+- The probe is four POINTS of `pen@block` coordinates each rather than
+  four VALUES. A p-variate parent reads a point as p numbers, so four
+  values laid out with p columns are two points at p = 2 or 3 and ONE
+  from p = 4 up, and a single reading takes the branch that answers
+  without comparing anything. Measured on a multivariate Student t
+  prior, where the truth is FALSE at every width, four values answer
+  FALSE at p = 2 and 3 and TRUE at 4 and 5; four points answer FALSE at
+  all of them. Four values also recycled at an odd width, so
+  [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
+  of a three-variate parent emitted a
+  `data length [4] is not a sub-multiple` warning from inside a fit.
+
+- A UNIVARIATE parent is untouched, and the offset that spaces the
+  points is exactly zero at a block width of one, so such a parent is
+  probed at the same four values it always was. Measured against the
+  form this release replaces, a Gaussian prior, a Student t prior and a
+  Laplace prior answer TRUE, FALSE and TRUE under both.
+
+- `test-marginal-derivatives.R` had no multivariate case at all, which
+  is how this survived. It carries three now, and each of the two halves
+  has its own negative control written out as the form it replaces:
+  restoring the entrywise comparison fails the gaussian block three
+  times, once per width, and restoring the four-value probe fails the
+  Student t block and emits the recycling warning with it. The
+  univariate block stays green under both, which is what says the change
+  is confined to the multivariate branch.
+
 ## penalties7 0.21.0
 
 - [`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
