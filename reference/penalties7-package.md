@@ -8,9 +8,7 @@ the proximal operator a non-smooth fit steps with. A quadratic penalty
 adds the rank, the null space and the log pseudo-determinant that a
 marginal likelihood criterion consumes. Normalizing constants are kept,
 so a proper penalty is exactly the negative log-density of its prior.
-Smoothers of the absolute value, differentiable to fifth order, stand in
-for a kink where a method needs a differentiable objective. Part of the
-'statmodels7' toolkit.
+Part of the 'statmodels7' toolkit.
 
 ## See also
 

@@ -1,5 +1,30 @@
 # Changelog
 
+## penalties7 0.23.0
+
+- **The smoothers of the absolute value are no longer exported here:
+  they moved to `numericals7` 0.13.0.** `abs_smoother()`,
+  `smooth_probit()`, `smooth_hyperbolic()`, `smooth_quintic()`,
+  `smoother_deriv()`, `smoother_width()`, `smoother_width_floor()` and
+  `check_abs_smoother()` leave this package with their nine help pages,
+  their test file and the README section that described them, and
+  `penalties7::smooth_probit()` is written
+  [`numericals7::smooth_probit()`](https://statmodels7.github.io/numericals7/reference/smooth_probit.html).
+  The move is a clean cut rather than a re-export. A re-export would
+  have left the eight names exported by two members of the toolkit,
+  which `statmodels7_conflicts()` reports as masking at every
+  [`library(statmodels7)`](https://rdrr.io/r/base/library.html), and it
+  would have added a `reexports` page with neither a value section nor
+  an example, which the documentation guard refuses.
+
+- [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)’s
+  page names
+  [`numericals7::check_abs_smoother()`](https://statmodels7.github.io/numericals7/reference/check_abs_smoother.html)
+  in plain text, since this package does not declare `numericals7`. No
+  penalty’s code changed, and the suite passes against the installed
+  `numericals7` 0.13.0: 802 expectations in 93 blocks, none failing or
+  skipped.
+
 ## penalties7 0.22.1
 
 - `DESCRIPTION` declares the `distributions7` minimum the package
@@ -257,27 +282,20 @@
   composition, which is what lets one object serve the smoothed
   break-point terms now and a smoothed kinked penalty later.
 
-- Three instances:
-  [`smooth_probit()`](https://statmodels7.github.io/penalties7/reference/smooth_probit.md)
-  (the recommended default: gaussian tails, and the exact convolution
-  identity `tau_true^2 = tau^2 - h^2` declared as its `tau_correction`),
-  [`smooth_hyperbolic()`](https://statmodels7.github.io/penalties7/reference/smooth_hyperbolic.md)
+- Three instances: `smooth_probit()` (the recommended default: gaussian
+  tails, and the exact convolution identity `tau_true^2 = tau^2 - h^2`
+  declared as its `tau_correction`), `smooth_hyperbolic()`
   (`sqrt(u^2 + c)`, polynomial tails, no correction) and
-  [`smooth_quintic()`](https://statmodels7.github.io/penalties7/reference/smooth_quintic.md)
-  (exact outside `[-h, h]`, `C^3` at the seam).
+  `smooth_quintic()` (exact outside `[-h, h]`, `C^3` at the seam).
 
-- [`smoother_deriv()`](https://statmodels7.github.io/penalties7/reference/smoother_deriv.md),
-  [`smoother_width()`](https://statmodels7.github.io/penalties7/reference/smoother_width.md)
-  (a `NULL` width is resolved by the consumer at build, from the
-  covariate’s spacing) and
-  [`smoother_width_floor()`](https://statmodels7.github.io/penalties7/reference/smoother_width_floor.md),
-  whose floor is derived from the expression that binds – the Jacobian
-  column carries `s''(0)/2 ~ 1/h` against columns of order the range
-  `D`, so holding the design’s condition below `eps^-1/2` gives
-  `h >= sqrt(eps) * D` – rather than chosen.
+- `smoother_deriv()`, `smoother_width()` (a `NULL` width is resolved by
+  the consumer at build, from the covariate’s spacing) and
+  `smoother_width_floor()`, whose floor is derived from the expression
+  that binds – the Jacobian column carries `s''(0)/2 ~ 1/h` against
+  columns of order the range `D`, so holding the design’s condition
+  below `eps^-1/2` gives `h >= sqrt(eps) * D` – rather than chosen.
 
-- [`check_abs_smoother()`](https://statmodels7.github.io/penalties7/reference/check_abs_smoother.md),
-  the sibling of
+- `check_abs_smoother()`, the sibling of
   [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
   for user-written smoothers: the structural properties (even, odd
   bounded first derivative, convex, matching `|u|` in the tails) and

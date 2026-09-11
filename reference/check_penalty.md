@@ -146,7 +146,7 @@ and
 for the quantities checked,
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
 for the set the grid avoids,
-[`check_abs_smoother()`](https://statmodels7.github.io/penalties7/reference/check_abs_smoother.md)
+[`numericals7::check_abs_smoother()`](https://statmodels7.github.io/numericals7/reference/check_abs_smoother.html)
 for the same service on a smoother,
 [`linkfunctions7::check_link()`](https://statmodels7.github.io/linkfunctions7/reference/check_link.html)
 and

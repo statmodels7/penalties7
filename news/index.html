@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.22.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.23.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,11 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.23.0" id="penalties7-0230">penalties7 0.23.0<a class="anchor" aria-label="anchor" href="#penalties7-0230"></a></h2>
+<ul><li><p><strong>The smoothers of the absolute value are no longer exported here: they moved to <code>numericals7</code> 0.13.0.</strong> <code>abs_smoother()</code>, <code>smooth_probit()</code>, <code>smooth_hyperbolic()</code>, <code>smooth_quintic()</code>, <code>smoother_deriv()</code>, <code>smoother_width()</code>, <code>smoother_width_floor()</code> and <code>check_abs_smoother()</code> leave this package with their nine help pages, their test file and the README section that described them, and <code>penalties7::smooth_probit()</code> is written <code><a href="https://statmodels7.github.io/numericals7/reference/smooth_probit.html" class="external-link">numericals7::smooth_probit()</a></code>. The move is a clean cut rather than a re-export. A re-export would have left the eight names exported by two members of the toolkit, which <code>statmodels7_conflicts()</code> reports as masking at every <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(statmodels7)</a></code>, and it would have added a <code>reexports</code> page with neither a value section nor an example, which the documentation guard refuses.</p></li>
+<li><p><code><a href="../reference/check_penalty.html">check_penalty()</a></code>’s page names <code><a href="https://statmodels7.github.io/numericals7/reference/check_abs_smoother.html" class="external-link">numericals7::check_abs_smoother()</a></code> in plain text, since this package does not declare <code>numericals7</code>. No penalty’s code changed, and the suite passes against the installed <code>numericals7</code> 0.13.0: 802 expectations in 93 blocks, none failing or skipped.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.22.1" id="penalties7-0221">penalties7 0.22.1<a class="anchor" aria-label="anchor" href="#penalties7-0221"></a></h2>
 <ul><li>
@@ -89,9 +94,9 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.16.0" id="penalties7-0160">penalties7 0.16.0<a class="anchor" aria-label="anchor" href="#penalties7-0160"></a></h2>
 <ul><li><p>New class <code>abs_smoother</code>: a smooth replacement <code>s(u)</code> for <code>|u|</code> carrying its derivatives in <code>u</code> up to order five as FUNCTIONS, so a piecewise smoother’s branches are ordinary code rather than an expression <code><a href="https://rdrr.io/r/stats/deriv.html" class="external-link">stats::deriv</a></code> cannot read. The contract is only <code>s</code>: the smooth sign is <code>s'</code>, the smooth step <code>(1 + s')/2</code> and the smooth hinge <code>(u + s)/2</code> follow by composition, which is what lets one object serve the smoothed break-point terms now and a smoothed kinked penalty later.</p></li>
-<li><p>Three instances: <code><a href="../reference/smooth_probit.html">smooth_probit()</a></code> (the recommended default: gaussian tails, and the exact convolution identity <code>tau_true^2 = tau^2 - h^2</code> declared as its <code>tau_correction</code>), <code><a href="../reference/smooth_hyperbolic.html">smooth_hyperbolic()</a></code> (<code>sqrt(u^2 + c)</code>, polynomial tails, no correction) and <code><a href="../reference/smooth_quintic.html">smooth_quintic()</a></code> (exact outside <code>[-h, h]</code>, <code>C^3</code> at the seam).</p></li>
-<li><p><code><a href="../reference/smoother_deriv.html">smoother_deriv()</a></code>, <code><a href="../reference/smoother_width.html">smoother_width()</a></code> (a <code>NULL</code> width is resolved by the consumer at build, from the covariate’s spacing) and <code><a href="../reference/smoother_width_floor.html">smoother_width_floor()</a></code>, whose floor is derived from the expression that binds – the Jacobian column carries <code>s''(0)/2 ~ 1/h</code> against columns of order the range <code>D</code>, so holding the design’s condition below <code>eps^-1/2</code> gives <code>h &gt;= sqrt(eps) * D</code> – rather than chosen.</p></li>
-<li><p><code><a href="../reference/check_abs_smoother.html">check_abs_smoother()</a></code>, the sibling of <code><a href="../reference/check_penalty.html">check_penalty()</a></code> for user-written smoothers: the structural properties (even, odd bounded first derivative, convex, matching <code>|u|</code> in the tails) and each order against one numerical differentiation of the analytic order below it.</p></li>
+<li><p>Three instances: <code>smooth_probit()</code> (the recommended default: gaussian tails, and the exact convolution identity <code>tau_true^2 = tau^2 - h^2</code> declared as its <code>tau_correction</code>), <code>smooth_hyperbolic()</code> (<code>sqrt(u^2 + c)</code>, polynomial tails, no correction) and <code>smooth_quintic()</code> (exact outside <code>[-h, h]</code>, <code>C^3</code> at the seam).</p></li>
+<li><p><code>smoother_deriv()</code>, <code>smoother_width()</code> (a <code>NULL</code> width is resolved by the consumer at build, from the covariate’s spacing) and <code>smoother_width_floor()</code>, whose floor is derived from the expression that binds – the Jacobian column carries <code>s''(0)/2 ~ 1/h</code> against columns of order the range <code>D</code>, so holding the design’s condition below <code>eps^-1/2</code> gives <code>h &gt;= sqrt(eps) * D</code> – rather than chosen.</p></li>
+<li><p><code>check_abs_smoother()</code>, the sibling of <code><a href="../reference/check_penalty.html">check_penalty()</a></code> for user-written smoothers: the structural properties (even, odd bounded first derivative, convex, matching <code>|u|</code> in the tails) and each order against one numerical differentiation of the analytic order below it.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.15.0" id="penalties7-0150">penalties7 0.15.0<a class="anchor" aria-label="anchor" href="#penalties7-0150"></a></h2>
