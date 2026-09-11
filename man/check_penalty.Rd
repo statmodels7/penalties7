@@ -138,7 +138,7 @@ failed[failed$status != "OK", c("check", "max_error")]
 \seealso{
 \code{\link[=penalty_value]{penalty_value()}} and \code{\link[=penalty_gradient]{penalty_gradient()}} for the quantities
 checked, \code{\link[=penalty_kinks]{penalty_kinks()}} for the set the grid avoids,
-\code{\link[=check_abs_smoother]{check_abs_smoother()}} for the same service on a smoother,
+\code{numericals7::check_abs_smoother()} for the same service on a smoother,
 \code{\link[linkfunctions7:check_link]{linkfunctions7::check_link()}} and \code{\link[distributions7:check_distrib]{distributions7::check_distrib()}} for
 the siblings this follows.
 }

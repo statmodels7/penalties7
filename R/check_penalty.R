@@ -126,7 +126,7 @@ NULL
 #'
 #' @seealso [penalty_value()] and [penalty_gradient()] for the quantities
 #'   checked, [penalty_kinks()] for the set the grid avoids,
-#'   [check_abs_smoother()] for the same service on a smoother,
+#'   `numericals7::check_abs_smoother()` for the same service on a smoother,
 #'   [linkfunctions7::check_link()] and [distributions7::check_distrib()] for
 #'   the siblings this follows.
 #' @export

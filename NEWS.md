@@ -1,3 +1,24 @@
+# penalties7 0.23.0
+
+* **The smoothers of the absolute value are no longer exported here: they
+  moved to `numericals7` 0.13.0.** `abs_smoother()`, `smooth_probit()`,
+  `smooth_hyperbolic()`, `smooth_quintic()`, `smoother_deriv()`,
+  `smoother_width()`, `smoother_width_floor()` and `check_abs_smoother()`
+  leave this package with their nine help pages, their test file and the
+  README section that described them, and `penalties7::smooth_probit()` is
+  written `numericals7::smooth_probit()`. The move is a clean cut rather than
+  a re-export. A re-export would have left the eight names exported by two
+  members of the toolkit, which `statmodels7_conflicts()` reports as masking
+  at every `library(statmodels7)`, and it would have added a `reexports` page
+  with neither a value section nor an example, which the documentation guard
+  refuses.
+
+* `check_penalty()`'s page names `numericals7::check_abs_smoother()` in plain
+  text, since this package does not declare `numericals7`. No penalty's code
+  changed, and the suite passes against the installed `numericals7` 0.13.0:
+  802 expectations in 93 blocks, none failing or skipped.
+
+
 # penalties7 0.22.1
 
 * `DESCRIPTION` declares the `distributions7` minimum the package already

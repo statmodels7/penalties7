@@ -1,6 +1,6 @@
 Package: penalties7
 Title: Penalties as Objects with Exact Derivatives
-Version: 0.22.1
+Version: 0.23.0
 Authors@R:
     person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
 Description: Penalties for regularized and Bayesian regression as 'S7'
@@ -11,9 +11,7 @@ Description: Penalties for regularized and Bayesian regression as 'S7'
     A quadratic penalty adds the rank, the null space and the log
     pseudo-determinant that a marginal likelihood criterion consumes.
     Normalizing constants are kept, so a proper penalty is exactly the
-    negative log-density of its prior. Smoothers of the absolute value,
-    differentiable to fifth order, stand in for a kink where a method needs
-    a differentiable objective. Part of the 'statmodels7' toolkit.
+    negative log-density of its prior. Part of the 'statmodels7' toolkit.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -45,7 +43,6 @@ Remotes:
 Config/testthat/edition: 3
 Collate:
     'penalty_class.R'
-    'abs_smoother.R'
     'generics.R'
     'quadratic_penalty.R'
     'additive_penalty.R'
