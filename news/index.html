@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.23.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.24.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,12 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.24.0" id="penalties7-0240">penalties7 0.24.0<a class="anchor" aria-label="anchor" href="#penalties7-0240"></a></h2>
+<ul><li>
+<strong><code>penalty_dhessian_beta(pen, beta, theta, v)</code>, the derivative of the coefficient Hessian in the coefficients, contracted along a direction.</strong> A marginal criterion reads  at the penalized mode, and where  depends on the coefficients the mode’s movement reaches the determinant through it; a prediction-error criterion reads the same matrix inside its trace. It is zero for the quadratic, additive and structured branches and for a separable penalty whose parent is quadratic, and on a univariate separable penalty it is , read from <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_deriv3_y.html" class="external-link">distributions7::distrib_deriv3_y()</a></code>. A kinked parent rejects, and so does a multivariate parent that is not quadratic, whose third response derivative per block is not available. The contraction is returned rather than the array of order three, every consumer reading the array along a direction.</li>
+<li>Requires <code>distributions7 (&gt;= 0.57.0)</code>, where <code>fixed()</code> delegates the third response derivative to its parent, so a Student t prior reads the closed form rather than a stencil.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.23.0" id="penalties7-0230">penalties7 0.23.0<a class="anchor" aria-label="anchor" href="#penalties7-0230"></a></h2>
 <ul><li><p><strong>The smoothers of the absolute value are no longer exported here: they moved to <code>numericals7</code> 0.13.0.</strong> <code>abs_smoother()</code>, <code>smooth_probit()</code>, <code>smooth_hyperbolic()</code>, <code>smooth_quintic()</code>, <code>smoother_deriv()</code>, <code>smoother_width()</code>, <code>smoother_width_floor()</code> and <code>check_abs_smoother()</code> leave this package with their nine help pages, their test file and the README section that described them, and <code>penalties7::smooth_probit()</code> is written <code><a href="https://statmodels7.github.io/numericals7/reference/smooth_probit.html" class="external-link">numericals7::smooth_probit()</a></code>. The move is a clean cut rather than a re-export. A re-export would have left the eight names exported by two members of the toolkit, which <code>statmodels7_conflicts()</code> reports as masking at every <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(statmodels7)</a></code>, and it would have added a <code>reexports</code> page with neither a value section nor an example, which the documentation guard refuses.</p></li>

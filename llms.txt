@@ -259,6 +259,8 @@ that answers these is estimable by REML or ML whatever its shape.
   Hyperparameters
 - [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
   : The Derivative of the Mixed Block in the Hyperparameters
+- [`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md)
+  : The Derivative of the Coefficient Hessian in the Coefficients
 - [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
   : Is a Penalty Quadratic in the Coefficients?
 

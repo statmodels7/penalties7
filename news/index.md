@@ -1,5 +1,24 @@
 # Changelog
 
+## penalties7 0.24.0
+
+- **`penalty_dhessian_beta(pen, beta, theta, v)`, the derivative of the
+  coefficient Hessian in the coefficients, contracted along a
+  direction.** A marginal criterion reads at the penalized mode, and
+  where depends on the coefficients the mode’s movement reaches the
+  determinant through it; a prediction-error criterion reads the same
+  matrix inside its trace. It is zero for the quadratic, additive and
+  structured branches and for a separable penalty whose parent is
+  quadratic, and on a univariate separable penalty it is , read from
+  [`distributions7::distrib_deriv3_y()`](https://statmodels7.github.io/distributions7/reference/distrib_deriv3_y.html).
+  A kinked parent rejects, and so does a multivariate parent that is not
+  quadratic, whose third response derivative per block is not available.
+  The contraction is returned rather than the array of order three,
+  every consumer reading the array along a direction.
+- Requires `distributions7 (>= 0.57.0)`, where `fixed()` delegates the
+  third response derivative to its parent, so a Student t prior reads
+  the closed form rather than a stencil.
+
 ## penalties7 0.23.0
 
 - **The smoothers of the absolute value are no longer exported here:
