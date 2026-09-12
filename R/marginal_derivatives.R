@@ -928,3 +928,176 @@ reject_kinked <- function(pen, what) {
   }
   invisible(NULL)
 }
+
+
+# --- the derivative of the coefficient Hessian in the coefficients -----------
+
+#' The Derivative of the Coefficient Hessian in the Coefficients
+#'
+#' @description
+#' Returns \eqn{\partial S/\partial\beta\,[v] = \sum_c v_c\,
+#' \partial^3\rho/\partial\beta\,\partial\beta'\,\partial\beta_c}, the
+#' coefficient Hessian's derivative along a direction \eqn{v}, as one matrix of
+#' side `pen@n_coef`. It is zero for every penalty quadratic in the
+#' coefficients.
+#'
+#' @details
+#' # Why a criterion needs it
+#'
+#' A marginal criterion reads \eqn{\log\lvert H + S\rvert} at the penalized
+#' mode, and the mode moves with the hyperparameters. Where \eqn{S} does not
+#' depend on the coefficients that movement reaches the determinant through
+#' \eqn{H} alone. Where it does, as for a heavy-tailed prior on a random effect,
+#' it reaches it through \eqn{S} as well, and the gradient needs
+#' \eqn{\mathrm{tr}(M\,\partial S/\partial\beta[v])} with \eqn{v} the mode's
+#' movement. A prediction-error criterion reads the same matrix inside the trace
+#' that counts its degrees of freedom.
+#'
+#' The direction is contracted here rather than returning the array of order
+#' three, because every consumer reads the array along a direction and it has
+#' \eqn{q^3} entries.
+#'
+#' # What each branch answers
+#'
+#' | branch | \eqn{\partial S/\partial\beta[v]} |
+#' |---|---|
+#' | [quadratic_penalty()], [additive_penalty()], [structured_penalty()] | zero |
+#' | [distrib_penalty()] whose parent is quadratic in the argument | zero |
+#' | [distrib_penalty()] with a univariate parent otherwise | \eqn{-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)\,D} |
+#' | [distrib_penalty()] with a multivariate parent otherwise | rejects |
+#' | a kinked parent, [scad_penalty()], [mcp_penalty()] | rejects |
+#'
+#' The univariate row follows from \eqn{S = -D'\mathrm{diag}(\ell^{(yy)}(D\beta))D}:
+#' differentiating \eqn{\ell^{(yy)}((D\beta)_j)} in \eqn{\beta_c} gives
+#' \eqn{\ell^{(yyy)}((D\beta)_j) D_{jc}}, and summing against \eqn{v_c} gives
+#' \eqn{(Dv)_j}. The third response derivative is read from
+#' [distributions7::distrib_deriv3_y()], which is closed form for every
+#' location family and so for a Student t prior.
+#'
+#' A multivariate parent that is not quadratic, a multivariate t prior among
+#' them, would need the third response derivative as an array per block, which
+#' \pkg{distributions7} does not supply, so it rejects rather than returning a
+#' matrix missing that piece. Whether the parent is quadratic is asked of
+#' [beta_quadratic()] first, so a Gaussian prior of any dimension answers zero
+#' without reaching the parent at all.
+#'
+#' @param pen A [penalty()] object.
+#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param theta A named list of hyperparameter values, or a named numeric
+#'   vector carrying the same.
+#' @param v A numeric vector of length `pen@n_coef`, the direction.
+#' @param ... Passed to methods. No shipped method reads it.
+#'
+#' @return A square base matrix of side `pen@n_coef`.
+#'
+#' @seealso [penalty_hessian()] for the quantity differentiated,
+#'   [beta_quadratic()] for the predicate that says it is zero,
+#'   [penalty_dhessian()] for the derivative in the hyperparameters.
+#'
+#' @examples
+#' b <- c(1, -0.5, 0.3)
+#' v <- c(0.2, 0.1, -0.4)
+#'
+#' # Zero for a quadratic penalty, whose Hessian does not move with beta.
+#' penalty_dhessian_beta(quadratic_penalty(diag(3)), b, list(lambda = 2), v)
+#'
+#' # A Student t prior's Hessian does move, and this is its derivative along v.
+#' h <- heavy_penalty(n_coef = 3)
+#' th <- list(sigma = 1, nu = 4)
+#' D <- penalty_dhessian_beta(h, b, th, v)
+#' eps <- 1e-6
+#' num <- (penalty_hessian(h, b + eps * v, th) -
+#'         penalty_hessian(h, b - eps * v, th)) / (2 * eps)
+#' max(abs(D - num))
+#'
+#' # A kinked parent has no such derivative at the kink and says so.
+#' try(penalty_dhessian_beta(lasso_penalty(n_coef = 3), b, list(lambda = 1), v))
+#'
+#' @export
+penalty_dhessian_beta <- S7::new_generic("penalty_dhessian_beta", "pen",
+  function(pen, beta, theta, v, ...) {
+    theta <- align_ptheta(pen, theta)
+    beta <- as.numeric(beta)
+    v <- as.numeric(v)
+    if (length(v) != length(beta)) {
+      stop(sprintf("'v' has length %d where the coefficients have %d.",
+                   length(v), length(beta)), call. = FALSE)
+    }
+    S7::S7_dispatch()
+  })
+
+#' @title What Each Branch Answers to penalty_dhessian_beta()
+#' @name penalty_dhessian_beta.penalty
+#'
+#' @description
+#' The base class rejects, naming the penalty. The quadratic, additive and
+#' structured branches return a zero matrix, their Hessian being free of the
+#' coefficients. The separable branch returns zero where its parent is
+#' quadratic in the argument and
+#' \eqn{-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)D} otherwise, and rejects
+#' for a kinked parent and for a multivariate parent that is not quadratic.
+#'
+#' @param pen A [penalty()] object.
+#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param theta A named list of hyperparameter values.
+#' @param v A numeric vector of length `pen@n_coef`, the direction.
+#' @param ... Unused, and accepted so that the signature matches the generic's.
+#'
+#' @return A square base matrix of side `pen@n_coef`, or an error.
+#'
+#' @seealso [penalty_dhessian_beta()] for the generic.
+#' @keywords internal
+S7::method(penalty_dhessian_beta, penalty) <- function(pen, beta, theta, v,
+                                                       ...) {
+  stop(sprintf(paste0("'%s' does not supply penalty_dhessian_beta(), so the\n",
+                      "  movement of its Hessian with the coefficients is not",
+                      " available."),
+               pen@penalty_name), call. = FALSE)
+}
+
+#' @rdname penalty_dhessian_beta.penalty
+#' @name penalty_dhessian_beta.QuadraticPenalty
+#' @keywords internal
+S7::method(penalty_dhessian_beta, QuadraticPenalty) <- function(pen, beta,
+                                                                theta, v, ...) {
+  matrix(0, as.integer(pen@n_coef), as.integer(pen@n_coef))
+}
+
+#' @rdname penalty_dhessian_beta.penalty
+#' @name penalty_dhessian_beta.AdditivePenalty
+#' @keywords internal
+S7::method(penalty_dhessian_beta, AdditivePenalty) <- function(pen, beta,
+                                                               theta, v, ...) {
+  matrix(0, as.integer(pen@n_coef), as.integer(pen@n_coef))
+}
+
+#' @rdname penalty_dhessian_beta.penalty
+#' @name penalty_dhessian_beta.StructuredPenalty
+#' @keywords internal
+S7::method(penalty_dhessian_beta, StructuredPenalty) <- function(pen, beta,
+                                                                 theta, v,
+                                                                 ...) {
+  matrix(0, as.integer(pen@n_coef), as.integer(pen@n_coef))
+}
+
+#' @rdname penalty_dhessian_beta.penalty
+#' @name penalty_dhessian_beta.DistribPenalty
+#' @keywords internal
+S7::method(penalty_dhessian_beta, DistribPenalty) <- function(pen, beta, theta,
+                                                              v, ...) {
+  reject_kinked(pen, "penalty_dhessian_beta")
+  k <- as.integer(pen@n_coef)
+  # a parent quadratic in its argument has a constant response curvature, so
+  # the derivative is exactly zero and the parent is not asked for a third
+  # derivative it may only have as a stencil, or not at all
+  if (isTRUE(beta_quadratic(pen, theta))) return(matrix(0, k, k))
+  if (pen@block > 1L) {
+    stop(sprintf(paste0("'%s' has a multivariate parent that is not quadratic,",
+                        "\n  and its third response derivative per block is not",
+                        " available."),
+                 pen@penalty_name), call. = FALSE)
+  }
+  t <- map_apply(pen, beta)
+  d3 <- distributions7::distrib_deriv3_y(pen@parent, t, theta) + 0 * t
+  -map_quad(pen, d3 * map_apply(pen, v))
+}

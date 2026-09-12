@@ -243,3 +243,74 @@ test_that("the keys are the ones penalty_hess_theta uses", {
   expect_identical(names(penalty_dcross(pen, b, th)),
                    names(penalty_hess_theta(pen, b, th)))
 })
+
+# penalty_dhessian_beta() ----------------------------------------------------
+#
+# The reference differentiates penalty_hessian() along the direction with ONE
+# central difference, so it shares no arithmetic with the closed form, which
+# reads the parent's third response derivative.
+
+num_dhessian_beta <- function(pen, beta, theta, v, h = 1e-5) {
+  (penalty_hessian(pen, beta + h * v, theta) -
+     penalty_hessian(pen, beta - h * v, theta)) / (2 * h)
+}
+
+test_that("a heavy-tailed prior's Hessian moves with the coefficients", {
+  pen <- heavy_penalty(n_coef = 4L)
+  b <- c(0.8, -1.9, 0.3, 2.6)
+  v <- c(0.4, 0.7, -1.1, 0.2)
+  th <- list(sigma = 0.9, nu = 3.5)
+  got <- penalty_dhessian_beta(pen, b, th, v)
+  ref <- num_dhessian_beta(pen, b, th, v)
+  expect_true(is.matrix(got))
+  expect_identical(dim(got), c(4L, 4L))
+  expect_gt(max(abs(ref)), 1e-2)
+  expect_equal(got, unname(as.matrix(ref)), tolerance = 1e-7)
+  # linear in the direction, which a contraction must be
+  expect_equal(penalty_dhessian_beta(pen, b, th, 2 * v), 2 * got,
+               tolerance = 1e-12)
+})
+
+test_that("a map is carried on both sides and on the direction", {
+  D <- rbind(c(1, -1, 0), c(0, 1, -1), c(0.5, 0, 1), c(0, 2, 0))
+  pen <- distrib_penalty(
+    distributions7::fixed(distributions7::student_t1_distrib(), mu = 0),
+    map = D)
+  b <- c(0.3, -0.8, 1.4)
+  v <- c(-0.5, 0.9, 0.25)
+  th <- list(sigma = 1.3, nu = 5)
+  expect_equal(penalty_dhessian_beta(pen, b, th, v),
+               unname(as.matrix(num_dhessian_beta(pen, b, th, v))),
+               tolerance = 1e-7)
+})
+
+test_that("a penalty quadratic in the coefficients answers zero", {
+  b <- c(0.2, -0.4, 0.6)
+  v <- c(1, 2, 3)
+  z <- matrix(0, 3, 3)
+  expect_identical(penalty_dhessian_beta(quadratic_penalty(diag(3)), b,
+                                         list(lambda = 2), v), z)
+  expect_identical(penalty_dhessian_beta(
+    additive_penalty(list(diag(3), diag(c(1, 1, 0)))), b,
+    list(lambda1 = 1, lambda2 = 2), v), z)
+  s <- structured_penalty(parameters7::log_cholesky(3))
+  expect_identical(penalty_dhessian_beta(
+    s, b, as.list(stats::setNames(rep(0.1, 6), s@params)), v), z)
+  g <- distrib_penalty(
+    distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
+    n_coef = 3L)
+  expect_identical(penalty_dhessian_beta(g, b, list(sigma = 1.4), v), z)
+})
+
+test_that("a kinked or a non-quadratic multivariate parent rejects", {
+  b <- c(0.2, -0.4, 0.6)
+  v <- c(1, 0, -1)
+  expect_error(penalty_dhessian_beta(lasso_penalty(n_coef = 3L), b,
+                                     list(lambda = 1), v), "has a kink")
+  expect_error(penalty_dhessian_beta(scad_penalty(n_coef = 3L), b,
+                                     list(lambda = 1, a = 3.7), v),
+               "does not supply")
+  expect_error(penalty_dhessian_beta(heavy_penalty(n_coef = 3L), b,
+                                     list(sigma = 1, nu = 4), c(1, 2)),
+               "has length 2")
+})

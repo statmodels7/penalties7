@@ -44,6 +44,7 @@ reference:
   - penalty_dhessian
   - penalty_d2hessian
   - penalty_dcross
+  - penalty_dhessian_beta
   - beta_quadratic
 - title: The quadratic branch
   desc: >
