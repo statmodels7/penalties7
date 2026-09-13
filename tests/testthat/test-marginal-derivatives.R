@@ -314,3 +314,99 @@ test_that("a kinked or a non-quadratic multivariate parent rejects", {
                                      list(sigma = 1, nu = 4), c(1, 2)),
                "has length 2")
 })
+
+# penalty_d2hessian_beta() and penalty_dhessian_beta_theta() -----------------
+#
+# The references difference penalty_dhessian_beta() once, along a second
+# direction or in one hyperparameter, so they share no arithmetic with the
+# closed forms, which read the parent's fourth and mixed third response
+# derivatives.
+
+test_that("the second movement of a heavy-tailed prior's Hessian", {
+  pen <- heavy_penalty(n_coef = 4L)
+  b <- c(0.8, -1.9, 0.3, 2.6)
+  v <- c(0.4, 0.7, -1.1, 0.2)
+  w <- c(-0.6, 0.3, 0.5, 1.2)
+  th <- list(sigma = 0.9, nu = 3.5)
+  h <- 1e-5
+  got <- penalty_d2hessian_beta(pen, b, th, v, w)
+  ref <- (penalty_dhessian_beta(pen, b + h * w, th, v) -
+            penalty_dhessian_beta(pen, b - h * w, th, v)) / (2 * h)
+  expect_identical(dim(got), c(4L, 4L))
+  expect_gt(max(abs(ref)), 1e-2)
+  expect_equal(got, ref, tolerance = 1e-7)
+  # symmetric in the two directions and bilinear
+  expect_equal(penalty_d2hessian_beta(pen, b, th, w, v), got, tolerance = 1e-12)
+  expect_equal(penalty_d2hessian_beta(pen, b, th, 2 * v, w), 2 * got,
+               tolerance = 1e-12)
+
+  dt <- penalty_dhessian_beta_theta(pen, b, th, v)
+  expect_named(dt, c("sigma", "nu"))
+  for (m in names(th)) {
+    tp <- th; tm <- th
+    tp[[m]] <- th[[m]] + h
+    tm[[m]] <- th[[m]] - h
+    ref <- (penalty_dhessian_beta(pen, b, tp, v) -
+              penalty_dhessian_beta(pen, b, tm, v)) / (2 * h)
+    expect_gt(max(abs(ref)), 1e-3)
+    expect_equal(dt[[m]], ref, tolerance = 1e-7, info = m)
+  }
+})
+
+test_that("a map is carried through both second movements", {
+  D <- rbind(c(1, -1, 0), c(0, 1, -1), c(0.5, 0, 1), c(0, 2, 0))
+  pen <- distrib_penalty(
+    distributions7::fixed(distributions7::student_t1_distrib(), mu = 0),
+    map = D)
+  b <- c(0.3, -0.8, 1.4)
+  v <- c(-0.5, 0.9, 0.25)
+  w <- c(0.2, -0.1, 0.7)
+  th <- list(sigma = 1.3, nu = 5)
+  h <- 1e-5
+  expect_equal(penalty_d2hessian_beta(pen, b, th, v, w),
+               (penalty_dhessian_beta(pen, b + h * w, th, v) -
+                  penalty_dhessian_beta(pen, b - h * w, th, v)) / (2 * h),
+               tolerance = 1e-7)
+  tp <- th; tm <- th
+  tp$sigma <- th$sigma + h
+  tm$sigma <- th$sigma - h
+  expect_equal(penalty_dhessian_beta_theta(pen, b, th, v)$sigma,
+               (penalty_dhessian_beta(pen, b, tp, v) -
+                  penalty_dhessian_beta(pen, b, tm, v)) / (2 * h),
+               tolerance = 1e-7)
+})
+
+test_that("a penalty quadratic in the coefficients answers zero twice", {
+  b <- c(0.2, -0.4, 0.6)
+  v <- c(1, 2, 3)
+  w <- c(-1, 0, 2)
+  z <- matrix(0, 3, 3)
+  expect_identical(penalty_d2hessian_beta(quadratic_penalty(diag(3)), b,
+                                          list(lambda = 2), v, w), z)
+  expect_identical(penalty_dhessian_beta_theta(quadratic_penalty(diag(3)), b,
+                                               list(lambda = 2), v),
+                   list(lambda = z))
+  g <- distrib_penalty(
+    distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
+    n_coef = 3L)
+  expect_identical(penalty_d2hessian_beta(g, b, list(sigma = 1.4), v, w), z)
+  expect_identical(penalty_dhessian_beta_theta(g, b, list(sigma = 1.4), v),
+                   list(sigma = z))
+  s <- structured_penalty(parameters7::log_cholesky(3))
+  sth <- as.list(stats::setNames(rep(0.1, 6), s@params))
+  expect_identical(penalty_d2hessian_beta(s, b, sth, v, w), z)
+  expect_length(penalty_dhessian_beta_theta(s, b, sth, v), 6L)
+})
+
+test_that("a kinked parent rejects both second movements", {
+  b <- c(0.2, -0.4, 0.6)
+  v <- c(1, 0, -1)
+  expect_error(penalty_d2hessian_beta(lasso_penalty(n_coef = 3L), b,
+                                      list(lambda = 1), v, v), "has a kink")
+  expect_error(penalty_dhessian_beta_theta(scad_penalty(n_coef = 3L), b,
+                                           list(lambda = 1, a = 3.7), v),
+               "does not supply")
+  expect_error(penalty_d2hessian_beta(heavy_penalty(n_coef = 3L), b,
+                                      list(sigma = 1, nu = 4), v, c(1, 2)),
+               "lengths 3 and 2")
+})

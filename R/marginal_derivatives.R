@@ -1101,3 +1101,215 @@ S7::method(penalty_dhessian_beta, DistribPenalty) <- function(pen, beta, theta,
   d3 <- distributions7::distrib_deriv3_y(pen@parent, t, theta) + 0 * t
   -map_quad(pen, d3 * map_apply(pen, v))
 }
+
+
+#' How the Movement of the Coefficient Hessian Moves
+#'
+#' @description
+#' The two derivatives of [penalty_dhessian_beta()] that the second derivative
+#' of a marginal criterion reads. `penalty_d2hessian_beta()` is
+#' \eqn{\partial^2 S/\partial\beta^2\,[v, w]}, the Hessian's second derivative
+#' in the coefficients contracted along two directions.
+#' `penalty_dhessian_beta_theta()` is
+#' \eqn{\partial^2 S/\partial\beta\,\partial\theta_m\,[v]}, the derivative of
+#' \eqn{\partial S/\partial\beta\,[v]} in each hyperparameter.
+#'
+#' @details
+#' Differentiating the criterion's gradient once more in the hyperparameters,
+#' the determinant's matrix \eqn{K_m = S_m + T[b_m]} moves in three ways that a
+#' penalty whose Hessian depends on the coefficients adds to: through
+#' \eqn{T[b_{ml}]}, which [penalty_dhessian_beta()] supplies; through the second
+#' derivative in the coefficients along the two directions the mode moves in;
+#' and through \eqn{\partial S_m/\partial\beta\,[b_l]} and
+#' \eqn{\partial S_l/\partial\beta\,[b_m]}, which are one quantity by the
+#' symmetry of mixed partials.
+#'
+#' # What each branch answers
+#'
+#' | branch | \eqn{\partial^2 S/\partial\beta^2[v,w]} | \eqn{\partial^2 S/\partial\beta\partial\theta_m[v]} |
+#' |---|---|---|
+#' | quadratic, additive, structured | zero | zero for every hyperparameter |
+#' | separable, parent quadratic in its argument | zero | zero for every hyperparameter |
+#' | separable, univariate parent otherwise | \eqn{-D'\mathrm{diag}(\ell^{(yyyy)} \odot Dv \odot Dw)D} | \eqn{-D'\mathrm{diag}(\partial_{\theta_m}\ell^{(yyy)} \odot Dv)D} |
+#' | separable, multivariate parent otherwise | rejects | rejects |
+#' | a kinked parent, [scad_penalty()], [mcp_penalty()] | rejects | rejects |
+#'
+#' The univariate rows follow from
+#' \eqn{\partial S/\partial\beta[v] = -D'\mathrm{diag}(\ell^{(yyy)}(D\beta) \odot
+#' Dv)D} by differentiating \eqn{\ell^{(yyy)}((D\beta)_j)} once more, in
+#' \eqn{\beta} along \eqn{w} or in \eqn{\theta_m}. The fourth response
+#' derivative is [distributions7::distrib_deriv4_y()] and the mixed one
+#' [distributions7::distrib_cross3_y()], both closed for every location family
+#' and so for a Student t prior.
+#'
+#' @param pen A [penalty()] object.
+#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param theta A named list of hyperparameter values, or a named numeric
+#'   vector carrying the same.
+#' @param v,w Numeric vectors of length `pen@n_coef`, the directions.
+#' @param ... Passed to methods. No shipped method reads it.
+#'
+#' @return `penalty_d2hessian_beta()` a square base matrix of side
+#'   `pen@n_coef`; `penalty_dhessian_beta_theta()` a list of such matrices, one
+#'   per hyperparameter, keyed by `pen@params`.
+#'
+#' @seealso [penalty_dhessian_beta()] for the quantity differentiated,
+#'   [penalty_dhessian()] for the derivative of the Hessian in the
+#'   hyperparameters, [beta_quadratic()] for the predicate that says both are
+#'   zero.
+#'
+#' @examples
+#' h <- heavy_penalty(n_coef = 3)
+#' b <- c(1, -0.5, 0.3)
+#' v <- c(0.2, 0.1, -0.4)
+#' w <- c(-0.3, 0.5, 0.1)
+#' th <- list(sigma = 1, nu = 4)
+#'
+#' # The second derivative along two directions, against a difference of the
+#' # first along one of them.
+#' eps <- 1e-6
+#' D2 <- penalty_d2hessian_beta(h, b, th, v, w)
+#' num <- (penalty_dhessian_beta(h, b + eps * w, th, v) -
+#'         penalty_dhessian_beta(h, b - eps * w, th, v)) / (2 * eps)
+#' max(abs(D2 - num))
+#'
+#' # The movement in the degrees of freedom.
+#' Dnu <- penalty_dhessian_beta_theta(h, b, th, v)$nu
+#' num <- (penalty_dhessian_beta(h, b, list(sigma = 1, nu = 4 + eps), v) -
+#'         penalty_dhessian_beta(h, b, list(sigma = 1, nu = 4 - eps), v)) /
+#'   (2 * eps)
+#' max(abs(Dnu - num))
+#'
+#' # Zero for a quadratic penalty.
+#' penalty_d2hessian_beta(quadratic_penalty(diag(3)), b, list(lambda = 2), v, w)
+#'
+#' @export
+penalty_d2hessian_beta <- S7::new_generic("penalty_d2hessian_beta", "pen",
+  function(pen, beta, theta, v, w, ...) {
+    theta <- align_ptheta(pen, theta)
+    beta <- as.numeric(beta)
+    v <- as.numeric(v)
+    w <- as.numeric(w)
+    if (length(v) != length(beta) || length(w) != length(beta)) {
+      stop(sprintf(paste0("'v' and 'w' have lengths %d and %d where the",
+                          " coefficients have %d."),
+                   length(v), length(w), length(beta)), call. = FALSE)
+    }
+    S7::S7_dispatch()
+  })
+
+#' @rdname penalty_d2hessian_beta
+#' @export
+penalty_dhessian_beta_theta <- S7::new_generic("penalty_dhessian_beta_theta",
+                                               "pen",
+  function(pen, beta, theta, v, ...) {
+    theta <- align_ptheta(pen, theta)
+    beta <- as.numeric(beta)
+    v <- as.numeric(v)
+    if (length(v) != length(beta)) {
+      stop(sprintf("'v' has length %d where the coefficients have %d.",
+                   length(v), length(beta)), call. = FALSE)
+    }
+    S7::S7_dispatch()
+  })
+
+#' @title What Each Branch Answers to the Second Movement of the Hessian
+#' @name penalty_d2hessian_beta.penalty
+#'
+#' @description
+#' The base class rejects both, naming the penalty. The quadratic, additive and
+#' structured branches return zero matrices, their Hessian being free of the
+#' coefficients. The separable branch returns zero where its parent is
+#' quadratic in the argument, the closed forms of [penalty_d2hessian_beta()]
+#' otherwise, and rejects for a kinked parent and for a multivariate parent
+#' that is not quadratic.
+#'
+#' @param pen A [penalty()] object.
+#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param theta A named list of hyperparameter values.
+#' @param v,w Numeric vectors of length `pen@n_coef`, the directions.
+#' @param ... Unused, and accepted so that the signature matches the generic's.
+#'
+#' @return A square base matrix of side `pen@n_coef`, a list of them keyed by
+#'   `pen@params`, or an error.
+#'
+#' @seealso [penalty_d2hessian_beta()] for the generics.
+#' @keywords internal
+S7::method(penalty_d2hessian_beta, penalty) <- function(pen, beta, theta, v, w,
+                                                        ...) {
+  stop(sprintf(paste0("'%s' does not supply penalty_d2hessian_beta(), so the\n",
+                      "  second movement of its Hessian with the coefficients",
+                      " is not available."),
+               pen@penalty_name), call. = FALSE)
+}
+
+#' @rdname penalty_d2hessian_beta.penalty
+#' @name penalty_dhessian_beta_theta.penalty
+#' @keywords internal
+S7::method(penalty_dhessian_beta_theta, penalty) <- function(pen, beta, theta,
+                                                             v, ...) {
+  stop(sprintf(paste0("'%s' does not supply penalty_dhessian_beta_theta(), so",
+                      "\n  how the movement of its Hessian changes with the",
+                      " hyperparameters is not available."),
+               pen@penalty_name), call. = FALSE)
+}
+
+# the three branches whose Hessian does not depend on the coefficients
+for (.cls in list(QuadraticPenalty, AdditivePenalty, StructuredPenalty)) {
+  S7::method(penalty_d2hessian_beta, .cls) <- function(pen, beta, theta, v, w,
+                                                       ...) {
+    matrix(0, as.integer(pen@n_coef), as.integer(pen@n_coef))
+  }
+  S7::method(penalty_dhessian_beta_theta, .cls) <- function(pen, beta, theta,
+                                                            v, ...) {
+    k <- as.integer(pen@n_coef)
+    stats::setNames(lapply(pen@params, function(m) matrix(0, k, k)),
+                    pen@params)
+  }
+}
+rm(.cls)
+
+#' @rdname penalty_d2hessian_beta.penalty
+#' @name penalty_d2hessian_beta.DistribPenalty
+#' @keywords internal
+S7::method(penalty_d2hessian_beta, DistribPenalty) <- function(pen, beta,
+                                                               theta, v, w,
+                                                               ...) {
+  reject_kinked(pen, "penalty_d2hessian_beta")
+  k <- as.integer(pen@n_coef)
+  if (isTRUE(beta_quadratic(pen, theta))) return(matrix(0, k, k))
+  if (pen@block > 1L) {
+    stop(sprintf(paste0("'%s' has a multivariate parent that is not quadratic,",
+                        "\n  and its fourth response derivative per block is",
+                        " not available."),
+                 pen@penalty_name), call. = FALSE)
+  }
+  t <- map_apply(pen, beta)
+  d4 <- distributions7::distrib_deriv4_y(pen@parent, t, theta) + 0 * t
+  -map_quad(pen, d4 * map_apply(pen, v) * map_apply(pen, w))
+}
+
+#' @rdname penalty_d2hessian_beta.penalty
+#' @name penalty_dhessian_beta_theta.DistribPenalty
+#' @keywords internal
+S7::method(penalty_dhessian_beta_theta, DistribPenalty) <- function(pen, beta,
+                                                                    theta, v,
+                                                                    ...) {
+  reject_kinked(pen, "penalty_dhessian_beta_theta")
+  k <- as.integer(pen@n_coef)
+  if (isTRUE(beta_quadratic(pen, theta))) {
+    return(stats::setNames(lapply(pen@params, function(m) matrix(0, k, k)),
+                           pen@params))
+  }
+  if (pen@block > 1L) {
+    stop(sprintf(paste0("'%s' has a multivariate parent that is not quadratic,",
+                        "\n  and its mixed third response derivative per block",
+                        " is not available."),
+                 pen@penalty_name), call. = FALSE)
+  }
+  t <- map_apply(pen, beta)
+  tv <- map_apply(pen, v)
+  c3 <- distributions7::distrib_cross3_y(pen@parent, t, theta)
+  stats::setNames(lapply(pen@params, function(m)
+    -map_quad(pen, (c3[[m]] + 0 * t) * tv)), pen@params)
+}
