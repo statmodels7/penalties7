@@ -1,5 +1,25 @@
 # Changelog
 
+## penalties7 0.25.0
+
+- **`penalty_d2hessian_beta(pen, beta, theta, v, w)` and
+  `penalty_dhessian_beta_theta(pen, beta, theta, v)`, the two
+  derivatives of
+  [`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md)
+  that the second derivative of a marginal criterion reads.** The first
+  is the coefficient Hessian’s second derivative in the coefficients
+  contracted along two directions, the second the derivative of its
+  movement along one direction in each hyperparameter. Both are zero for
+  the quadratic, additive and structured branches and for a separable
+  penalty whose parent is quadratic; on a univariate separable penalty
+  they are and , read from
+  [`distributions7::distrib_deriv4_y()`](https://statmodels7.github.io/distributions7/reference/distrib_deriv3_y.html)
+  and `distrib_cross3_y()`. A kinked parent and a multivariate parent
+  that is not quadratic reject. On a Student t prior, with and without a
+  map, both agree with one central difference of
+  [`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md)
+  to `1e-7`.
+
 ## penalties7 0.24.0
 
 - **`penalty_dhessian_beta(pen, beta, theta, v)`, the derivative of the

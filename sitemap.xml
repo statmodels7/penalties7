@@ -40,6 +40,8 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalties7-package.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_dcross.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_dhessian.AdditivePenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_dhessian.DistribPenalty.html</loc></url>

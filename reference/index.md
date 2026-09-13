@@ -49,6 +49,9 @@ that answers these is estimable by REML or ML whatever its shape.
   : The Derivative of the Mixed Block in the Hyperparameters
 - [`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md)
   : The Derivative of the Coefficient Hessian in the Coefficients
+- [`penalty_d2hessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md)
+  [`penalty_dhessian_beta_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md)
+  : How the Movement of the Coefficient Hessian Moves
 - [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
   : Is a Penalty Quadratic in the Coefficients?
 
