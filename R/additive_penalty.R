@@ -110,34 +110,36 @@ AdditivePenalty <- S7::new_class(
 #' the components stacked and individually normalized, and the object's answer
 #' cannot move. A test pins both halves.
 #'
-#' # Where the parameters spread too far apart
+#' # Where the parameters spread far apart
 #'
 #' The stored rank keeps the SELECTION steady, and it does not make the
 #' selected eigenvalues resolvable. Once the parameters differ by enough
 #' orders of magnitude the condition number of \eqn{S(\lambda)} passes
 #' \eqn{1/\epsilon} and the smallest eigenvalue spanning the range falls
-#' below the absolute accuracy of the decomposition, which is of order
-#' \eqn{d\,\epsilon\lVert S\rVert_{2}}. [penalty_value()],
-#' [penalty_logpdet()], [penalty_grad_theta()] and [penalty_hess_theta()]
-#' return `NaN` there, through [additive_sum()], and no warning is raised, a
-#' search visiting such a point raising one per evaluation. [penalty_gradient()]
-#' and [penalty_hessian()] assemble the sum directly and stay finite.
+#' below the absolute accuracy of one decomposition, which is of order
+#' \eqn{d\,\epsilon\lVert S\rVert_{2}}. So the determinant is not taken from
+#' one decomposition of the assembled sum: [additive_sum()] partitions the
+#' components by the size they contribute and transforms by similarity, so
+#' that no decomposition ever has to resolve the spread. The value and both
+#' derivative blocks are then finite and accurate wherever a double can hold
+#' \eqn{S(\lambda)} at all -- measured against the exact asymptote, out by
+#' `2.1e-16` at a spread of `1e250` and by nothing at all at `1e60` and
+#' `1e150`, where one decomposition of the sum returns `NaN` or a plausible
+#' wrong number and was out by as much as 618.
 #'
-#' A fitting layer reads the non-finite value as an unusable point and steps
-#' away from it, which is what it already did for the part of that region
-#' whose selected eigenvalue came back negative. What the rejection adds is
-#' the other part, where the value came back finite and wrong: measured on one
-#' anisotropic `te()` fit, 8419 calls of 12026 fell there, with no warning, and
-#' the log pseudo-determinant out by as much as 618 against the exact
-#' asymptote. By then the term has contracted onto the null space of the
-#' component carrying the large parameter and the fitted values have stopped
-#' moving, so what a reader reads is unchanged and only the reported parameter
-#' moves. Over ten `te()` shapes at five seeds and two noise assignments,
-#' ninety-six fits of a hundred are `identical()` on the log-likelihood, the
-#' coefficients, the effective degrees of freedom, [penalty_matrix()]'s
-#' consumers and the convergence flag; four move, the worst fitted value by
-#' `3.8e-03` against a fitted standard deviation of `0.704`, while the
-#' hyperparameter moves by a factor of 309.
+#' This is a region a fit reaches: measured over ten `te()` and
+#' [basis7::adaptive_smooth()] shapes at five seeds, two noise assignments and
+#' four families, 36810 of 103518 calls fall past what one decomposition can
+#' resolve. What it buys is measured on the fits rather than on the
+#' determinant: over twenty-one fits of seven shapes in four families, the
+#' search converges on twenty against sixteen before, none is lost, and the
+#' root mean square error against the truth moves by at most `8.8e-04` on an
+#' error of `0.037`.
+#'
+#' By the time a component's parameter is that large the term has contracted
+#' onto that component's null space and the fitted values have stopped
+#' moving, so what changes is chiefly the parameter a summary reports and the
+#' criterion it was chosen by.
 #'
 #' # What this branch supplies
 #'
@@ -286,69 +288,319 @@ additive_penalty <- function(mats, map = NULL,
   )
 }
 
-#' The Weighted Sum and Its Pseudo-Inverse
+#' The Weighted Sum and the Determinant It Carries
 #'
 #' @description
-#' Assembles \eqn{S(\lambda) = \sum_k \lambda_k P_k}, takes one
-#' eigendecomposition of it, and returns the matrix, its pseudo-inverse and its
-#' log pseudo-determinant together. The value, the hyperparameter derivatives
-#' and [penalty_logpdet()] all need some of these three, and this is the only
-#' place the decomposition happens.
+#' Assembles \eqn{S(\lambda) = \sum_k \lambda_k P_k} and returns it together
+#' with its log pseudo-determinant and the two derivative blocks
+#' \eqn{\operatorname{tr}(S^{+}P_k)} and
+#' \eqn{\operatorname{tr}(S^{+}P_kS^{+}P_l)}. The value, the hyperparameter
+#' derivatives and [penalty_logpdet()] all read some of these, and this is the
+#' only place the decomposition happens.
 #'
 #' @details
-#' The pseudo-inverse is taken over the `p_rank` largest eigenvalues, that rank
-#' having been fixed at construction from the components rather than counted
-#' here. Selecting by rank instead of by a tolerance is what keeps the answer
-#' steady when the parameters differ by many orders of magnitude, which is
-#' exactly when a count would lose directions the penalty still spans.
+#' # Why one decomposition is not enough
 #'
-#' Selecting by rank is not on its own enough to make the answer resolvable.
-#' A symmetric eigendecomposition computes its eigenvalues with an absolute
-#' accuracy of order \eqn{d\,\epsilon\lVert S\rVert_{2}}, so where the
-#' parameters differ by enough orders of magnitude the smallest eigenvalue
-#' spanning the range falls below that resolution and carries no significant
-#' digit. The ordering between it and the null directions is then rounding,
-#' and the sum of logarithms is `NaN` where the selected value is negative and
-#' a plausible wrong number where it is positive. Both are rejected: `Sp` and
-#' `logpdet` are `NaN` there. `S` is assembled without a decomposition and is
-#' returned as it stands, which is why [penalty_hessian()] stays finite.
+#' Taking a single eigendecomposition of \eqn{S(\lambda)} and keeping its
+#' `p_rank` largest eigenvalues fails once the parameters spread apart. A
+#' symmetric eigendecomposition computes its eigenvalues with an absolute
+#' accuracy of order \eqn{d\,\epsilon\lVert S\rVert_{2}}, so the smallest
+#' eigenvalue spanning the range falls below that resolution and carries no
+#' significant digit: the sum of logarithms is then `NaN` where that value
+#' comes back negative and a plausible wrong number where it comes back
+#' positive. Measured on one anisotropic `te()` fit, 8419 calls of 12026
+#' returned the second, with no warning, and the log pseudo-determinant was
+#' out by as much as 618 against the exact asymptote.
+#'
+#' # The similarity transformation
+#'
+#' [additive_stable()] partitions the components by the size they contribute,
+#' \eqn{\lambda_k\lVert P_k\rVert}, and rotates onto the eigenvectors of the
+#' dominant group. With \eqn{U_{+}} spanning that group's range and
+#' \eqn{U_{0}} its kernel, \eqn{A = U_{+}^{\top}SU_{+}},
+#' \eqn{C = U_{+}^{\top}SU_{0}}, \eqn{F = A^{-1}C} and
+#' \eqn{M = U_{0}^{\top}SU_{0} - C^{\top}F},
+#'
+#' \deqn{\log\mathrm{pdet}\,S = \log\lvert A\rvert + \log\mathrm{pdet}\,M,
+#'   \qquad S^{+} = U_{+}A^{-1}U_{+}^{\top} + GM^{+}G^{\top},
+#'   \qquad G = U_{0} - U_{+}F.}
+#'
+#' Both are exact. The first says no decomposition ever has to resolve the
+#' spread, since \eqn{A} carries the dominant group alone and \eqn{M} what is
+#' left; the second says every trace is a well-scaled trace against
+#' \eqn{A^{-1}} plus the same question one level down, so the derivatives are
+#' taken in the transformed coordinates and never from a materialized
+#' \eqn{S^{+}}. Measured, taking them in the original coordinates instead
+#' loses one digit per order of magnitude of spread:
+#' \eqn{\lambda_1\operatorname{tr}(S^{+}P_1)} read 99537 where it is 15.
+#'
+#' Two quantities are **exactly zero and are dropped rather than computed**,
+#' and the accuracy rests on both. The dominant group vanishes on \eqn{U_{0}},
+#' that subspace being its kernel, so computing it there costs
+#' \eqn{O(\lambda_{\mathrm{dom}}\epsilon)} and swamps the subordinate terms;
+#' and a dominant component's own \eqn{U_{0}} blocks vanish for the same
+#' reason. What the next level does not carry is likewise built from the
+#' dominant reductions rather than obtained by subtracting the subordinate
+#' ones from \eqn{M}, which would be a difference of two quantities of the
+#' dominant size whose difference is of the subordinate one: measured, that
+#' spelling left a third component's log-scale gradient at `5.0e-04` where it
+#' is exactly 8.
+#'
+#' # What is rejected
+#'
+#' \eqn{\operatorname{tr}(S^{+}S) = r} exactly, so
+#' \eqn{\sum_k\lambda_k\operatorname{tr}(S^{+}P_k)} must be the rank. The
+#' identity costs nothing, needs no reference and is checked at every call;
+#' where it is violated by more than `additive_check_tol()` the point is not
+#' resolvable in double precision and `logpdet`, `dlog` and `d2log` are `NaN`.
+#' `S` is assembled without any decomposition and is returned as it stands,
+#' which is why [penalty_hessian()] stays finite there.
 #'
 #' @param pen An [AdditivePenalty()] object.
 #' @param theta The aligned hyperparameter list, as [align_ptheta()] returns
 #'   it.
 #'
-#' @return A list of three: `S`, the assembled symmetric matrix of side
-#'   `pen@n_coef`; `Sp`, its Moore-Penrose pseudo-inverse over the leading
-#'   `pen@p_rank` eigendirections, of the same side; and `logpdet`, a single
-#'   number, the sum of the logarithms of those eigenvalues. `Sp` and
-#'   `logpdet` are `NaN` where the decomposition cannot resolve the smallest
-#'   of those eigenvalues.
+#' @return A list of four: `S`, the assembled symmetric matrix of side
+#'   `pen@n_coef`; `logpdet`, a single number; `dlog`, a numeric vector of
+#'   \eqn{\operatorname{tr}(S^{+}P_k)} in `pen@params` order; and `d2log`, the
+#'   square matrix of \eqn{\operatorname{tr}(S^{+}P_kS^{+}P_l)}. The last
+#'   three are `NaN` at a setting the transformation cannot resolve.
 #'
-#' @seealso [additive_penalty()], [penalty_logpdet.AdditivePenalty()]
+#' @seealso [additive_stable()] for the transformation,
+#'   [additive_penalty()], [penalty_logpdet.AdditivePenalty()]
 #'
 #' @keywords internal
 additive_sum <- function(pen, theta) {
   lam <- unlist(theta[pen@params])
   S <- Reduce(`+`, Map(function(P, l) l * P, pen@mats, lam))
-  e <- eigen(S, symmetric = TRUE)
-  keep <- order(e$values, decreasing = TRUE)[seq_len(pen@p_rank)]
-  V <- e$vectors[, keep, drop = FALSE]
-  dv <- e$values[keep]
-  # A symmetric eigendecomposition computes its eigenvalues with an ABSOLUTE
-  # accuracy of order p(d) * eps * ||S||_2, so a kept eigenvalue at or below
-  # that resolution carries no significant digit. The ordering between it and
-  # the null directions is then rounding, the selection above keeps whichever
-  # of them sorts highest, and the sum of logarithms is NaN where that value
-  # is negative and a plausible wrong number where it is positive -- measured
-  # on one te() fit, 8419 calls of 12026 returned the second, silently, and
-  # the log pseudo-determinant was out by up to 618. Both are rejected here.
-  # The factor is the dimension, from that bound, and is the largest one
-  # measured never to reject a resolvable point.
-  if (dv[pen@p_rank] <= .Machine$double.eps * dv[1L] * pen@n_coef) {
-    return(list(S = S, Sp = matrix(NaN, pen@n_coef, pen@n_coef),
-                logpdet = NaN))
+  st <- additive_stable(pen@mats, lam, pen@p_rank)
+  # tr(S+ S) = r exactly, so this sum is the rank whatever the parameters are.
+  # It is free -- the gradient is computed anyway -- it needs no reference,
+  # and it is the only check available where the spread puts a finite
+  # difference of the value out of reach.
+  bad <- !is.finite(st$value) ||
+    abs(sum(lam * st$dlog) - pen@p_rank) >
+      additive_check_tol() * pen@p_rank
+  if (bad) {
+    K <- length(lam)
+    return(list(S = S, logpdet = NaN, dlog = rep(NaN, K),
+                d2log = matrix(NaN, K, K)))
   }
-  list(S = S, Sp = V %*% (t(V) / dv), logpdet = sum(log(dv)))
+  list(S = S, logpdet = st$value, dlog = st$dlog, d2log = st$d2log)
+}
+
+#' How Far the Rank Identity May Be Violated
+#'
+#' @description
+#' The relative departure from
+#' \eqn{\sum_k\lambda_k\operatorname{tr}(S^{+}P_k) = r} past which
+#' [additive_sum()] reports `NaN` rather than a number.
+#'
+#' @details
+#' It is a threshold on an exact identity and not an accuracy claim. Measured
+#' over 200 random parameter vectors per shape on nine shapes -- anisotropic
+#' `te()` at two and three margins and with margins of different dimension,
+#' and [basis7::adaptive_smooth()] at three, five, eight and twelve components
+#' -- with each parameter drawn log-uniformly over the range a fit visits, the
+#' worst violation at [additive_tol()] is `5.3e-05` and the median is at
+#' machine precision. The threshold is two orders above that worst case, so it
+#' fires where the transformation has genuinely run out of precision and not
+#' where it has merely lost its last digits.
+#'
+#' @return A single number.
+#'
+#' @seealso [additive_sum()], which reads it.
+#'
+#' @keywords internal
+additive_check_tol <- function() 1e-3
+
+#' The Gap at Which the Components Are Split
+#'
+#' @description
+#' A component whose contribution \eqn{\lambda_k\lVert P_k\rVert} is at least
+#' this fraction of the largest joins the dominant group; the rest are carried
+#' to the next level.
+#'
+#' @details
+#' The constant is measured here and not taken from elsewhere, and the sweep
+#' that chose it has a clear interior optimum. A smaller value widens the
+#' dominant group, so one decomposition must resolve a spread of up to its
+#' reciprocal; a larger one narrows it, so the recursion runs deeper and every
+#' level adds the rounding of one more reduction. Measured on the rank
+#' identity of [additive_check_tol()], worst case over nine shapes and 200
+#' parameter vectors each drawn over the range a fit visits:
+#'
+#' | `d_tol` | \eqn{\epsilon^{0.25}} | \eqn{\epsilon^{0.30}} | \eqn{\epsilon^{0.35}} | \eqn{\epsilon^{0.40}} | \eqn{\epsilon^{0.50}} | \eqn{\epsilon^{0.60}} |
+#' |---|---|---|---|---|---|---|
+#' | worst | 2.8e-01 | 2.8e-01 | 5.3e-05 | 5.3e-05 | 1.4e-03 | 2.2e-03 |
+#'
+#' \pkg{mgcv}'s `gam.reparam` uses \eqn{\epsilon^{0.3}} for the same job. It
+#' is measurably worse on the structures this package builds, which is what
+#' the sweep is for: a constant tuned on another package's penalties is tuned
+#' on another package's spreads. The one-sided normalization an anisotropic
+#' `te()` applies to its margins leaves them incommensurable by as much as
+#' `7.5e+04` before any parameter is estimated, so the spreads reached here
+#' are not the spreads reached there.
+#'
+#' @return A single number.
+#'
+#' @seealso [additive_stable()], which reads it.
+#'
+#' @keywords internal
+additive_tol <- function() .Machine$double.eps^0.4
+
+#' The Stable Log Pseudo-Determinant and Its Derivative Blocks
+#'
+#' @description
+#' Evaluates \eqn{\log\mathrm{pdet}\sum_k\lambda_kP_k} with
+#' \eqn{\operatorname{tr}(S^{+}P_k)} and
+#' \eqn{\operatorname{tr}(S^{+}P_kS^{+}P_l)} by the similarity transformation
+#' [additive_sum()] describes, recursing so that any number of components is
+#' served.
+#'
+#' @details
+#' A rank is read from the components normalized one by one and never from the
+#' weighted sum, which is the convention [additive_penalty()] already follows
+#' for the rank of the whole: the null space of a sum of positive semidefinite
+#' matrices is the intersection of theirs, so a group's rank is a property of
+#' that group and its determination is well conditioned. The rank left to the
+#' next level is the current one less what the dominant group peels, so it is
+#' obtained by subtraction and never counted again.
+#'
+#' @param mats The component matrices, as [AdditivePenalty()] stores them.
+#' @param lam The smoothing parameters, in the same order.
+#' @param p_rank The rank of the sum, fixed at construction.
+#' @param d_tol The gap at which the components are split, [additive_tol()] by
+#'   default.
+#' @param r_tol The relative eigenvalue tolerance a group's rank is counted
+#'   at, matching [additive_penalty()]'s own `tol`.
+#'
+#' @return A list of `value` (a single number), `dlog` (a numeric vector),
+#'   `d2log` (a square matrix) and `depth` (how many levels the partition
+#'   needed, a diagnostic).
+#'
+#' @seealso [additive_sum()], which calls it and checks its answer.
+#'
+#' @keywords internal
+additive_stable <- function(mats, lam, p_rank, d_tol = additive_tol(),
+                            r_tol = 1e-10) {
+  K <- length(mats)
+  grp_rank <- function(Q) {
+    St <- Reduce(`+`, lapply(Q, function(P) P / max(abs(P))))
+    ev <- eigen(St, symmetric = TRUE)$values
+    sum(ev > r_tol * max(ev))
+  }
+  sym <- function(Z) (Z + t(Z)) / 2
+
+  rec <- function(R, peeled, E, r) {
+    act <- which(!peeled)
+    cur <- Reduce(`+`, Map(function(P, w) w * P, R[act], lam[act]))
+    if (!is.null(E)) cur <- cur + E
+    cur <- sym(cur)
+    scal <- lam[act] * vapply(R[act], function(P) max(abs(P)), numeric(1))
+    dom <- act[scal >= d_tol * max(scal)]
+    ra <- if (length(dom) == length(act)) r else min(grp_rank(R[dom]), r)
+
+    if (length(dom) == length(act) || ra == 0L || ra >= r) {
+      e <- eigen(cur, symmetric = TRUE)
+      k <- order(e$values, decreasing = TRUE)[seq_len(r)]
+      if (e$values[k[r]] <= 0) {
+        return(list(value = NaN, g = rep(NaN, K),
+                    T2 = matrix(NaN, K, K), depth = 1L,
+                    tr1 = function(X) NaN))
+      }
+      V <- e$vectors[, k, drop = FALSE]
+      Sp <- V %*% (t(V) / e$values[k])
+      SpR <- lapply(R, function(P) Sp %*% P)
+      T2 <- matrix(0, K, K)
+      for (i in seq_len(K)) for (j in i:K) {
+        T2[i, j] <- T2[j, i] <- sum(t(SpR[[i]]) * SpR[[j]])
+      }
+      return(list(value = sum(log(e$values[k])), depth = 1L,
+                  g = vapply(R, function(P) sum(Sp * P), numeric(1)),
+                  T2 = T2, tr1 = function(X) sum(Sp * X)))
+    }
+
+    Sa <- Reduce(`+`, Map(function(P, w) w * P, R[dom], lam[dom]))
+    ea <- eigen(sym(Sa), symmetric = TRUE)
+    o <- order(ea$values, decreasing = TRUE)
+    Up <- ea$vectors[, o[seq_len(ra)], drop = FALSE]
+    U0 <- ea$vectors[, o[-seq_len(ra)], drop = FALSE]
+
+    # the dominant group is EXACTLY zero on U0, that subspace being its
+    # kernel, so the subordinate components alone are read there
+    sub <- setdiff(act, dom)
+    subm <- Reduce(`+`, Map(function(P, w) w * P, R[sub], lam[sub]))
+    if (!is.null(E)) subm <- subm + E
+    A <- sym(crossprod(Up, cur %*% Up))
+    Cm <- crossprod(Up, subm %*% U0)
+    cA <- tryCatch(chol(A), error = function(e) NULL)
+    if (is.null(cA)) {
+      return(list(value = NaN, g = rep(NaN, K), T2 = matrix(NaN, K, K),
+                  depth = 1L, tr1 = function(X) NaN))
+    }
+    Ainv <- chol2inv(cA)
+    Fm <- Ainv %*% Cm
+
+    ak <- lapply(R, function(P) crossprod(Up, P %*% Up))
+    red <- lapply(seq_len(K), function(k) {
+      if (k %in% dom) {
+        # its own U0 blocks are zero for the same reason: dropped
+        sym(crossprod(Fm, ak[[k]] %*% Fm))
+      } else {
+        ck <- crossprod(Up, R[[k]] %*% U0)
+        bk <- crossprod(U0, R[[k]] %*% U0)
+        sym(bk - crossprod(ck, Fm) - crossprod(Fm, ck) +
+              crossprod(Fm, ak[[k]] %*% Fm))
+      }
+    })
+    # BUILT, not subtracted: M is the sum of every active component's
+    # reduction plus G'EG, so what the next level does not carry is the
+    # dominant reductions plus G'EG, each of the subordinate size.
+    E2 <- Reduce(`+`, Map(function(P, w) w * P, red[dom], lam[dom]))
+    if (!is.null(E)) {
+      Ea <- crossprod(Up, E %*% Up)
+      Ec <- crossprod(Up, E %*% U0)
+      Eb <- crossprod(U0, E %*% U0)
+      E2 <- E2 + sym(Eb - crossprod(Ec, Fm) - crossprod(Fm, Ec) +
+                       crossprod(Fm, Ea %*% Fm))
+    }
+    peel2 <- peeled
+    peel2[dom] <- TRUE
+    nx <- rec(red, peel2, E2, r - ra)
+    if (!is.finite(nx$value)) {
+      return(list(value = NaN, g = rep(NaN, K), T2 = matrix(NaN, K, K),
+                  depth = nx$depth + 1L, tr1 = function(X) NaN))
+    }
+
+    JX <- lapply(seq_len(K), function(k) {
+      if (k %in% dom) -(ak[[k]] %*% Fm)
+      else crossprod(Up, R[[k]] %*% U0) - ak[[k]] %*% Fm
+    })
+    AiA <- lapply(ak, function(Z) Ainv %*% Z)
+    T2 <- matrix(0, K, K)
+    for (i in seq_len(K)) for (j in i:K) {
+      mid <- crossprod(JX[[j]], Ainv %*% JX[[i]])
+      T2[i, j] <- T2[j, i] <- sum(t(AiA[[i]]) * AiA[[j]]) +
+        nx$tr1(mid + t(mid)) + nx$T2[i, j]
+    }
+    list(
+      value = 2 * sum(log(diag(cA))) + nx$value, depth = nx$depth + 1L,
+      g = vapply(seq_len(K), function(k) sum(Ainv * ak[[k]]) + nx$g[k],
+                 numeric(1)),
+      T2 = T2,
+      tr1 = function(X) {
+        Xa <- crossprod(Up, X %*% Up)
+        Xc <- crossprod(Up, X %*% U0)
+        Xb <- crossprod(U0, X %*% U0)
+        sum(Ainv * Xa) + nx$tr1(sym(Xb - crossprod(Xc, Fm) -
+                                      crossprod(Fm, Xc) +
+                                      crossprod(Fm, Xa %*% Fm)))
+      })
+  }
+
+  st <- rec(mats, rep(FALSE, K), NULL, p_rank)
+  list(value = st$value, dlog = st$g, d2log = st$T2, depth = st$depth)
 }
 
 #' @title Value of an Additive Penalty
@@ -371,9 +623,9 @@ additive_sum <- function(pen, theta) {
 #' With a single component the value is the plain quadratic penalty's, and the
 #' two agree to `3.6e-15`.
 #'
-#' The value is `NaN` where the decomposition cannot resolve the smallest
-#' eigenvalue spanning the range, which is what [additive_sum()] returns once
-#' the parameters have spread past the precision of a double.
+#' The log pseudo-determinant comes from [additive_sum()], which transforms by
+#' similarity rather than decomposing the assembled sum, so the value is
+#' finite and accurate however far the parameters have spread.
 #'
 #' @param pen An [AdditivePenalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`, already coerced by the
@@ -524,8 +776,8 @@ S7::method(penalty_hessian, AdditivePenalty) <- function(pen, beta, theta, ...) 
 S7::method(penalty_grad_theta, AdditivePenalty) <-
   function(pen, beta, theta, scale = c("parameter", "link"), ...) {
     a <- additive_sum(pen, theta)
-    stats::setNames(lapply(pen@mats, function(P) {
-      0.5 * sum(beta * (P %*% beta)) - 0.5 * sum(a$Sp * P)
+    stats::setNames(lapply(seq_along(pen@mats), function(k) {
+      0.5 * sum(beta * (pen@mats[[k]] %*% beta)) - 0.5 * a$dlog[[k]]
     }), pen@params)
   }
 
@@ -540,7 +792,7 @@ S7::method(penalty_hess_theta, AdditivePenalty) <-
       ij <- prs[[nm]]
       k <- match(ij[1], pen@params)
       l <- match(ij[2], pen@params)
-      0.5 * sum(t(a$Sp %*% pen@mats[[k]]) * (a$Sp %*% pen@mats[[l]]))
+      0.5 * a$d2log[k, l]
     }), names(prs))
   }
 
@@ -562,9 +814,9 @@ S7::method(penalty_cross, AdditivePenalty) <-
 #' the number of coefficients.
 #'
 #' @details
-#' The branch registers no `is_quadratic()` method, so it inherits `FALSE` from
-#' [penalty()] even though the value is a quadratic form. See
-#' [additive_penalty()] for what that costs.
+#' The value is a quadratic form, so [is_quadratic()] answers `TRUE` as well.
+#' The two statements are not the same: a penalty may be smooth without being
+#' quadratic, as a Student t prior is.
 #'
 #' Properness is the rank of the sum against the number of coefficients, and
 #' the rank is fixed at construction. The two components of an anisotropic
@@ -592,7 +844,8 @@ S7::method(penalty_cross, AdditivePenalty) <-
 #' is_proper(additive_penalty(list(diag(3), diag(c(2, 1, 1)))))
 #'
 #' @seealso [penalty_kinks()] and [is_proper()] for the generics,
-#'   [additive_penalty()] for why [is_quadratic()] answers `FALSE` here.
+#'   [is_quadratic.AdditivePenalty()] for the other predicate this branch
+#'   answers.
 #' @keywords internal
 S7::method(penalty_kinks, AdditivePenalty) <- function(pen, theta, ...) {
   numeric(0)
@@ -609,11 +862,11 @@ S7::method(is_proper, AdditivePenalty) <- function(pen, ...) {
 #' @name penalty_matrix.AdditivePenalty
 #'
 #' @description
-#' Three of the four pieces a marginal criterion reads. `penalty_matrix()`
-#' returns the weighted sum \eqn{S(\lambda) = \sum_k \lambda_k P_k},
-#' `penalty_rank()` the rank fixed at construction, and `penalty_logpdet()` the
-#' log pseudo-determinant with its first two derivatives. There is no
-#' `penalty_null_basis()` method for this branch, and the base class's rejects.
+#' The four pieces a marginal criterion reads. `penalty_matrix()` returns the
+#' weighted sum \eqn{S(\lambda) = \sum_k \lambda_k P_k}, `penalty_rank()` the
+#' rank and `penalty_null_basis()` the components' shared null space, both
+#' fixed at construction, and `penalty_logpdet()` the log pseudo-determinant
+#' with its first two derivatives.
 #'
 #' @details
 #' With \eqn{S^{+}} the pseudo-inverse over the stored rank,
@@ -625,18 +878,16 @@ S7::method(is_proper, AdditivePenalty) <- function(pen, ...) {
 #'
 #' both exact and both agreeing with the traces computed apart to 0.
 #'
-#' All three are `NaN` where [additive_sum()] cannot resolve the smallest
-#' eigenvalue it keeps, the derivatives reading the same pseudo-inverse as the
-#' value.
+#' All three come from [additive_sum()]'s similarity transformation, which
+#' takes them in the transformed coordinates rather than from a materialized
+#' \eqn{S^{+}}, and all three are `NaN` at a setting it reports as
+#' unresolvable.
 #'
-#' **`penalty_logpdet()` answers in a different shape here.** `grad` is an
-#' unnamed numeric vector in `pen@params` order and `hess` is a square matrix,
-#' where [penalty_logpdet.QuadraticPenalty()] and
-#' [penalty_logpdet.StructuredPenalty()] return named lists keyed by
-#' hyperparameter and by pair. A consumer written against those will read
-#' `NULL` from `grad$lambda1` here. Nothing in the toolkit reads it today,
-#' because [is_quadratic()] answers `FALSE` for this branch and every consumer
-#' routes on that first.
+#' `penalty_logpdet()` answers in the shape
+#' [penalty_logpdet.QuadraticPenalty()] and
+#' [penalty_logpdet.StructuredPenalty()] answer in: `grad` a list keyed by
+#' `pen@params` and `hess` a list keyed by the pairs [penalty_hess_theta()]
+#' uses, so a consumer written against those reads `grad$lambda1` here.
 #'
 #' @param pen An [AdditivePenalty()] object.
 #' @param theta A named list of `lambda1`, `lambda2`, ... `penalty_matrix()`
@@ -651,7 +902,7 @@ S7::method(is_proper, AdditivePenalty) <- function(pen, ...) {
 #'   keyed by `pen@params`) and `hess` (a list keyed by the pairs
 #'   `penalty_hess_theta()` uses), which is the shape the quadratic and
 #'   structured branches answer in. Every entry of it is `NaN` at a setting
-#'   of the parameters the decomposition cannot resolve.
+#'   [additive_sum()] reports as unresolvable.
 #'
 #' @examples
 #' P1 <- crossprod(diff(diag(5)))
@@ -702,13 +953,12 @@ S7::method(penalty_logpdet, AdditivePenalty) <- function(pen, theta, ...) {
   prs <- ptheta_pairs(pen@params)
   list(
     value = a$logpdet,
-    grad = stats::setNames(lapply(pen@mats, function(P) sum(a$Sp * P)),
-                           pen@params),
+    grad = stats::setNames(as.list(a$dlog), pen@params),
     hess = stats::setNames(lapply(names(prs), function(nm) {
       ij <- prs[[nm]]
       k <- match(ij[1], pen@params)
       l <- match(ij[2], pen@params)
-      -sum(t(a$Sp %*% pen@mats[[k]]) * (a$Sp %*% pen@mats[[l]]))
+      -a$d2log[k, l]
     }), names(prs))
   )
 }

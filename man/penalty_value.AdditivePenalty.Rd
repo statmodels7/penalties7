@@ -34,9 +34,9 @@ pseudo-determinant.
 With a single component the value is the plain quadratic penalty's, and the
 two agree to \code{3.6e-15}.
 
-The value is \code{NaN} where the decomposition cannot resolve the smallest
-eigenvalue spanning the range, which is what \code{\link[=additive_sum]{additive_sum()}} returns once
-the parameters have spread past the precision of a double.
+The log pseudo-determinant comes from \code{\link[=additive_sum]{additive_sum()}}, which transforms by
+similarity rather than decomposing the assembled sum, so the value is
+finite and accurate however far the parameters have spread.
 }
 \examples{
 P1 <- crossprod(diff(diag(5)))

@@ -227,27 +227,21 @@ test_that("a decomposition that cannot resolve its smallest kept eigenvalue is r
               only.values = TRUE)$values) * pen@n_coef
   expect_gt(res_far / ew[r], 1e10)
 
-  # Everything the decomposition feeds is NaN there, and no warning is
-  # raised: a search visiting such a point would otherwise raise one per
-  # evaluation.
+  # It is COMPUTED there, by the similarity transformation, where a single
+  # decomposition of the assembled sum returns NaN or a plausible wrong
+  # number. Nothing is rejected and no warning is raised.
   expect_silent(v <- penalty_value(pen, b, far))
-  expect_true(is.nan(v))
+  expect_true(is.finite(v))
   lp <- penalty_logpdet(pen, far)
-  expect_true(is.nan(lp$value))
-  expect_true(all(is.nan(unlist(lp$grad))))
-  expect_true(all(is.nan(unlist(lp$hess))))
-  expect_true(all(is.nan(unlist(penalty_grad_theta(pen, b, far)))))
-  expect_true(all(is.nan(unlist(penalty_hess_theta(pen, b, far)))))
+  expect_true(is.finite(lp$value))
+  expect_true(all(is.finite(unlist(lp$grad))))
+  expect_true(all(is.finite(unlist(lp$hess))))
+  expect_true(all(is.finite(unlist(penalty_grad_theta(pen, b, far)))))
+  expect_true(all(is.finite(unlist(penalty_hess_theta(pen, b, far)))))
 
-  # The pseudo-inverse is rejected whole rather than left as it came out,
-  # which is what an injection has to fail: without the rejection it is a
-  # finite matrix and every derivative above is a finite number.
+  # The sum itself is assembled without a decomposition, so the coefficient
+  # derivatives were finite there before this and are unchanged.
   a <- penalties7:::additive_sum(pen, far)
-  expect_true(all(is.nan(a$Sp)))
-  expect_identical(dim(a$Sp), c(pen@n_coef, pen@n_coef))
-
-  # The sum itself is assembled without a decomposition, so it is returned as
-  # it stands and the coefficient derivatives stay finite.
   expect_true(all(is.finite(a$S)))
   expect_true(all(is.finite(penalty_gradient(pen, b, far))))
   expect_true(all(is.finite(penalty_hessian(pen, b, far))))
@@ -260,4 +254,99 @@ test_that("a decomposition that cannot resolve its smallest kept eigenvalue is r
   expect_true(is.finite(penalty_logpdet(pen, big)$value))
   expect_equal(penalty_logpdet(pen, big)$value - penalty_logpdet(pen, one)$value,
                r * log(1e30))
+})
+
+test_that("the stable determinant meets three identities of its own", {
+  # The shape an anisotropic tensor smooth builds: curvature along each margin
+  # of a 4 by 4 grid, so each component is heavily rank deficient and the two
+  # null spaces intersect in the bilinear functions.
+  P <- crossprod(diff(diag(4), differences = 2))
+  pen <- additive_penalty(list(kronecker(diag(4), P), kronecker(P, diag(4))))
+  r <- penalty_rank(pen)
+  rk <- function(M) {
+    ev <- eigen(M, symmetric = TRUE)$values
+    sum(ev > 1e-10 * max(ev))
+  }
+  r1 <- rk(pen@mats[[1L]])
+  expect_identical(c(pen@n_coef, r, r1), c(16L, 12L, 8L))
+
+  # (i) THE ASYMPTOTE. As one parameter comes to dominate, the directions its
+  # component spans are charged log(lambda) each and the rest do not move, so
+  # the slope in log(lambda1) is the RANK of that component -- an integer, and
+  # one read from the component rather than fitted.
+  lp <- function(l1, l2 = 1) {
+    penalty_logpdet(pen, list(lambda1 = l1, lambda2 = l2))$value
+  }
+  expect_equal((lp(1e31) - lp(1e30)) / log(10), r1, tolerance = 1e-8)
+  expect_equal((lp(1e101) - lp(1e100)) / log(10), r1, tolerance = 1e-8)
+
+  # and the same statement read on the gradient, where it is exact rather
+  # than a difference: lambda_k tr(S+ P_k) tends to that rank.
+  far <- list(lambda1 = 1e60, lambda2 = 1)
+  g <- unlist(penalty_logpdet(pen, far)$grad)
+  expect_equal(1e60 * g[[1L]], r1, tolerance = 1e-10)
+  expect_equal(g[[2L]], r - r1, tolerance = 1e-10)
+
+  # (ii) THE RANK IDENTITY. tr(S+ S) = r exactly, so the log-scale gradient
+  # sums to the rank at EVERY setting of the parameters. It needs no
+  # reference and it is what additive_sum() checks at every call.
+  set.seed(4)
+  for (i in seq_len(40)) {
+    lam <- 10^stats::runif(2, -2, 20)
+    th <- list(lambda1 = lam[1L], lambda2 = lam[2L])
+    gg <- unlist(penalty_logpdet(pen, th)$grad)
+    expect_equal(sum(lam * gg), r, tolerance = 1e-8)
+  }
+
+  # (iii) AGREEMENT WITH THE ROUTE IT REPLACES, where the spread is small
+  # enough for a single decomposition of the assembled sum to resolve it.
+  # Same mathematics, different arithmetic.
+  direct <- function(th) {
+    S <- penalty_matrix(pen, th)
+    e <- eigen(S, symmetric = TRUE)
+    k <- order(e$values, decreasing = TRUE)[seq_len(r)]
+    V <- e$vectors[, k, drop = FALSE]
+    Sp <- V %*% (t(V) / e$values[k])
+    list(value = sum(log(e$values[k])),
+         grad = vapply(pen@mats, function(M) sum(Sp * M), numeric(1)))
+  }
+  set.seed(5)
+  for (i in seq_len(20)) {
+    lam <- 10^stats::runif(2, -2, 6)
+    th <- list(lambda1 = lam[1L], lambda2 = lam[2L])
+    d <- direct(th)
+    got <- penalty_logpdet(pen, th)
+    expect_equal(got$value, d$value, tolerance = 1e-8)
+    expect_equal(unlist(got$grad), d$grad, tolerance = 1e-7,
+                 ignore_attr = TRUE)
+  }
+})
+
+test_that("the stable determinant serves more than two components", {
+  # adaptive_smooth() builds m localized pieces of one difference operator.
+  # Here they are written out, so the test names no other package.
+  D <- diff(diag(12), differences = 2)
+  v <- splines::bs(seq_len(nrow(D)), df = 4, degree = 3, intercept = TRUE)
+  mats <- lapply(seq_len(ncol(v)), function(i) crossprod(D * sqrt(v[, i])))
+  pen <- additive_penalty(mats)
+  r <- penalty_rank(pen)
+
+  # the partition of unity: at equal parameters the sum IS the plain
+  # difference penalty, which is what makes the family a generalization of
+  # the single-parameter one rather than a different construction
+  expect_equal(Reduce(`+`, mats), crossprod(D), tolerance = 1e-12)
+
+  # the rank identity holds however the four parameters are spread
+  set.seed(6)
+  for (i in seq_len(40)) {
+    lam <- 10^stats::runif(4, -2, 20)
+    th <- stats::setNames(as.list(lam), pen@params)
+    g <- unlist(penalty_logpdet(pen, th)$grad)
+    expect_true(all(is.finite(g)))
+    expect_equal(sum(lam * g), r, tolerance = 1e-4)
+  }
+
+  # and a spread that no single decomposition could carry is still finite
+  th <- stats::setNames(as.list(c(1e24, 1e16, 1e8, 1)), pen@params)
+  expect_true(is.finite(penalty_logpdet(pen, th)$value))
 })

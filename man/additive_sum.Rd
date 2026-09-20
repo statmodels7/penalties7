@@ -2,7 +2,7 @@
 % Please edit documentation in R/additive_penalty.R
 \name{additive_sum}
 \alias{additive_sum}
-\title{The Weighted Sum and Its Pseudo-Inverse}
+\title{The Weighted Sum and the Determinant It Carries}
 \usage{
 additive_sum(pen, theta)
 }
@@ -13,39 +13,79 @@ additive_sum(pen, theta)
 it.}
 }
 \value{
-A list of three: \code{S}, the assembled symmetric matrix of side
-\code{pen@n_coef}; \code{Sp}, its Moore-Penrose pseudo-inverse over the leading
-\code{pen@p_rank} eigendirections, of the same side; and \code{logpdet}, a single
-number, the sum of the logarithms of those eigenvalues. \code{Sp} and
-\code{logpdet} are \code{NaN} where the decomposition cannot resolve the smallest
-of those eigenvalues.
+A list of four: \code{S}, the assembled symmetric matrix of side
+\code{pen@n_coef}; \code{logpdet}, a single number; \code{dlog}, a numeric vector of
+\eqn{\operatorname{tr}(S^{+}P_k)} in \code{pen@params} order; and \code{d2log}, the
+square matrix of \eqn{\operatorname{tr}(S^{+}P_kS^{+}P_l)}. The last
+three are \code{NaN} at a setting the transformation cannot resolve.
 }
 \description{
-Assembles \eqn{S(\lambda) = \sum_k \lambda_k P_k}, takes one
-eigendecomposition of it, and returns the matrix, its pseudo-inverse and its
-log pseudo-determinant together. The value, the hyperparameter derivatives
-and \code{\link[=penalty_logpdet]{penalty_logpdet()}} all need some of these three, and this is the only
-place the decomposition happens.
+Assembles \eqn{S(\lambda) = \sum_k \lambda_k P_k} and returns it together
+with its log pseudo-determinant and the two derivative blocks
+\eqn{\operatorname{tr}(S^{+}P_k)} and
+\eqn{\operatorname{tr}(S^{+}P_kS^{+}P_l)}. The value, the hyperparameter
+derivatives and \code{\link[=penalty_logpdet]{penalty_logpdet()}} all read some of these, and this is the
+only place the decomposition happens.
 }
-\details{
-The pseudo-inverse is taken over the \code{p_rank} largest eigenvalues, that rank
-having been fixed at construction from the components rather than counted
-here. Selecting by rank instead of by a tolerance is what keeps the answer
-steady when the parameters differ by many orders of magnitude, which is
-exactly when a count would lose directions the penalty still spans.
+\section{Why one decomposition is not enough}{
+Taking a single eigendecomposition of \eqn{S(\lambda)} and keeping its
+\code{p_rank} largest eigenvalues fails once the parameters spread apart. A
+symmetric eigendecomposition computes its eigenvalues with an absolute
+accuracy of order \eqn{d\,\epsilon\lVert S\rVert_{2}}, so the smallest
+eigenvalue spanning the range falls below that resolution and carries no
+significant digit: the sum of logarithms is then \code{NaN} where that value
+comes back negative and a plausible wrong number where it comes back
+positive. Measured on one anisotropic \code{te()} fit, 8419 calls of 12026
+returned the second, with no warning, and the log pseudo-determinant was
+out by as much as 618 against the exact asymptote.
+}
 
-Selecting by rank is not on its own enough to make the answer resolvable.
-A symmetric eigendecomposition computes its eigenvalues with an absolute
-accuracy of order \eqn{d\,\epsilon\lVert S\rVert_{2}}, so where the
-parameters differ by enough orders of magnitude the smallest eigenvalue
-spanning the range falls below that resolution and carries no significant
-digit. The ordering between it and the null directions is then rounding,
-and the sum of logarithms is \code{NaN} where the selected value is negative and
-a plausible wrong number where it is positive. Both are rejected: \code{Sp} and
-\code{logpdet} are \code{NaN} there. \code{S} is assembled without a decomposition and is
-returned as it stands, which is why \code{\link[=penalty_hessian]{penalty_hessian()}} stays finite.
+\section{The similarity transformation}{
+\code{\link[=additive_stable]{additive_stable()}} partitions the components by the size they contribute,
+\eqn{\lambda_k\lVert P_k\rVert}, and rotates onto the eigenvectors of the
+dominant group. With \eqn{U_{+}} spanning that group's range and
+\eqn{U_{0}} its kernel, \eqn{A = U_{+}^{\top}SU_{+}},
+\eqn{C = U_{+}^{\top}SU_{0}}, \eqn{F = A^{-1}C} and
+\eqn{M = U_{0}^{\top}SU_{0} - C^{\top}F},
+
+\deqn{\log\mathrm{pdet}\,S = \log\lvert A\rvert + \log\mathrm{pdet}\,M,
+  \qquad S^{+} = U_{+}A^{-1}U_{+}^{\top} + GM^{+}G^{\top},
+  \qquad G = U_{0} - U_{+}F.}
+
+Both are exact. The first says no decomposition ever has to resolve the
+spread, since \eqn{A} carries the dominant group alone and \eqn{M} what is
+left; the second says every trace is a well-scaled trace against
+\eqn{A^{-1}} plus the same question one level down, so the derivatives are
+taken in the transformed coordinates and never from a materialized
+\eqn{S^{+}}. Measured, taking them in the original coordinates instead
+loses one digit per order of magnitude of spread:
+\eqn{\lambda_1\operatorname{tr}(S^{+}P_1)} read 99537 where it is 15.
+
+Two quantities are \strong{exactly zero and are dropped rather than computed},
+and the accuracy rests on both. The dominant group vanishes on \eqn{U_{0}},
+that subspace being its kernel, so computing it there costs
+\eqn{O(\lambda_{\mathrm{dom}}\epsilon)} and swamps the subordinate terms;
+and a dominant component's own \eqn{U_{0}} blocks vanish for the same
+reason. What the next level does not carry is likewise built from the
+dominant reductions rather than obtained by subtracting the subordinate
+ones from \eqn{M}, which would be a difference of two quantities of the
+dominant size whose difference is of the subordinate one: measured, that
+spelling left a third component's log-scale gradient at \code{5.0e-04} where it
+is exactly 8.
 }
+
+\section{What is rejected}{
+\eqn{\operatorname{tr}(S^{+}S) = r} exactly, so
+\eqn{\sum_k\lambda_k\operatorname{tr}(S^{+}P_k)} must be the rank. The
+identity costs nothing, needs no reference and is checked at every call;
+where it is violated by more than \code{additive_check_tol()} the point is not
+resolvable in double precision and \code{logpdet}, \code{dlog} and \code{d2log} are \code{NaN}.
+\code{S} is assembled without any decomposition and is returned as it stands,
+which is why \code{\link[=penalty_hessian]{penalty_hessian()}} stays finite there.
+}
+
 \seealso{
+\code{\link[=additive_stable]{additive_stable()}} for the transformation,
 \code{\link[=additive_penalty]{additive_penalty()}}, \code{\link[=penalty_logpdet.AdditivePenalty]{penalty_logpdet.AdditivePenalty()}}
 }
 \keyword{internal}

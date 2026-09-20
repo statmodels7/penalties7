@@ -23,14 +23,14 @@ orthonormal basis of the components' shared null space, \code{pen@n_coef} by
 keyed by \code{pen@params}) and \code{hess} (a list keyed by the pairs
 \code{penalty_hess_theta()} uses), which is the shape the quadratic and
 structured branches answer in. Every entry of it is \code{NaN} at a setting
-of the parameters the decomposition cannot resolve.
+\code{\link[=additive_sum]{additive_sum()}} reports as unresolvable.
 }
 \description{
-Three of the four pieces a marginal criterion reads. \code{penalty_matrix()}
-returns the weighted sum \eqn{S(\lambda) = \sum_k \lambda_k P_k},
-\code{penalty_rank()} the rank fixed at construction, and \code{penalty_logpdet()} the
-log pseudo-determinant with its first two derivatives. There is no
-\code{penalty_null_basis()} method for this branch, and the base class's rejects.
+The four pieces a marginal criterion reads. \code{penalty_matrix()} returns the
+weighted sum \eqn{S(\lambda) = \sum_k \lambda_k P_k}, \code{penalty_rank()} the
+rank and \code{penalty_null_basis()} the components' shared null space, both
+fixed at construction, and \code{penalty_logpdet()} the log pseudo-determinant
+with its first two derivatives.
 }
 \details{
 With \eqn{S^{+}} the pseudo-inverse over the stored rank,
@@ -42,18 +42,16 @@ With \eqn{S^{+}} the pseudo-inverse over the stored rank,
 
 both exact and both agreeing with the traces computed apart to 0.
 
-All three are \code{NaN} where \code{\link[=additive_sum]{additive_sum()}} cannot resolve the smallest
-eigenvalue it keeps, the derivatives reading the same pseudo-inverse as the
-value.
+All three come from \code{\link[=additive_sum]{additive_sum()}}'s similarity transformation, which
+takes them in the transformed coordinates rather than from a materialized
+\eqn{S^{+}}, and all three are \code{NaN} at a setting it reports as
+unresolvable.
 
-\strong{\code{penalty_logpdet()} answers in a different shape here.} \code{grad} is an
-unnamed numeric vector in \code{pen@params} order and \code{hess} is a square matrix,
-where \code{\link[=penalty_logpdet.QuadraticPenalty]{penalty_logpdet.QuadraticPenalty()}} and
-\code{\link[=penalty_logpdet.StructuredPenalty]{penalty_logpdet.StructuredPenalty()}} return named lists keyed by
-hyperparameter and by pair. A consumer written against those will read
-\code{NULL} from \code{grad$lambda1} here. Nothing in the toolkit reads it today,
-because \code{\link[=is_quadratic]{is_quadratic()}} answers \code{FALSE} for this branch and every consumer
-routes on that first.
+\code{penalty_logpdet()} answers in the shape
+\code{\link[=penalty_logpdet.QuadraticPenalty]{penalty_logpdet.QuadraticPenalty()}} and
+\code{\link[=penalty_logpdet.StructuredPenalty]{penalty_logpdet.StructuredPenalty()}} answer in: \code{grad} a list keyed by
+\code{pen@params} and \code{hess} a list keyed by the pairs \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}
+uses, so a consumer written against those reads \code{grad$lambda1} here.
 }
 \examples{
 P1 <- crossprod(diff(diag(5)))

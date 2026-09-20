@@ -22,9 +22,9 @@ smooth everywhere. \code{is_proper()} returns \code{TRUE} when the stored rank e
 the number of coefficients.
 }
 \details{
-The branch registers no \code{is_quadratic()} method, so it inherits \code{FALSE} from
-\code{\link[=penalty]{penalty()}} even though the value is a quadratic form. See
-\code{\link[=additive_penalty]{additive_penalty()}} for what that costs.
+The value is a quadratic form, so \code{\link[=is_quadratic]{is_quadratic()}} answers \code{TRUE} as well.
+The two statements are not the same: a penalty may be smooth without being
+quadratic, as a Student t prior is.
 
 Properness is the rank of the sum against the number of coefficients, and
 the rank is fixed at construction. The two components of an anisotropic
@@ -46,6 +46,7 @@ is_proper(additive_penalty(list(diag(3), diag(c(2, 1, 1)))))
 }
 \seealso{
 \code{\link[=penalty_kinks]{penalty_kinks()}} and \code{\link[=is_proper]{is_proper()}} for the generics,
-\code{\link[=additive_penalty]{additive_penalty()}} for why \code{\link[=is_quadratic]{is_quadratic()}} answers \code{FALSE} here.
+\code{\link[=is_quadratic.AdditivePenalty]{is_quadratic.AdditivePenalty()}} for the other predicate this branch
+answers.
 }
 \keyword{internal}
