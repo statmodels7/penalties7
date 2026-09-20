@@ -110,6 +110,35 @@ AdditivePenalty <- S7::new_class(
 #' the components stacked and individually normalized, and the object's answer
 #' cannot move. A test pins both halves.
 #'
+#' # Where the parameters spread too far apart
+#'
+#' The stored rank keeps the SELECTION steady, and it does not make the
+#' selected eigenvalues resolvable. Once the parameters differ by enough
+#' orders of magnitude the condition number of \eqn{S(\lambda)} passes
+#' \eqn{1/\epsilon} and the smallest eigenvalue spanning the range falls
+#' below the absolute accuracy of the decomposition, which is of order
+#' \eqn{d\,\epsilon\lVert S\rVert_{2}}. [penalty_value()],
+#' [penalty_logpdet()], [penalty_grad_theta()] and [penalty_hess_theta()]
+#' return `NaN` there, through [additive_sum()], and no warning is raised, a
+#' search visiting such a point raising one per evaluation. [penalty_gradient()]
+#' and [penalty_hessian()] assemble the sum directly and stay finite.
+#'
+#' A fitting layer reads the non-finite value as an unusable point and steps
+#' away from it, which is what it already did for the part of that region
+#' whose selected eigenvalue came back negative. What the rejection adds is
+#' the other part, where the value came back finite and wrong: measured on one
+#' anisotropic `te()` fit, 8419 calls of 12026 fell there, with no warning, and
+#' the log pseudo-determinant out by as much as 618 against the exact
+#' asymptote. By then the term has contracted onto the null space of the
+#' component carrying the large parameter and the fitted values have stopped
+#' moving, so what a reader reads is unchanged and only the reported parameter
+#' moves. Over ten `te()` shapes at five seeds and two noise assignments,
+#' ninety-six fits of a hundred are `identical()` on the log-likelihood, the
+#' coefficients, the effective degrees of freedom, [penalty_matrix()]'s
+#' consumers and the convergence flag; four move, the worst fitted value by
+#' `3.8e-03` against a fitted standard deviation of `0.704`, while the
+#' hyperparameter moves by a factor of 309.
+#'
 #' # What this branch supplies
 #'
 #' [is_quadratic()] answers `TRUE`, a sum of quadratic forms being a quadratic
@@ -273,6 +302,17 @@ additive_penalty <- function(mats, map = NULL,
 #' steady when the parameters differ by many orders of magnitude, which is
 #' exactly when a count would lose directions the penalty still spans.
 #'
+#' Selecting by rank is not on its own enough to make the answer resolvable.
+#' A symmetric eigendecomposition computes its eigenvalues with an absolute
+#' accuracy of order \eqn{d\,\epsilon\lVert S\rVert_{2}}, so where the
+#' parameters differ by enough orders of magnitude the smallest eigenvalue
+#' spanning the range falls below that resolution and carries no significant
+#' digit. The ordering between it and the null directions is then rounding,
+#' and the sum of logarithms is `NaN` where the selected value is negative and
+#' a plausible wrong number where it is positive. Both are rejected: `Sp` and
+#' `logpdet` are `NaN` there. `S` is assembled without a decomposition and is
+#' returned as it stands, which is why [penalty_hessian()] stays finite.
+#'
 #' @param pen An [AdditivePenalty()] object.
 #' @param theta The aligned hyperparameter list, as [align_ptheta()] returns
 #'   it.
@@ -280,7 +320,9 @@ additive_penalty <- function(mats, map = NULL,
 #' @return A list of three: `S`, the assembled symmetric matrix of side
 #'   `pen@n_coef`; `Sp`, its Moore-Penrose pseudo-inverse over the leading
 #'   `pen@p_rank` eigendirections, of the same side; and `logpdet`, a single
-#'   number, the sum of the logarithms of those eigenvalues.
+#'   number, the sum of the logarithms of those eigenvalues. `Sp` and
+#'   `logpdet` are `NaN` where the decomposition cannot resolve the smallest
+#'   of those eigenvalues.
 #'
 #' @seealso [additive_penalty()], [penalty_logpdet.AdditivePenalty()]
 #'
@@ -292,6 +334,20 @@ additive_sum <- function(pen, theta) {
   keep <- order(e$values, decreasing = TRUE)[seq_len(pen@p_rank)]
   V <- e$vectors[, keep, drop = FALSE]
   dv <- e$values[keep]
+  # A symmetric eigendecomposition computes its eigenvalues with an ABSOLUTE
+  # accuracy of order p(d) * eps * ||S||_2, so a kept eigenvalue at or below
+  # that resolution carries no significant digit. The ordering between it and
+  # the null directions is then rounding, the selection above keeps whichever
+  # of them sorts highest, and the sum of logarithms is NaN where that value
+  # is negative and a plausible wrong number where it is positive -- measured
+  # on one te() fit, 8419 calls of 12026 returned the second, silently, and
+  # the log pseudo-determinant was out by up to 618. Both are rejected here.
+  # The factor is the dimension, from that bound, and is the largest one
+  # measured never to reject a resolvable point.
+  if (dv[pen@p_rank] <= .Machine$double.eps * dv[1L] * pen@n_coef) {
+    return(list(S = S, Sp = matrix(NaN, pen@n_coef, pen@n_coef),
+                logpdet = NaN))
+  }
   list(S = S, Sp = V %*% (t(V) / dv), logpdet = sum(log(dv)))
 }
 
@@ -314,6 +370,10 @@ additive_sum <- function(pen, theta) {
 #'
 #' With a single component the value is the plain quadratic penalty's, and the
 #' two agree to `3.6e-15`.
+#'
+#' The value is `NaN` where the decomposition cannot resolve the smallest
+#' eigenvalue spanning the range, which is what [additive_sum()] returns once
+#' the parameters have spread past the precision of a double.
 #'
 #' @param pen An [AdditivePenalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`, already coerced by the
@@ -565,6 +625,10 @@ S7::method(is_proper, AdditivePenalty) <- function(pen, ...) {
 #'
 #' both exact and both agreeing with the traces computed apart to 0.
 #'
+#' All three are `NaN` where [additive_sum()] cannot resolve the smallest
+#' eigenvalue it keeps, the derivatives reading the same pseudo-inverse as the
+#' value.
+#'
 #' **`penalty_logpdet()` answers in a different shape here.** `grad` is an
 #' unnamed numeric vector in `pen@params` order and `hess` is a square matrix,
 #' where [penalty_logpdet.QuadraticPenalty()] and
@@ -586,7 +650,8 @@ S7::method(is_proper, AdditivePenalty) <- function(pen, ...) {
 #'   `penalty_logpdet()` a list of `value` (a single number), `grad` (a list
 #'   keyed by `pen@params`) and `hess` (a list keyed by the pairs
 #'   `penalty_hess_theta()` uses), which is the shape the quadratic and
-#'   structured branches answer in.
+#'   structured branches answer in. Every entry of it is `NaN` at a setting
+#'   of the parameters the decomposition cannot resolve.
 #'
 #' @examples
 #' P1 <- crossprod(diff(diag(5)))

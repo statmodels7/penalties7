@@ -16,7 +16,9 @@ it.}
 A list of three: \code{S}, the assembled symmetric matrix of side
 \code{pen@n_coef}; \code{Sp}, its Moore-Penrose pseudo-inverse over the leading
 \code{pen@p_rank} eigendirections, of the same side; and \code{logpdet}, a single
-number, the sum of the logarithms of those eigenvalues.
+number, the sum of the logarithms of those eigenvalues. \code{Sp} and
+\code{logpdet} are \code{NaN} where the decomposition cannot resolve the smallest
+of those eigenvalues.
 }
 \description{
 Assembles \eqn{S(\lambda) = \sum_k \lambda_k P_k}, takes one
@@ -31,6 +33,17 @@ having been fixed at construction from the components rather than counted
 here. Selecting by rank instead of by a tolerance is what keeps the answer
 steady when the parameters differ by many orders of magnitude, which is
 exactly when a count would lose directions the penalty still spans.
+
+Selecting by rank is not on its own enough to make the answer resolvable.
+A symmetric eigendecomposition computes its eigenvalues with an absolute
+accuracy of order \eqn{d\,\epsilon\lVert S\rVert_{2}}, so where the
+parameters differ by enough orders of magnitude the smallest eigenvalue
+spanning the range falls below that resolution and carries no significant
+digit. The ordering between it and the null directions is then rounding,
+and the sum of logarithms is \code{NaN} where the selected value is negative and
+a plausible wrong number where it is positive. Both are rejected: \code{Sp} and
+\code{logpdet} are \code{NaN} there. \code{S} is assembled without a decomposition and is
+returned as it stands, which is why \code{\link[=penalty_hessian]{penalty_hessian()}} stays finite.
 }
 \seealso{
 \code{\link[=additive_penalty]{additive_penalty()}}, \code{\link[=penalty_logpdet.AdditivePenalty]{penalty_logpdet.AdditivePenalty()}}

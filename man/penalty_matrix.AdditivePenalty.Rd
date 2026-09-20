@@ -22,7 +22,8 @@ orthonormal basis of the components' shared null space, \code{pen@n_coef} by
 \code{penalty_logpdet()} a list of \code{value} (a single number), \code{grad} (a list
 keyed by \code{pen@params}) and \code{hess} (a list keyed by the pairs
 \code{penalty_hess_theta()} uses), which is the shape the quadratic and
-structured branches answer in.
+structured branches answer in. Every entry of it is \code{NaN} at a setting
+of the parameters the decomposition cannot resolve.
 }
 \description{
 Three of the four pieces a marginal criterion reads. \code{penalty_matrix()}
@@ -40,6 +41,10 @@ With \eqn{S^{+}} the pseudo-inverse over the stored rank,
     \log\mathrm{pdet}\,S = -\operatorname{tr}(S^{+}P_kS^{+}P_l),}
 
 both exact and both agreeing with the traces computed apart to 0.
+
+All three are \code{NaN} where \code{\link[=additive_sum]{additive_sum()}} cannot resolve the smallest
+eigenvalue it keeps, the derivatives reading the same pseudo-inverse as the
+value.
 
 \strong{\code{penalty_logpdet()} answers in a different shape here.} \code{grad} is an
 unnamed numeric vector in \code{pen@params} order and \code{hess} is a square matrix,

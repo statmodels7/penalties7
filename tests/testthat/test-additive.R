@@ -185,3 +185,79 @@ test_that("the additive branch is quadratic and answers as one", {
   # branch registers none
   expect_false(has_prox(pen))
 })
+test_that("a decomposition that cannot resolve its smallest kept eigenvalue is rejected", {
+  P1 <- crossprod(diff(diag(5)))                    # first differences,  rank 4
+  P2 <- crossprod(diff(diag(5), differences = 2))   # second differences, rank 3
+  b <- c(0.4, -1.1, 0.7, 0.2, -0.3)
+
+  # The components are ordered so that the one carrying lambda1 is rank
+  # deficient ON THE RANGE: the four range directions are covered by the
+  # second differences only three at a time, so the fourth is carried by
+  # lambda2 alone and does not grow with lambda1. Written the other way round
+  # the spread produces no small eigenvalue at all and nothing degenerates.
+  pen <- additive_penalty(list(P2, P1))
+  r <- penalty_rank(pen)
+  expect_identical(r, 4L)
+
+  # An ordinary setting is untouched, and is the eigen route written out.
+  th <- list(lambda1 = 2, lambda2 = 0.5)
+  S <- penalty_matrix(pen, th)
+  e <- eigen(S, symmetric = TRUE)
+  k <- order(e$values, decreasing = TRUE)[seq_len(r)]
+  expect_equal(penalty_logpdet(pen, th)$value, sum(log(e$values[k])))
+  expect_true(all(is.finite(unlist(penalty_grad_theta(pen, b, th)))))
+
+  # A wide spread is not on its own a degenerate one. At 1e10 the smallest
+  # range eigenvalue is still four thousand times the resolution and the
+  # answer is finite, which is what keeps the rejection from reading the
+  # spread in place of the conditioning.
+  wide <- list(lambda1 = 1e10, lambda2 = 1)
+  ew <- sort(eigen(penalty_matrix(pen, wide), symmetric = TRUE,
+                   only.values = TRUE)$values, decreasing = TRUE)
+  expect_gt(ew[r], 1e3 * .Machine$double.eps * ew[1] * pen@n_coef)
+  expect_true(is.finite(penalty_logpdet(pen, wide)$value))
+
+  # Past the precision of a double it is. The smallest range eigenvalue is
+  # carried by lambda2 alone, so it stays at ew[r] while the resolution grows
+  # with lambda1: the premise is a gap of sixteen orders and not a sign, so
+  # the verdict does not turn on platform arithmetic.
+  far <- list(lambda1 = 1e30, lambda2 = 1)
+  res_far <- .Machine$double.eps *
+    max(eigen(penalty_matrix(pen, far), symmetric = TRUE,
+              only.values = TRUE)$values) * pen@n_coef
+  expect_gt(res_far / ew[r], 1e10)
+
+  # Everything the decomposition feeds is NaN there, and no warning is
+  # raised: a search visiting such a point would otherwise raise one per
+  # evaluation.
+  expect_silent(v <- penalty_value(pen, b, far))
+  expect_true(is.nan(v))
+  lp <- penalty_logpdet(pen, far)
+  expect_true(is.nan(lp$value))
+  expect_true(all(is.nan(unlist(lp$grad))))
+  expect_true(all(is.nan(unlist(lp$hess))))
+  expect_true(all(is.nan(unlist(penalty_grad_theta(pen, b, far)))))
+  expect_true(all(is.nan(unlist(penalty_hess_theta(pen, b, far)))))
+
+  # The pseudo-inverse is rejected whole rather than left as it came out,
+  # which is what an injection has to fail: without the rejection it is a
+  # finite matrix and every derivative above is a finite number.
+  a <- penalties7:::additive_sum(pen, far)
+  expect_true(all(is.nan(a$Sp)))
+  expect_identical(dim(a$Sp), c(pen@n_coef, pen@n_coef))
+
+  # The sum itself is assembled without a decomposition, so it is returned as
+  # it stands and the coefficient derivatives stay finite.
+  expect_true(all(is.finite(a$S)))
+  expect_true(all(is.finite(penalty_gradient(pen, b, far))))
+  expect_true(all(is.finite(penalty_hessian(pen, b, far))))
+
+  # The negative control: a large penalty is not a degenerate one. Raising
+  # both parameters together leaves the condition number where it was, so
+  # nothing is rejected and the value moves by the scaling alone.
+  big <- list(lambda1 = 1e30, lambda2 = 1e30)
+  one <- list(lambda1 = 1, lambda2 = 1)
+  expect_true(is.finite(penalty_logpdet(pen, big)$value))
+  expect_equal(penalty_logpdet(pen, big)$value - penalty_logpdet(pen, one)$value,
+               r * log(1e30))
+})

@@ -83,6 +83,35 @@ the components stacked and individually normalized, and the object's answer
 cannot move. A test pins both halves.
 }
 
+\section{Where the parameters spread too far apart}{
+The stored rank keeps the SELECTION steady, and it does not make the
+selected eigenvalues resolvable. Once the parameters differ by enough
+orders of magnitude the condition number of \eqn{S(\lambda)} passes
+\eqn{1/\epsilon} and the smallest eigenvalue spanning the range falls
+below the absolute accuracy of the decomposition, which is of order
+\eqn{d\,\epsilon\lVert S\rVert_{2}}. \code{\link[=penalty_value]{penalty_value()}},
+\code{\link[=penalty_logpdet]{penalty_logpdet()}}, \code{\link[=penalty_grad_theta]{penalty_grad_theta()}} and \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}
+return \code{NaN} there, through \code{\link[=additive_sum]{additive_sum()}}, and no warning is raised, a
+search visiting such a point raising one per evaluation. \code{\link[=penalty_gradient]{penalty_gradient()}}
+and \code{\link[=penalty_hessian]{penalty_hessian()}} assemble the sum directly and stay finite.
+
+A fitting layer reads the non-finite value as an unusable point and steps
+away from it, which is what it already did for the part of that region
+whose selected eigenvalue came back negative. What the rejection adds is
+the other part, where the value came back finite and wrong: measured on one
+anisotropic \code{te()} fit, 8419 calls of 12026 fell there, with no warning, and
+the log pseudo-determinant out by as much as 618 against the exact
+asymptote. By then the term has contracted onto the null space of the
+component carrying the large parameter and the fitted values have stopped
+moving, so what a reader reads is unchanged and only the reported parameter
+moves. Over ten \code{te()} shapes at five seeds and two noise assignments,
+ninety-six fits of a hundred are \code{identical()} on the log-likelihood, the
+coefficients, the effective degrees of freedom, \code{\link[=penalty_matrix]{penalty_matrix()}}'s
+consumers and the convergence flag; four move, the worst fitted value by
+\code{3.8e-03} against a fitted standard deviation of \code{0.704}, while the
+hyperparameter moves by a factor of 309.
+}
+
 \section{What this branch supplies}{
 \code{\link[=is_quadratic]{is_quadratic()}} answers \code{TRUE}, a sum of quadratic forms being a quadratic
 form, so \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}} and
