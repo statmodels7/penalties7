@@ -33,13 +33,10 @@ a single logical.
 
 ## Details
 
-The branch registers no
+The value is a quadratic form, so
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-method, so it inherits `FALSE` from
-[`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
-even though the value is a quadratic form. See
-[`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
-for what that costs.
+answers `TRUE` as well. The two statements are not the same: a penalty
+may be smooth without being quadratic, as a Student t prior is.
 
 Properness is the rank of the sum against the number of coefficients,
 and the rank is fixed at construction. The two components of an
@@ -53,10 +50,8 @@ each margin has rank 12 out of 16.
 and
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
 for the generics,
-[`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
-for why
-[`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-answers `FALSE` here.
+[`is_quadratic.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.AdditivePenalty.md)
+for the other predicate this branch answers.
 
 ## Examples
 

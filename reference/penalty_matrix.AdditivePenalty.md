@@ -1,14 +1,14 @@
 # Marginal Quantities of an Additive Penalty
 
-Three of the four pieces a marginal criterion reads.
+The four pieces a marginal criterion reads.
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns the weighted sum \\S(\lambda) = \sum_k \lambda_k P_k\\,
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-the rank fixed at construction, and
-[`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-the log pseudo-determinant with its first two derivatives. There is no
+the rank and
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-method for this branch, and the base class's rejects.
+the components' shared null space, both fixed at construction, and
+[`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+the log pseudo-determinant with its first two derivatives.
 
 ## Arguments
 
@@ -44,8 +44,9 @@ a list of `value` (a single number), `grad` (a list keyed by
 `pen@params`) and `hess` (a list keyed by the pairs
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 uses), which is the shape the quadratic and structured branches answer
-in. Every entry of it is `NaN` at a setting of the parameters the
-decomposition cannot resolve.
+in. Every entry of it is `NaN` at a setting
+[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+reports as unresolvable.
 
 ## Details
 
@@ -58,22 +59,21 @@ With \\S^{+}\\ the pseudo-inverse over the stored rank,
 
 both exact and both agreeing with the traces computed apart to 0.
 
-All three are `NaN` where
-[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
-cannot resolve the smallest eigenvalue it keeps, the derivatives reading
-the same pseudo-inverse as the value.
+All three come from
+[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)'s
+similarity transformation, which takes them in the transformed
+coordinates rather than from a materialized \\S^{+}\\, and all three are
+`NaN` at a setting it reports as unresolvable.
 
-**[`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-answers in a different shape here.** `grad` is an unnamed numeric vector
-in `pen@params` order and `hess` is a square matrix, where
+[`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+answers in the shape
 [`penalty_logpdet.QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.md)
 and
 [`penalty_logpdet.StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.md)
-return named lists keyed by hyperparameter and by pair. A consumer
-written against those will read `NULL` from `grad$lambda1` here. Nothing
-in the toolkit reads it today, because
-[`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-answers `FALSE` for this branch and every consumer routes on that first.
+answer in: `grad` a list keyed by `pen@params` and `hess` a list keyed
+by the pairs
+[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+uses, so a consumer written against those reads `grad$lambda1` here.
 
 ## See also
 

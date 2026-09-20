@@ -11,7 +11,7 @@ the number of coefficients."><meta property="og:image" content="https://statmode
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.27.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,9 +68,9 @@ the number of coefficients.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The branch registers no <code><a href="is_quadratic.html">is_quadratic()</a></code> method, so it inherits <code>FALSE</code> from
-<code><a href="penalty.html">penalty()</a></code> even though the value is a quadratic form. See
-<code><a href="additive_penalty.html">additive_penalty()</a></code> for what that costs.</p>
+    <p>The value is a quadratic form, so <code><a href="is_quadratic.html">is_quadratic()</a></code> answers <code>TRUE</code> as well.
+The two statements are not the same: a penalty may be smooth without being
+quadratic, as a Student t prior is.</p>
 <p>Properness is the rank of the sum against the number of coefficients, and
 the rank is fixed at construction. The two components of an anisotropic
 tensor smooth intersect in a null space of their own, so such a penalty is
@@ -80,7 +80,8 @@ out of 16.</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="penalty_kinks.html">penalty_kinks()</a></code> and <code><a href="is_proper.html">is_proper()</a></code> for the generics,
-<code><a href="additive_penalty.html">additive_penalty()</a></code> for why <code><a href="is_quadratic.html">is_quadratic()</a></code> answers <code>FALSE</code> here.</p></div>
+<code><a href="is_quadratic.AdditivePenalty.html">is_quadratic.AdditivePenalty()</a></code> for the other predicate this branch
+answers.</p></div>
     </div>
 
     <div class="section level2">

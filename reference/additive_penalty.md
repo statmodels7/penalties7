@@ -95,45 +95,37 @@ at every one of those settings. So the rank is fixed once at
 construction, from the components stacked and individually normalized,
 and the object's answer cannot move. A test pins both halves.
 
-## Where the parameters spread too far apart
+## Where the parameters spread far apart
 
 The stored rank keeps the SELECTION steady, and it does not make the
 selected eigenvalues resolvable. Once the parameters differ by enough
 orders of magnitude the condition number of \\S(\lambda)\\ passes
 \\1/\epsilon\\ and the smallest eigenvalue spanning the range falls
-below the absolute accuracy of the decomposition, which is of order
-\\d\\\epsilon\lVert S\rVert\_{2}\\.
-[`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md),
-[`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
-[`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-and
-[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-return `NaN` there, through
-[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md),
-and no warning is raised, a search visiting such a point raising one per
-evaluation.
-[`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-and
-[`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-assemble the sum directly and stay finite.
+below the absolute accuracy of one decomposition, which is of order
+\\d\\\epsilon\lVert S\rVert\_{2}\\. So the determinant is not taken from
+one decomposition of the assembled sum:
+[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+partitions the components by the size they contribute and transforms by
+similarity, so that no decomposition ever has to resolve the spread. The
+value and both derivative blocks are then finite and accurate wherever a
+double can hold \\S(\lambda)\\ at all – measured against the exact
+asymptote, out by `2.1e-16` at a spread of `1e250` and by nothing at all
+at `1e60` and `1e150`, where one decomposition of the sum returns `NaN`
+or a plausible wrong number and was out by as much as 618.
 
-A fitting layer reads the non-finite value as an unusable point and
-steps away from it, which is what it already did for the part of that
-region whose selected eigenvalue came back negative. What the rejection
-adds is the other part, where the value came back finite and wrong:
-measured on one anisotropic `te()` fit, 8419 calls of 12026 fell there,
-with no warning, and the log pseudo-determinant out by as much as 618
-against the exact asymptote. By then the term has contracted onto the
-null space of the component carrying the large parameter and the fitted
-values have stopped moving, so what a reader reads is unchanged and only
-the reported parameter moves. Over ten `te()` shapes at five seeds and
-two noise assignments, ninety-six fits of a hundred are
-[`identical()`](https://rdrr.io/r/base/identical.html) on the
-log-likelihood, the coefficients, the effective degrees of freedom,
-[`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)'s
-consumers and the convergence flag; four move, the worst fitted value by
-`3.8e-03` against a fitted standard deviation of `0.704`, while the
-hyperparameter moves by a factor of 309.
+This is a region a fit reaches: measured over ten `te()` and
+`basis7::adaptive_smooth()` shapes at five seeds, two noise assignments
+and four families, 36810 of 103518 calls fall past what one
+decomposition can resolve. What it buys is measured on the fits rather
+than on the determinant: over twenty-one fits of seven shapes in four
+families, the search converges on twenty against sixteen before, none is
+lost, and the root mean square error against the truth moves by at most
+`8.8e-04` on an error of `0.037`.
+
+By the time a component's parameter is that large the term has
+contracted onto that component's null space and the fitted values have
+stopped moving, so what changes is chiefly the parameter a summary
+reports and the criterion it was chosen by.
 
 ## What this branch supplies
 

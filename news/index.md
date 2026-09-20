@@ -1,5 +1,137 @@
 # Changelog
 
+## penalties7 0.27.0
+
+- **An additive penalty’s log pseudo-determinant and its first two
+  derivatives are computed by a similarity transformation, so the region
+  0.26.0 rejected is calculated instead.**
+  [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+  partitions the components by the size they contribute, , and rotates
+  onto the eigenvectors of the dominant group: with spanning its range
+  and its kernel, , and the Schur complement on , and with , both exact
+  and both recursed, so any number of components is served. No
+  decomposition ever has to resolve the spread: measured on an
+  anisotropic `te()` at `k = 5`, the dominant block’s condition number
+  is `1.066e+01` at spreads of , and alike, and the value agrees with
+  the exact asymptote to `2.1e-16` at .
+
+- ⚠️ **The derivatives are taken in the transformed coordinates and
+  never from a materialized** , which is what the second identity is
+  for. Taken in the original coordinates they lose one digit per order
+  of magnitude of spread: measured, read 99537 where it is exactly
+
+  15. In the transformed ones it reads `15.000000000000` at a spread of
+      , and a three-margin product reads
+      `32.0000000000 16.0000000000 8.0000000000`, each the rank the
+      corresponding component peels.
+
+- ⚠️ **Two quantities are exactly zero and are dropped rather than
+  computed**, and both are what the accuracy rests on. The dominant
+  group vanishes on , that subspace being its kernel, so computing it
+  there costs and swamps the subordinate terms – with it computed the
+  route still returns `NaN` from a spread of . And what the next level
+  does not carry is built from the dominant reductions rather than
+  obtained by subtracting the subordinate ones from , which is a
+  difference of two quantities of the dominant size whose difference is
+  of the subordinate one: measured, that spelling left a third
+  component’s log-scale gradient at `5.0e-04` where it is exactly 8.
+
+- **The gap at which the components are split is measured here and not
+  taken from elsewhere.**
+  [`additive_tol()`](https://statmodels7.github.io/penalties7/reference/additive_tol.md)
+  is , and the sweep behind it has an interior optimum: a smaller value
+  widens the dominant group, so one decomposition must resolve up to its
+  reciprocal, and a larger one deepens the recursion, each level adding
+  the rounding of one more reduction. Worst relative violation of the
+  rank identity over nine shapes and 200 parameter vectors each, drawn
+  over the range a fit visits: `2.8e-01` at and , `5.3e-05` at and ,
+  `1.4e-03` at . ⚠️ ’s `gam.reparam` uses for the same job and is
+  measurably worse on the structures this package builds – a constant
+  tuned on another package’s penalties is tuned on another package’s
+  spreads, and the one-sided normalization an anisotropic `te()` applies
+  to its margins leaves them incommensurable by as much as `7.5e+04`
+  before a parameter is estimated.
+
+- **What 0.26.0 rejected by a bound on an eigenvalue is now rejected by
+  an exact identity.** , so must be the rank; the check is free, needs
+  no reference, and is made at every call. ⚠️ Measured over 7730 calls
+  made inside real fits of seven shapes in four families, **none was
+  non-finite and the worst violation was `4.98e-08`**, so the guard is a
+  backstop rather than a route.
+
+- ⚠️ **This changes fits, which is what it is for, and the battery says
+  by how much.** Over fourteen shapes at five seeds and two noise
+  assignments – 140 fits, gaussian, Poisson, Gamma and Bernoulli – 71
+  are [`identical()`](https://rdrr.io/r/base/identical.html) on all
+  eight leaves and 69 move. Among the movers the median fitted value
+  moves by `1.9e-08` of its own standard deviation and the worst by
+  `2.0e-01`, while the hyperparameter moves by up to 26 orders of
+  magnitude: what moves is the parameter reported, not the function
+  fitted. Against a known truth over twenty-one fits the root mean
+  square error changes by at most `8.8e-04` on an error of `0.037`, and
+  the search converges on twenty against sixteen before, with none lost.
+  The cost is `1.05x` to `1.13x` per call where the parameters are
+  comparable, the base case being one decomposition exactly as before,
+  and `1.9x` to `3.2x` where the spread forces a split; end to end on
+  the battery, `1.65x`.
+
+- ⚠️ **Validated against ’s `gam.reparam` by hand and recorded here, not
+  as a test**, section 5 of the toolkit’s notes keeping external
+  packages out of `Suggests`. Its `det` is log for a full-rank penalty
+  and agrees with ours to `5.6e-16` to `1.9e-14` at spreads from 1 to ;
+  for a rank-deficient one it is **not** a log pseudo-determinant – its
+  null directions are floored rather than dropped, so it is offset by
+  about (null dimension) times and its `det1` does not satisfy the rank
+  identity. Against the log pseudo-determinant of the matrix
+  `gam.reparam` returns, which is its own stable reparametrization, we
+  agree from `1.8e-14` to `1.1e-11` over four shapes and spreads to ;
+  past that the reference is what fails.
+
+- ⚠️ **A paragraph of
+  [`penalty_logpdet.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.AdditivePenalty.md)’s
+  page contradicted both the `@return` beneath it and the branch’s own
+  [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
+  method**, and predates this release. It said `grad` is an unnamed
+  numeric vector and `hess` a square matrix where both are named lists,
+  keyed by `pen@params` and by pair exactly as the quadratic and
+  structured branches key them, and it said
+  [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
+  answers `FALSE` where the method three sections below it answers
+  `TRUE`. Measured rather than read:
+  `penalty_logpdet(pen, th)$grad$lambda1` returns a number.
+
+- ⚠️ **Grepping for the shape found two more of it in the same file,
+  both older than this release.**
+  [`penalty_kinks.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.AdditivePenalty.md)’s
+  page said the branch registers no
+  [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
+  method and inherits `FALSE` from
+  [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md),
+  and
+  [`penalty_matrix.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.AdditivePenalty.md)’s
+  said there is no
+  [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  method here and that the base class’s rejects. Measured:
+  `is_quadratic(pen)` is `TRUE`, `penalty_null_basis(pen)` returns a 5
+  by 1 basis, and the method is registered on the branch – the same
+  page’s own `@return` and its own example already said so, the example
+  calling
+  [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  and annihilating the sum against it. Three pages of one file made
+  three claims their neighbours refuted, which is what a page nothing
+  executes looks like.
+
+- ⚠️ **What the region costs to reach is unchanged and is stated rather
+  than removed:** at a spread beyond anything a fit was measured to
+  visit – against the a Poisson adaptive fit at `m = 8` reaches – an
+  adaptive penalty of five or more components violates the rank identity
+  by 0.25 to 0.72, and no value of
+  [`additive_tol()`](https://statmodels7.github.io/penalties7/reference/additive_tol.md)
+  mends it: after the reduction a component can fall to rounding level,
+  and its contribution is then not resolvable in double precision.
+  [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+  reports `NaN` there.
+
 ## penalties7 0.26.0
 
 - **An additive penalty rejects a decomposition that cannot resolve the
