@@ -43,6 +43,11 @@ pseudo-determinant.
 With a single component the value is the plain quadratic penalty's, and
 the two agree to `3.6e-15`.
 
+The value is `NaN` where the decomposition cannot resolve the smallest
+eigenvalue spanning the range, which is what
+[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+returns once the parameters have spread past the precision of a double.
+
 ## See also
 
 [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)

@@ -33,7 +33,9 @@ additive_sum(pen, theta)
 A list of three: `S`, the assembled symmetric matrix of side
 `pen@n_coef`; `Sp`, its Moore-Penrose pseudo-inverse over the leading
 `pen@p_rank` eigendirections, of the same side; and `logpdet`, a single
-number, the sum of the logarithms of those eigenvalues.
+number, the sum of the logarithms of those eigenvalues. `Sp` and
+`logpdet` are `NaN` where the decomposition cannot resolve the smallest
+of those eigenvalues.
 
 ## Details
 
@@ -43,6 +45,19 @@ counted here. Selecting by rank instead of by a tolerance is what keeps
 the answer steady when the parameters differ by many orders of
 magnitude, which is exactly when a count would lose directions the
 penalty still spans.
+
+Selecting by rank is not on its own enough to make the answer
+resolvable. A symmetric eigendecomposition computes its eigenvalues with
+an absolute accuracy of order \\d\\\epsilon\lVert S\rVert\_{2}\\, so
+where the parameters differ by enough orders of magnitude the smallest
+eigenvalue spanning the range falls below that resolution and carries no
+significant digit. The ordering between it and the null directions is
+then rounding, and the sum of logarithms is `NaN` where the selected
+value is negative and a plausible wrong number where it is positive.
+Both are rejected: `Sp` and `logpdet` are `NaN` there. `S` is assembled
+without a decomposition and is returned as it stands, which is why
+[`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
+stays finite.
 
 ## See also
 

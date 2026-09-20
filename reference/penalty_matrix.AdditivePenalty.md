@@ -44,7 +44,8 @@ a list of `value` (a single number), `grad` (a list keyed by
 `pen@params`) and `hess` (a list keyed by the pairs
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 uses), which is the shape the quadratic and structured branches answer
-in.
+in. Every entry of it is `NaN` at a setting of the parameters the
+decomposition cannot resolve.
 
 ## Details
 
@@ -56,6 +57,11 @@ With \\S^{+}\\ the pseudo-inverse over the stored rank,
 \log\mathrm{pdet}\\S = -\operatorname{tr}(S^{+}P_kS^{+}P_l),\$\$
 
 both exact and both agreeing with the traces computed apart to 0.
+
+All three are `NaN` where
+[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+cannot resolve the smallest eigenvalue it keeps, the derivatives reading
+the same pseudo-inverse as the value.
 
 **[`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 answers in a different shape here.** `grad` is an unnamed numeric vector

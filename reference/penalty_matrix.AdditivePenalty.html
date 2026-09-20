@@ -15,7 +15,7 @@ penalty_null_basis() method for this branch, and the base class's rejects."><met
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.25.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,8 @@ orthonormal basis of the components' shared null space, <code>pen@n_coef</code> 
 <code><a href="penalty_matrix.html">penalty_logpdet()</a></code> a list of <code>value</code> (a single number), <code>grad</code> (a list
 keyed by <code>pen@params</code>) and <code>hess</code> (a list keyed by the pairs
 <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code> uses), which is the shape the quadratic and
-structured branches answer in.</p>
+structured branches answer in. Every entry of it is <code>NaN</code> at a setting
+of the parameters the decomposition cannot resolve.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -86,6 +87,9 @@ structured branches answer in.</p>
   \frac{\partial^{2}}{\partial\lambda_k\partial\lambda_l}
     \log\mathrm{pdet}\,S = -\operatorname{tr}(S^{+}P_kS^{+}P_l),$$</p>
 <p>both exact and both agreeing with the traces computed apart to 0.</p>
+<p>All three are <code>NaN</code> where <code><a href="additive_sum.html">additive_sum()</a></code> cannot resolve the smallest
+eigenvalue it keeps, the derivatives reading the same pseudo-inverse as the
+value.</p>
 <p><strong><code><a href="penalty_matrix.html">penalty_logpdet()</a></code> answers in a different shape here.</strong> <code>grad</code> is an
 unnamed numeric vector in <code>pen@params</code> order and <code>hess</code> is a square matrix,
 where <code><a href="penalty_matrix.QuadraticPenalty.html">penalty_logpdet.QuadraticPenalty()</a></code> and

@@ -11,7 +11,7 @@ normalizing constant taken over the range of the sum."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.25.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.26.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,6 +80,9 @@ bound-checked by the generic.</p></dd>
 pseudo-determinant.</p>
 <p>With a single component the value is the plain quadratic penalty's, and the
 two agree to <code>3.6e-15</code>.</p>
+<p>The value is <code>NaN</code> where the decomposition cannot resolve the smallest
+eigenvalue spanning the range, which is what <code><a href="additive_sum.html">additive_sum()</a></code> returns once
+the parameters have spread past the precision of a double.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

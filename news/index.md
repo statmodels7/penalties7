@@ -1,5 +1,76 @@
 # Changelog
 
+## penalties7 0.26.0
+
+- **An additive penalty rejects a decomposition that cannot resolve the
+  smallest eigenvalue it keeps.**
+  [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+  assembles , takes one eigendecomposition and keeps the `p_rank`
+  largest eigenvalues. A symmetric eigendecomposition computes its
+  eigenvalues with an absolute accuracy of order , so once the
+  parameters differ by enough orders of magnitude the smallest
+  eigenvalue spanning the range falls below that resolution and carries
+  no significant digit; the ordering between it and the null directions
+  is then rounding. `Sp` and `logpdet` are `NaN` there, and with them
+  [`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md),
+  [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+  [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+  and
+  [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md).
+  No warning is raised, a search visiting such a point raising one per
+  evaluation.
+  [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
+  and
+  [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
+  assemble the sum directly and stay finite.
+
+  ⚠️ **The half of that region this closes is the silent one.** The
+  condition was reached before, and it returned `NaN` only where the
+  selected eigenvalue came out negative; where it came out positive the
+  value was finite and wrong. Against the exact asymptote of an
+  anisotropic `te()` — the slope measured at 14.999963, an integer to
+  4e-6 — the finite values are out by **+3.2 at a spread of 1e15, +107.6
+  at 1e23 and +618.7 at 1e60**. Measured inside a real fit, one sample
+  of ten made 12026 calls of which **8419 fell there and none was a
+  NaN**: seventy per cent of that search’s criterion evaluations read a
+  determinant that was wrong, with nothing raised to say so.
+
+  ⚠️ **The rejection is not an identity, and the gate names what
+  moves.** Over ten `te()` shapes at five seeds and two noise
+  assignments — dimensions 4, 5 and 6, per-margin dimensions, isotropic,
+  a factor `by`, beside a smooth, Poisson, `ml()` and an
+  `adaptive_smooth()` — **96 of 100 fits are
+  [`identical()`](https://rdrr.io/r/base/identical.html) on the
+  log-likelihood, the coefficients, the effective degrees of freedom,
+  [`vcov()`](https://rdrr.io/r/stats/vcov.html), the fitted values, the
+  criterion, the hyperparameters and the convergence flag, 771 of 800
+  leaves**, with the positive control confirming the battery reaches the
+  region at all (15834 of 65790 calls before, 5217 of 64378 after). Four
+  move, and by far less than the parameter does: the worst fitted value
+  moves **3.8e-03 against a fitted standard deviation of 0.704** and the
+  worst coefficient 9.8e-03, while the hyperparameter moves by a factor
+  of **309** (6.70e+14 to 2.17e+12). One goes from not converged to
+  converged. The criterion falls on the movers because the value it read
+  was inflated: at the point the old arm stopped, the log
+  pseudo-determinant is **+10.21** above the asymptote, and at the new
+  arm’s point **+0.05**.
+
+  ⚠️ **The dimension factor is derived and was measured against the
+  alternatives.** It is the resolution bound itself, and over a sweep of
+  225 settings it is the largest factor that never rejects a resolvable
+  point: no `NaN` escapes it, and the worst error it lets through is
+  0.017 in the log pseudo-determinant. Ten times the dimension was
+  measured and **not** taken — it moves a fit the dimension factor
+  leaves untouched, by 4.2e-02 rather than 3.8e-03. The eigenpair
+  residual , which bounds the error sharply and needs no factor at all,
+  was measured and not taken either: it misses six unreliable settings
+  against one, and on a rotated pair at a spread of 1e30 it lets through
+  a value of 172.34 where the truth is 138.16.
+
+  ⚠️ **`adaptive_smooth()` does reach the region**, which an earlier
+  reading had recorded as never measured: one of the four movers is an
+  adaptive smooth, and it is the fit whose convergence flag improves.
+
 ## penalties7 0.25.0
 
 - **`penalty_d2hessian_beta(pen, beta, theta, v, w)` and
