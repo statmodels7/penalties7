@@ -710,8 +710,10 @@ S7::method(penalty_prox, ScadPenalty) <- function(pen, v, step, theta, ...) {
     return(S7::method(penalty_prox, ScadPenalty)(
       .undiag(pen), d * v, step * d^2, theta, ...) / d)
   }
-  lam <- theta$lambda
+  cv <- curv_of(pen, length(v))
+  lam <- theta$lambda / cv
   a <- theta$a
+  step <- step * cv
   if (any(step >= a - 1)) {
     stop(sprintf(paste0(
       "the SCAD proximal operator needs step < a - 1 (%g here): beyond that the\n",
@@ -790,8 +792,10 @@ S7::method(penalty_prox, McpPenalty) <- function(pen, v, step, theta, ...) {
     return(S7::method(penalty_prox, McpPenalty)(
       .undiag(pen), d * v, step * d^2, theta, ...) / d)
   }
-  lam <- theta$lambda
+  cv <- curv_of(pen, length(v))
+  lam <- theta$lambda / cv
   gam <- theta$gamma
+  step <- step * cv
   if (any(step >= gam)) {
     stop(sprintf(paste0(
       "the MCP proximal operator needs step < gamma (%g here): beyond that the\n",

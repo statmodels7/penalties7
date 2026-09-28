@@ -2,9 +2,12 @@
 % Please edit documentation in R/prox_spec.R
 \name{prox_table}
 \alias{prox_table}
+\alias{prox_table_j}
 \title{Assemble a Piecewise Linear Table}
 \usage{
 prox_table(step, n_coef, pieces)
+
+prox_table_j(step, n_coef, pieces)
 }
 \arguments{
 \item{step}{The step lengths, a numeric vector recycled to \code{n_coef}.}

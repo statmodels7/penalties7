@@ -24,9 +24,11 @@ NULL
 #' \eqn{(1, \infty)}.
 #'
 #' @inheritParams penalty
+#' @param curv The curvature of the loss in each coordinate of \eqn{D\beta},
+#'   a numeric vector, or `numeric(0)` for ones. See [check_curv()].
 #'
 #' @return An S7 object of class `ScadPenalty` or `McpPenalty`, inheriting from
-#'   [penalty()] and carrying its seven properties and no others.
+#'   [penalty()] and carrying its seven properties and `curv`.
 #'
 #' @seealso [scad_penalty()] and [mcp_penalty()] for the constructors,
 #'   [penalty_value.ScadPenalty()] and [penalty_value.McpPenalty()] for what
@@ -36,18 +38,19 @@ NULL
 #' S7::S7_inherits(scad_penalty(), ScadPenalty)
 #' S7::S7_inherits(mcp_penalty(), McpPenalty)
 #'
-#' # Neither adds a property to the base class.
-#' setdiff(names(S7::props(scad_penalty())),
-#'         names(S7::props(quadratic_penalty(diag(1)))))
+#' # Both add one property to the base class, the curvature per coordinate.
+#' setdiff(names(S7::props(scad_penalty())), names(S7::props(lasso_penalty())))
 #'
 #' @keywords internal
 #' @export
-ScadPenalty <- S7::new_class(name = "ScadPenalty", parent = penalty)
+ScadPenalty <- S7::new_class(name = "ScadPenalty", parent = penalty,
+                              properties = list(curv = S7::class_numeric))
 
 #' @rdname ScadPenalty
 #' @keywords internal
 #' @export
-McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty)
+McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty,
+                             properties = list(curv = S7::class_numeric))
 
 #' @title Construct the SCAD and MCP Penalties
 #'
@@ -96,6 +99,21 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty)
 #' the outer points the first derivative is continuous and the second jumps.
 #' [check_penalty()] asks the object and keeps its grids away from all of them.
 #'
+#' # The curvature of the loss
+#'
+#' Both are defined on the canonical problem
+#' \eqn{\tfrac12(z-\theta)^2 + \rho(\theta)}, whose loss has unit curvature
+#' (Fan and Lv 2010), and \eqn{a = 3.7} is suggested in that problem. A
+#' likelihood has curvature \eqn{c_j} in coordinate \eqn{j}, so `curv`
+#' writes the penalty as \eqn{\sum_j c_j\,\rho(t_j;\ \lambda/c_j)}: the
+#' slope at zero stays \eqn{\lambda}, the knee moves to
+#' \eqn{a\lambda/c_j} (\eqn{\gamma\lambda/c_j} for MCP), and the ratio of
+#' knee to threshold is the shape parameter in every coordinate. The proximal
+#' operator with step \eqn{s} is then the unscaled one at step \eqn{s c_j}
+#' and rate \eqn{\lambda/c_j}, so where the step is \eqn{1/c_j} its
+#' condition is \eqn{a > 2} and \eqn{\gamma > 1} whatever the data. By
+#' default `curv` is empty and every coordinate has \eqn{c_j = 1}.
+#'
 #' # What they are not
 #'
 #' Both are improper: \eqn{\rho} is bounded, so \eqn{\exp(-\rho)} is not a
@@ -117,6 +135,8 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty)
 #' @param link_gamma The link carrying MCP's shape parameter, bounded below at
 #'   1. `linkfunctions7::bounded_link(lwr = 1)` by default. `mcp_penalty()`
 #'   only.
+#' @param curv `NULL` (the default) for unit curvature, or positive numbers,
+#'   one per coordinate of \eqn{D\beta} or one repeated.
 #'
 #' @return `scad_penalty()` a [ScadPenalty()] object with hyperparameters
 #'   `lambda` on \eqn{(0, \infty)} and `a` on \eqn{(2, \infty)}.
@@ -165,7 +185,8 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty)
 #' @export
 scad_penalty <- function(map = NULL, n_coef = 1L,
                          link_lambda = linkfunctions7::log_link(),
-                         link_a = linkfunctions7::bounded_link(lwr = 2)) {
+                         link_a = linkfunctions7::bounded_link(lwr = 2),
+                         curv = NULL) {
   q <- if (is.null(map)) as.integer(n_coef) else ncol(map <- as_map(map))
   ScadPenalty(
     penalty_name = "SCAD",
@@ -173,7 +194,8 @@ scad_penalty <- function(map = NULL, n_coef = 1L,
     params = c("lambda", "a"),
     params_bounds = list(lambda = c(0, Inf), a = c(2, Inf)),
     link_params = list(lambda = link_lambda, a = link_a),
-    params_smooth = c(lambda = TRUE, a = TRUE)
+    params_smooth = c(lambda = TRUE, a = TRUE),
+    curv = check_curv(curv, if (is.null(map)) q else nrow(map))
   )
 }
 
@@ -181,7 +203,8 @@ scad_penalty <- function(map = NULL, n_coef = 1L,
 #' @export
 mcp_penalty <- function(map = NULL, n_coef = 1L,
                         link_lambda = linkfunctions7::log_link(),
-                        link_gamma = linkfunctions7::bounded_link(lwr = 1)) {
+                        link_gamma = linkfunctions7::bounded_link(lwr = 1),
+                        curv = NULL) {
   q <- if (is.null(map)) as.integer(n_coef) else ncol(map <- as_map(map))
   McpPenalty(
     penalty_name = "MCP",
@@ -189,8 +212,56 @@ mcp_penalty <- function(map = NULL, n_coef = 1L,
     params = c("lambda", "gamma"),
     params_bounds = list(lambda = c(0, Inf), gamma = c(1, Inf)),
     link_params = list(lambda = link_lambda, gamma = link_gamma),
-    params_smooth = c(lambda = TRUE, gamma = TRUE)
+    params_smooth = c(lambda = TRUE, gamma = TRUE),
+    curv = check_curv(curv, if (is.null(map)) q else nrow(map))
   )
+}
+
+#' The Curvature of Each Coordinate of a SCAD or MCP Penalty
+#'
+#' @description
+#' Validates the curvature a SCAD or MCP penalty is scaled by, and returns
+#' it one value per coordinate of \eqn{D\beta}.
+#'
+#' @details
+#' SCAD and MCP are defined on the canonical problem
+#' \eqn{\tfrac12(z - \theta)^2 + p_\lambda(\lvert\theta\rvert)}, whose loss
+#' has unit curvature. Where the loss has curvature \eqn{c_j} in coordinate
+#' \eqn{j}, the penalty is written \eqn{c_j\,p(t_j;\ \lambda/c_j,\ a)}: the
+#' slope at the origin stays \eqn{\lambda}, and the knee moves to
+#' \eqn{a\lambda/c_j}, so that the ratio of the knee to the soft threshold is
+#' \eqn{a} in every coordinate. `curv_of()` reads the stored curvature, and
+#' gives ones where none is stored, which is the penalty as defined without
+#' this scaling.
+#'
+#' @param curv `NULL`, or positive finite numbers, one per coordinate of
+#'   \eqn{D\beta} or a single value repeated.
+#' @param n The number of coordinates of \eqn{D\beta}.
+#' @param pen A [ScadPenalty()] or [McpPenalty()].
+#'
+#' @return `check_curv()` a numeric vector of length `n`, or `numeric(0)`
+#'   for `NULL`; `curv_of()` a numeric vector of length `n`.
+#'
+#' @keywords internal
+check_curv <- function(curv, n) {
+  if (is.null(curv)) return(numeric(0))
+  curv <- as.numeric(curv)
+  if (!length(curv) || anyNA(curv) || any(!is.finite(curv)) ||
+      any(curv <= 0)) {
+    stop("'curv' must be positive and finite.", call. = FALSE)
+  }
+  if (length(curv) == 1L) curv <- rep(curv, n)
+  if (length(curv) != n) {
+    stop(sprintf("'curv' must have %d values, one per coordinate; it has %d.",
+                 n, length(curv)), call. = FALSE)
+  }
+  curv
+}
+
+#' @rdname check_curv
+#' @keywords internal
+curv_of <- function(pen, n) {
+  if (length(pen@curv)) pen@curv else rep(1, n)
 }
 
 #' The Piecewise Regions of SCAD and MCP
@@ -283,10 +354,12 @@ scad_parts <- function(t, lam, a) {
 #'   [penalty_value.McpPenalty()] for the sibling family.
 #' @keywords internal
 S7::method(penalty_value, ScadPenalty) <- function(pen, beta, theta, ...) {
-  lam <- theta$lambda; a <- theta$a
-  p <- scad_parts(map_apply(pen, beta), lam, a)
+  t <- map_apply(pen, beta)
+  cv <- curv_of(pen, length(t))
+  lam <- theta$lambda / cv; a <- theta$a
+  p <- scad_parts(t, lam, a)
   u <- p$u
-  sum(ifelse(p$r1, lam * u,
+  sum(cv * ifelse(p$r1, lam * u,
       ifelse(p$r2, (2 * a * lam * u - u^2 - lam^2) / (2 * (a - 1)),
              lam^2 * (a + 1) / 2)))
 }
@@ -346,19 +419,23 @@ S7::method(penalty_value, ScadPenalty) <- function(pen, beta, theta, ...) {
 #'   [penalty_prox()] for the step that produces exact zeros.
 #' @keywords internal
 S7::method(penalty_gradient, ScadPenalty) <- function(pen, beta, theta, ...) {
-  lam <- theta$lambda; a <- theta$a
-  p <- scad_parts(map_apply(pen, beta), lam, a)
+  t <- map_apply(pen, beta)
+  cv <- curv_of(pen, length(t))
+  lam <- theta$lambda / cv; a <- theta$a
+  p <- scad_parts(t, lam, a)
   d1 <- ifelse(p$r1, lam, ifelse(p$r2, (a * lam - p$u) / (a - 1), 0))
-  map_back(pen, p$s * d1)
+  map_back(pen, p$s * cv * d1)
 }
 
 #' @rdname penalty_gradient.ScadPenalty
 #' @name penalty_hessian.ScadPenalty
 #' @keywords internal
 S7::method(penalty_hessian, ScadPenalty) <- function(pen, beta, theta, ...) {
-  lam <- theta$lambda; a <- theta$a
-  p <- scad_parts(map_apply(pen, beta), lam, a)
-  map_quad(pen, ifelse(p$r2, -1 / (a - 1), 0))
+  t <- map_apply(pen, beta)
+  cv <- curv_of(pen, length(t))
+  lam <- theta$lambda / cv; a <- theta$a
+  p <- scad_parts(t, lam, a)
+  map_quad(pen, cv * ifelse(p$r2, -1 / (a - 1), 0))
 }
 
 #' @title Hyperparameter Derivatives of a SCAD Penalty
@@ -419,14 +496,16 @@ S7::method(penalty_hessian, ScadPenalty) <- function(pen, beta, theta, ...) {
 #' @keywords internal
 S7::method(penalty_grad_theta, ScadPenalty) <-
   function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    lam <- theta$lambda; a <- theta$a
-    p <- scad_parts(map_apply(pen, beta), lam, a)
+    t <- map_apply(pen, beta)
+    cv <- curv_of(pen, length(t))
+    lam <- theta$lambda / cv; a <- theta$a
+    p <- scad_parts(t, lam, a)
     u <- p$u
     dl <- ifelse(p$r1, u,
           ifelse(p$r2, (a * u - lam) / (a - 1), lam * (a + 1)))
     da <- ifelse(p$r2, (u - lam)^2 / (2 * (a - 1)^2),
           ifelse(p$r3, lam^2 / 2, 0))
-    list(lambda = sum(dl), a = sum(da))
+    list(lambda = sum(dl), a = sum(cv * da))
   }
 
 #' @rdname penalty_grad_theta.ScadPenalty
@@ -434,13 +513,16 @@ S7::method(penalty_grad_theta, ScadPenalty) <-
 #' @keywords internal
 S7::method(penalty_hess_theta, ScadPenalty) <-
   function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    lam <- theta$lambda; a <- theta$a
-    p <- scad_parts(map_apply(pen, beta), lam, a)
+    t <- map_apply(pen, beta)
+    cv <- curv_of(pen, length(t))
+    lam <- theta$lambda / cv; a <- theta$a
+    p <- scad_parts(t, lam, a)
     u <- p$u
     dll <- ifelse(p$r2, -1 / (a - 1), ifelse(p$r3, a + 1, 0))
     daa <- ifelse(p$r2, -(u - lam)^2 / (a - 1)^3, 0)
     dla <- ifelse(p$r2, (lam - u) / (a - 1)^2, ifelse(p$r3, lam, 0))
-    list(lambda_lambda = sum(dll), a_a = sum(daa), lambda_a = sum(dla))
+    list(lambda_lambda = sum(dll / cv), a_a = sum(cv * daa),
+         lambda_a = sum(dla))
   }
 
 #' @rdname penalty_grad_theta.ScadPenalty
@@ -448,11 +530,13 @@ S7::method(penalty_hess_theta, ScadPenalty) <-
 #' @keywords internal
 S7::method(penalty_cross, ScadPenalty) <-
   function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    lam <- theta$lambda; a <- theta$a
-    p <- scad_parts(map_apply(pen, beta), lam, a)
+    t <- map_apply(pen, beta)
+    cv <- curv_of(pen, length(t))
+    lam <- theta$lambda / cv; a <- theta$a
+    p <- scad_parts(t, lam, a)
     dl <- ifelse(p$r1, 1, ifelse(p$r2, a / (a - 1), 0))
     da <- ifelse(p$r2, (p$u - lam) / (a - 1)^2, 0)
-    list(lambda = map_back(pen, p$s * dl), a = map_back(pen, p$s * da))
+    list(lambda = map_back(pen, p$s * dl), a = map_back(pen, p$s * cv * da))
   }
 
 #' @title Smoothness and Kind of a SCAD Penalty
@@ -491,8 +575,8 @@ S7::method(penalty_cross, ScadPenalty) <-
 #'   [penalty_kinks.McpPenalty()] for the sibling family's three points.
 #' @keywords internal
 S7::method(penalty_kinks, ScadPenalty) <- function(pen, theta, ...) {
-  lam <- theta$lambda; a <- theta$a
-  c(0, -lam, lam, -a * lam, a * lam)
+  lam <- unique(theta$lambda / curv_of(pen, 1L)); a <- theta$a
+  unique(c(0, -lam, lam, -a * lam, a * lam))
 }
 
 #' @rdname penalty_kinks.ScadPenalty
@@ -553,10 +637,12 @@ mcp_parts <- function(t, lam, gam) {
 #'   [penalty_value.ScadPenalty()] for the sibling family.
 #' @keywords internal
 S7::method(penalty_value, McpPenalty) <- function(pen, beta, theta, ...) {
-  lam <- theta$lambda; gam <- theta$gamma
-  p <- mcp_parts(map_apply(pen, beta), lam, gam)
+  t <- map_apply(pen, beta)
+  cv <- curv_of(pen, length(t))
+  lam <- theta$lambda / cv; gam <- theta$gamma
+  p <- mcp_parts(t, lam, gam)
   u <- p$u
-  sum(ifelse(p$r1, lam * u - u^2 / (2 * gam), gam * lam^2 / 2))
+  sum(cv * ifelse(p$r1, lam * u - u^2 / (2 * gam), gam * lam^2 / 2))
 }
 
 #' @title Coefficient Derivatives of an MCP Penalty
@@ -611,18 +697,22 @@ S7::method(penalty_value, McpPenalty) <- function(pen, beta, theta, ...) {
 #'   [penalty_gradient.ScadPenalty()] for the sibling family.
 #' @keywords internal
 S7::method(penalty_gradient, McpPenalty) <- function(pen, beta, theta, ...) {
-  lam <- theta$lambda; gam <- theta$gamma
-  p <- mcp_parts(map_apply(pen, beta), lam, gam)
-  map_back(pen, p$s * ifelse(p$r1, lam - p$u / gam, 0))
+  t <- map_apply(pen, beta)
+  cv <- curv_of(pen, length(t))
+  lam <- theta$lambda / cv; gam <- theta$gamma
+  p <- mcp_parts(t, lam, gam)
+  map_back(pen, p$s * cv * ifelse(p$r1, lam - p$u / gam, 0))
 }
 
 #' @rdname penalty_gradient.McpPenalty
 #' @name penalty_hessian.McpPenalty
 #' @keywords internal
 S7::method(penalty_hessian, McpPenalty) <- function(pen, beta, theta, ...) {
-  lam <- theta$lambda; gam <- theta$gamma
-  p <- mcp_parts(map_apply(pen, beta), lam, gam)
-  map_quad(pen, ifelse(p$r1, -1 / gam, 0))
+  t <- map_apply(pen, beta)
+  cv <- curv_of(pen, length(t))
+  lam <- theta$lambda / cv; gam <- theta$gamma
+  p <- mcp_parts(t, lam, gam)
+  map_quad(pen, cv * ifelse(p$r1, -1 / gam, 0))
 }
 
 #' @title Hyperparameter Derivatives of an MCP Penalty
@@ -679,11 +769,13 @@ S7::method(penalty_hessian, McpPenalty) <- function(pen, beta, theta, ...) {
 #' @keywords internal
 S7::method(penalty_grad_theta, McpPenalty) <-
   function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    lam <- theta$lambda; gam <- theta$gamma
-    p <- mcp_parts(map_apply(pen, beta), lam, gam)
+    t <- map_apply(pen, beta)
+    cv <- curv_of(pen, length(t))
+    lam <- theta$lambda / cv; gam <- theta$gamma
+    p <- mcp_parts(t, lam, gam)
     u <- p$u
     list(lambda = sum(ifelse(p$r1, u, gam * lam)),
-         gamma = sum(ifelse(p$r1, u^2 / (2 * gam^2), lam^2 / 2)))
+         gamma = sum(cv * ifelse(p$r1, u^2 / (2 * gam^2), lam^2 / 2)))
   }
 
 #' @rdname penalty_grad_theta.McpPenalty
@@ -691,11 +783,13 @@ S7::method(penalty_grad_theta, McpPenalty) <-
 #' @keywords internal
 S7::method(penalty_hess_theta, McpPenalty) <-
   function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    lam <- theta$lambda; gam <- theta$gamma
-    p <- mcp_parts(map_apply(pen, beta), lam, gam)
+    t <- map_apply(pen, beta)
+    cv <- curv_of(pen, length(t))
+    lam <- theta$lambda / cv; gam <- theta$gamma
+    p <- mcp_parts(t, lam, gam)
     u <- p$u
-    list(lambda_lambda = sum(ifelse(p$r1, 0, gam)),
-         gamma_gamma = sum(ifelse(p$r1, -u^2 / gam^3, 0)),
+    list(lambda_lambda = sum(ifelse(p$r1, 0, gam) / cv),
+         gamma_gamma = sum(cv * ifelse(p$r1, -u^2 / gam^3, 0)),
          lambda_gamma = sum(ifelse(p$r1, 0, lam)))
   }
 
@@ -704,10 +798,12 @@ S7::method(penalty_hess_theta, McpPenalty) <-
 #' @keywords internal
 S7::method(penalty_cross, McpPenalty) <-
   function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    lam <- theta$lambda; gam <- theta$gamma
-    p <- mcp_parts(map_apply(pen, beta), lam, gam)
+    t <- map_apply(pen, beta)
+    cv <- curv_of(pen, length(t))
+    lam <- theta$lambda / cv; gam <- theta$gamma
+    p <- mcp_parts(t, lam, gam)
     list(lambda = map_back(pen, p$s * ifelse(p$r1, 1, 0)),
-         gamma = map_back(pen, p$s * ifelse(p$r1, p$u / gam^2, 0)))
+         gamma = map_back(pen, p$s * cv * ifelse(p$r1, p$u / gam^2, 0)))
   }
 
 #' @title Smoothness and Kind of an MCP Penalty
@@ -746,8 +842,8 @@ S7::method(penalty_cross, McpPenalty) <-
 #'   [penalty_kinks.ScadPenalty()] for the sibling family's five points.
 #' @keywords internal
 S7::method(penalty_kinks, McpPenalty) <- function(pen, theta, ...) {
-  lam <- theta$lambda; gam <- theta$gamma
-  c(0, -gam * lam, gam * lam)
+  lam <- unique(theta$lambda / curv_of(pen, 1L)); gam <- theta$gamma
+  unique(c(0, -gam * lam, gam * lam))
 }
 
 #' @rdname penalty_kinks.McpPenalty

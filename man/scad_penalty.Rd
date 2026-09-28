@@ -9,14 +9,16 @@ scad_penalty(
   map = NULL,
   n_coef = 1L,
   link_lambda = linkfunctions7::log_link(),
-  link_a = linkfunctions7::bounded_link(lwr = 2)
+  link_a = linkfunctions7::bounded_link(lwr = 2),
+  curv = NULL
 )
 
 mcp_penalty(
   map = NULL,
   n_coef = 1L,
   link_lambda = linkfunctions7::log_link(),
-  link_gamma = linkfunctions7::bounded_link(lwr = 1)
+  link_gamma = linkfunctions7::bounded_link(lwr = 1),
+  curv = NULL
 )
 }
 \arguments{
@@ -33,6 +35,9 @@ the whole real line. \code{linkfunctions7::log_link()} by default,
 
 \item{link_a}{The link carrying SCAD's shape parameter, bounded below at 2.
 \code{linkfunctions7::bounded_link(lwr = 2)} by default. \code{scad_penalty()} only.}
+
+\item{curv}{\code{NULL} (the default) for unit curvature, or positive numbers,
+one per coordinate of \eqn{D\beta} or one repeated.}
 
 \item{link_gamma}{The link carrying MCP's shape parameter, bounded below at
 \enumerate{
@@ -88,6 +93,21 @@ begins or ends. \code{\link[=penalty_kinks]{penalty_kinks()}} returns all of the
 and \eqn{\pm a\lambda} for SCAD, \code{0} and \eqn{\pm\gamma\lambda} for MCP. At
 the outer points the first derivative is continuous and the second jumps.
 \code{\link[=check_penalty]{check_penalty()}} asks the object and keeps its grids away from all of them.
+}
+
+\section{The curvature of the loss}{
+Both are defined on the canonical problem
+\eqn{\tfrac12(z-\theta)^2 + \rho(\theta)}, whose loss has unit curvature
+(Fan and Lv 2010), and \eqn{a = 3.7} is suggested in that problem. A
+likelihood has curvature \eqn{c_j} in coordinate \eqn{j}, so \code{curv}
+writes the penalty as \eqn{\sum_j c_j\,\rho(t_j;\ \lambda/c_j)}: the
+slope at zero stays \eqn{\lambda}, the knee moves to
+\eqn{a\lambda/c_j} (\eqn{\gamma\lambda/c_j} for MCP), and the ratio of
+knee to threshold is the shape parameter in every coordinate. The proximal
+operator with step \eqn{s} is then the unscaled one at step \eqn{s c_j}
+and rate \eqn{\lambda/c_j}, so where the step is \eqn{1/c_j} its
+condition is \eqn{a > 2} and \eqn{\gamma > 1} whatever the data. By
+default \code{curv} is empty and every coordinate has \eqn{c_j = 1}.
 }
 
 \section{What they are not}{

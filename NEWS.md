@@ -1,3 +1,23 @@
+# penalties7 0.29.0
+
+* `scad_penalty()` and `mcp_penalty()` take `curv`, the curvature of the loss
+  in each coordinate of \eqn{D\beta}. SCAD and MCP are defined on the
+  canonical problem \eqn{\tfrac12(z-\theta)^2 + \rho(\theta)}, whose loss has
+  unit curvature (Fan and Lv 2010); with `curv` the penalty is
+  \eqn{\sum_j c_j\,\rho(t_j;\ \lambda/c_j)}, so the slope at zero stays
+  \eqn{\lambda}, the knee moves to \eqn{a\lambda/c_j}
+  (\eqn{\gamma\lambda/c_j} for MCP), and the ratio of knee to threshold is
+  the shape parameter in every coordinate. The value, both derivative
+  surfaces, the proximal operator and its piecewise table
+  (`penalty_prox_spec()`) all follow; the operator with step \eqn{s} is the
+  unscaled one at step \eqn{s c_j} and rate \eqn{\lambda/c_j}, so at a step
+  of \eqn{1/c_j} its condition is \eqn{a > 2} and \eqn{\gamma > 1} whatever
+  the data. `check_curv()` validates the argument.
+
+* By default `curv` is empty and a penalty is the one defined before, to the
+  last bit: value, gradient and hyperparameter gradient are `identical()` to
+  those of a penalty built with `curv = 1`.
+
 # penalties7 0.28.0
 
 * **A penalty written on \eqn{D\beta} is now the negative log-density of

@@ -157,8 +157,14 @@ S7::method(penalty_prox_spec, penalty) <- function(pen, theta, step, ...) {
 #'
 #' @keywords internal
 prox_table <- function(step, n_coef, pieces) {
+  prox_table_j(step, n_coef, function(t, j) pieces(t))
+}
+
+#' @rdname prox_table
+#' @keywords internal
+prox_table_j <- function(step, n_coef, pieces) {
   step <- rep_len(as.numeric(step), n_coef)
-  rows <- lapply(step, pieces)
+  rows <- lapply(seq_len(n_coef), function(j) pieces(step[[j]], j))
   k <- ncol(rows[[1L]])
   m <- function(i) matrix(vapply(rows, function(r) r[i, ], numeric(k)),
                           nrow = n_coef, ncol = k, byrow = TRUE)
@@ -268,10 +274,14 @@ S7::method(penalty_prox_spec, DistribPenalty) <- function(pen, theta, step,
 #' @keywords internal
 S7::method(penalty_prox_spec, ScadPenalty) <- function(pen, theta, step, ...) {
   spec_diag(pen, step, function(pen, step) {
-  lam <- theta$lambda
+  n <- as.integer(pen@n_coef)
+  cv <- curv_of(pen, n)
+  L <- theta$lambda / cv
   a <- theta$a
+  step <- rep_len(as.numeric(step), n) * cv
   if (any(step >= a - 1)) return(NULL)
-  prox_table(step, as.integer(pen@n_coef), function(t) {
+  prox_table_j(step, n, function(t, j) {
+    lam <- L[[j]]
     d <- 1 - t / (a - 1)
     rbind(c(t * lam, (1 + t) * lam, a * lam, Inf),
           c(0, 1, 1 / d, 1),
@@ -286,10 +296,14 @@ S7::method(penalty_prox_spec, ScadPenalty) <- function(pen, theta, step, ...) {
 #' @keywords internal
 S7::method(penalty_prox_spec, McpPenalty) <- function(pen, theta, step, ...) {
   spec_diag(pen, step, function(pen, step) {
-  lam <- theta$lambda
+  n <- as.integer(pen@n_coef)
+  cv <- curv_of(pen, n)
+  L <- theta$lambda / cv
   gam <- theta$gamma
+  step <- rep_len(as.numeric(step), n) * cv
   if (any(step >= gam)) return(NULL)
-  prox_table(step, as.integer(pen@n_coef), function(t) {
+  prox_table_j(step, n, function(t, j) {
+    lam <- L[[j]]
     d <- 1 - t / gam
     rbind(c(t * lam, gam * lam, Inf),
           c(0, 1 / d, 1),

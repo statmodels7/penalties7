@@ -12,7 +12,8 @@ ScadPenalty(
   params = character(0),
   params_bounds = list(),
   link_params = list(),
-  params_smooth = logical(0)
+  params_smooth = logical(0),
+  curv = integer(0)
 )
 
 McpPenalty(
@@ -22,7 +23,8 @@ McpPenalty(
   params = character(0),
   params_bounds = list(),
   link_params = list(),
-  params_smooth = logical(0)
+  params_smooth = logical(0),
+  curv = integer(0)
 )
 }
 \arguments{
@@ -49,10 +51,13 @@ real line.}
 
 \item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
 where the value is differentiable in it.}
+
+\item{curv}{The curvature of the loss in each coordinate of \eqn{D\beta},
+a numeric vector, or \code{numeric(0)} for ones. See \code{\link[=check_curv]{check_curv()}}.}
 }
 \value{
 An S7 object of class \code{ScadPenalty} or \code{McpPenalty}, inheriting from
-\code{\link[=penalty]{penalty()}} and carrying its seven properties and no others.
+\code{\link[=penalty]{penalty()}} and carrying its seven properties and \code{curv}.
 }
 \description{
 \code{ScadPenalty} is the class \code{\link[=scad_penalty]{scad_penalty()}} builds and \code{McpPenalty} the one
@@ -78,9 +83,8 @@ SCAD's is \code{a}, on \eqn{(2, \infty)}, and MCP's is \code{gamma}, on
 S7::S7_inherits(scad_penalty(), ScadPenalty)
 S7::S7_inherits(mcp_penalty(), McpPenalty)
 
-# Neither adds a property to the base class.
-setdiff(names(S7::props(scad_penalty())),
-        names(S7::props(quadratic_penalty(diag(1)))))
+# Both add one property to the base class, the curvature per coordinate.
+setdiff(names(S7::props(scad_penalty())), names(S7::props(lasso_penalty())))
 
 }
 \seealso{
