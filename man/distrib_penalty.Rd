@@ -59,6 +59,14 @@ The normalizing constant comes with the density and is not dropped, so the
 value is exactly the negative log prior density. A free scale or a free
 \eqn{\nu} is then estimable: with the constant dropped, a prior scale could
 be sent to infinity for nothing.
+
+Under a diagonal map, which is what standardization builds, the value also
+carries the Jacobian of \eqn{\beta \mapsto D\beta}: it is
+\eqn{-\sum_i \log f(b_i;\theta) - \sum_j \log\lvert d_j\rvert}, the
+negative log-density of \eqn{\beta} rather than of \eqn{D\beta}. The term
+is constant in \eqn{\beta} and in \eqn{\theta}, so no derivative moves;
+it is what makes a marginal criterion invariant to the units of a
+covariate. Under any other map the value is the density of \eqn{D\beta}.
 }
 
 \section{A multivariate parent}{

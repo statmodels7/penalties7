@@ -15,7 +15,7 @@ QuadraticPenalty(
   P = NULL,
   p_rank = integer(0),
   null_basis = NULL,
-  logpdet_P = integer(0),
+  logpdet_DPD = integer(0),
   DPD = NULL
 )
 }
@@ -48,15 +48,17 @@ where the value is differentiable in it.}
 with as many rows as the map has, or as many as there are coefficients
 when the map is \code{NULL}. A \code{dgCMatrix} under \code{blocks > 1}.}
 
-\item{p_rank}{The rank of \eqn{P}, a single whole number, counted at
-construction by a relative eigenvalue rule.}
+\item{p_rank}{The rank of \eqn{D'PD}, a single whole number, counted at
+construction by a relative eigenvalue rule. Without a map it is the rank of
+\eqn{P}.}
 
 \item{null_basis}{An orthonormal basis of the null space of \eqn{D'PD}, with
 \code{n_coef} rows and \code{n_coef - p_rank} columns, and no columns when the
 penalty is full rank.}
 
-\item{logpdet_P}{The log pseudo-determinant of \eqn{P}: the sum of the
-logarithms of its non-zero eigenvalues. A single number.}
+\item{logpdet_DPD}{The log pseudo-determinant of \eqn{D'PD}: the sum of the
+logarithms of its non-zero eigenvalues. A single number. Without a map it
+is the log pseudo-determinant of \eqn{P}.}
 
 \item{DPD}{The assembled \eqn{D'PD}, an \code{n_coef} by \code{n_coef} matrix, cached
 so that the gradient and the Hessian never re-form it.}
@@ -86,7 +88,7 @@ S7::S7_inherits(pen, QuadraticPenalty)
 # The five derived properties, fixed at construction.
 pen@p_rank
 dim(pen@null_basis)
-pen@logpdet_P
+pen@logpdet_DPD
 
 }
 \seealso{

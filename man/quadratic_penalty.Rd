@@ -47,14 +47,20 @@ a Gaussian random effect: one fixed matrix saying which directions are
 expensive, and one smoothing parameter saying how expensive.
 }
 \section{The value}{
-With \eqn{r} the rank of \eqn{P},
+With \eqn{r} the rank of \eqn{D'PD},
 
 \deqn{\rho(\beta; \lambda) = \tfrac{\lambda}{2}\,(D\beta)'P(D\beta)
   - \tfrac{r}{2}\log\lambda + \tfrac{r}{2}\log 2\pi
-  - \tfrac{1}{2}\log\mathrm{pdet}(P).}
+  - \tfrac{1}{2}\log\mathrm{pdet}(D'PD).}
 
 The last three terms are the normalizing constant of the prior, taken over
-the range of \eqn{P} alone when \eqn{P} is deficient. Penalized-likelihood
+the range of \eqn{D'PD} alone when that matrix is deficient. The constant
+is the one of the matrix applied to \eqn{\beta}, so it carries the map: for
+a diagonal map and a full-rank \eqn{P},
+\eqn{\log\mathrm{pdet}(D'PD) = \log\det P + 2\sum_j\log\lvert d_j\rvert},
+which is the Jacobian of \eqn{\beta \mapsto D\beta}. The value is then the
+negative log-density of a proper prior on \eqn{\beta}, and a marginal
+criterion built on it does not move when a covariate is rescaled. Penalized-likelihood
 software usually drops them, and dropping them makes \eqn{\lambda}
 unestimable: with no \eqn{-\tfrac{r}{2}\log\lambda} the penalty falls to
 zero as \eqn{\lambda} does and the joint maximum runs away.

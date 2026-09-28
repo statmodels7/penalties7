@@ -445,7 +445,7 @@ test_that("a blocked quadratic penalty is the assembled one, without assembling 
 
   expect_identical(b@n_coef, a@n_coef)
   expect_identical(penalty_rank(b), penalty_rank(a))
-  expect_equal(b@logpdet_P, a@logpdet_P)
+  expect_equal(b@logpdet_DPD, a@logpdet_DPD)
   expect_identical(ncol(penalty_null_basis(b)), ncol(penalty_null_basis(a)))
   # the null basis spans the same space: P times it is zero
   N <- as.matrix(penalty_null_basis(b))

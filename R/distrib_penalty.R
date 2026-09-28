@@ -91,6 +91,14 @@ DistribPenalty <- S7::new_class(
 #' \eqn{\nu} is then estimable: with the constant dropped, a prior scale could
 #' be sent to infinity for nothing.
 #'
+#' Under a diagonal map, which is what standardization builds, the value also
+#' carries the Jacobian of \eqn{\beta \mapsto D\beta}: it is
+#' \eqn{-\sum_i \log f(b_i;\theta) - \sum_j \log\lvert d_j\rvert}, the
+#' negative log-density of \eqn{\beta} rather than of \eqn{D\beta}. The term
+#' is constant in \eqn{\beta} and in \eqn{\theta}, so no derivative moves;
+#' it is what makes a marginal criterion invariant to the units of a
+#' covariate. Under any other map the value is the density of \eqn{D\beta}.
+#'
 #' # A multivariate parent
 #'
 #' Centering is the caller's, typically through [distributions7::fixed()] at a
@@ -606,7 +614,8 @@ dp_blockdiag <- function(pen, h, nblk) {
 #' Returns \eqn{-\sum_i \log f(b_i;\theta)}, the negative log-density of the
 #' parent summed over the blocks of \eqn{D\beta}. Because the parent supplies
 #' its own normalizing constant, the value is exactly the negative log prior
-#' density and needs nothing added.
+#' density. Under a diagonal map \eqn{\sum_j\log\lvert d_j\rvert} is
+#' subtracted, the Jacobian that makes it the density of \eqn{\beta}.
 #'
 #' @details
 #' The map is applied, the result reshaped into the parent's argument by
@@ -642,8 +651,10 @@ dp_blockdiag <- function(pen, h, nblk) {
 #' @keywords internal
 S7::method(penalty_value, DistribPenalty) <- function(pen, beta, theta, ...) {
   t <- map_apply(pen, beta)
-  -sum(distributions7::distrib_pdf(pen@parent, dp_arg(pen, t), theta,
-                                   log = TRUE))
+  v <- -sum(distributions7::distrib_pdf(pen@parent, dp_arg(pen, t), theta,
+                                        log = TRUE))
+  dg <- map_diagonal(pen)
+  if (is.null(dg)) v else v - sum(log(abs(dg)))
 }
 
 #' @title Coefficient Derivatives of a Separable Penalty

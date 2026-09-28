@@ -1,3 +1,30 @@
+# penalties7 0.28.0
+
+* **A penalty written on \eqn{D\beta} is now the negative log-density of
+  \eqn{\beta}, the Jacobian of \eqn{\beta \mapsto D\beta} included.**
+  `quadratic_penalty()` takes its normalizing constant from
+  \eqn{\mathrm{pdet}(D'PD)}, the matrix applied to \eqn{\beta}, where it took
+  it from \eqn{\mathrm{pdet}(P)}; the rank is that of \eqn{D'PD} as well.
+  `distrib_penalty()` under a diagonal map, which is what `lasso()` and
+  `enet()` build with `standardize = TRUE`, subtracts
+  \eqn{\sum_j\log\lvert d_j\rvert} from its value. Before this, a
+  standardized ridge and the same ridge on columns standardized by hand gave
+  marginal criteria differing by exactly \eqn{\sum_j \log\mathrm{sd}_j}
+  (37.743116 on `MASS::UScrime`) at every smoothing parameter; they now agree
+  to 4.1e-12, with the same estimate of `lambda`. The criterion no longer
+  moves when a covariate changes its units.
+
+* The term is constant in \eqn{\beta} and in the hyperparameters at a fixed
+  rank, so no estimate and no derivative moves. What moves is the VALUE of
+  the penalty, and with it of a marginal criterion, for a penalty that
+  carries a map. A penalty without a map is unchanged to the last bit: its
+  constant is still read off the values-only decomposition of \eqn{P}.
+
+* The property `logpdet_P` of `QuadraticPenalty` is renamed `logpdet_DPD`,
+  since it is no longer the log pseudo-determinant of \eqn{P} when a map is
+  present. An additive penalty needed nothing: it already assembles
+  \eqn{D'P_kD} before any decomposition.
+
 # penalties7 0.27.0
 
 * **An additive penalty's log pseudo-determinant and its first two

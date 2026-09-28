@@ -21,13 +21,15 @@ NULL
 #' @param P The symmetric positive semidefinite matrix of the quadratic form,
 #'   with as many rows as the map has, or as many as there are coefficients
 #'   when the map is `NULL`. A `dgCMatrix` under `blocks > 1`.
-#' @param p_rank The rank of \eqn{P}, a single whole number, counted at
-#'   construction by a relative eigenvalue rule.
+#' @param p_rank The rank of \eqn{D'PD}, a single whole number, counted at
+#'   construction by a relative eigenvalue rule. Without a map it is the rank of
+#'   \eqn{P}.
 #' @param null_basis An orthonormal basis of the null space of \eqn{D'PD}, with
 #'   `n_coef` rows and `n_coef - p_rank` columns, and no columns when the
 #'   penalty is full rank.
-#' @param logpdet_P The log pseudo-determinant of \eqn{P}: the sum of the
-#'   logarithms of its non-zero eigenvalues. A single number.
+#' @param logpdet_DPD The log pseudo-determinant of \eqn{D'PD}: the sum of the
+#'   logarithms of its non-zero eigenvalues. A single number. Without a map it
+#'   is the log pseudo-determinant of \eqn{P}.
 #' @param DPD The assembled \eqn{D'PD}, an `n_coef` by `n_coef` matrix, cached
 #'   so that the gradient and the Hessian never re-form it.
 #'
@@ -46,7 +48,7 @@ NULL
 #' # The five derived properties, fixed at construction.
 #' pen@p_rank
 #' dim(pen@null_basis)
-#' pen@logpdet_P
+#' pen@logpdet_DPD
 #'
 #' @keywords internal
 #' @export
@@ -57,7 +59,7 @@ QuadraticPenalty <- S7::new_class(
     P = S7::class_any,
     p_rank = S7::class_numeric,
     null_basis = S7::class_any,
-    logpdet_P = S7::class_numeric,
+    logpdet_DPD = S7::class_numeric,
     DPD = S7::class_any
   )
 )
@@ -75,14 +77,20 @@ QuadraticPenalty <- S7::new_class(
 #' @details
 #' # The value
 #'
-#' With \eqn{r} the rank of \eqn{P},
+#' With \eqn{r} the rank of \eqn{D'PD},
 #'
 #' \deqn{\rho(\beta; \lambda) = \tfrac{\lambda}{2}\,(D\beta)'P(D\beta)
 #'   - \tfrac{r}{2}\log\lambda + \tfrac{r}{2}\log 2\pi
-#'   - \tfrac{1}{2}\log\mathrm{pdet}(P).}
+#'   - \tfrac{1}{2}\log\mathrm{pdet}(D'PD).}
 #'
 #' The last three terms are the normalizing constant of the prior, taken over
-#' the range of \eqn{P} alone when \eqn{P} is deficient. Penalized-likelihood
+#' the range of \eqn{D'PD} alone when that matrix is deficient. The constant
+#' is the one of the matrix applied to \eqn{\beta}, so it carries the map: for
+#' a diagonal map and a full-rank \eqn{P},
+#' \eqn{\log\mathrm{pdet}(D'PD) = \log\det P + 2\sum_j\log\lvert d_j\rvert},
+#' which is the Jacobian of \eqn{\beta \mapsto D\beta}. The value is then the
+#' negative log-density of a proper prior on \eqn{\beta}, and a marginal
+#' criterion built on it does not move when a covariate is rescaled. Penalized-likelihood
 #' software usually drops them, and dropping them makes \eqn{\lambda}
 #' unestimable: with no \eqn{-\tfrac{r}{2}\log\lambda} the penalty falls to
 #' zero as \eqn{\lambda} does and the joint maximum runs away.
@@ -223,7 +231,7 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
   keep <- ev > tol * max(ev, 0)
   if (!any(keep)) stop("'P' is the zero matrix.", call. = FALSE)
   r <- sum(keep)
-  logpdet_P <- sum(log(ev[keep]))
+  logpdet <- sum(log(ev[keep]))
 
   # the congruence carries a Matrix map's class into the stored matrix, and
   # the stored matrix is dense at any width in the identity branch already;
@@ -232,6 +240,14 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
   eD <- eigen(DPD, symmetric = TRUE)
   keepD <- eD$values > tol * max(eD$values, 0)
   nb <- eD$vectors[, !keepD, drop = FALSE]
+  # With a map the constant is the one of D'PD, the matrix applied to beta, so
+  # that it carries the Jacobian of beta -> D beta. Without one the two
+  # matrices are the same, and the values-only decomposition above is kept so
+  # that every penalty without a map is unchanged to the last bit.
+  if (!is.null(map)) {
+    r <- sum(keepD)
+    logpdet <- sum(log(eD$values[keepD]))
+  }
 
   QuadraticPenalty(
     penalty_name = "quadratic",
@@ -244,7 +260,7 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
     P = P,
     p_rank = r,
     null_basis = nb,
-    logpdet_P = logpdet_P,
+    logpdet_DPD = logpdet,
     DPD = DPD
   )
 }
@@ -306,7 +322,7 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
     P = Pb,
     p_rank = m * sum(keep),
     null_basis = nb,
-    logpdet_P = m * sum(log(e$values[keep])),
+    logpdet_DPD = m * sum(log(e$values[keep])),
     DPD = Pb
   )
 }
@@ -383,7 +399,7 @@ S7::method(penalty_value, QuadraticPenalty) <- function(pen, beta, theta, ...) {
   lam <- theta[[1]]
   r <- pen@p_rank
   lam / 2 * quad_form(pen, beta) - r / 2 * log(lam) +
-    r / 2 * log(2 * pi) - pen@logpdet_P / 2
+    r / 2 * log(2 * pi) - pen@logpdet_DPD / 2
 }
 
 #' @title Coefficient Derivatives of a Quadratic Penalty
@@ -653,7 +669,7 @@ S7::method(penalty_null_basis, QuadraticPenalty) <- function(pen, ...) {
 S7::method(penalty_logpdet, QuadraticPenalty) <- function(pen, theta, ...) {
   lam <- theta[[1]]
   r <- pen@p_rank
-  list(value = r * log(lam) + pen@logpdet_P,
+  list(value = r * log(lam) + pen@logpdet_DPD,
        grad = list(lambda = r / lam),
        hess = list(lambda_lambda = -r / lam^2))
 }

@@ -21,7 +21,8 @@ A single number.
 Returns \eqn{-\sum_i \log f(b_i;\theta)}, the negative log-density of the
 parent summed over the blocks of \eqn{D\beta}. Because the parent supplies
 its own normalizing constant, the value is exactly the negative log prior
-density and needs nothing added.
+density. Under a diagonal map \eqn{\sum_j\log\lvert d_j\rvert} is
+subtracted, the Jacobian that makes it the density of \eqn{\beta}.
 }
 \details{
 The map is applied, the result reshaped into the parent's argument by
