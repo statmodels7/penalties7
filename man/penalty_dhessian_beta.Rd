@@ -49,7 +49,7 @@ three, because every consumer reads the array along a direction and it has
    \code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=additive_penalty]{additive_penalty()}}, \code{\link[=structured_penalty]{structured_penalty()}} \tab zero \cr
    \code{\link[=distrib_penalty]{distrib_penalty()}} whose parent is quadratic in the argument \tab zero \cr
    \code{\link[=distrib_penalty]{distrib_penalty()}} with a univariate parent otherwise \tab \eqn{-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)\,D} \cr
-   \code{\link[=distrib_penalty]{distrib_penalty()}} with a multivariate parent otherwise \tab rejects \cr
+   \code{\link[=distrib_penalty]{distrib_penalty()}} with a multivariate parent otherwise \tab \eqn{-D'\mathrm{blockdiag}(T_i)D}, \eqn{(T_i)_{ab} = \sum_c \ell^{(y_ay_by_c)}(b_i)(Dv)_{ic}} \cr
    a kinked parent, \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}} \tab rejects \cr
 }
 
@@ -62,9 +62,12 @@ differentiating \eqn{\ell^{(yy)}((D\beta)_j)} in \eqn{\beta_c} gives
 location family and so for a Student t prior.
 
 A multivariate parent that is not quadratic, a multivariate t prior among
-them, would need the third response derivative as an array per block, which
-\pkg{distributions7} does not supply, so it rejects rather than returning a
-matrix missing that piece. Whether the parent is quadratic is asked of
+them, is read through its third response derivative as an array per block,
+\code{\link[distributions7:distrib_deriv3_y]{distributions7::distrib_deriv3_y()}} returning one
+\eqn{p \times p \times p} array per block, whose last index is contracted
+against the block's coordinates of \eqn{Dv} by \code{\link[=dp_contract]{dp_contract()}}. A parent
+that does not supply the array is rejected rather than given a matrix
+missing that piece. Whether the parent is quadratic is asked of
 \code{\link[=beta_quadratic]{beta_quadratic()}} first, so a Gaussian prior of any dimension answers zero
 without reaching the parent at all.
 }

@@ -51,7 +51,7 @@ symmetry of mixed partials.
    quadratic, additive, structured \tab zero \tab zero for every hyperparameter \cr
    separable, parent quadratic in its argument \tab zero \tab zero for every hyperparameter \cr
    separable, univariate parent otherwise \tab \eqn{-D'\mathrm{diag}(\ell^{(yyyy)} \odot Dv \odot Dw)D} \tab \eqn{-D'\mathrm{diag}(\partial_{\theta_m}\ell^{(yyy)} \odot Dv)D} \cr
-   separable, multivariate parent otherwise \tab rejects \tab rejects \cr
+   separable, multivariate parent otherwise \tab the same per block, contracted by \code{\link[=dp_contract]{dp_contract()}} \tab the same per block \cr
    a kinked parent, \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}} \tab rejects \tab rejects \cr
 }
 
@@ -62,7 +62,10 @@ Dv)D} by differentiating \eqn{\ell^{(yyy)}((D\beta)_j)} once more, in
 \eqn{\beta} along \eqn{w} or in \eqn{\theta_m}. The fourth response
 derivative is \code{\link[distributions7:distrib_deriv3_y]{distributions7::distrib_deriv4_y()}} and the mixed one
 \code{\link[distributions7:distrib_cross3_y]{distributions7::distrib_cross3_y()}}, both closed for every location family
-and so for a Student t prior.
+and so for a Student t prior. A multivariate parent supplies the two as
+arrays per block, of \eqn{p^4} and \eqn{p^3} entries, which
+\code{\link[=dp_contract]{dp_contract()}} contracts against the block's coordinates of the
+directions; the multivariate Student t does.
 }
 
 \examples{

@@ -26,8 +26,9 @@ The base class rejects both, naming the penalty. The quadratic, additive and
 structured branches return zero matrices, their Hessian being free of the
 coefficients. The separable branch returns zero where its parent is
 quadratic in the argument, the closed forms of \code{\link[=penalty_d2hessian_beta]{penalty_d2hessian_beta()}}
-otherwise, and rejects for a kinked parent and for a multivariate parent
-that is not quadratic.
+otherwise, contracted per block for a multivariate parent, and rejects for
+a kinked parent and for a multivariate parent that supplies no fourth or
+mixed third response derivative.
 }
 \seealso{
 \code{\link[=penalty_d2hessian_beta]{penalty_d2hessian_beta()}} for the generics.

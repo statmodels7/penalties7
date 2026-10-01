@@ -964,7 +964,7 @@ reject_kinked <- function(pen, what) {
 #' | [quadratic_penalty()], [additive_penalty()], [structured_penalty()] | zero |
 #' | [distrib_penalty()] whose parent is quadratic in the argument | zero |
 #' | [distrib_penalty()] with a univariate parent otherwise | \eqn{-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)\,D} |
-#' | [distrib_penalty()] with a multivariate parent otherwise | rejects |
+#' | [distrib_penalty()] with a multivariate parent otherwise | \eqn{-D'\mathrm{blockdiag}(T_i)D}, \eqn{(T_i)_{ab} = \sum_c \ell^{(y_ay_by_c)}(b_i)(Dv)_{ic}} |
 #' | a kinked parent, [scad_penalty()], [mcp_penalty()] | rejects |
 #'
 #' The univariate row follows from \eqn{S = -D'\mathrm{diag}(\ell^{(yy)}(D\beta))D}:
@@ -975,9 +975,12 @@ reject_kinked <- function(pen, what) {
 #' location family and so for a Student t prior.
 #'
 #' A multivariate parent that is not quadratic, a multivariate t prior among
-#' them, would need the third response derivative as an array per block, which
-#' \pkg{distributions7} does not supply, so it rejects rather than returning a
-#' matrix missing that piece. Whether the parent is quadratic is asked of
+#' them, is read through its third response derivative as an array per block,
+#' [distributions7::distrib_deriv3_y()] returning one
+#' \eqn{p \times p \times p} array per block, whose last index is contracted
+#' against the block's coordinates of \eqn{Dv} by [dp_contract()]. A parent
+#' that does not supply the array is rejected rather than given a matrix
+#' missing that piece. Whether the parent is quadratic is asked of
 #' [beta_quadratic()] first, so a Gaussian prior of any dimension answers zero
 #' without reaching the parent at all.
 #'
@@ -1034,8 +1037,10 @@ penalty_dhessian_beta <- S7::new_generic("penalty_dhessian_beta", "pen",
 #' structured branches return a zero matrix, their Hessian being free of the
 #' coefficients. The separable branch returns zero where its parent is
 #' quadratic in the argument and
-#' \eqn{-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)D} otherwise, and rejects
-#' for a kinked parent and for a multivariate parent that is not quadratic.
+#' \eqn{-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)D} otherwise, with a
+#' block-diagonal middle matrix for a multivariate parent, and rejects for a
+#' kinked parent and for a multivariate parent that supplies no third response
+#' derivative.
 #'
 #' @param pen A [penalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`.
@@ -1091,13 +1096,14 @@ S7::method(penalty_dhessian_beta, DistribPenalty) <- function(pen, beta, theta,
   # the derivative is exactly zero and the parent is not asked for a third
   # derivative it may only have as a stencil, or not at all
   if (isTRUE(beta_quadratic(pen, theta))) return(matrix(0, k, k))
-  if (pen@block > 1L) {
-    stop(sprintf(paste0("'%s' has a multivariate parent that is not quadratic,",
-                        "\n  and its third response derivative per block is not",
-                        " available."),
-                 pen@penalty_name), call. = FALSE)
-  }
   t <- map_apply(pen, beta)
+  if (pen@block > 1L) {
+    a <- dp_arg(pen, t)
+    d3 <- dp_parent_or_reject(pen, "third", distributions7::distrib_deriv3_y,
+                              a, theta)
+    h <- dp_contract(d3, list(dp_arg(pen, map_apply(pen, v))))
+    return(-map_quad_full(pen, dp_blockdiag(pen, h, nrow(a))))
+  }
   d3 <- distributions7::distrib_deriv3_y(pen@parent, t, theta) + 0 * t
   -map_quad(pen, d3 * map_apply(pen, v))
 }
@@ -1131,7 +1137,7 @@ S7::method(penalty_dhessian_beta, DistribPenalty) <- function(pen, beta, theta,
 #' | quadratic, additive, structured | zero | zero for every hyperparameter |
 #' | separable, parent quadratic in its argument | zero | zero for every hyperparameter |
 #' | separable, univariate parent otherwise | \eqn{-D'\mathrm{diag}(\ell^{(yyyy)} \odot Dv \odot Dw)D} | \eqn{-D'\mathrm{diag}(\partial_{\theta_m}\ell^{(yyy)} \odot Dv)D} |
-#' | separable, multivariate parent otherwise | rejects | rejects |
+#' | separable, multivariate parent otherwise | the same per block, contracted by [dp_contract()] | the same per block |
 #' | a kinked parent, [scad_penalty()], [mcp_penalty()] | rejects | rejects |
 #'
 #' The univariate rows follow from
@@ -1140,7 +1146,10 @@ S7::method(penalty_dhessian_beta, DistribPenalty) <- function(pen, beta, theta,
 #' \eqn{\beta} along \eqn{w} or in \eqn{\theta_m}. The fourth response
 #' derivative is [distributions7::distrib_deriv4_y()] and the mixed one
 #' [distributions7::distrib_cross3_y()], both closed for every location family
-#' and so for a Student t prior.
+#' and so for a Student t prior. A multivariate parent supplies the two as
+#' arrays per block, of \eqn{p^4} and \eqn{p^3} entries, which
+#' [dp_contract()] contracts against the block's coordinates of the
+#' directions; the multivariate Student t does.
 #'
 #' @param pen A [penalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`.
@@ -1221,8 +1230,9 @@ penalty_dhessian_beta_theta <- S7::new_generic("penalty_dhessian_beta_theta",
 #' structured branches return zero matrices, their Hessian being free of the
 #' coefficients. The separable branch returns zero where its parent is
 #' quadratic in the argument, the closed forms of [penalty_d2hessian_beta()]
-#' otherwise, and rejects for a kinked parent and for a multivariate parent
-#' that is not quadratic.
+#' otherwise, contracted per block for a multivariate parent, and rejects for
+#' a kinked parent and for a multivariate parent that supplies no fourth or
+#' mixed third response derivative.
 #'
 #' @param pen A [penalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`.
@@ -1278,13 +1288,15 @@ S7::method(penalty_d2hessian_beta, DistribPenalty) <- function(pen, beta,
   reject_kinked(pen, "penalty_d2hessian_beta")
   k <- as.integer(pen@n_coef)
   if (isTRUE(beta_quadratic(pen, theta))) return(matrix(0, k, k))
-  if (pen@block > 1L) {
-    stop(sprintf(paste0("'%s' has a multivariate parent that is not quadratic,",
-                        "\n  and its fourth response derivative per block is",
-                        " not available."),
-                 pen@penalty_name), call. = FALSE)
-  }
   t <- map_apply(pen, beta)
+  if (pen@block > 1L) {
+    a <- dp_arg(pen, t)
+    d4 <- dp_parent_or_reject(pen, "fourth", distributions7::distrib_deriv4_y,
+                              a, theta)
+    h <- dp_contract(d4, list(dp_arg(pen, map_apply(pen, v)),
+                              dp_arg(pen, map_apply(pen, w))))
+    return(-map_quad_full(pen, dp_blockdiag(pen, h, nrow(a))))
+  }
   d4 <- distributions7::distrib_deriv4_y(pen@parent, t, theta) + 0 * t
   -map_quad(pen, d4 * map_apply(pen, v) * map_apply(pen, w))
 }
@@ -1301,15 +1313,85 @@ S7::method(penalty_dhessian_beta_theta, DistribPenalty) <- function(pen, beta,
     return(stats::setNames(lapply(pen@params, function(m) matrix(0, k, k)),
                            pen@params))
   }
-  if (pen@block > 1L) {
-    stop(sprintf(paste0("'%s' has a multivariate parent that is not quadratic,",
-                        "\n  and its mixed third response derivative per block",
-                        " is not available."),
-                 pen@penalty_name), call. = FALSE)
-  }
   t <- map_apply(pen, beta)
+  if (pen@block > 1L) {
+    a <- dp_arg(pen, t)
+    c3 <- dp_parent_or_reject(pen, "mixed third",
+                              distributions7::distrib_cross3_y, a, theta)
+    av <- dp_arg(pen, map_apply(pen, v))
+    return(stats::setNames(lapply(pen@params, function(m)
+      -map_quad_full(pen, dp_blockdiag(pen, dp_contract(c3[[m]], list(av)),
+                                       nrow(a)))), pen@params))
+  }
   tv <- map_apply(pen, v)
   c3 <- distributions7::distrib_cross3_y(pen@parent, t, theta)
   stats::setNames(lapply(pen@params, function(m)
     -map_quad(pen, (c3[[m]] + 0 * t) * tv)), pen@params)
+}
+
+
+#' Contracting a Multivariate Parent's Response Tensor Per Block
+#'
+#' @description
+#' `dp_contract()` contracts the trailing response indices of a per-block
+#' tensor against one direction each: given an array of dimension
+#' \eqn{p \times \dots \times p \times n} and \eqn{m} matrices of \eqn{n}
+#' rows and \eqn{p} columns, it returns the \eqn{p \times p \times n} array
+#' whose slice \eqn{i} is
+#' \eqn{\sum_{c_1 \dots c_m} A_{ab c_1 \dots c_m i}\,v_{1,ic_1}\cdots
+#' v_{m,ic_m}}. That is the movement of a block's response Hessian along the
+#' block's coordinates of the directions, which [dp_blockdiag()] then places
+#' on the diagonal.
+#'
+#' `dp_parent_or_reject()` asks the parent for a response tensor and, where
+#' the parent does not supply one, rejects with the penalty named, so that a
+#' criterion is left without an exact gradient rather than given one missing
+#' a piece.
+#'
+#' @param A A numeric array with \eqn{n} as its last dimension.
+#' @param dirs A list of \eqn{n \times p} matrices, one per contracted index,
+#'   the last index first contracted against the last direction.
+#' @param pen A [DistribPenalty()] object.
+#' @param what A word naming the derivative, for the message.
+#' @param fun The \pkg{distributions7} generic to call.
+#' @param a The parent's argument, from [dp_arg()].
+#' @param theta A named list of the parent's free parameters.
+#'
+#' @return `dp_contract()` a \eqn{p \times p \times n} numeric array.
+#'   `dp_parent_or_reject()` the parent's answer, or an error.
+#'
+#' @seealso [penalty_dhessian_beta()], [penalty_d2hessian_beta()].
+#'
+#' @examples
+#' A <- array(1, c(2, 2, 2, 3))
+#' v <- matrix(c(1, 0, 2, 1, 1, 0), 3, 2)
+#' dim(penalties7:::dp_contract(A, list(v)))
+#'
+#' @keywords internal
+dp_contract <- function(A, dirs) {
+  d <- dim(A)
+  n <- d[length(d)]
+  p <- d[1L]
+  out <- array(0, c(p, p, n))
+  for (i in seq_len(n)) {
+    s <- switch(as.character(length(d)),
+                "4" = A[, , , i], "5" = A[, , , , i])
+    for (k in rev(seq_along(dirs))) {
+      dk <- length(dim(s))
+      s <- apply(s, seq_len(dk - 1L), function(x) sum(x * dirs[[k]][i, ]))
+    }
+    out[, , i] <- s
+  }
+  out
+}
+
+#' @rdname dp_contract
+#' @keywords internal
+dp_parent_or_reject <- function(pen, what, fun, a, theta) {
+  tryCatch(fun(pen@parent, a, theta), error = function(e) {
+    stop(sprintf(paste0("'%s' has a multivariate parent that is not quadratic,",
+                        "\n  and its %s response derivative per block is not",
+                        " available."),
+                 pen@penalty_name, what), call. = FALSE)
+  })
 }

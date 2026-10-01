@@ -1,3 +1,16 @@
+# penalties7 0.30.0
+
+* A separable penalty whose parent is a multivariate family that is not
+  quadratic in its argument (a multivariate Student t prior) answers
+  `penalty_dhessian_beta()`, `penalty_d2hessian_beta()` and
+  `penalty_dhessian_beta_theta()`, where it rejected. Each block's response
+  tensor from \pkg{distributions7} is contracted against the block's
+  coordinates of the directions (`dp_contract()`) and placed on a block
+  diagonal. Against a central difference of the order below the three agree
+  to 5e-10 on matrices of order one. A parent that supplies no such tensor is
+  still rejected with the penalty named. Requires distributions7 0.67.0.
+
+
 # penalties7 0.29.0
 
 * `scad_penalty()` and `mcp_penalty()` take `curv`, the curvature of the loss
