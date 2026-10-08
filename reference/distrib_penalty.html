@@ -17,7 +17,7 @@ on each other while the blocks stay independent."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.27.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,6 +113,13 @@ summed over the blocks, and the mixed block is
 value is exactly the negative log prior density. A free scale or a free
 \(\nu\) is then estimable: with the constant dropped, a prior scale could
 be sent to infinity for nothing.</p>
+<p>Under a diagonal map, which is what standardization builds, the value also
+carries the Jacobian of \(\beta \mapsto D\beta\): it is
+\(-\sum_i \log f(b_i;\theta) - \sum_j \log\lvert d_j\rvert\), the
+negative log-density of \(\beta\) rather than of \(D\beta\). The term
+is constant in \(\beta\) and in \(\theta\), so no derivative moves;
+it is what makes a marginal criterion invariant to the units of a
+covariate. Under any other map the value is the density of \(D\beta\).</p>
     </div>
     <div class="section level2">
     <h2 id="a-multivariate-parent">A multivariate parent<a class="anchor" aria-label="anchor" href="#a-multivariate-parent"></a></h2>

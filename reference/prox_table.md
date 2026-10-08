@@ -9,6 +9,8 @@ step, recycling a step that is the same for every coefficient.
 
 ``` r
 prox_table(step, n_coef, pieces)
+
+prox_table_j(step, n_coef, pieces)
 ```
 
 ## Arguments

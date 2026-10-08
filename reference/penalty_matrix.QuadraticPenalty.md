@@ -79,7 +79,7 @@ N <- penalty_null_basis(pen)
 dim(N)
 #> [1] 5 2
 max(abs(penalty_matrix(pen, list(lambda = 3)) %*% N))
-#> [1] 8.382184e-15
+#> [1] 2.664535e-15
 
 # The log pseudo-determinant is r log(lambda) plus a constant.
 lp <- penalty_logpdet(pen, list(lambda = 3))

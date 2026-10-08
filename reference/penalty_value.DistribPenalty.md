@@ -3,7 +3,8 @@
 Returns \\-\sum_i \log f(b_i;\theta)\\, the negative log-density of the
 parent summed over the blocks of \\D\beta\\. Because the parent supplies
 its own normalizing constant, the value is exactly the negative log
-prior density and needs nothing added.
+prior density. Under a diagonal map \\\sum_j\log\lvert d_j\rvert\\ is
+subtracted, the Jacobian that makes it the density of \\\beta\\.
 
 ## Arguments
 

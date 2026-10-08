@@ -101,9 +101,9 @@ sapply(c(0.5, 1, 2, 8),
 # falls to the constant, the same value the zero vector gives.
 curve <- quadratic_penalty(diag(2), map = diff(diag(4), differences = 2))
 penalty_value(curve, c(1, 2, 3, 4), list(lambda = 5))
-#> [1] 0.2284392
+#> [1] -1.269427
 penalty_value(curve, c(0, 0, 0, 0), list(lambda = 5))
-#> [1] 0.2284392
+#> [1] -1.269427
 penalty_value(curve, c(1, 2, 4, 8), list(lambda = 5))
-#> [1] 12.72844
+#> [1] 11.23057
 ```

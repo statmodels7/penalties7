@@ -13,14 +13,16 @@ scad_penalty(
   map = NULL,
   n_coef = 1L,
   link_lambda = linkfunctions7::log_link(),
-  link_a = linkfunctions7::bounded_link(lwr = 2)
+  link_a = linkfunctions7::bounded_link(lwr = 2),
+  curv = NULL
 )
 
 mcp_penalty(
   map = NULL,
   n_coef = 1L,
   link_lambda = linkfunctions7::log_link(),
-  link_gamma = linkfunctions7::bounded_link(lwr = 1)
+  link_gamma = linkfunctions7::bounded_link(lwr = 1),
+  curv = NULL
 )
 ```
 
@@ -48,6 +50,11 @@ mcp_penalty(
   The link carrying SCAD's shape parameter, bounded below at 2.
   `linkfunctions7::bounded_link(lwr = 2)` by default. `scad_penalty()`
   only.
+
+- curv:
+
+  `NULL` (the default) for unit curvature, or positive numbers, one per
+  coordinate of \\D\beta\\ or one repeated.
 
 - link_gamma:
 
@@ -105,6 +112,20 @@ returns all of them: `0`, \\\pm\lambda\\ and \\\pm a\lambda\\ for SCAD,
 derivative is continuous and the second jumps.
 [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
 asks the object and keeps its grids away from all of them.
+
+## The curvature of the loss
+
+Both are defined on the canonical problem \\\tfrac12(z-\theta)^2 +
+\rho(\theta)\\, whose loss has unit curvature (Fan and Lv 2010), and \\a
+= 3.7\\ is suggested in that problem. A likelihood has curvature \\c_j\\
+in coordinate \\j\\, so `curv` writes the penalty as \\\sum_j
+c_j\\\rho(t_j;\\ \lambda/c_j)\\: the slope at zero stays \\\lambda\\,
+the knee moves to \\a\lambda/c_j\\ (\\\gamma\lambda/c_j\\ for MCP), and
+the ratio of knee to threshold is the shape parameter in every
+coordinate. The proximal operator with step \\s\\ is then the unscaled
+one at step \\s c_j\\ and rate \\\lambda/c_j\\, so where the step is
+\\1/c_j\\ its condition is \\a \> 2\\ and \\\gamma \> 1\\ whatever the
+data. By default `curv` is empty and every coordinate has \\c_j = 1\\.
 
 ## What they are not
 

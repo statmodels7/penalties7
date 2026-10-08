@@ -15,7 +15,7 @@ coefficients."><meta property="og:image" content="https://statmodels7.github.io/
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.27.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,16 +100,19 @@ three, because every consumer reads the array along a direction and it has
     <div class="section level2">
     <h2 id="what-each-branch-answers">What each branch answers<a class="anchor" aria-label="anchor" href="#what-each-branch-answers"></a></h2>
 
-<table class="table table"><tr><td>branch</td><td>\(\partial S/\partial\beta[v]\)</td></tr><tr><td><code><a href="quadratic_penalty.html">quadratic_penalty()</a></code>, <code><a href="additive_penalty.html">additive_penalty()</a></code>, <code><a href="structured_penalty.html">structured_penalty()</a></code></td><td>zero</td></tr><tr><td><code><a href="distrib_penalty.html">distrib_penalty()</a></code> whose parent is quadratic in the argument</td><td>zero</td></tr><tr><td><code><a href="distrib_penalty.html">distrib_penalty()</a></code> with a univariate parent otherwise</td><td>\(-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)\,D\)</td></tr><tr><td><code><a href="distrib_penalty.html">distrib_penalty()</a></code> with a multivariate parent otherwise</td><td>rejects</td></tr><tr><td>a kinked parent, <code><a href="scad_penalty.html">scad_penalty()</a></code>, <code><a href="scad_penalty.html">mcp_penalty()</a></code></td><td>rejects</td></tr></table><p>The univariate row follows from \(S = -D'\mathrm{diag}(\ell^{(yy)}(D\beta))D\):
+<table class="table table"><tr><td>branch</td><td>\(\partial S/\partial\beta[v]\)</td></tr><tr><td><code><a href="quadratic_penalty.html">quadratic_penalty()</a></code>, <code><a href="additive_penalty.html">additive_penalty()</a></code>, <code><a href="structured_penalty.html">structured_penalty()</a></code></td><td>zero</td></tr><tr><td><code><a href="distrib_penalty.html">distrib_penalty()</a></code> whose parent is quadratic in the argument</td><td>zero</td></tr><tr><td><code><a href="distrib_penalty.html">distrib_penalty()</a></code> with a univariate parent otherwise</td><td>\(-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)\,D\)</td></tr><tr><td><code><a href="distrib_penalty.html">distrib_penalty()</a></code> with a multivariate parent otherwise</td><td>\(-D'\mathrm{blockdiag}(T_i)D\), \((T_i)_{ab} = \sum_c \ell^{(y_ay_by_c)}(b_i)(Dv)_{ic}\)</td></tr><tr><td>a kinked parent, <code><a href="scad_penalty.html">scad_penalty()</a></code>, <code><a href="scad_penalty.html">mcp_penalty()</a></code></td><td>rejects</td></tr></table><p>The univariate row follows from \(S = -D'\mathrm{diag}(\ell^{(yy)}(D\beta))D\):
 differentiating \(\ell^{(yy)}((D\beta)_j)\) in \(\beta_c\) gives
 \(\ell^{(yyy)}((D\beta)_j) D_{jc}\), and summing against \(v_c\) gives
 \((Dv)_j\). The third response derivative is read from
 <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_deriv3_y.html" class="external-link">distributions7::distrib_deriv3_y()</a></code>, which is closed form for every
 location family and so for a Student t prior.</p>
 <p>A multivariate parent that is not quadratic, a multivariate t prior among
-them, would need the third response derivative as an array per block, which
-<span class="pkg">distributions7</span> does not supply, so it rejects rather than returning a
-matrix missing that piece. Whether the parent is quadratic is asked of
+them, is read through its third response derivative as an array per block,
+<code><a href="https://statmodels7.github.io/distributions7/reference/distrib_deriv3_y.html" class="external-link">distributions7::distrib_deriv3_y()</a></code> returning one
+\(p \times p \times p\) array per block, whose last index is contracted
+against the block's coordinates of \(Dv\) by <code><a href="dp_contract.html">dp_contract()</a></code>. A parent
+that does not supply the array is rejected rather than given a matrix
+missing that piece. Whether the parent is quadratic is asked of
 <code><a href="beta_quadratic.html">beta_quadratic()</a></code> first, so a Gaussian prior of any dimension answers zero
 without reaching the parent at all.</p>
     </div>
@@ -140,7 +143,7 @@ without reaching the parent at all.</p>
 <span class="r-in"><span><span class="va">num</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="penalty_gradient.html">penalty_hessian</a></span><span class="op">(</span><span class="va">h</span>, <span class="va">b</span> <span class="op">+</span> <span class="va">eps</span> <span class="op">*</span> <span class="va">v</span>, <span class="va">th</span><span class="op">)</span> <span class="op">-</span></span></span>
 <span class="r-in"><span>        <span class="fu"><a href="penalty_gradient.html">penalty_hessian</a></span><span class="op">(</span><span class="va">h</span>, <span class="va">b</span> <span class="op">-</span> <span class="va">eps</span> <span class="op">*</span> <span class="va">v</span>, <span class="va">th</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">eps</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">D</span> <span class="op">-</span> <span class="va">num</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 8.447346e-11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 8.447351e-11</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># A kinked parent has no such derivative at the kink and says so.</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">penalty_dhessian_beta</span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="va">b</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">v</span><span class="op">)</span><span class="op">)</span></span></span>

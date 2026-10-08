@@ -21,7 +21,8 @@ ScadPenalty(
   params = character(0),
   params_bounds = list(),
   link_params = list(),
-  params_smooth = logical(0)
+  params_smooth = logical(0),
+  curv = integer(0)
 )
 
 McpPenalty(
@@ -31,7 +32,8 @@ McpPenalty(
   params = character(0),
   params_bounds = list(),
   link_params = list(),
-  params_smooth = logical(0)
+  params_smooth = logical(0),
+  curv = integer(0)
 )
 ```
 
@@ -74,11 +76,17 @@ McpPenalty(
   A logical vector, one entry per hyperparameter, `TRUE` where the value
   is differentiable in it.
 
+- curv:
+
+  The curvature of the loss in each coordinate of \\D\beta\\, a numeric
+  vector, or `numeric(0)` for ones. See
+  [`check_curv()`](https://statmodels7.github.io/penalties7/reference/check_curv.md).
+
 ## Value
 
 An S7 object of class `ScadPenalty` or `McpPenalty`, inheriting from
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
-and carrying its seven properties and no others.
+and carrying its seven properties and `curv`.
 
 ## Details
 
@@ -116,8 +124,7 @@ S7::S7_inherits(scad_penalty(), ScadPenalty)
 S7::S7_inherits(mcp_penalty(), McpPenalty)
 #> [1] TRUE
 
-# Neither adds a property to the base class.
-setdiff(names(S7::props(scad_penalty())),
-        names(S7::props(quadratic_penalty(diag(1)))))
-#> character(0)
+# Both add one property to the base class, the curvature per coordinate.
+setdiff(names(S7::props(scad_penalty())), names(S7::props(lasso_penalty())))
+#> [1] "curv"
 ```

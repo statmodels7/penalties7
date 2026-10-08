@@ -4,9 +4,10 @@ The base class rejects, naming the penalty. The quadratic, additive and
 structured branches return a zero matrix, their Hessian being free of
 the coefficients. The separable branch returns zero where its parent is
 quadratic in the argument and
-\\-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)D\\ otherwise, and
-rejects for a kinked parent and for a multivariate parent that is not
-quadratic.
+\\-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)D\\ otherwise, with a
+block-diagonal middle matrix for a multivariate parent, and rejects for
+a kinked parent and for a multivariate parent that supplies no third
+response derivative.
 
 ## Arguments
 

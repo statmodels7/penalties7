@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.27.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,21 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.30.0" id="penalties7-0300">penalties7 0.30.0<a class="anchor" aria-label="anchor" href="#penalties7-0300"></a></h2>
+<ul><li>A separable penalty whose parent is a multivariate family that is not quadratic in its argument (a multivariate Student t prior) answers <code><a href="../reference/penalty_dhessian_beta.html">penalty_dhessian_beta()</a></code>, <code><a href="../reference/penalty_d2hessian_beta.html">penalty_d2hessian_beta()</a></code> and <code><a href="../reference/penalty_d2hessian_beta.html">penalty_dhessian_beta_theta()</a></code>, where it rejected. Each block’s response tensor from  is contracted against the block’s coordinates of the directions (<code><a href="../reference/dp_contract.html">dp_contract()</a></code>) and placed on a block diagonal. Against a central difference of the order below the three agree to 5e-10 on matrices of order one. A parent that supplies no such tensor is still rejected with the penalty named. Requires distributions7 0.67.0.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.29.0" id="penalties7-0290">penalties7 0.29.0<a class="anchor" aria-label="anchor" href="#penalties7-0290"></a></h2>
+<ul><li><p><code><a href="../reference/scad_penalty.html">scad_penalty()</a></code> and <code><a href="../reference/scad_penalty.html">mcp_penalty()</a></code> take <code>curv</code>, the curvature of the loss in each coordinate of . SCAD and MCP are defined on the canonical problem , whose loss has unit curvature (Fan and Lv 2010); with <code>curv</code> the penalty is , so the slope at zero stays , the knee moves to  ( for MCP), and the ratio of knee to threshold is the shape parameter in every coordinate. The value, both derivative surfaces, the proximal operator and its piecewise table (<code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code>) all follow; the operator with step  is the unscaled one at step  and rate , so at a step of  its condition is  and  whatever the data. <code><a href="../reference/check_curv.html">check_curv()</a></code> validates the argument.</p></li>
+<li><p>By default <code>curv</code> is empty and a penalty is the one defined before, to the last bit: value, gradient and hyperparameter gradient are <code><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical()</a></code> to those of a penalty built with <code>curv = 1</code>.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.28.0" id="penalties7-0280">penalties7 0.28.0<a class="anchor" aria-label="anchor" href="#penalties7-0280"></a></h2>
+<ul><li><p><strong>A penalty written on  is now the negative log-density of , the Jacobian of  included.</strong> <code><a href="../reference/quadratic_penalty.html">quadratic_penalty()</a></code> takes its normalizing constant from , the matrix applied to , where it took it from ; the rank is that of  as well. <code><a href="../reference/distrib_penalty.html">distrib_penalty()</a></code> under a diagonal map, which is what <code>lasso()</code> and <code>enet()</code> build with <code>standardize = TRUE</code>, subtracts  from its value. Before this, a standardized ridge and the same ridge on columns standardized by hand gave marginal criteria differing by exactly  (37.743116 on <code><a href="https://rdrr.io/pkg/MASS/man/UScrime.html" class="external-link">MASS::UScrime</a></code>) at every smoothing parameter; they now agree to 4.1e-12, with the same estimate of <code>lambda</code>. The criterion no longer moves when a covariate changes its units.</p></li>
+<li><p>The term is constant in  and in the hyperparameters at a fixed rank, so no estimate and no derivative moves. What moves is the VALUE of the penalty, and with it of a marginal criterion, for a penalty that carries a map. A penalty without a map is unchanged to the last bit: its constant is still read off the values-only decomposition of .</p></li>
+<li><p>The property <code>logpdet_P</code> of <code>QuadraticPenalty</code> is renamed <code>logpdet_DPD</code>, since it is no longer the log pseudo-determinant of  when a map is present. An additive penalty needed nothing: it already assembles  before any decomposition.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.27.0" id="penalties7-0270">penalties7 0.27.0<a class="anchor" aria-label="anchor" href="#penalties7-0270"></a></h2>
 <ul><li><p><strong>An additive penalty’s log pseudo-determinant and its first two derivatives are computed by a similarity transformation, so the region 0.26.0 rejected is calculated instead.</strong> <code><a href="../reference/additive_sum.html">additive_sum()</a></code> partitions the components by the size they contribute, , and rotates onto the eigenvectors of the dominant group: with  spanning its range and  its kernel, ,  and  the Schur complement on ,  and  with , both exact and both recursed, so any number of components is served. No decomposition ever has to resolve the spread: measured on an anisotropic <code>te()</code> at <code>k = 5</code>, the dominant block’s condition number is <code>1.066e+01</code> at spreads of ,  and  alike, and the value agrees with the exact asymptote to <code>2.1e-16</code> at .</p></li>

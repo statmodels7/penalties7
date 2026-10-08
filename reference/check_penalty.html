@@ -23,7 +23,7 @@ your own and this says whether its derivatives are right."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.27.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -179,13 +179,13 @@ the siblings this follows.</p></div>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">check_penalty</span><span class="op">(</span><span class="va">pen</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                        check    max_error status</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                         gradient vs numDeriv 4.007727e-11     OK</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          hessian vs numDeriv on the gradient 7.928288e-12     OK</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          hessian vs numDeriv on the gradient 7.080910e-12     OK</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               grad_theta[lambda] vs numDeriv 1.851376e-11     OK</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        hess_theta[lambda_lambda] vs numDeriv 1.488393e-11     OK</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  cross[lambda] vs Richardson on the gradient 1.291110e-11     OK</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  cross[lambda] vs Richardson on the gradient 1.291093e-11     OK</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               quadratic three-point identity 2.296653e-16     OK</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    logpdet linear in log lambda with slope r 4.440892e-16     OK</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            null basis annihilates the matrix 2.775558e-16     OK</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            null basis annihilates the matrix 2.395716e-16     OK</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">status</span> <span class="op">==</span> <span class="st">"OK"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>

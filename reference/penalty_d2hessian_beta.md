@@ -69,7 +69,7 @@ mixed partials.
 | quadratic, additive, structured | zero | zero for every hyperparameter |
 | separable, parent quadratic in its argument | zero | zero for every hyperparameter |
 | separable, univariate parent otherwise | \\-D'\mathrm{diag}(\ell^{(yyyy)} \odot Dv \odot Dw)D\\ | \\-D'\mathrm{diag}(\partial\_{\theta_m}\ell^{(yyy)} \odot Dv)D\\ |
-| separable, multivariate parent otherwise | rejects | rejects |
+| separable, multivariate parent otherwise | the same per block, contracted by [`dp_contract()`](https://statmodels7.github.io/penalties7/reference/dp_contract.md) | the same per block |
 | a kinked parent, [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md), [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md) | rejects | rejects |
 
 The univariate rows follow from \\\partial S/\partial\beta\[v\] =
@@ -79,7 +79,12 @@ The univariate rows follow from \\\partial S/\partial\beta\[v\] =
 [`distributions7::distrib_deriv4_y()`](https://statmodels7.github.io/distributions7/reference/distrib_deriv3_y.html)
 and the mixed one
 [`distributions7::distrib_cross3_y()`](https://statmodels7.github.io/distributions7/reference/distrib_cross3_y.html),
-both closed for every location family and so for a Student t prior.
+both closed for every location family and so for a Student t prior. A
+multivariate parent supplies the two as arrays per block, of \\p^4\\ and
+\\p^3\\ entries, which
+[`dp_contract()`](https://statmodels7.github.io/penalties7/reference/dp_contract.md)
+contracts against the block's coordinates of the directions; the
+multivariate Student t does.
 
 ## See also
 
@@ -106,7 +111,7 @@ D2 <- penalty_d2hessian_beta(h, b, th, v, w)
 num <- (penalty_dhessian_beta(h, b + eps * w, th, v) -
         penalty_dhessian_beta(h, b - eps * w, th, v)) / (2 * eps)
 max(abs(D2 - num))
-#> [1] 1.363723e-11
+#> [1] 2.504424e-11
 
 # The movement in the degrees of freedom.
 Dnu <- penalty_dhessian_beta_theta(h, b, th, v)$nu
@@ -114,7 +119,7 @@ num <- (penalty_dhessian_beta(h, b, list(sigma = 1, nu = 4 + eps), v) -
         penalty_dhessian_beta(h, b, list(sigma = 1, nu = 4 - eps), v)) /
   (2 * eps)
 max(abs(Dnu - num))
-#> [1] 7.828854e-11
+#> [1] 7.828853e-11
 
 # Zero for a quadratic penalty.
 penalty_d2hessian_beta(quadratic_penalty(diag(3)), b, list(lambda = 2), v, w)

@@ -188,7 +188,7 @@ P2 <- crossprod(diff(diag(5), differences = 2))
 bb <- c(0.4, -1.1, 0.7, 0.2, -0.3)
 penalty_value(additive_penalty(list(P2)), bb, list(lambda1 = 3)) -
   penalty_value(quadratic_penalty(P2), bb, list(lambda = 3))
-#> [1] 7.105427e-15
+#> [1] 3.552714e-15
 
 # The stored rank does not move as the parameters spread apart, where an
 # eigenvalue count of the assembled sum does.

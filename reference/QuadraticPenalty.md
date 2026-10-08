@@ -23,7 +23,7 @@ QuadraticPenalty(
   P = NULL,
   p_rank = integer(0),
   null_basis = NULL,
-  logpdet_P = integer(0),
+  logpdet_DPD = integer(0),
   DPD = NULL
 )
 ```
@@ -75,8 +75,8 @@ QuadraticPenalty(
 
 - p_rank:
 
-  The rank of \\P\\, a single whole number, counted at construction by a
-  relative eigenvalue rule.
+  The rank of \\D'PD\\, a single whole number, counted at construction
+  by a relative eigenvalue rule. Without a map it is the rank of \\P\\.
 
 - null_basis:
 
@@ -84,10 +84,11 @@ QuadraticPenalty(
   and `n_coef - p_rank` columns, and no columns when the penalty is full
   rank.
 
-- logpdet_P:
+- logpdet_DPD:
 
-  The log pseudo-determinant of \\P\\: the sum of the logarithms of its
-  non-zero eigenvalues. A single number.
+  The log pseudo-determinant of \\D'PD\\: the sum of the logarithms of
+  its non-zero eigenvalues. A single number. Without a map it is the log
+  pseudo-determinant of \\P\\.
 
 - DPD:
 
@@ -133,6 +134,6 @@ pen@p_rank
 #> [1] 3
 dim(pen@null_basis)
 #> [1] 5 2
-pen@logpdet_P
+pen@logpdet_DPD
 #> [1] 3.912023
 ```

@@ -19,7 +19,7 @@ penalty_dhessian_beta_theta() is
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.27.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,13 +107,16 @@ symmetry of mixed partials.</p>
     <div class="section level2">
     <h2 id="what-each-branch-answers">What each branch answers<a class="anchor" aria-label="anchor" href="#what-each-branch-answers"></a></h2>
 
-<table class="table table"><tr><td>branch</td><td>\(\partial^2 S/\partial\beta^2[v,w]\)</td><td>\(\partial^2 S/\partial\beta\partial\theta_m[v]\)</td></tr><tr><td>quadratic, additive, structured</td><td>zero</td><td>zero for every hyperparameter</td></tr><tr><td>separable, parent quadratic in its argument</td><td>zero</td><td>zero for every hyperparameter</td></tr><tr><td>separable, univariate parent otherwise</td><td>\(-D'\mathrm{diag}(\ell^{(yyyy)} \odot Dv \odot Dw)D\)</td><td>\(-D'\mathrm{diag}(\partial_{\theta_m}\ell^{(yyy)} \odot Dv)D\)</td></tr><tr><td>separable, multivariate parent otherwise</td><td>rejects</td><td>rejects</td></tr><tr><td>a kinked parent, <code><a href="scad_penalty.html">scad_penalty()</a></code>, <code><a href="scad_penalty.html">mcp_penalty()</a></code></td><td>rejects</td><td>rejects</td></tr></table><p>The univariate rows follow from
+<table class="table table"><tr><td>branch</td><td>\(\partial^2 S/\partial\beta^2[v,w]\)</td><td>\(\partial^2 S/\partial\beta\partial\theta_m[v]\)</td></tr><tr><td>quadratic, additive, structured</td><td>zero</td><td>zero for every hyperparameter</td></tr><tr><td>separable, parent quadratic in its argument</td><td>zero</td><td>zero for every hyperparameter</td></tr><tr><td>separable, univariate parent otherwise</td><td>\(-D'\mathrm{diag}(\ell^{(yyyy)} \odot Dv \odot Dw)D\)</td><td>\(-D'\mathrm{diag}(\partial_{\theta_m}\ell^{(yyy)} \odot Dv)D\)</td></tr><tr><td>separable, multivariate parent otherwise</td><td>the same per block, contracted by <code><a href="dp_contract.html">dp_contract()</a></code></td><td>the same per block</td></tr><tr><td>a kinked parent, <code><a href="scad_penalty.html">scad_penalty()</a></code>, <code><a href="scad_penalty.html">mcp_penalty()</a></code></td><td>rejects</td><td>rejects</td></tr></table><p>The univariate rows follow from
 \(\partial S/\partial\beta[v] = -D'\mathrm{diag}(\ell^{(yyy)}(D\beta) \odot
 Dv)D\) by differentiating \(\ell^{(yyy)}((D\beta)_j)\) once more, in
 \(\beta\) along \(w\) or in \(\theta_m\). The fourth response
 derivative is <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_deriv3_y.html" class="external-link">distributions7::distrib_deriv4_y()</a></code> and the mixed one
 <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_cross3_y.html" class="external-link">distributions7::distrib_cross3_y()</a></code>, both closed for every location family
-and so for a Student t prior.</p>
+and so for a Student t prior. A multivariate parent supplies the two as
+arrays per block, of \(p^4\) and \(p^3\) entries, which
+<code><a href="dp_contract.html">dp_contract()</a></code> contracts against the block's coordinates of the
+directions; the multivariate Student t does.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -138,7 +141,7 @@ zero.</p></div>
 <span class="r-in"><span><span class="va">num</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="penalty_dhessian_beta.html">penalty_dhessian_beta</a></span><span class="op">(</span><span class="va">h</span>, <span class="va">b</span> <span class="op">+</span> <span class="va">eps</span> <span class="op">*</span> <span class="va">w</span>, <span class="va">th</span>, <span class="va">v</span><span class="op">)</span> <span class="op">-</span></span></span>
 <span class="r-in"><span>        <span class="fu"><a href="penalty_dhessian_beta.html">penalty_dhessian_beta</a></span><span class="op">(</span><span class="va">h</span>, <span class="va">b</span> <span class="op">-</span> <span class="va">eps</span> <span class="op">*</span> <span class="va">w</span>, <span class="va">th</span>, <span class="va">v</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">eps</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">D2</span> <span class="op">-</span> <span class="va">num</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.363723e-11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.504424e-11</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The movement in the degrees of freedom.</span></span></span>
 <span class="r-in"><span><span class="va">Dnu</span> <span class="op">&lt;-</span> <span class="fu">penalty_dhessian_beta_theta</span><span class="op">(</span><span class="va">h</span>, <span class="va">b</span>, <span class="va">th</span>, <span class="va">v</span><span class="op">)</span><span class="op">$</span><span class="va">nu</span></span></span>
@@ -146,7 +149,7 @@ zero.</p></div>
 <span class="r-in"><span>        <span class="fu"><a href="penalty_dhessian_beta.html">penalty_dhessian_beta</a></span><span class="op">(</span><span class="va">h</span>, <span class="va">b</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">1</span>, nu <span class="op">=</span> <span class="fl">4</span> <span class="op">-</span> <span class="va">eps</span><span class="op">)</span>, <span class="va">v</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span></span></span>
 <span class="r-in"><span>  <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">eps</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">Dnu</span> <span class="op">-</span> <span class="va">num</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.828854e-11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.828853e-11</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Zero for a quadratic penalty.</span></span></span>
 <span class="r-in"><span><span class="fu">penalty_d2hessian_beta</span><span class="op">(</span><span class="fu"><a href="quadratic_penalty.html">quadratic_penalty</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span>, <span class="va">b</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, <span class="va">v</span>, <span class="va">w</span><span class="op">)</span></span></span>

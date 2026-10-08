@@ -1,7 +1,5 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://statmodels7.github.io/penalties7/404.html</loc></url>
-<url><loc>https://statmodels7.github.io/penalties7/LICENSE-text.html</loc></url>
-<url><loc>https://statmodels7.github.io/penalties7/LICENSE.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/articles/defining-a-penalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/articles/index.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/authors.html</loc></url>
@@ -21,6 +19,7 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/as_map.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/beta_quadratic.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/carry_pairs.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/check_curv.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/check_penalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/distrib_kinks.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/distrib_penalty.html</loc></url>
@@ -31,6 +30,7 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/dot-undiag.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/dp_arg.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/dp_blockdiag.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/dp_contract.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/has_jump.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/has_prox.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/index.html</loc></url>

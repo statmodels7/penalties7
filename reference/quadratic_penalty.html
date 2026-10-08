@@ -17,7 +17,7 @@ expensive, and one smoothing parameter saying how expensive."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.27.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,12 +105,18 @@ bounded on \((0, \infty)\).</p>
     </div>
     <div class="section level2">
     <h2 id="the-value">The value<a class="anchor" aria-label="anchor" href="#the-value"></a></h2>
-    <p>With \(r\) the rank of \(P\),</p>
+    <p>With \(r\) the rank of \(D'PD\),</p>
 <p>$$\rho(\beta; \lambda) = \tfrac{\lambda}{2}\,(D\beta)'P(D\beta)
   - \tfrac{r}{2}\log\lambda + \tfrac{r}{2}\log 2\pi
-  - \tfrac{1}{2}\log\mathrm{pdet}(P).$$</p>
+  - \tfrac{1}{2}\log\mathrm{pdet}(D'PD).$$</p>
 <p>The last three terms are the normalizing constant of the prior, taken over
-the range of \(P\) alone when \(P\) is deficient. Penalized-likelihood
+the range of \(D'PD\) alone when that matrix is deficient. The constant
+is the one of the matrix applied to \(\beta\), so it carries the map: for
+a diagonal map and a full-rank \(P\),
+\(\log\mathrm{pdet}(D'PD) = \log\det P + 2\sum_j\log\lvert d_j\rvert\),
+which is the Jacobian of \(\beta \mapsto D\beta\). The value is then the
+negative log-density of a proper prior on \(\beta\), and a marginal
+criterion built on it does not move when a covariate is rescaled. Penalized-likelihood
 software usually drops them, and dropping them makes \(\lambda\)
 unestimable: with no \(-\tfrac{r}{2}\log\lambda\) the penalty falls to
 zero as \(\lambda\) does and the joint maximum runs away.</p>
@@ -186,7 +192,7 @@ several hyperparameters, <code><a href="distrib_penalty.html">distrib_penalty()<
 <span class="r-in"><span><span class="va">curved</span><span class="op">@</span><span class="va">n_coef</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6</span>
 <span class="r-in"><span><span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">curved</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.675754</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.348774</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># blocks = m repeats P without assembling I_m (x) P.</span></span></span>
 <span class="r-in"><span><span class="va">blocked</span> <span class="op">&lt;-</span> <span class="fu">quadratic_penalty</span><span class="op">(</span><span class="va">P</span>, blocks <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>

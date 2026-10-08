@@ -1,5 +1,71 @@
 # Changelog
 
+## penalties7 0.30.0
+
+- A separable penalty whose parent is a multivariate family that is not
+  quadratic in its argument (a multivariate Student t prior) answers
+  [`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md),
+  [`penalty_d2hessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md)
+  and
+  [`penalty_dhessian_beta_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md),
+  where it rejected. Each block’s response tensor from is contracted
+  against the block’s coordinates of the directions
+  ([`dp_contract()`](https://statmodels7.github.io/penalties7/reference/dp_contract.md))
+  and placed on a block diagonal. Against a central difference of the
+  order below the three agree to 5e-10 on matrices of order one. A
+  parent that supplies no such tensor is still rejected with the penalty
+  named. Requires distributions7 0.67.0.
+
+## penalties7 0.29.0
+
+- [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+  and
+  [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+  take `curv`, the curvature of the loss in each coordinate of . SCAD
+  and MCP are defined on the canonical problem , whose loss has unit
+  curvature (Fan and Lv 2010); with `curv` the penalty is , so the slope
+  at zero stays , the knee moves to ( for MCP), and the ratio of knee to
+  threshold is the shape parameter in every coordinate. The value, both
+  derivative surfaces, the proximal operator and its piecewise table
+  ([`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md))
+  all follow; the operator with step is the unscaled one at step and
+  rate , so at a step of its condition is and whatever the data.
+  [`check_curv()`](https://statmodels7.github.io/penalties7/reference/check_curv.md)
+  validates the argument.
+
+- By default `curv` is empty and a penalty is the one defined before, to
+  the last bit: value, gradient and hyperparameter gradient are
+  [`identical()`](https://rdrr.io/r/base/identical.html) to those of a
+  penalty built with `curv = 1`.
+
+## penalties7 0.28.0
+
+- **A penalty written on is now the negative log-density of , the
+  Jacobian of included.**
+  [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
+  takes its normalizing constant from , the matrix applied to , where it
+  took it from ; the rank is that of as well.
+  [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
+  under a diagonal map, which is what `lasso()` and `enet()` build with
+  `standardize = TRUE`, subtracts from its value. Before this, a
+  standardized ridge and the same ridge on columns standardized by hand
+  gave marginal criteria differing by exactly (37.743116 on
+  [`MASS::UScrime`](https://rdrr.io/pkg/MASS/man/UScrime.html)) at every
+  smoothing parameter; they now agree to 4.1e-12, with the same estimate
+  of `lambda`. The criterion no longer moves when a covariate changes
+  its units.
+
+- The term is constant in and in the hyperparameters at a fixed rank, so
+  no estimate and no derivative moves. What moves is the VALUE of the
+  penalty, and with it of a marginal criterion, for a penalty that
+  carries a map. A penalty without a map is unchanged to the last bit:
+  its constant is still read off the values-only decomposition of .
+
+- The property `logpdet_P` of `QuadraticPenalty` is renamed
+  `logpdet_DPD`, since it is no longer the log pseudo-determinant of
+  when a map is present. An additive penalty needed nothing: it already
+  assembles before any decomposition.
+
 ## penalties7 0.27.0
 
 - **An additive penalty’s log pseudo-determinant and its first two

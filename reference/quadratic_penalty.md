@@ -60,14 +60,20 @@ object with one hyperparameter, `lambda`, bounded on \\(0, \infty)\\.
 
 ## The value
 
-With \\r\\ the rank of \\P\\,
+With \\r\\ the rank of \\D'PD\\,
 
 \$\$\rho(\beta; \lambda) = \tfrac{\lambda}{2}\\(D\beta)'P(D\beta) -
 \tfrac{r}{2}\log\lambda + \tfrac{r}{2}\log 2\pi -
-\tfrac{1}{2}\log\mathrm{pdet}(P).\$\$
+\tfrac{1}{2}\log\mathrm{pdet}(D'PD).\$\$
 
 The last three terms are the normalizing constant of the prior, taken
-over the range of \\P\\ alone when \\P\\ is deficient.
+over the range of \\D'PD\\ alone when that matrix is deficient. The
+constant is the one of the matrix applied to \\\beta\\, so it carries
+the map: for a diagonal map and a full-rank \\P\\,
+\\\log\mathrm{pdet}(D'PD) = \log\det P + 2\sum_j\log\lvert d_j\rvert\\,
+which is the Jacobian of \\\beta \mapsto D\beta\\. The value is then the
+negative log-density of a proper prior on \\\beta\\, and a marginal
+criterion built on it does not move when a covariate is rescaled.
 Penalized-likelihood software usually drops them, and dropping them
 makes \\\lambda\\ unestimable: with no \\-\tfrac{r}{2}\log\lambda\\ the
 penalty falls to zero as \\\lambda\\ does and the joint maximum runs
@@ -166,7 +172,7 @@ curved <- quadratic_penalty(diag(4), map = D)
 curved@n_coef
 #> [1] 6
 penalty_value(curved, 1:6, list(lambda = 1))
-#> [1] 3.675754
+#> [1] 1.348774
 
 # blocks = m repeats P without assembling I_m (x) P.
 blocked <- quadratic_penalty(P, blocks = 4)

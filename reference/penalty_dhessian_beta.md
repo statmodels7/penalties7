@@ -64,7 +64,7 @@ and it has \\q^3\\ entries.
 | [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md), [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md), [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md) | zero |
 | [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md) whose parent is quadratic in the argument | zero |
 | [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md) with a univariate parent otherwise | \\-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)\\D\\ |
-| [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md) with a multivariate parent otherwise | rejects |
+| [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md) with a multivariate parent otherwise | \\-D'\mathrm{blockdiag}(T_i)D\\, \\(T_i)\_{ab} = \sum_c \ell^{(y_ay_by_c)}(b_i)(Dv)\_{ic}\\ |
 | a kinked parent, [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md), [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md) | rejects |
 
 The univariate row follows from \\S =
@@ -77,10 +77,14 @@ which is closed form for every location family and so for a Student t
 prior.
 
 A multivariate parent that is not quadratic, a multivariate t prior
-among them, would need the third response derivative as an array per
-block, which distributions7 does not supply, so it rejects rather than
-returning a matrix missing that piece. Whether the parent is quadratic
-is asked of
+among them, is read through its third response derivative as an array
+per block,
+[`distributions7::distrib_deriv3_y()`](https://statmodels7.github.io/distributions7/reference/distrib_deriv3_y.html)
+returning one \\p \times p \times p\\ array per block, whose last index
+is contracted against the block's coordinates of \\Dv\\ by
+[`dp_contract()`](https://statmodels7.github.io/penalties7/reference/dp_contract.md).
+A parent that does not supply the array is rejected rather than given a
+matrix missing that piece. Whether the parent is quadratic is asked of
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
 first, so a Gaussian prior of any dimension answers zero without
 reaching the parent at all.
@@ -115,7 +119,7 @@ eps <- 1e-6
 num <- (penalty_hessian(h, b + eps * v, th) -
         penalty_hessian(h, b - eps * v, th)) / (2 * eps)
 max(abs(D - num))
-#> [1] 8.447346e-11
+#> [1] 8.447351e-11
 
 # A kinked parent has no such derivative at the kink and says so.
 try(penalty_dhessian_beta(lasso_penalty(n_coef = 3), b, list(lambda = 1), v))
