@@ -19,21 +19,27 @@ curv_of(pen, n)
 }
 \value{
 \code{check_curv()} a numeric vector of length \code{n}, or \code{numeric(0)}
-for \code{NULL}; \code{curv_of()} a numeric vector of length \code{n}.
+for \code{NULL}; \code{curv_of()} the stored numeric vector, or a vector of \code{n}
+ones.
 }
 \description{
-Validates the curvature a SCAD or MCP penalty is scaled by, and returns
-it one value per coordinate of \eqn{D\beta}.
+\code{check_curv()} validates the curvature by which a SCAD or MCP penalty is
+scaled and returns it with one value per coordinate of \eqn{D\beta}.
+\code{curv_of()} returns the curvature stored in a penalty.
 }
 \details{
 SCAD and MCP are defined on the canonical problem
-\eqn{\tfrac12(z - \theta)^2 + p_\lambda(\lvert\theta\rvert)}, whose loss
-has unit curvature. Where the loss has curvature \eqn{c_j} in coordinate
-\eqn{j}, the penalty is written \eqn{c_j\,p(t_j;\ \lambda/c_j,\ a)}: the
+\eqn{\tfrac12(z - \theta)^2 + \rho(\theta)}, whose loss has unit
+curvature. Where the loss has curvature \eqn{c_j} in coordinate \eqn{j},
+the penalty of that coordinate is \eqn{c_j\,\rho(t_j;\ \lambda/c_j)}: the
 slope at the origin stays \eqn{\lambda}, and the knee moves to
-\eqn{a\lambda/c_j}, so that the ratio of the knee to the soft threshold is
-\eqn{a} in every coordinate. \code{curv_of()} reads the stored curvature, and
-gives ones where none is stored, which is the penalty as defined without
-this scaling.
+\eqn{a\lambda/c_j} (\eqn{\gamma\lambda/c_j} for MCP), so that the ratio of
+the knee to \eqn{\lambda/c_j} is the shape parameter in every coordinate.
+
+\code{check_curv()} signals an error for an empty vector, a missing, infinite,
+zero or negative value, and a length other than one or \code{n}; a single value
+is repeated \code{n} times. \code{curv_of()} returns the stored curvature, or \code{n}
+ones where none is stored, which is the penalty as defined without this
+scaling. A stored curvature is returned whatever \code{n} is.
 }
 \keyword{internal}

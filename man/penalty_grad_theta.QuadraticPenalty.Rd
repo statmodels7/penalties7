@@ -32,16 +32,17 @@ returns \eqn{D'PD\beta}, which is the gradient with \eqn{\lambda} divided
 out.
 }
 \details{
-The value is affine in \eqn{\lambda} apart from the
+The value is affine in \eqn{\lambda} apart from the term
 \eqn{-\tfrac{r}{2}\log\lambda} of the normalizing constant, so the second
-derivative comes from that term alone and is positive: the value is convex
-in the smoothing parameter, with its minimum at
+derivative comes from that term alone and is positive. The value is
+therefore convex in the smoothing parameter, with its minimum at
 \eqn{\lambda = r / (D\beta)'P(D\beta)}. That is the joint-mode estimate of
-\eqn{\lambda} at fixed coefficients, and it is finite only because the
-constant was kept.
+\eqn{\lambda} at fixed coefficients, and it is finite because the constant
+is kept.
 
-The mixed block carries no \eqn{\lambda} at all, the value being linear in
-it in every coefficient direction.
+The mixed block does not contain \eqn{\lambda}, because the coefficient
+gradient \eqn{\lambda D'PD\beta} is linear in \eqn{\lambda} and its slope
+\eqn{D'PD\beta} does not depend on \eqn{\lambda}.
 }
 \examples{
 pen <- quadratic_penalty(diag(3))

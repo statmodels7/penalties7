@@ -2,26 +2,27 @@
 % Please edit documentation in R/additive_penalty.R
 \name{is_quadratic.AdditivePenalty}
 \alias{is_quadratic.AdditivePenalty}
-\title{An Additive Penalty Is Quadratic in the Coefficients}
+\title{Quadratic Form of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{\link[=additive_penalty]{additive_penalty()}} object.}
+\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{...}{Unused, and accepted so the signature matches the generic's.}
+\item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
 \code{TRUE}.
 }
 \description{
-Answers \code{TRUE}. A sum of quadratic forms is a quadratic form, so this branch
-has the matrix, the rank, the null basis and the log pseudo-determinant that
-\code{\link[=is_quadratic]{is_quadratic()}} gates, and a marginal criterion can read them. What is
-particular about it is that the matrix moves with one hyperparameter per
-component, where the plain quadratic branch has one scale, so the log
-pseudo-determinant is
-not linear in any one of them and \code{\link[=check_penalty]{check_penalty()}} compares its gradient
-against \code{numDeriv} where the plain quadratic branch reads a slope.
+Returns \code{TRUE}. A sum of quadratic forms is a quadratic form, so this class
+has methods for the matrix, the rank, the null basis and the log
+pseudo-determinant that \code{\link[=is_quadratic]{is_quadratic()}} gates, and a marginal criterion
+can read them. The matrix moves with one hyperparameter per component,
+whereas the plain quadratic branch has one scale, so the log
+pseudo-determinant is not linear in the logarithm of any one parameter, and
+\code{\link[=check_penalty]{check_penalty()}} compares its gradient with \code{numDeriv} where the plain
+quadratic branch checks a slope.
 }
 \seealso{
-\code{\link[=penalty_matrix.AdditivePenalty]{penalty_matrix.AdditivePenalty()}} for the quantities this admits.
+\code{\link[=penalty_matrix.AdditivePenalty]{penalty_matrix.AdditivePenalty()}} for the quantities that this
+predicate gates.
 }
 \keyword{internal}

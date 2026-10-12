@@ -20,17 +20,17 @@ A single number.
 \description{
 Returns the negative log-density of the Gaussian prior with precision
 \eqn{\lambda D'PD}, evaluated by adding the constant to the quadratic form.
-Every term is closed in \eqn{\lambda}, the rank and the log
-pseudo-determinant of \eqn{P} having been fixed at construction.
+Every term is closed form in \eqn{\lambda}, the rank and the log
+pseudo-determinant of \eqn{D'PD} having been fixed at construction.
 }
 \details{
 \deqn{\rho(\beta; \lambda) = \frac{\lambda}{2}\,(D\beta)'P(D\beta)
   - \frac{r}{2}\log\lambda + \frac{r}{2}\log 2\pi
-  - \frac{1}{2}\log\mathrm{pdet}(P),}
+  - \frac{1}{2}\log\mathrm{pdet}(D'PD),}
 
-with \eqn{r} the stored rank. At \eqn{\beta = 0} the value is the constant
-alone and still moves with \eqn{\lambda}, so the smoothing parameter stays
-estimable from a joint objective.
+with \eqn{r} the stored rank of \eqn{D'PD}. At \eqn{\beta = 0} the value is
+the constant alone and still depends on \eqn{\lambda}, so the smoothing
+parameter remains estimable from a joint objective.
 }
 \examples{
 # A full-rank penalty is a proper prior, so the value is a log-density.
@@ -39,7 +39,7 @@ b <- c(0.4, -1.1, 0.7)
 all.equal(penalty_value(pen, b, list(lambda = 2)),
           -sum(stats::dnorm(b, sd = 1 / sqrt(2), log = TRUE)))
 
-# The constant alone, at the origin, and how it moves with lambda.
+# The constant alone, at the origin, at three values of lambda.
 sapply(c(0.5, 2, 8),
        function(l) penalty_value(pen, c(0, 0, 0), list(lambda = l)))
 

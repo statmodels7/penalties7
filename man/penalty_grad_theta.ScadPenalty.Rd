@@ -33,19 +33,24 @@ derivatives, \code{penalty_hess_theta()} the three second derivatives, and
 hyperparameter.
 }
 \details{
-Each region contributes its own expression and the sums run over the
-coordinates that fall in it. In \eqn{u \le \lambda} the value is
-\eqn{\lambda u}, so \eqn{\partial\rho/\partial\lambda = u} and the shape
-does not enter; beyond \eqn{a\lambda} the value is
-\eqn{(a+1)\lambda^2/2}, so \eqn{\partial\rho/\partial\lambda =
-(a+1)\lambda} and \eqn{\partial\rho/\partial a = \lambda^2/2}, neither
-depending on the coefficient at all.
+Each region contributes its own expression, and the sums run over the
+coordinates that fall in it. At unit curvature, in \eqn{u \le \lambda} the
+value is \eqn{\lambda u}, so \eqn{\partial\rho/\partial\lambda = u} and the
+shape does not enter; over the taper
+\eqn{\partial\rho/\partial\lambda = (au - \lambda)/(a-1)} and
+\eqn{\partial\rho/\partial a = (u - \lambda)^2/(2(a-1)^2)}; beyond
+\eqn{a\lambda} the value is \eqn{(a+1)\lambda^2/2}, so
+\eqn{\partial\rho/\partial\lambda = (a+1)\lambda} and
+\eqn{\partial\rho/\partial a = \lambda^2/2}, and neither depends on the
+coefficient. With curvature \eqn{c_j} the coordinate contributes
+\eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, and each derivative follows by the
+chain rule through \eqn{\lambda/c_j}.
 
-These derivatives exist, and no marginal criterion can use them: a Laplace
-expansion needs the penalty to be twice differentiable at the mode, and a
-mode with a coefficient held at zero sits on the kink. What they serve is a
-joint step in which the hyperparameters are estimated alongside the
-coefficients, and \code{\link[=check_penalty]{check_penalty()}}, which compares them against
+A marginal criterion cannot use these derivatives: a Laplace expansion
+requires the penalty to be twice differentiable at the mode, and a mode
+with a coefficient held at zero lies on the kink. The derivatives are used
+in a joint step that estimates the hyperparameters together with the
+coefficients, and by \code{\link[=check_penalty]{check_penalty()}}, which compares them with
 \pkg{numDeriv}.
 }
 \examples{
@@ -56,8 +61,8 @@ b <- c(0.5, 2, 5)
 penalty_grad_theta(pen, b, th)
 penalty_hess_theta(pen, b, th)
 
-# A coordinate past a * lambda contributes lambda^2 / 2 to the shape
-# derivative and nothing to the mixed block.
+# The coordinate at 5, past a * lambda, contributes lambda^2 / 2 to the
+# derivative in a above and zero to the cross derivative in a.
 penalty_cross(pen, b, th)$a
 
 }

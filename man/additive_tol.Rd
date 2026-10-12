@@ -2,7 +2,7 @@
 % Please edit documentation in R/additive_penalty.R
 \name{additive_tol}
 \alias{additive_tol}
-\title{The Gap at Which the Components Are Split}
+\title{The Split Threshold of the Components}
 \usage{
 additive_tol()
 }
@@ -10,30 +10,20 @@ additive_tol()
 A single number.
 }
 \description{
-A component whose contribution \eqn{\lambda_k\lVert P_k\rVert} is at least
-this fraction of the largest joins the dominant group; the rest are carried
-to the next level.
+Returns \eqn{\epsilon^{0.4}} (about \code{5.5e-07}), with \eqn{\epsilon} the
+machine precision. In \code{\link[=additive_stable]{additive_stable()}}, a component whose contribution
+\eqn{\lambda_k\max_{ij}\lvert(P_k)_{ij}\rvert} is at least this fraction of
+the largest contribution joins the dominant group, and the other components
+are carried to the next level.
 }
 \details{
-The constant is measured here and not taken from elsewhere, and the sweep
-that chose it has a clear interior optimum. A smaller value widens the
-dominant group, so one decomposition must resolve a spread of up to its
-reciprocal; a larger one narrows it, so the recursion runs deeper and every
-level adds the rounding of one more reduction. Measured on the rank
-identity of \code{\link[=additive_check_tol]{additive_check_tol()}}, worst case over nine shapes and 200
-parameter vectors each drawn over the range a fit visits:\tabular{lllllll}{
-   \code{d_tol} \tab \eqn{\epsilon^{0.25}} \tab \eqn{\epsilon^{0.30}} \tab \eqn{\epsilon^{0.35}} \tab \eqn{\epsilon^{0.40}} \tab \eqn{\epsilon^{0.50}} \tab \eqn{\epsilon^{0.60}} \cr
-   worst \tab 2.8e-01 \tab 2.8e-01 \tab 5.3e-05 \tab 5.3e-05 \tab 1.4e-03 \tab 2.2e-03 \cr
-}
-
-
-\pkg{mgcv}'s \code{gam.reparam} uses \eqn{\epsilon^{0.3}} for the same job. It
-is measurably worse on the structures this package builds, which is what
-the sweep is for: a constant tuned on another package's penalties is tuned
-on another package's spreads. The one-sided normalization an anisotropic
-\code{te()} applies to its margins leaves them incommensurable by as much as
-\code{7.5e+04} before any parameter is estimated, so the spreads reached here
-are not the spreads reached there.
+The threshold balances two sources of rounding. A smaller value widens the
+dominant group, so one decomposition must resolve a spread of up to the
+reciprocal of the threshold. A larger value narrows the group, so the
+recursion runs deeper and every level adds the rounding of one more
+reduction. The exponent 0.4 was chosen on the rank identity of
+\code{\link[=additive_check_tol]{additive_check_tol()}}; \pkg{mgcv}'s \code{gam.reparam} uses
+\eqn{\epsilon^{0.3}} in the same role.
 }
 \seealso{
 \code{\link[=additive_stable]{additive_stable()}}, which reads it.

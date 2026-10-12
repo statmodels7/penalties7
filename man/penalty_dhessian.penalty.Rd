@@ -5,9 +5,10 @@
 \alias{penalty_d2hessian.penalty}
 \alias{penalty_dcross.penalty}
 \alias{beta_quadratic.penalty}
-\title{What the Base Class Answers to the Marginal Generics}
+\title{Base Class Methods of the Marginal Generics}
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of a class registering none of these.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of a class that registers none of these
+methods.}
 
 \item{beta}{A numeric vector of coefficients. Unused.}
 
@@ -20,25 +21,28 @@
 signal an error. \code{beta_quadratic()} returns the single logical \code{FALSE}.
 }
 \description{
-One page for the base class's answers to the four generics a marginal
-criterion asks beyond the second order. \code{penalty_dhessian()},
-\code{penalty_d2hessian()} and \code{penalty_dcross()} each reject, naming the penalty
-and the generic; \code{beta_quadratic()} answers \code{FALSE}.
+The methods of the base class for the four generics that a marginal
+criterion requires beyond the second order. \code{penalty_dhessian()},
+\code{penalty_d2hessian()} and \code{penalty_dcross()} each signal an error that
+names the penalty and the generic; \code{beta_quadratic()} returns \code{FALSE}.
+\code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}} register none of the four and reach
+these methods.
 }
 \details{
-A marginal criterion is a Laplace approximation and asks for derivatives
-beyond the second. A penalty that does not supply them cannot be estimated
-by one, and reporting that is better than a criterion assembled from a
-quantity nobody wrote. \code{penalty_dhessian()}'s message says so in full; the
-other two name the generic alone, a caller who has reached the second having
-already read the first.
+A marginal criterion based on a Laplace approximation requires derivatives
+of the penalty beyond the second order. For a penalty that does not supply
+them, these methods signal an error, so the hyperparameters of such a
+penalty cannot be estimated by a marginal criterion. The message of
+\code{penalty_dhessian()} states that consequence; the messages of
+\code{penalty_d2hessian()} and \code{penalty_dcross()} name only the penalty and the
+generic.
 
-\code{beta_quadratic()}'s \code{FALSE} is the conservative default: a penalty that
-says nothing about its third \eqn{\beta}-derivative is treated as having
-one.
+The \code{FALSE} of \code{beta_quadratic()} is the conservative default: a penalty
+class without a method of its own is treated as having a third
+\eqn{\beta}-derivative.
 }
 \seealso{
 \code{\link[=penalty_dhessian]{penalty_dhessian()}} and its siblings for the generics,
-\code{\link[=penalty_dhessian.QuadraticPenalty]{penalty_dhessian.QuadraticPenalty()}} for a branch that answers.
+\code{\link[=penalty_dhessian.QuadraticPenalty]{penalty_dhessian.QuadraticPenalty()}} for a branch that supplies them.
 }
 \keyword{internal}

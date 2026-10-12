@@ -20,11 +20,13 @@ diagonal under the identity map and negative semidefinite always.
 }
 \description{
 \code{penalty_gradient()} returns MCP's defining derivative carried back through
-the map, and \code{penalty_hessian()} its second derivative, which is
-\eqn{-1/\gamma} inside the taper and zero beyond it.
+the map, and \code{penalty_hessian()} its second derivative carried back through
+the map. At unit curvature the second derivative is \eqn{-1/\gamma} inside
+the taper and zero beyond it.
 }
 \details{
-On each coordinate, with \eqn{u = \lvert t\rvert} and \eqn{s} its sign,
+With unit curvature, on each coordinate, with \eqn{u = \lvert t\rvert} and
+\eqn{s} its sign,
 
 \deqn{\frac{\partial\rho}{\partial t}
     = s\,(\lambda - u/\gamma)_{+}, \qquad
@@ -32,16 +34,21 @@ On each coordinate, with \eqn{u = \lvert t\rvert} and \eqn{s} its sign,
   \begin{cases} -1/\gamma & u \le \gamma\lambda \\
     0 & u > \gamma\lambda. \end{cases}}
 
-The Hessian is \strong{negative} wherever the penalty is doing anything, which is
-the non-convexity MCP is named for, and it is constant there: MCP is the
-penalty with the least curvature among those that threshold at rate
-\eqn{\lambda} and reach zero bias by \eqn{\gamma\lambda}. A penalized
-objective stays convex only while the likelihood's own curvature exceeds
-\eqn{1/\gamma}.
+With curvature \eqn{c_j} the taper ends at \eqn{\gamma\lambda/c_j}, the
+first derivative is \eqn{s\,(\lambda - c_j u/\gamma)_{+}}, and the second
+derivative inside the taper is \eqn{-c_j/\gamma}.
 
-At \eqn{t = 0} the sign is zero, so the gradient returned is \code{0}: one
-element of the subdifferential \eqn{[-\lambda, \lambda]}. Selection happens
-through \code{\link[=penalty_prox]{penalty_prox()}}.
+The Hessian is \strong{negative} wherever the penalty is not constant, which is
+the non-convexity in the name of MCP, and it is constant there. Among the
+penalties whose derivative is \eqn{\lambda} at the origin and zero beyond
+\eqn{\gamma\lambda}, MCP has the smallest maximum concavity, the supremum
+of \eqn{-\rho''} (Zhang 2010). A penalized objective stays convex only while
+the curvature of the likelihood in each coordinate exceeds \eqn{1/\gamma}
+(\eqn{c_j/\gamma} with \code{curv}).
+
+At \eqn{t = 0} the sign is zero, so the gradient returned is \code{0}, one
+element of the subdifferential \eqn{[-\lambda, \lambda]}. Exact zeros are
+produced by \code{\link[=penalty_prox]{penalty_prox()}}.
 }
 \examples{
 pen <- mcp_penalty(n_coef = 3)

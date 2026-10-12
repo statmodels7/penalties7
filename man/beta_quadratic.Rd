@@ -10,53 +10,61 @@ beta_quadratic(pen, theta, ...)
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same. Read by the separable branch, to evaluate the
-parent; the other branches answer a constant.}
+vector carrying the same, holding every name in \code{pen@params}. The
+generic checks it as \code{\link[=penalty_dhessian]{penalty_dhessian()}} does, so a missing
+hyperparameter or a value outside its open bounds is an error on every
+branch. The separable branch evaluates the parent at it, and the other
+branches return a constant without reading its values.}
 
 \item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
-A single logical. \code{FALSE} from the base class, so a penalty that
-says nothing is treated as needing the third derivative.
+A single logical. The base class returns \code{FALSE}, so a penalty
+class without a method of its own is treated as needing the third
+derivative.
 }
 \description{
-\code{TRUE} when \eqn{\partial^3\rho/\partial\beta^3} is exactly zero, so a
-consumer can skip that third derivative altogether. Asked of the penalty
-rather than measured by a consumer, which would be guessing at a property
-the penalty knows.
+\code{TRUE} when \eqn{\partial^3\rho/\partial\beta^3} is exactly zero, so that a
+consumer can skip that third derivative. The value comes from a method of
+the class of the penalty, so a consumer does not have to test the property
+numerically.
 }
 \section{Three independent properties}{
-This is not \code{\link[=is_quadratic]{is_quadratic()}}, which is about the whole construction. The
-three questions a consumer may ask are independent:\tabular{llll}{
+This predicate differs from \code{\link[=is_quadratic]{is_quadratic()}}, which reports whether the
+penalty is a quadratic form whose matrix, rank and log pseudo-determinant
+are available through \code{\link[=penalty_matrix]{penalty_matrix()}} and its siblings. The two
+predicates and the linearity of \eqn{S} in \eqn{\theta} are independent
+properties:\tabular{llll}{
    penalty \tab \code{is_quadratic()} \tab \code{beta_quadratic()} \tab \eqn{S} linear in \eqn{\theta} \cr
    \code{\link[=quadratic_penalty]{quadratic_penalty()}} \tab \code{TRUE} \tab \code{TRUE} \tab yes \cr
    \code{\link[=structured_penalty]{structured_penalty()}} \tab \code{TRUE} \tab \code{TRUE} \tab no \cr
-   \code{\link[=additive_penalty]{additive_penalty()}} \tab \code{FALSE} \tab \code{TRUE} \tab yes \cr
+   \code{\link[=additive_penalty]{additive_penalty()}} \tab \code{TRUE} \tab \code{TRUE} \tab yes \cr
    a Gaussian \code{\link[=distrib_penalty]{distrib_penalty()}} \tab \code{FALSE} \tab \code{TRUE} \tab no \cr
    \code{\link[=heavy_penalty]{heavy_penalty()}} \tab \code{FALSE} \tab \code{FALSE} \tab no \cr
 }
 }
 
-\section{How the separable branch answers}{
-By probing, not by differentiating three times. The log-density is quadratic
-in the response exactly when its second derivative there does not depend on
-it, so \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}} is read at four points and
-compared for constancy at a tolerance of \code{1e-12}. The question is put to the
-second derivative because that one is analytic for almost every family,
-where the third is often a finite difference whose noise no threshold
-separates from a true zero.
+\section{The method of the separable branch}{
+The log-density is quadratic in the response exactly when its second
+derivative in the response does not depend on the response. The method
+therefore evaluates \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}} of the parent at four
+points and tests whether the values agree across the points with
+\code{\link[=all.equal]{all.equal()}} at a tolerance of \code{1e-12}, which is a relative tolerance. No
+third derivative is computed. The page
+\code{\link[=beta_quadratic.DistribPenalty]{beta_quadratic.DistribPenalty()}} describes the points and the multivariate
+case.
 }
 
-\section{What \code{TRUE} does not promise}{
-It does not say the marginal derivatives are available. A lasso answers
-\code{TRUE}, its log-density being linear in the response away from the kink, and
-\code{\link[=penalty_dhessian]{penalty_dhessian()}} still rejects for it: the third derivative is zero
-where it exists and undefined at the kink, which is where a selecting fit
-puts its coefficients.
+\section{The meaning of \code{TRUE}}{
+\code{TRUE} does not imply that the marginal derivatives are available. A lasso
+gives \code{TRUE}, because its log-density is linear in the response away from
+the kink, and \code{\link[=penalty_dhessian]{penalty_dhessian()}} still signals an error for it: the third
+derivative is zero where it exists and undefined at the kink, which is where
+a selecting fit places its coefficients.
 }
 
 \examples{
-# The two branches that answer TRUE to both predicates.
+# Two of the three branches that give TRUE for both predicates.
 beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
 beta_quadratic(structured_penalty(
   parameters7::log_cholesky(2)),
@@ -78,7 +86,8 @@ try(penalty_dhessian(lasso_penalty(n_coef = 3), c(1, 0, -1),
 
 }
 \seealso{
-\code{\link[=is_quadratic]{is_quadratic()}} for the different question about the
-construction, \code{\link[=penalty_dhessian]{penalty_dhessian()}} for what a consumer skips when this is
-\code{TRUE}, \code{\link[=penalty_hessian]{penalty_hessian()}} for the derivative that is then constant.
+\code{\link[=is_quadratic]{is_quadratic()}} for the property of the construction,
+\code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}} for the derivative that is zero when this is
+\code{TRUE}, \code{\link[=penalty_hessian]{penalty_hessian()}} for the Hessian that is then constant in the
+coefficients.
 }

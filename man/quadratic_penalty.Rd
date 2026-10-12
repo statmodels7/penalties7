@@ -14,13 +14,21 @@ quadratic_penalty(
 }
 \arguments{
 \item{P}{A symmetric positive semidefinite matrix, for instance a
-\pkg{basis7} Gram matrix or a difference penalty \eqn{D_k'D_k}. Symmetry
-is checked to a relative tolerance of \code{1e-8} and the matrix is symmetrized
-before use; a zero matrix is rejected.}
+\pkg{basis7} Gram matrix or a difference penalty \eqn{D_k'D_k}. A matrix
+with an entry that is not finite (\code{NA}, \code{NaN} or infinite) is rejected.
+Symmetry is checked to a tolerance of \code{1e-8} times the larger of 1 and
+the largest absolute entry of \code{P}, and the matrix is symmetrized before
+use. A matrix whose largest eigenvalue is not positive (a zero or
+negative semidefinite matrix) is rejected, and so is one with an
+eigenvalue below \code{-tol} times the largest.}
 
 \item{map}{The matrix \eqn{D}, with as many rows as \eqn{P} and one column
 per coefficient, or \code{NULL} (the default) for the identity, and then
-\code{n_coef} is \code{nrow(P)}. A \pkg{Matrix} object keeps its own storage.}
+\code{n_coef} is \code{nrow(P)}. A \pkg{Matrix} object keeps its own storage. A map
+with an entry that is not finite is rejected, and so is a map for which
+\eqn{D'PD} has no positive eigenvalue; a map that
+annihilates \eqn{P} only up to rounding is not detected (see the
+details).}
 
 \item{blocks}{How many times \eqn{P} is repeated blockwise, a whole number
 of at least 1. \code{1L}, the default, is the ordinary single-block penalty.
@@ -31,8 +39,10 @@ the whole real line. \code{linkfunctions7::log_link()} by default, \eqn{\lambda}
 being positive.}
 
 \item{tol}{The relative eigenvalue tolerance of the rank rule, \code{1e-10} by
-default. An eigenvalue at or below \code{tol} times the largest counts as zero,
-so its direction joins the null space and is not penalized.}
+default. An eigenvalue of \eqn{D'PD} at or below \code{tol} times the largest
+counts as zero, so its direction joins the null space and is not
+penalized. The same tolerance bounds the negative eigenvalues of \eqn{P}
+that are accepted as rounding errors.}
 }
 \value{
 A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object with one hyperparameter, \code{lambda},
@@ -42,9 +52,9 @@ bounded on \eqn{(0, \infty)}.
 Builds the penalty \eqn{\tfrac{\lambda}{2}(D\beta)'P(D\beta)} together with
 the constant that makes it a density, so the value returned is exactly the
 negative log-density of the Gaussian prior with precision
-\eqn{\lambda D'PD}. This is the penalty behind a spline smooth, a ridge and
-a Gaussian random effect: one fixed matrix saying which directions are
-expensive, and one smoothing parameter saying how expensive.
+\eqn{\lambda D'PD}. This is the penalty of a spline smooth, a ridge and a
+Gaussian random effect: one fixed matrix that weights the directions of the
+coefficients, and one smoothing parameter that scales the weights.
 }
 \section{The value}{
 With \eqn{r} the rank of \eqn{D'PD},
@@ -54,58 +64,70 @@ With \eqn{r} the rank of \eqn{D'PD},
   - \tfrac{1}{2}\log\mathrm{pdet}(D'PD).}
 
 The last three terms are the normalizing constant of the prior, taken over
-the range of \eqn{D'PD} alone when that matrix is deficient. The constant
-is the one of the matrix applied to \eqn{\beta}, so it carries the map: for
-a diagonal map and a full-rank \eqn{P},
+the range of \eqn{D'PD} alone when that matrix is rank deficient. The
+constant is the one of the matrix applied to \eqn{\beta}, so it carries the
+map. For a diagonal map with non-zero entries \eqn{d_j} and a full-rank
+\eqn{P},
 \eqn{\log\mathrm{pdet}(D'PD) = \log\det P + 2\sum_j\log\lvert d_j\rvert},
-which is the Jacobian of \eqn{\beta \mapsto D\beta}. The value is then the
-negative log-density of a proper prior on \eqn{\beta}, and a marginal
-criterion built on it does not move when a covariate is rescaled. Penalized-likelihood
-software usually drops them, and dropping them makes \eqn{\lambda}
-unestimable: with no \eqn{-\tfrac{r}{2}\log\lambda} the penalty falls to
-zero as \eqn{\lambda} does and the joint maximum runs away.
+and \eqn{\sum_j\log\lvert d_j\rvert} is the log Jacobian of
+\eqn{\beta \mapsto D\beta}. The value is then the negative log-density of a
+proper Gaussian prior on \eqn{\beta}, and a marginal criterion built on it
+does not change when a covariate is multiplied by a factor and the map
+multiplies the coefficient of that covariate by the same factor. The
+constant also makes \eqn{\lambda} estimable from a joint objective: without
+the term
+\eqn{-\tfrac{r}{2}\log\lambda} the penalty decreases to zero with
+\eqn{\lambda}, and the joint maximum moves to the boundary
+\eqn{\lambda \to 0}.
 }
 
-\section{The rank, and why it is fixed at construction}{
-One eigendecomposition fixes the rank by the relative rule
-\eqn{\mathrm{ev} > \mathtt{tol} \cdot \max(\mathrm{ev})}, and stores the
-exact null basis of \eqn{D'PD}. That is a statement about the matrix, not
-about whichever arithmetic is later performed on it, and it is what keeps
-the answer stable: a rank recounted from an assembled sum of several
-penalties falls as their smoothing parameters spread apart, while the true
-null space is the intersection of the components' and does not move.
+\section{The rank and the null basis}{
+The rank is counted at construction by the relative rule
+\eqn{\mathrm{ev} > \mathtt{tol} \cdot \max(\mathrm{ev})} on the eigenvalues
+of \eqn{D'PD}, and the same mask selects the orthonormal null basis among
+the eigenvectors, so the null basis always has \eqn{q - r} columns, with
+\eqn{q} the number of coefficients. Without
+a map the eigenvalues come from a values-only decomposition of \eqn{P} and
+the eigenvectors from a second decomposition of the same matrix; both are
+sorted in decreasing order, so the mask selects the matching columns. With
+a map the rank, the log pseudo-determinant and the null basis all come from
+the decomposition of \eqn{D'PD}.
+
+Fixing the rank on each matrix keeps it stable when quadratic penalties are
+combined. A rank recounted from an assembled sum of several penalties falls
+as their smoothing parameters spread apart, while the true null space is the
+intersection of the null spaces of the components and does not depend on
+the smoothing parameters.
+
+The rule is relative to the largest eigenvalue of \eqn{D'PD} itself. A map
+that annihilates \eqn{P} only up to rounding, so that every entry of
+\eqn{D'PD} is a rounding error relative to \eqn{P}, is therefore not
+detected: the largest of those rounding errors passes the rule, and the
+penalty is built with a positive rank and a log pseudo-determinant made of
+rounding errors. The constructor rejects the map only when no eigenvalue of
+\eqn{D'PD} is positive, as when \eqn{D'PD} is exactly the zero matrix.
 }
 
 \section{Blockwise repetition}{
 \code{blocks = m} builds the penalty of \eqn{I_m \otimes P} from \eqn{P} alone,
-the shape one copy of a smooth per level of a factor takes. The
-eigenvalues of \eqn{I_m \otimes P} are \eqn{P}'s repeated \eqn{m} times, so
-the rank is \eqn{mr}, the log pseudo-determinant is
-\eqn{m\log\mathrm{pdet}(P)} and the null space is \eqn{I_m \otimes N}: the
-large matrix is never decomposed. Measured on second differences over ten
-coefficients at \eqn{m = 200}, so an assembled matrix of
-\eqn{2000 \times 2000}:\tabular{lll}{
-    \tab assembled \tab \code{blocks = 200} \cr
-   eigendecomposition \tab 4.79 s \tab 2.9e-05 s \cr
-   whole construction \tab 5.82 s \tab 0.001 s \cr
-   stored matrix \tab 30.5 MB dense \tab 0.11 MB sparse \cr
-}
-
-
-at a density of 0.0022. The two penalties agree exactly: the value to
-1.4e-14, the gradient and the Hessian to 0, and the same rank, null basis
-and log pseudo-determinant.
+which is the form that one copy of a smooth per level of a factor takes. The
+eigenvalues of \eqn{I_m \otimes P} are those of \eqn{P} repeated \eqn{m}
+times, so the rank is \eqn{mr}, the log pseudo-determinant is
+\eqn{m\log\mathrm{pdet}(P)} and the null space is \eqn{I_m \otimes N}, with
+\eqn{N} the null basis of \eqn{P}. Only \eqn{P} is decomposed, and the
+large matrix is stored in sparse form. The result has the same value,
+gradient, Hessian, rank, null basis and log pseudo-determinant as the
+penalty built from the assembled \eqn{I_m \otimes P}, up to rounding.
 
 \strong{Under \code{blocks > 1} the matrix-valued returns are \code{dgCMatrix}}, not base
 matrices: \code{\link[=penalty_hessian]{penalty_hessian()}}, \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}}
-and \code{\link[=penalty_dhessian]{penalty_dhessian()}} all keep the sparse storage. A branch built to
-avoid the assembled form would defeat itself by densifying at its own
-boundary. Consumers that write these into a block of their own information
-need to accept both classes.
+and the matrices of \code{\link[=penalty_dhessian]{penalty_dhessian()}} all keep the sparse storage, so the
+assembled matrix is never densified. A consumer that writes these results
+into a block of its own information matrix has to accept both classes.
 
 \code{blocks} does not combine with \code{map}, and the constructor rejects the pair:
-a map mixes the blocks, so \eqn{D'(I_m \otimes P)D} is not block diagonal
-with the structure \code{blocks} names.
+a map mixes the blocks, so \eqn{D'(I_m \otimes P)D} is in general not block
+diagonal and does not have the structure that \code{blocks} builds.
 }
 
 \examples{
@@ -126,8 +148,8 @@ b <- c(0.4, -1.1, 0.7)
 all.equal(penalty_value(ridge, b, list(lambda = 2)),
           -sum(stats::dnorm(b, sd = 1 / sqrt(2), log = TRUE)))
 
-# A map penalizes what it selects. Here only the second differences of a
-# six-vector are charged for, through a 4 x 6 map.
+# A map penalizes its image. Here only the second differences of a
+# six-vector are penalized, through a 4 x 6 map.
 D <- diff(diag(6), differences = 2)
 curved <- quadratic_penalty(diag(4), map = D)
 curved@n_coef
@@ -143,6 +165,6 @@ all.equal(penalty_rank(blocked), 4L * penalty_rank(pen))
 \code{\link[=additive_penalty]{additive_penalty()}} for a sum of quadratics with a smoothing
 parameter each, \code{\link[=structured_penalty]{structured_penalty()}} for a matrix that moves with
 several hyperparameters, \code{\link[=distrib_penalty]{distrib_penalty()}} for the separable branch,
-\code{\link[=penalty_logpdet]{penalty_logpdet()}} for the constant a marginal criterion reads,
+\code{\link[=penalty_logpdet]{penalty_logpdet()}} for the constant that a marginal criterion reads,
 \code{\link[=check_penalty]{check_penalty()}} to verify the result.
 }

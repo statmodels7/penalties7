@@ -15,20 +15,22 @@
 }
 \value{
 \code{penalty_gradient()} a numeric vector of length \code{pen@n_coef};
-\code{penalty_hessian()} a symmetric matrix of that side, a base matrix for an
+\code{penalty_hessian()} a symmetric matrix of that order, a base matrix for an
 ordinary penalty and a \code{dgCMatrix} when the penalty was built with
 \code{blocks > 1}.
 }
 \description{
 \code{penalty_gradient()} returns \eqn{\lambda D'PD\beta} and \code{penalty_hessian()}
 returns \eqn{\lambda D'PD}. Both read the cached \eqn{D'PD}, so neither
-touches the map at call time, and the Hessian does not depend on \eqn{\beta}
-at all, the value being a quadratic form.
+applies the map at call time, and the Hessian does not depend on
+\eqn{\beta}, the value being a quadratic form.
 }
 \details{
 Because the Hessian is constant, the gradient is exactly the Hessian applied
-to the coefficients, and a Newton step on this penalty alone reaches the
-minimum in one iteration from anywhere.
+to the coefficients. When \eqn{D'PD} has full rank, a Newton step on this
+penalty alone reaches its minimum, at the origin, in one iteration from any
+starting point. When \eqn{D'PD} is rank deficient, the Hessian is singular
+and the minimum is attained on the whole null space of \eqn{D'PD}.
 }
 \examples{
 pen <- quadratic_penalty(crossprod(diff(diag(4))))

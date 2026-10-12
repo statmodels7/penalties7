@@ -8,8 +8,9 @@
 
 \item{v}{A numeric vector of length \code{pen@n_coef}.}
 
-\item{step}{The step length \eqn{t}, a single positive number below
-\eqn{\gamma}.}
+\item{step}{The step length \eqn{t}, a single positive finite number with
+\eqn{t c_j < \gamma} in every coordinate (\eqn{t < \gamma} at unit
+curvature).}
 
 \item{theta}{A named list holding \code{lambda} and \code{gamma}.}
 
@@ -33,26 +34,40 @@ With \eqn{u = \lvert v\rvert} and \eqn{s} its sign,
     v & u > \gamma\lambda.
   \end{cases}}
 
-MCP has two pieces where SCAD has three, its taper starting at the origin.
-The division by \eqn{1 - t/\gamma} is where the step matters: the curvature
-is a constant \eqn{-1/\gamma} inside the taper, so the subproblem is convex
-only while \eqn{t < \gamma}. At or beyond that the operator is set-valued
-and the call is rejected with the bound printed. Under a diagonal map the
-condition tightens to \eqn{t < \gamma/d_j^2}.
+MCP has two pieces where SCAD has three, because its taper starts at the
+origin. The first piece is computed as
+\eqn{s\,(u - t\lambda)_{+}\,\gamma/(\gamma - t)}, in which
+\eqn{\gamma - t} is a difference of exact operands, so that the value stays
+accurate as \eqn{t} approaches \eqn{\gamma}.
+
+The step enters through the division by \eqn{1 - t/\gamma}: the curvature
+is the constant \eqn{-1/\gamma} inside the taper, so the subproblem is
+convex only while \eqn{t < \gamma}. At or beyond that bound the operator is
+set-valued, and the call signals an error that prints \eqn{\gamma} and the
+largest scaled step, defined below.
+
+The formula is written for unit curvature. With the curvature \eqn{c_j} of
+\code{\link[=mcp_penalty]{mcp_penalty()}} (argument \code{curv}), the operator is the formula above with
+\eqn{t c_j} in place of \eqn{t} and \eqn{\lambda/c_j} in place of
+\eqn{\lambda}. Under a diagonal map the step is \eqn{t d_j^2}, so the
+condition becomes \eqn{t c_j d_j^2 < \gamma} in every coordinate, which is
+stricter than \eqn{t < \gamma} where \eqn{c_j d_j^2 > 1} and looser where
+\eqn{c_j d_j^2 < 1}.
 }
 \examples{
 th <- list(lambda = 1, gamma = 3)
 
-# Inside the taper the threshold is rescaled upward by 1/(1 - t/gamma);
+# Inside the taper the soft-thresholded value is divided by 1 - t/gamma;
 # beyond gamma * lambda the point is returned unchanged.
 penalty_prox(mcp_penalty(n_coef = 3), c(1.5, 2.5, 6), 1, th)
 
-# The rescaling lets MCP reach the unpenalized answer sooner than SCAD at
-# the same lambda.
+# At the same lambda, MCP with gamma = 3 shrinks this point less than SCAD
+# with a = 3.7.
 penalty_prox(mcp_penalty(n_coef = 1), 2.5, 1, th)
 penalty_prox(scad_penalty(n_coef = 1), 2.5, 1, list(lambda = 1, a = 3.7))
 
-# Beyond the convexity bound the operator is set-valued and rejects.
+# At the convexity bound the operator is set-valued, and the call signals
+# an error.
 try(penalty_prox(mcp_penalty(n_coef = 1), 2, 3, th))
 
 }

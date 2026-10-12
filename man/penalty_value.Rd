@@ -9,46 +9,51 @@ penalty_value(pen, beta, theta, ...)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}. Coerced with
+\item{beta}{A finite numeric vector of length \code{pen@n_coef}. Coerced with
 \code{as.numeric()} in the generic, so an integer vector or a one-column
-matrix is accepted.}
+matrix is accepted. A vector of another length signals an error.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
 vector carrying the same, holding every name in \code{pen@params}. Reordered
 and checked against the penalty's open bounds before dispatch. Pass
 \code{list()} for a penalty with no hyperparameters.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
-A single number. Never \code{NA} for an argument inside the bounds; a
-penalty whose value is infinite at some \eqn{\beta} returns \code{Inf}.
+A single number, which is not \code{NA} when \code{beta} is finite and
+\code{theta} lies inside the bounds. The value is defined for a finite \code{beta}
+only: at an infinite coefficient a quadratic penalty returns \code{NaN}.
 }
 \description{
-Returns the scalar \eqn{\rho(D\beta; \theta)}, the amount a set of
-coefficients is penalized by. The normalizing constant is included whenever
+Returns the scalar \eqn{\rho(D\beta; \theta)}, the amount by which a set of
+coefficients is penalized. The normalizing constant is included whenever
 the penalty is proper, so the value is exactly the negative log-density of
 the prior and can be added to a negative log-likelihood without a further
-term. An improper penalty returns the bare \eqn{\rho}; ask \code{\link[=is_proper]{is_proper()}}
-which you have.
+term. \code{\link[=is_proper]{is_proper()}} reports whether this is the case. An improper penalty
+keeps whatever constant its branch defines: a rank-deficient quadratic,
+additive or structured penalty keeps the constant taken over the range of
+its matrix (a log pseudo-determinant), a separable penalty under a map that
+is not square, or is singular, returns \eqn{-\sum_i \log f(t_i; \theta)}
+without a Jacobian term, and SCAD and MCP return the bare \eqn{\rho}.
 }
-\section{Why the constant is kept}{
+\section{The normalizing constant}{
 Dropping the normalizing constant makes no difference to a fit at a fixed
-hyperparameter, since it does not depend on \eqn{\beta}. It makes the
+hyperparameter, since it does not depend on \eqn{\beta}. It does make the
 hyperparameter itself unestimable: with the constant dropped, driving
 \eqn{\lambda} to zero drives the penalty to zero and the joint maximum runs
-away. With it kept, a proper penalty is a density in \eqn{\beta} for every
-\eqn{\lambda}, so the joint objective has an interior maximum and a marginal
-criterion has something to expand around. Estimating the degrees of freedom
-of a heavy-tailed prior needs the constant for the same reason.
+away. With the constant kept, a proper penalty is a density in \eqn{\beta}
+for every \eqn{\lambda}, so the joint objective has an interior maximum and
+a marginal criterion has a mode to expand around. The degrees of freedom of
+a heavy-tailed prior are estimable for the same reason.
 }
 
 \section{The map}{
 \eqn{\rho} is evaluated at \eqn{t = D\beta}, not at \eqn{\beta}. With the
-map \code{NULL}, the default of every constructor, \eqn{t = \beta} and no
-arithmetic is done. A map of \eqn{m} rows means \eqn{\rho} sees \eqn{m}
-numbers, so a second-difference map penalizes curvature and leaves the level
-and the slope alone.
+map \code{NULL}, which is the default of every constructor that takes a map,
+\eqn{t = \beta} and no arithmetic is done. A map of \eqn{m} rows gives
+\eqn{\rho} an argument of length \eqn{m}, so a second-difference map
+penalizes curvature and leaves the level and the slope unpenalized.
 }
 
 \examples{
@@ -63,9 +68,9 @@ penalty_value(pen, c(1, 0, -1), list(lambda = 2))
 sapply(c(0.5, 1, 2, 8),
        function(l) penalty_value(pen, c(0, 0, 0), list(lambda = l)))
 
-# A map sends rho the second differences, so only curvature is charged for.
-# A straight line contributes nothing to the quadratic part and the value
-# falls to the constant, the same value the zero vector gives.
+# Under a second-difference map rho is evaluated at the second differences,
+# so a straight line contributes nothing to the quadratic part and the
+# value equals the constant, the same value that the zero vector gives.
 curve <- quadratic_penalty(diag(2), map = diff(diag(4), differences = 2))
 penalty_value(curve, c(1, 2, 3, 4), list(lambda = 5))
 penalty_value(curve, c(0, 0, 0, 0), list(lambda = 5))

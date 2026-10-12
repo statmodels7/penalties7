@@ -9,76 +9,88 @@ penalty_dhessian(pen, beta, theta, ...)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}. Read only by the
-separable branch, whose parent's derivatives depend on the argument; the
-quadratic, additive and structured branches ignore it.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}; the generic signals an
+error for any other length. Only the separable branch reads its values,
+because the derivatives of the parent depend on them; the quadratic,
+additive and structured branches ignore them.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same.}
+vector carrying the same. The generic checks that every hyperparameter is
+present as a single number inside its bounds.}
 
 \item{...}{Passed to methods. No shipped method reads it.}
 }
 \value{
 A named list of one matrix per hyperparameter, each of side
 \code{pen@n_coef}, named by \code{pen@params}. The quadratic branch returns the
-stored matrix in whatever storage it keeps, so a penalty built with
-\code{blocks > 1} gives a \code{dgCMatrix}.
+stored matrix in the storage that the penalty keeps, so a penalty built
+with \code{blocks > 1} gives a \code{dgCMatrix}; the other branches return base
+matrices.
 }
 \description{
 Returns \eqn{\partial S/\partial\theta_m = \partial^3\rho/\partial\beta^2\,
-\partial\theta_m}, one matrix per hyperparameter, saying how the penalty's
-curvature in the coefficients moves as each hyperparameter moves. This is
-the third-order quantity a marginal likelihood criterion needs and that the
-value, the gradient and the Hessian cannot supply between them.
+\partial\theta_m}, one matrix per hyperparameter, which describes how the
+curvature of the penalty in the coefficients changes with each
+hyperparameter. A marginal likelihood criterion needs this third-order
+quantity, and the value, the gradient and the Hessian do not determine it.
 }
-\section{Why a criterion needs it}{
+\section{Role in a marginal criterion}{
 Estimating hyperparameters by a marginal likelihood means differentiating a
 Laplace approximation, whose determinant is \eqn{\lvert H + S\rvert} with
-\eqn{S} the penalty's Hessian in the coefficients. Differentiating
-\eqn{\log\lvert H+S\rvert} in \eqn{\theta_m} needs
-\eqn{\partial S/\partial\theta_m}, and nothing below third order gives it.
+\eqn{S} the Hessian of the penalty in the coefficients. The derivative of
+\eqn{\log\lvert H+S\rvert} in \eqn{\theta_m} contains
+\eqn{\partial S/\partial\theta_m}, which is a third derivative of
+\eqn{\rho}. The derivatives are taken in \eqn{\theta} on its own scale, and
+no link is applied.
 }
 
-\section{What each branch answers}{
+\section{The value on each branch}{
 \tabular{ll}{
    branch \tab \eqn{\partial S/\partial\theta_m} \cr
    \code{\link[=quadratic_penalty]{quadratic_penalty()}} \tab \eqn{D'PD}, free of both \eqn{\lambda} and \eqn{\beta} \cr
-   \code{\link[=additive_penalty]{additive_penalty()}} \tab the component \eqn{P_k} of each smoothing parameter \cr
-   \code{\link[=structured_penalty]{structured_penalty()}} \tab the matrix parameter's own \code{param_d1} \cr
-   \code{\link[=distrib_penalty]{distrib_penalty()}} \tab \eqn{-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D}, from \code{\link[distributions7:distrib_cross2_y]{distributions7::distrib_cross2_y()}} \cr
-   \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}} \tab rejects \cr
+   \code{\link[=additive_penalty]{additive_penalty()}} \tab the component \eqn{D'P_kD} of each smoothing parameter, which is \eqn{P_k} under the identity map \cr
+   \code{\link[=structured_penalty]{structured_penalty()}} \tab the derivative \code{param_d1} of the matrix parameter \cr
+   \code{\link[=distrib_penalty]{distrib_penalty()}}, univariate parent \tab \eqn{-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D}, from \code{\link[distributions7:distrib_cross2_y]{distributions7::distrib_cross2_y()}} \cr
+   \code{\link[=distrib_penalty]{distrib_penalty()}}, multivariate parent \tab the same with a block-diagonal middle matrix \cr
+   \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}} \tab an error, from the base class \cr
 }
 
 
-Every one of the first four is closed form. The base class rejects, naming
-what is missing, so a penalty written later either supplies the three
-methods and works in a marginal criterion, or says plainly that it cannot.
+The quadratic and additive rows are exact. The structured row is exact for
+the structures that \pkg{parameters7} ships, and the separable rows are
+exact when the parent supplies \code{\link[distributions7:distrib_cross2_y]{distributions7::distrib_cross2_y()}} in
+closed form; otherwise the numerical fallbacks of those packages apply. On
+the base class the method signals an error that names the penalty, so a
+penalty class written later is usable in a marginal criterion only if it
+supplies \code{penalty_dhessian()}, \code{\link[=penalty_d2hessian]{penalty_d2hessian()}} and
+\code{\link[=penalty_dcross]{penalty_dcross()}}.
 
-A separable penalty with a \strong{kink} rejects as well, whatever its parent:
-the third derivative does not exist there, and the mode a marginal criterion
-expands around is exactly where a kinked penalty puts coefficients.
+A separable penalty with a \strong{kink} signals an error as well, whatever its
+parent. The third derivative does not exist at the kink, and the mode at
+which a marginal criterion is expanded is where a kinked penalty places
+coefficients.
 }
 
 \examples{
 # A quadratic penalty's Hessian is lambda D'PD, so the derivative is D'PD
-# and does not move with lambda.
+# and does not change with lambda.
 pen <- quadratic_penalty(crossprod(diff(diag(3))))
 b <- c(1, -0.5, 0.3)
 penalty_dhessian(pen, b, list(lambda = 2))$lambda
 identical(penalty_dhessian(pen, b, list(lambda = 2)),
           penalty_dhessian(pen, b, list(lambda = 99)))
 
-# An additive penalty answers with its components, one per parameter.
+# An additive penalty returns its components, one per parameter.
 add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
 names(penalty_dhessian(add, b, list(lambda1 = 2, lambda2 = 0.5)))
 
-# A penalty with a kink has no such quantity and says so.
+# A penalty with a kink has no such quantity, and the call is an error.
 try(penalty_dhessian(lasso_penalty(n_coef = 3), b, list(lambda = 1)))
 
 }
 \seealso{
 \code{\link[=penalty_hessian]{penalty_hessian()}} for the quantity differentiated,
-\code{\link[=penalty_d2hessian]{penalty_d2hessian()}} and \code{\link[=penalty_dcross]{penalty_dcross()}} for the other two a marginal
-criterion asks for, \code{\link[=beta_quadratic]{beta_quadratic()}} for the predicate that says whether
-a third \eqn{\beta}-derivative is needed at all.
+\code{\link[=penalty_d2hessian]{penalty_d2hessian()}} and \code{\link[=penalty_dcross]{penalty_dcross()}} for the other two quantities
+that a marginal criterion requires, \code{\link[=beta_quadratic]{beta_quadratic()}} for the predicate
+that indicates whether a third \eqn{\beta}-derivative is needed.
 }

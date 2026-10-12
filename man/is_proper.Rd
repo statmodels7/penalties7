@@ -9,7 +9,7 @@ is_proper(pen, ...)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 A single logical.
@@ -17,29 +17,42 @@ A single logical.
 \description{
 \code{TRUE} when \eqn{\exp(-\rho)} integrates to one over the coefficients, so
 the value returned by \code{\link[=penalty_value]{penalty_value()}} is exactly the negative log-density
-of a prior and may be added to a negative log-likelihood as it stands.
-\code{FALSE} when it does not, and then the value is the bare \eqn{\rho} with no
-constant attached.
+of a prior in \eqn{\beta} and may be added to a negative log-likelihood as
+it stands. \code{FALSE} when it does not. In that case the value keeps the
+constant that its branch defines, if any: a rank-deficient quadratic,
+additive or structured penalty keeps its pseudo-determinant term, a
+separable penalty keeps the parent's own constant without a Jacobian term,
+and SCAD and MCP carry no constant.
 }
 \details{
-Two things make a penalty improper, and they are different failures.
+Three situations make a penalty improper, and they arise from different
+causes.
 
 A \strong{rank-deficient quadratic} puts no cost at all on its null directions,
 so \eqn{\exp(-\rho)} is flat along them and its integral diverges. This is
 the ordinary case for a smoothing penalty: second differences over
-\eqn{q} coefficients leave the level and the slope free and have rank
-\eqn{q - 2}. The penalty is still usable, because the likelihood supplies the
-missing curvature; what changes is that the normalizing constant is the log
+\eqn{q} coefficients leave the level and the slope unpenalized and have
+rank \eqn{q - 2}. The penalty is still usable, because the likelihood
+supplies the missing curvature, and its normalizing constant is the log
 \strong{pseudo}-determinant over the range, which \code{\link[=penalty_logpdet]{penalty_logpdet()}} returns.
+The same holds for a rank-deficient additive or structured penalty.
 
-\strong{SCAD and MCP} are improper for a different reason: both are defined by
-their derivative, which is exactly zero beyond \eqn{a\lambda} and
-\eqn{\gamma\lambda}, so \eqn{\rho} is flat in every direction far from the
-origin and no constant makes \eqn{\exp(-\rho)} integrable. There is no
-density behind them at all, and no marginal criterion reaches them.
+A \strong{separable penalty} is a density in \eqn{t = D\beta}. It is proper
+without a map, and under a square nonsingular map, where the value carries
+the Jacobian term \eqn{-\log\lvert\det D\rvert} and is a density in
+\eqn{\beta}. Under a map with fewer rows than columns, or a singular square
+map (a diagonal map with a zero entry, for instance), \eqn{\exp(-\rho)} is
+flat along the null space of the map, and the predicate is \code{FALSE}.
 
-The predicate is a statement about the penalty as constructed, so it does
-not depend on \code{theta} and takes none.
+\strong{SCAD and MCP} are improper for a third reason. Both are defined by their
+derivative, which is exactly zero beyond \eqn{a\lambda} and
+\eqn{\gamma\lambda}, so \eqn{\rho} is constant in every direction far from
+the origin and \eqn{\exp(-\rho)} is not integrable for any constant. They
+are not the negative log-density of any prior, and the quantities of a
+marginal criterion are not available for them.
+
+The predicate is a property of the penalty as constructed, so it does not
+depend on \code{theta} and does not take it.
 }
 \examples{
 # A full-rank quadratic is a proper Gaussian prior.
@@ -49,16 +62,18 @@ is_proper(quadratic_penalty(diag(2)))
 is_proper(quadratic_penalty(crossprod(diff(diag(4), differences = 2))))
 penalty_rank(quadratic_penalty(crossprod(diff(diag(4), differences = 2))))
 
-# The lasso is a proper Laplace prior; SCAD and MCP are densities of
-# nothing.
+# The lasso is a proper Laplace prior; SCAD and MCP are not densities.
 c(lasso = is_proper(lasso_penalty()),
   scad  = is_proper(scad_penalty()),
   mcp   = is_proper(mcp_penalty()))
 
+# A lasso on second differences leaves a two-dimensional null space.
+is_proper(lasso_penalty(map = diff(diag(4), differences = 2)))
+
 }
 \seealso{
-\code{\link[=penalty_value]{penalty_value()}} for the constant this is about,
-\code{\link[=penalty_logpdet]{penalty_logpdet()}} for the pseudo-determinant a deficient quadratic
-uses, \code{\link[=is_quadratic]{is_quadratic()}} and \code{\link[=has_prox]{has_prox()}} for the other two predicates a
-consumer routes on.
+\code{\link[=penalty_value]{penalty_value()}} for the value whose constant this predicate
+describes, \code{\link[=penalty_logpdet]{penalty_logpdet()}} for the pseudo-determinant of a deficient
+quadratic, \code{\link[=is_quadratic]{is_quadratic()}} and \code{\link[=has_prox]{has_prox()}} for the other two
+predicates on which a fitting routine selects a method.
 }

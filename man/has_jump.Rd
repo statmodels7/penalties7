@@ -2,42 +2,52 @@
 % Please edit documentation in R/distrib_penalty.R
 \name{has_jump}
 \alias{has_jump}
-\title{Does the Log-Density's Slope Jump Across a Point?}
+\title{Test for a Jump in the Slope of the Log-Density}
 \usage{
 has_jump(d, theta, at, eps = 1e-05)
 }
 \arguments{
 \item{d}{A \pkg{distributions7} object.}
 
-\item{theta}{A named list of parameter values to read it at, as
-\code{\link[=probe_theta]{probe_theta()}} returns.}
+\item{theta}{A named list of parameter values at which the log-density is
+evaluated, as \code{\link[=probe_theta]{probe_theta()}} returns.}
 
 \item{at}{The candidate point, a single number.}
 
-\item{eps}{How far either side to look, \code{1e-5} by default. Large enough that
-the one-sided derivatives are not dominated by rounding, small enough that
-a second feature does not fall inside the window.}
+\item{eps}{The relative narrow width, \code{1e-5} by default; the wide width is
+ten times as large, and both are multiplied by \eqn{\max(1,
+  \lvert a\rvert)}. It should be large enough that the one-sided
+derivatives are not dominated by rounding, and small enough that a
+second feature of the density does not fall inside the window.}
 }
 \value{
 A single logical, \code{TRUE} when the slope jumps.
 }
 \description{
-Compares the derivative of the log-density in its argument just either side
-of a candidate point, and answers \code{TRUE} when the two differ by more than a
-relative threshold. This is the measurement that turns a candidate kink,
-inferred from \code{params_smooth}, into a confirmed one.
+Compares the derivative of the log-density in its argument on either side
+of a candidate point at two widths, and returns \code{TRUE} when the difference
+has the behavior of a jump. \code{\link[=distrib_kinks]{distrib_kinks()}} uses it to confirm a
+candidate kink inferred from \code{params_smooth}.
 }
 \details{
-The comparison is \code{abs(grad_y(at + eps) - grad_y(at - eps))} against
-\code{1e-6 * max(1, abs(at))}, so the threshold is absolute near the origin and
-relative away from it. At a genuine kink the difference is of the order of
-the jump itself and does not shrink with \code{eps}: for a Laplace at zero it is
-twice the rate. At a smooth point it is \eqn{O(\varepsilon)} and falls well
-below the threshold.
+With \eqn{s = \max(1, \lvert a\rvert)}, where \eqn{a} is \code{at}, the
+difference \eqn{g(h) = \lvert\ell^{(y)}(a + h) - \ell^{(y)}(a - h)\rvert}
+is computed at the narrow width \eqn{h = \varepsilon s} and at the wide
+width \eqn{h = 10\varepsilon s}. At a kink the difference is of the order
+of the jump at both widths (twice the rate for a Laplace at its location)
+and does not grow with the width. At a smooth point it is about
+\eqn{2h\lvert\ell^{(yy)}\rvert}, which can exceed any fixed threshold when
+the curvature is large, and it grows tenfold from the narrow width to the
+wide one. A kink is therefore declared when \eqn{g(\varepsilon s)} exceeds
+\eqn{10^{-6}s}, a threshold that is absolute near the origin and relative
+away from it, and is more than half of \eqn{g(10\varepsilon s)}. The
+widths are scaled up from \eqn{\varepsilon} and not down, so that a slope
+that the parent obtains by its own numerical differentiation still
+resolves the jump at the narrow width.
 
-A parent that cannot be differentiated at either point returns \code{NA} from
-\code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}} or raises, and both are caught and read
-as \code{FALSE}: an unconfirmed candidate is dropped rather than assumed.
+When \code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}} returns a value that is not finite
+or signals an error at any of the four points, the result is \code{FALSE}, so
+the candidate is dropped.
 }
 \seealso{
 \code{\link[=distrib_kinks]{distrib_kinks()}}, \code{\link[=probe_theta]{probe_theta()}}

@@ -7,8 +7,8 @@
 \arguments{
 \item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... Read by
-\code{penalty_kinks()}, whose answer does not depend on it.}
+\item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... Accepted by
+\code{penalty_kinks()}, whose result does not depend on it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
@@ -22,15 +22,15 @@ smooth everywhere. \code{is_proper()} returns \code{TRUE} when the stored rank e
 the number of coefficients.
 }
 \details{
-The value is a quadratic form, so \code{\link[=is_quadratic]{is_quadratic()}} answers \code{TRUE} as well.
-The two statements are not the same: a penalty may be smooth without being
-quadratic, as a Student t prior is.
+The value is a quadratic form, so \code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE} as well.
+Smoothness does not imply a quadratic form: a Student t prior is smooth and
+not quadratic.
 
-Properness is the rank of the sum against the number of coefficients, and
-the rank is fixed at construction. The two components of an anisotropic
-tensor smooth intersect in a null space of their own, so such a penalty is
-improper: a 4 by 4 grid penalized by curvature along each margin has rank 12
-out of 16.
+Properness compares the rank of the sum with the number of coefficients,
+and the rank is fixed at construction. The null spaces of the two
+components of an anisotropic tensor smooth have a nonzero intersection, so
+such a penalty is improper: on a 4 by 4 grid penalized by second
+differences along each margin, the rank is 12 out of 16.
 }
 \examples{
 P <- crossprod(diff(diag(4), differences = 2))
@@ -46,7 +46,7 @@ is_proper(additive_penalty(list(diag(3), diag(c(2, 1, 1)))))
 }
 \seealso{
 \code{\link[=penalty_kinks]{penalty_kinks()}} and \code{\link[=is_proper]{is_proper()}} for the generics,
-\code{\link[=is_quadratic.AdditivePenalty]{is_quadratic.AdditivePenalty()}} for the other predicate this branch
-answers.
+\code{\link[=is_quadratic.AdditivePenalty]{is_quadratic.AdditivePenalty()}} for the other predicate with a method
+on this class.
 }
 \keyword{internal}

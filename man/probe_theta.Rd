@@ -15,18 +15,18 @@ A named list of one number per element of \code{d@params}, in that order.
 }
 \description{
 Returns one value per free parameter, at which the parent can be evaluated
-when no hyperparameters are in force. Used by \code{\link[=distrib_kinks]{distrib_kinks()}}, which has
-to differentiate the log-density before any penalty exists.
+when no hyperparameters are given. \code{\link[=distrib_kinks]{distrib_kinks()}} uses it to
+differentiate the log-density before any penalty exists.
 }
 \details{
-The rule is the toolkit's probe rule: the midpoint of a parameter's bounds
-where both are finite, one above the lower bound where only that is finite,
-one below the upper where only that is, and \code{1} where neither is. So a scale
-on \eqn{(0, \infty)} is probed at 1 and a mixing weight on \eqn{(0, 1)} at
-0.5.
+The value of a parameter is the midpoint of its bounds where both are
+finite, one above the lower bound where only that bound is finite, one
+below the upper bound where only that bound is finite, and \code{1} where
+neither is. A scale on \eqn{(0, \infty)} is therefore probed at 1 and a
+mixing weight on \eqn{(0, 1)} at 0.5.
 
-Whether a point is a kink does not depend on where the other parameters sit,
-so any admissible point serves and the rule only has to give one.
+The rule assumes that whether a point is a kink does not depend on the
+values of the other parameters, so that any admissible point serves.
 }
 \seealso{
 \code{\link[=distrib_kinks]{distrib_kinks()}}, \code{\link[=has_jump]{has_jump()}}

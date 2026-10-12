@@ -12,34 +12,45 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_kinks()} a numeric vector of five points, in the order
-\code{0}, \eqn{-\lambda}, \eqn{\lambda}, \eqn{-a\lambda}, \eqn{a\lambda}.
+\code{penalty_kinks()} a numeric vector of distinct points: \code{0}, then
+\eqn{-\lambda/c_j} and \eqn{\lambda/c_j} over the distinct rates, then
+\eqn{-a\lambda/c_j} and \eqn{a\lambda/c_j} over the same rates. At unit
+curvature these are the five points \code{0}, \eqn{-\lambda}, \eqn{\lambda},
+\eqn{-a\lambda}, \eqn{a\lambda}, in this order.
 \code{is_proper()} the single logical \code{FALSE}.
 }
 \description{
-\code{penalty_kinks()} returns the five points where SCAD changes branch, and
-\code{is_proper()} returns \code{FALSE}, SCAD being bounded and so not a density at
-any constant.
+\code{penalty_kinks()} returns the points where SCAD changes branch, and
+\code{is_proper()} returns \code{FALSE}, since SCAD is bounded and so not a density
+at any constant.
 }
 \details{
-The five points are \code{0}, \eqn{\pm\lambda} and \eqn{\pm a\lambda}, and they
-are not alike. At the origin the first derivative jumps from
-\eqn{-\lambda} to \eqn{\lambda}, which is the kink that produces exact
-zeros. At the other four the first derivative is continuous, both branches
-agreeing, and the second jumps between \eqn{0} and \eqn{-1/(a-1)}. All five
-are returned because a numerical Hessian straddling any of them is as wrong
-as a numerical gradient straddling the origin.
+At unit curvature the points are \code{0}, \eqn{\pm\lambda} and
+\eqn{\pm a\lambda}, and they are of two kinds. At the origin the first
+derivative jumps from \eqn{-\lambda} to \eqn{\lambda}, which is the kink
+that produces exact zeros. At the other four the first derivative is
+continuous and the second jumps between \eqn{0} and \eqn{-1/(a-1)}
+(\eqn{-c_j/(a-1)} with curvature \eqn{c_j}). All of them are returned
+because a numerical Hessian across any of them is as wrong as a numerical
+gradient across the origin.
 
-Four of the five move with the hyperparameters, so \code{theta} is not optional.
+With \code{curv}, the points \eqn{\pm\lambda/c_j} and \eqn{\pm a\lambda/c_j} are
+returned for each distinct value of \eqn{\lambda/c_j}, so the vector has
+more than five points when the curvatures differ. Every point except the
+origin moves with the hyperparameters, so \code{theta} is required.
 }
 \examples{
 penalty_kinks(scad_penalty(), list(lambda = 1, a = 3.7))
 penalty_kinks(scad_penalty(), list(lambda = 2, a = 3.7))
+
+# Two curvatures give two rates and nine points.
+penalty_kinks(scad_penalty(n_coef = 2, curv = c(1, 2)),
+              list(lambda = 1, a = 3.7))
 is_proper(scad_penalty())
 
 }
 \seealso{
 \code{\link[=penalty_kinks]{penalty_kinks()}} and \code{\link[=is_proper]{is_proper()}} for the generics,
-\code{\link[=penalty_kinks.McpPenalty]{penalty_kinks.McpPenalty()}} for the sibling family's three points.
+\code{\link[=penalty_kinks.McpPenalty]{penalty_kinks.McpPenalty()}} for the sibling family.
 }
 \keyword{internal}

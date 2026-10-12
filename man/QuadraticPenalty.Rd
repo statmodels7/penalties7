@@ -21,12 +21,12 @@ QuadraticPenalty(
 }
 \arguments{
 \item{penalty_name}{A single string naming the penalty, used by \code{print()}
-and by consumers that report which penalty a block carries.}
+and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
-\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own storage;
-a diagonal map is what standardization comes to and is recognized by its
-class.}
+\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
+storage, so a diagonal map, which is what standardization produces, is
+recognized as diagonal by its class.}
 
 \item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
 
@@ -49,8 +49,8 @@ with as many rows as the map has, or as many as there are coefficients
 when the map is \code{NULL}. A \code{dgCMatrix} under \code{blocks > 1}.}
 
 \item{p_rank}{The rank of \eqn{D'PD}, a single whole number, counted at
-construction by a relative eigenvalue rule. Without a map it is the rank of
-\eqn{P}.}
+construction by a relative eigenvalue rule. Without a map it is the rank
+of \eqn{P}.}
 
 \item{null_basis}{An orthonormal basis of the null space of \eqn{D'PD}, with
 \code{n_coef} rows and \code{n_coef - p_rank} columns, and no columns when the
@@ -68,24 +68,68 @@ An S7 object of class \code{QuadraticPenalty}, inheriting from
 \code{\link[=penalty]{penalty()}}, with the seven inherited properties and the five above.
 }
 \description{
-The class \code{\link[=quadratic_penalty]{quadratic_penalty()}} builds. Beyond the seven properties every
-penalty carries it stores the matrix \eqn{P}, its rank, an orthonormal basis
-of the null space of \eqn{D'PD}, the log pseudo-determinant of \eqn{P} and
-the assembled \eqn{D'PD}. All five are fixed by one eigendecomposition at
-construction and none of them moves with the hyperparameter, so every
-quantity the branch supplies is closed form in \eqn{\lambda}.
+The class of the objects that \code{\link[=quadratic_penalty]{quadratic_penalty()}} builds. Beyond the
+seven properties that every penalty carries, it stores the matrix \eqn{P},
+the rank of \eqn{D'PD}, an orthonormal basis of the null space of
+\eqn{D'PD}, the log pseudo-determinant of \eqn{D'PD} and the assembled
+\eqn{D'PD}. All five are computed once at construction and none of them
+depends on the hyperparameter, so every quantity of the branch is closed
+form in \eqn{\lambda}.
 }
 \details{
-Construct through \code{\link[=quadratic_penalty]{quadratic_penalty()}}, which computes the five derived
-properties and checks that \eqn{P} is symmetric. This raw constructor takes
-them as given and checks nothing, so a wrong rank here would be reported by
-\code{\link[=penalty_logpdet]{penalty_logpdet()}} and by nothing else.
+Construct through \code{\link[=quadratic_penalty]{quadratic_penalty()}}, which computes the five
+properties and checks that \eqn{P} is symmetric and positive semidefinite.
+This raw constructor takes them as given and checks none of them. A wrong
+rank passed here enters the value, the hyperparameter derivatives,
+\code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_logpdet]{penalty_logpdet()}} and \code{\link[=is_proper]{is_proper()}}, and
+\code{\link[=check_penalty]{check_penalty()}} does not detect it, because every one of its rows reads
+the same stored rank.
 }
+\section{Methods}{
+
+The methods registered on this class, by the page that documents each.
+\itemize{
+\item The value and its coefficient derivatives:
+\link[=penalty_value.QuadraticPenalty]{penalty_value()},
+\link[=penalty_gradient.QuadraticPenalty]{penalty_gradient()} and
+\link[=penalty_hessian.QuadraticPenalty]{penalty_hessian()}.
+\item The hyperparameter derivatives:
+\link[=penalty_grad_theta.QuadraticPenalty]{penalty_grad_theta()},
+\link[=penalty_hess_theta.QuadraticPenalty]{penalty_hess_theta()} and
+\link[=penalty_cross.QuadraticPenalty]{penalty_cross()}.
+\item The predicates: \link[=penalty_kinks.QuadraticPenalty]{penalty_kinks()},
+\link[=is_proper.QuadraticPenalty]{is_proper()} and
+\link[=is_quadratic.QuadraticPenalty]{is_quadratic()}.
+\item The quantities of a marginal criterion:
+\link[=penalty_matrix.QuadraticPenalty]{penalty_matrix()},
+\link[=penalty_rank.QuadraticPenalty]{penalty_rank()},
+\link[=penalty_null_basis.QuadraticPenalty]{penalty_null_basis()} and
+\link[=penalty_logpdet.QuadraticPenalty]{penalty_logpdet()}.
+\item The higher derivatives of a marginal criterion:
+\link[=penalty_dhessian.QuadraticPenalty]{penalty_dhessian()},
+\link[=penalty_d2hessian.QuadraticPenalty]{penalty_d2hessian()},
+\link[=penalty_dcross.QuadraticPenalty]{penalty_dcross()} and
+\link[=beta_quadratic.QuadraticPenalty]{beta_quadratic()}.
+\item The movement of the Hessian with the coefficients:
+\link[=penalty_dhessian_beta.QuadraticPenalty]{penalty_dhessian_beta()},
+\link[=penalty_d2hessian_beta.penalty]{penalty_d2hessian_beta()} and
+\link[=penalty_dhessian_beta_theta.penalty]{penalty_dhessian_beta_theta()}.
+The last two return zero matrices, the Hessian being free of the
+coefficients, and are documented on the page of the base-class methods.
+\item The proximal operator:
+\link[=penalty_prox.QuadraticPenalty]{penalty_prox()}.
+}
+
+The class registers no \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=penalty_draw]{penalty_draw()}} or
+\code{\link[=penalty_readable]{penalty_readable()}} method, so the methods of the base class \code{\link[=penalty]{penalty()}}
+answer those generics.
+}
+
 \examples{
 pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
 S7::S7_inherits(pen, QuadraticPenalty)
 
-# The five derived properties, fixed at construction.
+# Three of the five properties, computed at construction.
 pen@p_rank
 dim(pen@null_basis)
 pen@logpdet_DPD
@@ -94,7 +138,7 @@ pen@logpdet_DPD
 \seealso{
 \code{\link[=quadratic_penalty]{quadratic_penalty()}} for the constructor to use,
 \code{\link[=penalty_value.QuadraticPenalty]{penalty_value.QuadraticPenalty()}} for what the branch computes,
-\code{\link[=structured_penalty]{structured_penalty()}} for the other branch that answers
-\code{\link[=is_quadratic]{is_quadratic()}} with \code{TRUE}.
+\code{\link[=structured_penalty]{structured_penalty()}} and \code{\link[=additive_penalty]{additive_penalty()}} for the other branches
+for which \code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE}.
 }
 \keyword{internal}

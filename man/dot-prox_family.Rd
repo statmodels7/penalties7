@@ -10,25 +10,26 @@
 \item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 }
 \value{
-A single string: \code{"gaussian1"}, \code{"laplace2"}, \code{"laplace"}, \code{"enet"}
-for the four closed-form families, and whatever the parent is called
-otherwise.
+A single string: \code{"gaussian1"}, \code{"laplace2"}, \code{"laplace"} or
+\code{"enet"} for the families with a closed form (the Laplace in two
+parametrizations), and the name of the parent's family otherwise.
 }
 \description{
-Returns the bare name of the distribution a separable penalty is built on,
-with a \code{fixed()} wrapper and any bracketed parameter list stripped off, so
+Returns the bare name of the distribution on which a separable penalty is
+built, with a \code{fixed()} wrapper and any bracketed parameter list removed, so
 that the closed-form branches can be recognized by the family underneath.
 }
 \details{
-A separable penalty's parent is typically wrapped: the lasso is
-\verb{fixed laplace2 [mu=0]} and the ridge's separable twin is
-\verb{fixed gaussian1 [mu=0]}. Matching on the raw \code{distrib_name} would miss both.
-Stripping the leading \code{fixed } and everything from the first bracket leaves
-\code{laplace2} and \code{gaussian1}.
+The parent of a separable penalty is usually wrapped: the lasso's parent is
+\verb{fixed laplace2 [mu=0]}, and a separable Gaussian prior built as
+\code{distrib_penalty(fixed(gaussian1_distrib(), mu = 0), ...)} has the parent
+\verb{fixed gaussian1 [mu=0]}. A match on the raw \code{distrib_name} would miss
+both. Removing the leading \code{fixed } and everything from the first bracket
+leaves \code{laplace2} and \code{gaussian1}.
 
 The name is used only to reach a closed form. Whether the parent is centered
-where the quadratic pull is is asked separately, by evaluating the gradient
-at the origin, since a family name does not say where a location sits.
+at zero is tested separately, by evaluating the penalty's gradient at the
+origin, because the family name does not carry the location.
 }
 \seealso{
 \code{\link[=penalty_prox.DistribPenalty]{penalty_prox.DistribPenalty()}}, \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}

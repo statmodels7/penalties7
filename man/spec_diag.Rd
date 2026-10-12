@@ -9,19 +9,21 @@ spec_diag(pen, step, build)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object whose map is \code{NULL} or diagonal.}
 
-\item{step}{A numeric vector of step lengths, recycled to \code{pen@n_coef}.}
+\item{step}{A numeric vector of step lengths, of length one or
+\code{pen@n_coef}, recycled to \code{pen@n_coef}.}
 
 \item{build}{A function of a penalty and a step returning the table, or
-\code{NULL}. Called on the penalty with its map removed.}
+\code{NULL}. It is called on the penalty with its map removed.}
 }
 \value{
-The list \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns, or \code{NULL} when the map is
-not diagonal or the builder itself declines.
+The list that \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns, or \code{NULL} when the
+map is not recognized as diagonal or the builder returns \code{NULL}.
 }
 \description{
 Builds the table of a separable penalty under a diagonal map from the
-builder of its identity-map table, and returns \code{NULL} where there is a map
-and it is not diagonal. With no map at all the builder is called directly.
+builder of its identity-map table, and returns \code{NULL} where the penalty has
+a map that is not recognized as diagonal. With no map the builder is
+called directly.
 }
 \details{
 A diagonal map only rescales each coordinate, and the identity
@@ -38,12 +40,15 @@ by the same, and the slope does not move, multiplying a point that was
 scaled and then divided back. The operator is odd, so only the magnitude of
 \eqn{d} enters.
 
-The step handed to the builder is \eqn{t d^2}, which is where the convexity
-condition of SCAD and MCP tightens: a standardized penalty takes shorter
-steps and a table may come back \code{NULL} where the unmapped one exists.
+The step passed to the builder is \eqn{t d^2}, and the step limit of SCAD
+and MCP is tested on it, so a standardized penalty takes shorter steps and
+the table can be \code{NULL} at a step where the table without the map exists.
 
-The map is recognized by its class through \code{\link[=map_diagonal]{map_diagonal()}}, so a base
-matrix that happens to be diagonal is not treated as one.
+The map is recognized by its class through \code{\link[=map_diagonal]{map_diagonal()}}, which returns
+\code{NULL} for a base matrix and for a diagonal with a zero entry. The
+constructors \code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}} store
+a diagonal base matrix as a \code{\link[Matrix:Diagonal]{Matrix::Diagonal()}} object, so its diagonal
+map is recognized.
 }
 \seealso{
 \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=map_diagonal]{map_diagonal()}}, \code{\link[=prox_table]{prox_table()}}

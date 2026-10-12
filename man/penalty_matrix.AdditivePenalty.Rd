@@ -17,20 +17,20 @@ and \code{penalty_logpdet()} only.}
 \value{
 \code{penalty_matrix()} a symmetric base matrix of side \code{pen@n_coef}.
 \code{penalty_rank()} a single integer, and \code{penalty_null_basis()} an
-orthonormal basis of the components' shared null space, \code{pen@n_coef} by
-\code{pen@n_coef - penalty_rank(pen)}.
+orthonormal basis of the null space shared by the components, a matrix
+with \code{pen@n_coef} rows and \code{pen@n_coef - penalty_rank(pen)} columns.
 \code{penalty_logpdet()} a list of \code{value} (a single number), \code{grad} (a list
-keyed by \code{pen@params}) and \code{hess} (a list keyed by the pairs
-\code{penalty_hess_theta()} uses), which is the shape the quadratic and
-structured branches answer in. Every entry of it is \code{NaN} at a setting
-\code{\link[=additive_sum]{additive_sum()}} reports as unresolvable.
+keyed by \code{pen@params}) and \code{hess} (a list keyed by the pairs that
+\code{penalty_hess_theta()} uses). Every entry of it is \code{NaN} at a setting
+that \code{\link[=additive_sum]{additive_sum()}} reports as not resolvable.
 }
 \description{
-The four pieces a marginal criterion reads. \code{penalty_matrix()} returns the
-weighted sum \eqn{S(\lambda) = \sum_k \lambda_k P_k}, \code{penalty_rank()} the
-rank and \code{penalty_null_basis()} the components' shared null space, both
-fixed at construction, and \code{penalty_logpdet()} the log pseudo-determinant
-with its first two derivatives.
+The four quantities that a marginal criterion reads. \code{penalty_matrix()}
+returns the weighted sum \eqn{S(\lambda) = \sum_k \lambda_k P_k},
+\code{penalty_rank()} the rank and \code{penalty_null_basis()} an orthonormal basis
+of the null space shared by the components, both fixed at construction,
+and \code{penalty_logpdet()} the log pseudo-determinant with its first two
+derivatives.
 }
 \details{
 With \eqn{S^{+}} the pseudo-inverse over the stored rank,
@@ -38,20 +38,22 @@ With \eqn{S^{+}} the pseudo-inverse over the stored rank,
 \deqn{\frac{\partial}{\partial\lambda_k}\log\mathrm{pdet}\,S
     = \operatorname{tr}(S^{+}P_k), \qquad
   \frac{\partial^{2}}{\partial\lambda_k\partial\lambda_l}
-    \log\mathrm{pdet}\,S = -\operatorname{tr}(S^{+}P_kS^{+}P_l),}
+    \log\mathrm{pdet}\,S = -\operatorname{tr}(S^{+}P_kS^{+}P_l).}
 
-both exact and both agreeing with the traces computed apart to 0.
+Both formulas are exact. The value, the gradient and the Hessian of the log
+pseudo-determinant come from the similarity transformation of
+\code{\link[=additive_sum]{additive_sum()}}, which takes the traces in the transformed coordinates and
+not from a materialized \eqn{S^{+}}. All three are \code{NaN} at a setting that
+\code{\link[=additive_sum]{additive_sum()}} reports as not resolvable. \code{penalty_matrix()} assembles
+the sum directly, and \code{penalty_rank()} and \code{penalty_null_basis()} return
+the stored values.
 
-All three come from \code{\link[=additive_sum]{additive_sum()}}'s similarity transformation, which
-takes them in the transformed coordinates rather than from a materialized
-\eqn{S^{+}}, and all three are \code{NaN} at a setting it reports as
-unresolvable.
-
-\code{penalty_logpdet()} answers in the shape
+\code{penalty_logpdet()} returns the same shape as
 \code{\link[=penalty_logpdet.QuadraticPenalty]{penalty_logpdet.QuadraticPenalty()}} and
-\code{\link[=penalty_logpdet.StructuredPenalty]{penalty_logpdet.StructuredPenalty()}} answer in: \code{grad} a list keyed by
-\code{pen@params} and \code{hess} a list keyed by the pairs \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}
-uses, so a consumer written against those reads \code{grad$lambda1} here.
+\code{\link[=penalty_logpdet.StructuredPenalty]{penalty_logpdet.StructuredPenalty()}}: \code{grad} is a list keyed by
+\code{pen@params} and \code{hess} a list keyed by the pairs that
+\code{\link[=penalty_hess_theta]{penalty_hess_theta()}} uses, so code written for those branches reads
+\code{grad$lambda1} here.
 }
 \examples{
 P1 <- crossprod(diff(diag(5)))

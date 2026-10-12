@@ -6,7 +6,7 @@
 \alias{penalty_dhessian_beta.AdditivePenalty}
 \alias{penalty_dhessian_beta.StructuredPenalty}
 \alias{penalty_dhessian_beta.DistribPenalty}
-\title{What Each Branch Answers to penalty_dhessian_beta()}
+\title{Methods of penalty_dhessian_beta()}
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
@@ -22,14 +22,15 @@
 A square base matrix of side \code{pen@n_coef}, or an error.
 }
 \description{
-The base class rejects, naming the penalty. The quadratic, additive and
-structured branches return a zero matrix, their Hessian being free of the
-coefficients. The separable branch returns zero where its parent is
-quadratic in the argument and
+The method of the base class signals an error that names the penalty; it is
+the method that \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}} reach. The quadratic,
+additive and structured branches return a zero matrix, because their
+Hessian is free of the coefficients. The separable branch returns zero when
+\code{\link[=beta_quadratic]{beta_quadratic()}} is \code{TRUE} for it, and
 \eqn{-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)D} otherwise, with a
-block-diagonal middle matrix for a multivariate parent, and rejects for a
-kinked parent and for a multivariate parent that supplies no third response
-derivative.
+block-diagonal middle matrix for a multivariate parent. It signals an error
+for a kinked parent and for a multivariate parent that cannot supply its
+third response derivative.
 }
 \seealso{
 \code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}} for the generic.

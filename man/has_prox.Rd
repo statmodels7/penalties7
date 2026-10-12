@@ -7,45 +7,48 @@
 has_prox(pen)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch. Anything else is rejected.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch. Any other object signals an
+error.}
 }
 \value{
 A single logical.
 }
 \description{
-\code{TRUE} when \code{\link[=penalty_prox]{penalty_prox()}} can be evaluated for this penalty, so that a
-caller may route a block to a proximal method without provoking an error.
-\code{FALSE} when the penalty has none, and then the block belongs to a smooth
-method or to a scheme of its own.
+\code{TRUE} when \code{\link[=penalty_prox]{penalty_prox()}} has an operator for this penalty, so that a
+caller can route a block to a proximal method. \code{FALSE} when the penalty has
+none, and the block then goes to a smooth method or to a scheme of its own.
 }
 \section{What it tests}{
-The predicate asks four things in turn: whether the class registers a
-\code{\link[=penalty_prox]{penalty_prox()}} method of its own rather than inheriting the base class's
-refusal; whether the penalty is quadratic or structured, in which case the
-operator is a linear solve at any map; whether a separable parent is read in
-blocks, whose coordinates do not separate; and otherwise whether the map is
-absent or diagonal.
+The predicate tests four conditions in turn: whether the class registers a
+\code{\link[=penalty_prox]{penalty_prox()}} method of its own instead of inheriting the error method of
+the base class; whether the penalty is quadratic or structured, in which
+case the operator is a linear solve at any map; whether a separable parent
+is read in blocks, in which case the coordinates do not separate and the
+result is \code{FALSE}; and otherwise whether the map is absent or a \pkg{Matrix}
+diagonal object with nonzero entries, as \code{\link[=map_diagonal]{map_diagonal()}} reads it.
 
-Measured over the shipped branches:\tabular{ll}{
+The value for each shipped branch is:\tabular{ll}{
    penalty \tab \code{has_prox()} \cr
    quadratic, at any map \tab \code{TRUE} \cr
    structured \tab \code{TRUE} \cr
-   ridge, lasso, elastic net, heavy-tailed \tab \code{TRUE} \cr
-   lasso under a \strong{diagonal} map \tab \code{TRUE} \cr
-   SCAD, MCP \tab \code{TRUE} \cr
+   ridge, lasso, elastic net, heavy-tailed, with no map \tab \code{TRUE} \cr
+   a separable penalty under a \strong{diagonal} map with nonzero entries \tab \code{TRUE} \cr
+   SCAD, MCP, with no map or a \strong{diagonal} map with nonzero entries \tab \code{TRUE} \cr
    \strong{additive} \tab \code{FALSE} \cr
-   lasso under a \strong{general} map \tab \code{FALSE} \cr
+   a separable, SCAD or MCP penalty under a \strong{general} map \tab \code{FALSE} \cr
    a separable penalty read in blocks \tab \code{FALSE} \cr
 }
 }
 
-\section{What \code{TRUE} does not promise}{
-It says the penalty has an operator, not that every step reaches it. SCAD
-and MCP answer \code{TRUE} and still reject a step at or beyond \eqn{a - 1} and
-\eqn{\gamma}, where the subproblem is not convex and the operator is
-set-valued. A Laplace or elastic-net parent that is not centered at zero
-answers \code{TRUE} and rejects at the call. The predicate is about the penalty;
-those two conditions are about the step and the parent.
+\section{Conditions on the step and on the parent}{
+A \code{TRUE} value means that the penalty has an operator; a call can still
+signal an error for some steps and some parents. SCAD and MCP return \code{TRUE}
+and reject a step for which \eqn{t c_j} reaches \eqn{a - 1} or
+\eqn{\gamma} in some coordinate (with \eqn{c_j} the curvature and \eqn{t}
+multiplied by \eqn{d_j^2} under a diagonal map), because the subproblem is
+then not convex and the operator is set-valued. A Laplace or elastic-net
+parent that is not centered at zero, and a separable parent that declares a
+kink and has no closed form, return \code{TRUE}, and the call signals an error.
 }
 
 \examples{
@@ -53,20 +56,21 @@ c(lasso = has_prox(lasso_penalty()),
   scad  = has_prox(scad_penalty()),
   ridge = has_prox(ridge_penalty()))
 
-# The additive branch is the one that ships without an operator.
+# The additive branch has no operator.
 has_prox(additive_penalty(list(diag(3), diag(c(1, 1, 0)))))
 
-# A map decides it for a separable penalty: diagonal yes, general no.
+# For a separable penalty the value depends on the map: TRUE under a
+# diagonal map, FALSE under a general one.
 c(diagonal = has_prox(lasso_penalty(map = Matrix::Diagonal(x = c(1, 2, 3)))),
   general  = has_prox(lasso_penalty(map = rbind(c(1, -1, 0), c(0, 1, -1)))))
 
-# TRUE does not mean every step works: SCAD needs step < a - 1.
+# SCAD has an operator, and a step at a - 1 signals an error.
 has_prox(scad_penalty(n_coef = 1))
 try(penalty_prox(scad_penalty(n_coef = 1), 2, 2.7, list(lambda = 1, a = 3.7)))
 
 }
 \seealso{
 \code{\link[=penalty_prox]{penalty_prox()}} for the operator, \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} for it as
-a table, \code{\link[=is_quadratic]{is_quadratic()}} and \code{\link[=is_proper]{is_proper()}} for the other two predicates a
-consumer routes on.
+a table, \code{\link[=is_quadratic]{is_quadratic()}} and \code{\link[=is_proper]{is_proper()}} for the other two predicates
+that a fitting layer uses to route a block.
 }

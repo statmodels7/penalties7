@@ -12,23 +12,34 @@ additive_penalty(
 )
 }
 \arguments{
-\item{mats}{A list of symmetric positive semidefinite matrices, all of the
-same side, and at least one. Each is symmetrized, and a component that is
-zero, negative definite, or not symmetric to a relative \code{1e-8} is
-rejected by number.}
+\item{mats}{A list of at least one symmetric positive semidefinite matrix,
+all with the same number of rows. Each component is symmetrized. A
+component is rejected with an error that gives its position when it has
+an entry that is not finite (\code{NA}, \code{NaN} or infinite), when it differs
+from its transpose by more than \code{1e-8} times the larger of 1 and its
+largest absolute entry, when its largest eigenvalue is not positive (a
+zero or negative semidefinite matrix), or when its smallest eigenvalue is
+below \code{-tol} times its largest.}
 
-\item{map}{The matrix \eqn{D}, with as many rows as the components and one
-column per coefficient, or \code{NULL} (the default) for the identity. A map is
-absorbed at construction, each component becoming \eqn{D'P_kD}, so the
-stored \code{map} is always \code{NULL}.}
+\item{map}{The matrix \eqn{D}, with as many rows as each component has and
+one column per coefficient, or \code{NULL} (the default) for the identity. A
+map is absorbed at construction, each component becoming
+\eqn{D^\top P_kD}, so the stored \code{map} is always \code{NULL} and \code{n_coef} is
+the number of columns of the map. A map with an entry that is not finite
+is rejected, and so is a map that carries a component to the zero matrix,
+with an error that gives the position of that component.}
 
-\item{link_lambda}{The \pkg{linkfunctions7} link carrying each smoothing
-parameter onto the whole real line. \code{linkfunctions7::log_link()} by
-default, and the same link is used for all of them.}
+\item{link_lambda}{The \pkg{linkfunctions7} link that carries each smoothing
+parameter onto the whole real line, \code{linkfunctions7::log_link()} by
+default. The same link is used for every parameter.}
 
-\item{tol}{The relative eigenvalue tolerance, \code{1e-10} by default. Used twice:
+\item{tol}{The relative eigenvalue tolerance, \code{1e-10} by default. It is used
 to reject a component whose smallest eigenvalue is below \code{-tol} times its
-largest, and to count the rank of the normalized stack.}
+largest, and to count the rank of the sum of the components, each divided
+by its largest absolute entry. The object stores \code{tol}, and
+\code{\link[=additive_sum]{additive_sum()}} passes it to \code{\link[=additive_stable]{additive_stable()}} as \code{r_tol}, so the rank
+of each group of components in the similarity transformation is counted
+at the same tolerance as the rank of the sum.}
 }
 \value{
 An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object with one hyperparameter per component,
@@ -36,10 +47,10 @@ named \code{lambda1}, \code{lambda2}, ..., each bounded on \eqn{(0, \infty)}.
 }
 \description{
 Builds the Gaussian prior whose precision is a weighted sum of fixed
-matrices, one smoothing parameter to each. This is what an anisotropic
-tensor-product smooth needs: one parameter per margin, so a fit may be rough
-in one direction and smooth in another, where a single parameter would force
-every direction to be smoothed alike.
+positive semidefinite matrices, with one smoothing parameter for each
+matrix. An anisotropic tensor-product smooth uses this form: with one
+parameter per margin, the fit can be rough in one direction and smooth in
+another, whereas a single parameter smooths every direction alike.
 }
 \section{The value}{
 \deqn{\rho(\beta;\lambda) = \tfrac{1}{2}\beta^\top S(\lambda)\beta
@@ -48,85 +59,77 @@ every direction to be smoothed alike.
   S(\lambda) = \sum_{k} \lambda_k P_k,}
 
 with \eqn{r} the rank of the sum. The hyperparameters are named \code{lambda1},
-\code{lambda2} and so on, in the order the components were given, and each is
-positive on a log link.
+\code{lambda2} and so on, in the order in which the components were given. Each
+is positive and is carried onto the real line by \code{link_lambda}, a log link
+by default.
 }
 
-\section{The determinant's derivatives}{
-One eigendecomposition of \eqn{S(\lambda)} gives the pseudo-inverse
-\eqn{S^{+}}, and the quantities a marginal criterion reads follow from it:
+\section{The derivatives of the log pseudo-determinant}{
+With \eqn{S^{+}} the pseudo-inverse of \eqn{S(\lambda)}, the derivatives
+that a marginal criterion reads are traces against it:
 
 \deqn{\frac{\partial}{\partial\lambda_k}\log\mathrm{pdet}\,S
   = \operatorname{tr}(S^{+}P_k), \qquad
   \frac{\partial^{2}}{\partial\lambda_k\partial\lambda_l}
   \log\mathrm{pdet}\,S = -\operatorname{tr}(S^{+}P_kS^{+}P_l).}
 
-Both are exact, and both agree with the assembled quantity to 0.
+Both formulas are exact. \code{\link[=additive_sum]{additive_sum()}} evaluates the traces, together
+with the log pseudo-determinant, by the similarity transformation of
+\code{\link[=additive_stable]{additive_stable()}}, and never forms \eqn{S^{+}} itself.
 }
 
-\section{The rank is not read off the sum}{
-Counting the eigenvalues of \eqn{S(\lambda)} above a tolerance gives the
-right answer only while the parameters are comparable. Once they differ by
-orders of magnitude the small contributions sink below any fixed tolerance
-and are counted as zeros, so the rank appears to fall as the fit is
-smoothed. Measured on first and second differences over five coefficients,
-whose intersected null space is the constants:\tabular{lll}{
-   \eqn{\lambda_2/\lambda_1} \tab eigenvalues above \code{1e-10} \tab stored rank \cr
-   1 to 1e8 \tab 4 \tab 4 \cr
-   1e10 to 1e14 \tab \strong{3} \tab 4 \cr
+\section{The rank of the sum}{
+The rank and the null basis are computed once, at construction, from the
+sum of the components, each divided by its largest absolute entry, and the
+rank is the number of eigenvalues of that sum above \code{tol} times the
+largest. Both are then fixed: the null space of \eqn{S(\lambda)} is the
+intersection of the null spaces of the components at every positive
+\eqn{\lambda}. An eigenvalue count of the assembled \eqn{S(\lambda)} itself
+is correct only while the parameters are comparable. Once they differ by
+many orders of magnitude, the smaller contributions fall below any fixed
+relative tolerance and the count drops, although the stored null basis
+still annihilates the sum to rounding error.
 }
 
-
-while the null basis annihilates the assembled sum to \code{1e-16} relative at
-every one of those settings. So the rank is fixed once at construction, from
-the components stacked and individually normalized, and the object's answer
-cannot move. A test pins both halves.
+\section{Parameters that differ by many orders of magnitude}{
+The stored rank fixes how many eigenvalues enter the log
+pseudo-determinant, but it does not make those eigenvalues computable from
+the assembled sum. When the parameters differ by enough orders of magnitude,
+the condition number of \eqn{S(\lambda)} exceeds \eqn{1/\epsilon} and the
+smallest eigenvalue on the range falls below the absolute accuracy of one
+symmetric eigendecomposition, which is of order
+\eqn{d\,\epsilon\lVert S\rVert_{2}}. The log pseudo-determinant is therefore
+not taken, in general, from one decomposition of the assembled sum.
+\code{\link[=additive_stable]{additive_stable()}}, which \code{\link[=additive_sum]{additive_sum()}} calls, partitions the
+components by the size of their contributions and transforms by
+similarity, so that each decomposition resolves only the spread within one
+group of components. The sum is decomposed as a whole only when every
+contribution is at least \code{\link[=additive_tol]{additive_tol()}} times the largest, or when the
+dominant group alone has the rank of the sum. The identities of the
+transformation are exact, and the accuracy of the value
+and of both derivative blocks is limited by the conditioning of the
+dominant group at each level of the partition rather than by the spread of
+the parameters. Where the weighted sum or one of its reductions overflows,
+or where the rank identity that \code{\link[=additive_sum]{additive_sum()}} checks at every call is
+violated or cannot be evaluated, the log pseudo-determinant and its
+derivatives are \code{NaN}, without an error. Such points become more frequent
+as the spread and the number of components grow.
 }
 
-\section{Where the parameters spread far apart}{
-The stored rank keeps the SELECTION steady, and it does not make the
-selected eigenvalues resolvable. Once the parameters differ by enough
-orders of magnitude the condition number of \eqn{S(\lambda)} passes
-\eqn{1/\epsilon} and the smallest eigenvalue spanning the range falls
-below the absolute accuracy of one decomposition, which is of order
-\eqn{d\,\epsilon\lVert S\rVert_{2}}. So the determinant is not taken from
-one decomposition of the assembled sum: \code{\link[=additive_sum]{additive_sum()}} partitions the
-components by the size they contribute and transforms by similarity, so
-that no decomposition ever has to resolve the spread. The value and both
-derivative blocks are then finite and accurate wherever a double can hold
-\eqn{S(\lambda)} at all -- measured against the exact asymptote, out by
-\code{2.1e-16} at a spread of \code{1e250} and by nothing at all at \code{1e60} and
-\code{1e150}, where one decomposition of the sum returns \code{NaN} or a plausible
-wrong number and was out by as much as 618.
-
-This is a region a fit reaches: measured over ten \code{te()} and
-\code{\link[basis7:adaptive_smooth]{basis7::adaptive_smooth()}} shapes at five seeds, two noise assignments and
-four families, 36810 of 103518 calls fall past what one decomposition can
-resolve. What it buys is measured on the fits rather than on the
-determinant: over twenty-one fits of seven shapes in four families, the
-search converges on twenty against sixteen before, none is lost, and the
-root mean square error against the truth moves by at most \code{8.8e-04} on an
-error of \code{0.037}.
-
-By the time a component's parameter is that large the term has contracted
-onto that component's null space and the fitted values have stopped
-moving, so what changes is chiefly the parameter a summary reports and the
-criterion it was chosen by.
-}
-
-\section{What this branch supplies}{
-\code{\link[=is_quadratic]{is_quadratic()}} answers \code{TRUE}, a sum of quadratic forms being a quadratic
+\section{The quantities of a marginal criterion}{
+\code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE}, a sum of quadratic forms being a quadratic
 form, so \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}} and
-\code{\link[=penalty_logpdet]{penalty_logpdet()}} all answer and \code{\link[=check_penalty]{check_penalty()}} runs its three
-quadratic rows here. What is particular is that the matrix moves with one
-hyperparameter per component, where the plain quadratic branch has a
-single scale, so the log
-pseudo-determinant is linear in none of them and the row that checks it
-compares a gradient against \code{numDeriv} where the plain quadratic branch
-reads a slope.
+\code{\link[=penalty_logpdet]{penalty_logpdet()}} all have methods for this class, and \code{\link[=check_penalty]{check_penalty()}}
+runs its quadratic rows here (the row of the null basis only when the null
+basis has columns). The matrix moves with one hyperparameter per
+component, whereas the plain quadratic branch has a single scale, so the
+log pseudo-determinant is not linear in the logarithm of any one parameter.
+The row of \code{\link[=check_penalty]{check_penalty()}} that checks it therefore compares its gradient
+with \code{numDeriv}, where the plain quadratic branch checks a slope.
 
-\code{\link[=has_prox]{has_prox()}} answers \code{FALSE}, this branch registering no
-\code{\link[=penalty_prox]{penalty_prox()}}, which is asked before \code{is_quadratic()} is.
+\code{\link[=has_prox]{has_prox()}} returns \code{FALSE}. That function first tests whether the class
+registers a \code{\link[=penalty_prox]{penalty_prox()}} method of its own, before it calls
+\code{\link[=is_quadratic]{is_quadratic()}}, and this class registers none.
 }
 
 \examples{
@@ -137,20 +140,20 @@ pen <- additive_penalty(list(kronecker(diag(4), P), kronecker(P, diag(4))))
 pen@params
 c(n_coef = pen@n_coef, rank = penalty_rank(pen))
 
-# Raising one parameter charges for roughness along that margin alone.
+# Raising one parameter penalizes roughness along that margin alone.
 set.seed(2)
 b <- rnorm(16)
 penalty_value(pen, b, list(lambda1 = 1, lambda2 = 1))
 penalty_value(pen, b, list(lambda1 = 1, lambda2 = 100))
 
-# With one component the branch is the plain quadratic penalty.
+# With one component the value is that of the plain quadratic penalty.
 P2 <- crossprod(diff(diag(5), differences = 2))
 bb <- c(0.4, -1.1, 0.7, 0.2, -0.3)
 penalty_value(additive_penalty(list(P2)), bb, list(lambda1 = 3)) -
   penalty_value(quadratic_penalty(P2), bb, list(lambda = 3))
 
-# The stored rank does not move as the parameters spread apart, where an
-# eigenvalue count of the assembled sum does.
+# The stored rank stays fixed as the parameters spread apart, while an
+# eigenvalue count of the assembled sum drops.
 a <- additive_penalty(list(crossprod(diff(diag(5))), P2))
 penalty_rank(a)
 sapply(c(1, 1e10), function(r) {
@@ -163,6 +166,7 @@ sapply(c(1, 1e10), function(r) {
 \seealso{
 \code{\link[=quadratic_penalty]{quadratic_penalty()}} for one matrix with one scale,
 \code{\link[=structured_penalty]{structured_penalty()}} for a matrix whose entries move with the
-hyperparameters, \code{\link[=penalty_logpdet.AdditivePenalty]{penalty_logpdet.AdditivePenalty()}} for the determinant
-and its derivatives, \code{\link[=additive_sum]{additive_sum()}} for the decomposition they share.
+hyperparameters, \code{\link[=penalty_logpdet.AdditivePenalty]{penalty_logpdet.AdditivePenalty()}} for the log
+pseudo-determinant and its derivatives, \code{\link[=additive_sum]{additive_sum()}} for the
+computation that they share.
 }

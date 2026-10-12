@@ -16,13 +16,14 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 # penalties7 <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 Penalties for regularized and Bayesian regression as S7 objects. A
-penalty is $\rho(D\beta; \theta)$ – a linear map, a scalar function,
-hyperparameters – and the object answers everything an estimation
-routine asks: the value with its normalizing constant, the exact
-derivatives in the coefficients and in the hyperparameters, the mixed
-block, the kink set, the proximal operator where one exists, and, for
-the quadratic branch, the rank, the null basis and the log
-pseudo-determinant a marginal criterion consumes.
+penalty is $\rho(D\beta; \theta)$, made of a linear map $D$, a scalar
+function $\rho$ and hyperparameters $\theta$. The object supplies the
+value with its normalizing constant, the derivatives in the coefficients
+and in the hyperparameters (in closed form for every penalty that
+ships), the mixed block, the points where the penalty is not smooth, the
+proximal operator where one exists, and, for the quadratic branches, the
+rank, the null basis and the log pseudo-determinant that a marginal
+criterion uses.
 
 Part of the [statmodels7](https://statmodels7.github.io) toolkit.
 
@@ -35,11 +36,13 @@ pak::pak("statmodels7/penalties7")
 
 ## The branches
 
-`quadratic_penalty()` carries a fixed matrix $P$ and one smoothing
-parameter, so it is the negative log-density of the improper Gaussian
-prior with precision $\lambda P$. Its rank, null basis and log
-pseudo-determinant are fixed at one eigendecomposition when the object
-is built.
+`quadratic_penalty()` carries a fixed positive semidefinite matrix $P$,
+an optional map $D$ and one smoothing parameter $\lambda$. Its value is
+the negative log-density of the Gaussian prior on $\beta$ with precision
+$\lambda D^\top P D$, which is improper when that matrix is singular, as
+it is for the second-difference penalty below. The rank, the null basis
+and the log pseudo-determinant are computed from the eigendecomposition
+of $D^\top P D$ when the object is built.
 
 ``` r
 P <- crossprod(diff(diag(6), differences = 2))   # a second-difference penalty
@@ -51,12 +54,12 @@ penalty_value(pen, rep(1, 6), list(lambda = 1))
 #> [1] 1.348774
 ```
 
-The `blocks` argument covers the penalty of $I_m \otimes P$, which is
-what a smooth repeated over the levels of a factor needs, and builds it
-from one block: the eigenvalues of the Kronecker product are $P$’s
-repeated $m$ times, so the rank, the log pseudo-determinant and the null
-basis all follow from the small matrix and the large one is never
-formed.
+The `blocks` argument builds the penalty of $I_m \otimes P$, which is
+the penalty of a smooth repeated over the levels of a factor, from the
+single block $P$. The eigenvalues of the Kronecker product are those of
+$P$ repeated $m$ times, so the rank, the log pseudo-determinant and the
+null basis follow from the small matrix. The large matrix is stored as a
+sparse matrix and is never decomposed.
 
 ``` r
 blocked <- quadratic_penalty(P, blocks = 50)
@@ -65,12 +68,15 @@ c(rank = penalty_rank(blocked), columns = 6 * 50)
 #>     200     300
 ```
 
-`additive_penalty()` is a sum of quadratics with a smoothing parameter
-on each, which is what an anisotropic tensor smooth needs. The rank is
-fixed at construction from the components stacked and normalized: the
-null space of a sum of positive semidefinite matrices is the
-intersection of theirs and does not move with the parameters, while a
-count taken from the assembled $S(\lambda)$ falls as they spread apart.
+`additive_penalty()` is a sum of quadratic penalties with a smoothing
+parameter on each, $S(\lambda) = \sum_k \lambda_k P_k$, which is the
+penalty of an anisotropic tensor-product smooth. The null space of a sum
+of positive semidefinite matrices is the intersection of their null
+spaces and does not depend on the smoothing parameters, so the rank is
+computed once, at construction, from the sum of the components with each
+one divided by its largest absolute entry. A count of the nonzero
+eigenvalues of $S(\lambda)$ itself would fall as the smoothing
+parameters spread apart.
 
 ``` r
 P1 <- crossprod(diff(diag(6), differences = 2))
@@ -80,17 +86,18 @@ penalty_rank(add)
 #> [1] 5
 ```
 
-`distrib_penalty()` applies a univariate
-[distributions7](https://statmodels7.github.io/distributions7/)
-log-density coordinatewise, which is what a separable penalty *is*:
-`lasso_penalty()` is a Laplace at zero, `elasticnet_penalty()` the
-product of a Laplace and a Gaussian, and `heavy_penalty()` a Student t
-whose degrees of freedom are estimable because the normalizing constant
-travels with the density.
+`distrib_penalty()` builds a penalty from a continuous
+[distributions7](https://statmodels7.github.io/distributions7/) family.
+The value is the negative log-density of the family at the coordinates
+of $D\beta$, taken one coordinate at a time for a univariate family,
+which gives a separable penalty, and one block at a time for a
+multivariate family. `lasso_penalty()` is a Laplace at zero,
+`elasticnet_penalty()` the product of a Laplace and a Gaussian, and
+`heavy_penalty()` a Student t, whose degrees of freedom can be estimated
+because the normalizing constant is part of the value.
 
 ``` r
 lasso <- lasso_penalty(n_coef = 3)
-enet  <- elasticnet_penalty(n_coef = 3)
 
 penalty_value(lasso, c(1, -2, 0.5), list(lambda = 2))
 #> [1] 7
@@ -98,19 +105,22 @@ penalty_kinks(lasso, list(lambda = 2))   # where the density is not smooth
 #> [1] 0
 ```
 
-`ridge_penalty()` is the exception, and it is an exception to the branch
-rather than to the rule. The Gaussian at zero written by its
-**precision** is exactly the quadratic penalty at the identity matrix,
-to the last bit, so it is built there and its hyperparameter is the
-`lambda` that construction already carries. Every penalty here is then
-written on the chart where a larger value shrinks harder.
+`ridge_penalty()` is the Gaussian at zero written by its precision
+$\lambda$, which is the quadratic penalty at the identity matrix. It is
+therefore built by `quadratic_penalty()` and not by `distrib_penalty()`,
+and its hyperparameter is the `lambda` of the quadratic branch. The
+separable Gaussian is the same prior written by its standard deviation
+$\sigma = 1/\sqrt{\lambda}$, and the two values agree to rounding error.
+In the ridge, the lasso, the elastic net, SCAD and MCP a larger `lambda`
+shrinks harder; in `heavy_penalty()` the hyperparameter `sigma` is a
+scale, and a larger value shrinks less.
 
 ``` r
 ridge <- ridge_penalty(n_coef = 3)
 penalty_value(ridge, c(1, -1, 2), list(lambda = 1))
 #> [1] 5.756816
 
-# the separable Gaussian is kept as the twin the quadratic one is held to
+# the same prior on the separable branch, written by sigma = 1 / sqrt(lambda)
 twin <- distrib_penalty(
   distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
   n_coef = 3)
@@ -118,16 +128,15 @@ penalty_value(twin, c(1, -1, 2), list(sigma = 1))
 #> [1] 5.756816
 ```
 
-`structured_penalty()` takes a
+`structured_penalty()` reads a
 [parameters7](https://statmodels7.github.io/parameters7/) matrix
-parameter as the **precision**, so the hyperparameters are that
-structure’s free values and every derivative comes from its derivative
-arrays. At a zero log-Cholesky free vector it is the plain ridge.
-
-Which of the two matrices of the prior the parameter is has to be said,
-and the parameter says it: a structure declaring itself usable as either
-is rejected rather than guessed at, the two readings differing in the
-sign of the log-determinant term.
+parameter as the precision of a Gaussian prior, so the hyperparameters
+are the free values of that structure and every derivative comes from
+its derivative arrays. A structure meant as a covariance is passed as
+`parameters7::inverse_of()` of the structure, which gives a different
+prior at the same free values. At a zero log-Cholesky free vector the
+precision is the identity matrix, and the penalty equals the ridge at
+$\lambda = 1$.
 
 ``` r
 st <- structured_penalty(parameters7::log_cholesky(3))
@@ -142,11 +151,14 @@ c(structured = penalty_value(st, c(1, -1, 2), eta),
 ```
 
 `scad_penalty()` and `mcp_penalty()` are defined by their derivative
-rather than by a density. Both are the lasso near the origin and flat
-far from it, so a large coefficient is left alone where the lasso would
-go on shrinking it; a second hyperparameter says how quickly the penalty
-flattens. Having no integrable density they carry no normalizing
-constant, and `is_proper()` says which penalties do.
+rather than by a density. Both have the slope $\lambda$ of the lasso at
+the origin and become flat far from it, so a large coefficient is not
+shrunk at all, while the lasso shrinks every nonzero coefficient by the
+same amount. The second hyperparameter (`a` for SCAD, `gamma` for MCP)
+sets the point $a\lambda$ or $\gamma\lambda$ beyond which the penalty is
+flat. Their value is bounded, so $\exp(-\rho)$ is not integrable and
+they carry no normalizing constant. `is_proper()` returns `TRUE` for the
+penalties that are proper priors.
 
 ``` r
 scad <- scad_penalty(n_coef = 3)
@@ -157,7 +169,7 @@ vapply(list(ridge = ridge, lasso = lasso, scad = scad, mcp = mcp),
 #> ridge lasso  scad   mcp 
 #>  TRUE  TRUE FALSE FALSE
 
-# the derivative: the lasso's slope near zero, nothing past the threshold
+# the derivative: close to lambda near zero, zero past the threshold
 b <- c(0.2, 2, 8)
 rbind(lasso = penalty_gradient(lasso, b, list(lambda = 1)),
       scad  = penalty_gradient(scad,  b, list(lambda = 1, a = 3.7)),
@@ -172,12 +184,18 @@ rbind(lasso = penalty_gradient(lasso, b, list(lambda = 1)),
 
 `penalty_prox()` evaluates
 $\operatorname{prox}_{t\rho}(v) = \arg\min_\beta \{\tfrac{1}{2}\lVert\beta -
-v\rVert^2 + t\,\rho(\beta;\theta)\}$, which is one step of a proximal
-gradient method. It is a linear solve for the quadratic and structured
-branches at any map, a closed form for the Gaussian, Laplace and
-elastic-net instances, the closed piecewise operators of SCAD and MCP
-over their convex regions, and a coordinatewise root otherwise.
-`has_prox()` says which.
+v\rVert^2 + t\,\rho(\beta;\theta)\}$, the operator that a proximal
+gradient method applies after each gradient step. For the quadratic and
+structured branches it is a linear solve, under any map. For the
+Gaussian, Laplace and elastic-net priors at zero it has a closed form,
+and for SCAD and MCP it is the closed piecewise operator, available
+while the step keeps the problem convex (a step below $a - 1$ for SCAD
+and below $\gamma$ for MCP). For any other separable parent with a
+smooth log-density it is the global minimizer among the roots of the
+stationary condition, coordinate by coordinate. The separable operators
+need the identity map or a diagonal one. `has_prox()` returns `FALSE`
+for the additive branch, for a separable penalty under a map that is not
+diagonal and for a multivariate parent, which have no operator.
 
 ``` r
 v <- c(2, -0.4, 0.9)
@@ -189,12 +207,17 @@ sign(v) * pmax(abs(v) - 1, 0)                                # by hand
 
 ## Validation
 
-`check_penalty()` runs the numerical checks a penalty must pass – the
-gradients and Hessians in the coefficients and in the hyperparameters
-against finite differences, the mixed block, the proximal operator
-against its own defining minimization – and is meant above all for a
-penalty written outside the package. Injecting a deliberate error is
-what says the checks are not trivially passing.
+`check_penalty()` compares the derivatives of a penalty with numerical
+references computed by numDeriv: the gradient and the Hessian in the
+coefficients, the gradient and every entry of the Hessian in the
+hyperparameters, and the mixed block. For a quadratic penalty it also
+checks the three-point identity of a quadratic form, the log
+pseudo-determinant and the null basis. It does not test the proximal
+operator. The function is meant above all for a penalty written outside
+the package; the article [Defining a
+penalty](https://statmodels7.github.io/penalties7/articles/defining-a-penalty.html)
+writes one and validates it, and the examples of `check_penalty()` show
+the row that fails when a gradient is wrong.
 
 ``` r
 res <- check_penalty(ridge_penalty(n_coef = 3), verbose = FALSE)

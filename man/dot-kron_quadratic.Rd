@@ -17,8 +17,9 @@
 }
 \value{
 A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} with \code{n_coef} equal to \code{m * nrow(P)}, whose
-\code{P}, \code{DPD} and \code{null_basis} are \code{dgCMatrix} objects. Rejects a \code{P} whose
-eigenvalues are all below the tolerance.
+\code{P}, \code{DPD} and \code{null_basis} are \code{dgCMatrix} objects. \code{P} is checked to be
+positive semidefinite and not zero by \code{\link[=quadratic_penalty]{quadratic_penalty()}} before the
+call.
 }
 \description{
 Builds the penalty of \eqn{I_m \otimes P} from \eqn{P} alone, and returns a
@@ -26,22 +27,19 @@ Builds the penalty of \eqn{I_m \otimes P} from \eqn{P} alone, and returns a
 \code{\link[=quadratic_penalty]{quadratic_penalty()}} when \code{blocks} is above one.
 }
 \details{
-A quadratic penalty needs three things from its matrix: the rank, the log
-pseudo-determinant and a basis of the null space. All three follow from
-\eqn{P}, because the eigenvalues of \eqn{I_m \otimes P} are \eqn{P}'s
-repeated \eqn{m} times: the rank is \eqn{mr}, the log pseudo-determinant is
-\eqn{m\log\mathrm{pdet}(P)}, and the null space is \eqn{I_m \otimes N}. The
-large matrix is assembled with \code{\link[Matrix:kronecker-methods]{Matrix::kronecker()}} and stored, never
-decomposed.
+Three quantities of a quadratic penalty come from its matrix: the rank, the
+log pseudo-determinant and a basis of the null space. All three follow from
+\eqn{P}, because the eigenvalues of \eqn{I_m \otimes P} are those of
+\eqn{P} repeated \eqn{m} times: the rank is \eqn{mr}, the log
+pseudo-determinant is \eqn{m\log\mathrm{pdet}(P)}, and the null space is
+\eqn{I_m \otimes N}. One eigendecomposition of \eqn{P} supplies the
+eigenvalues and the eigenvectors, and one mask selects both the rank and
+the null basis. The large matrix is assembled in sparse form with
+\code{\link[Matrix:kronecker-methods]{Matrix::kronecker()}} and stored, and it is never decomposed, so the cost
+of the construction is that of decomposing \eqn{P}.
 
-The saving is the whole of the construction. On second differences over ten
-coefficients at \eqn{m = 200}, the assembled route spends 4.79 s in
-\code{eigen()} against 2.9e-05 s here, and 5.82 s in all against 0.001 s. The
-stored matrix is 0.11 MB against 30.5 MB, at a density of 0.0022, which
-follows from the sparse storage.
-
-The same identity carries \code{\link[parameters7:kron_identity]{parameters7::kron_identity()}} on the other side
-of the toolkit, for the covariance of grouped random effects.
+The same identity underlies \code{\link[parameters7:kron_identity]{parameters7::kron_identity()}}, for the
+covariance of grouped random effects.
 }
 \seealso{
 \code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[parameters7:kron_identity]{parameters7::kron_identity()}}

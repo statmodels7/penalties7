@@ -33,17 +33,20 @@ derivatives, \code{penalty_hess_theta()} the three second derivatives, and
 hyperparameter.
 }
 \details{
-Inside the taper the value is \eqn{\lambda u - u^2/(2\gamma)}, so
-\eqn{\partial\rho/\partial\lambda = u} and
-\eqn{\partial\rho/\partial\gamma = u^2/(2\gamma^2)}; beyond it the value is
-\eqn{\gamma\lambda^2/2} and the two derivatives are \eqn{\gamma\lambda} and
-\eqn{\lambda^2/2}, neither depending on the coefficient. The second
-derivative in \eqn{\lambda} is therefore zero inside the taper, the value
-being linear in \eqn{\lambda} there.
+At unit curvature, inside the taper the value is
+\eqn{\lambda u - u^2/(2\gamma)}, so \eqn{\partial\rho/\partial\lambda = u}
+and \eqn{\partial\rho/\partial\gamma = u^2/(2\gamma^2)}; beyond it the value
+is \eqn{\gamma\lambda^2/2} and the two derivatives are \eqn{\gamma\lambda}
+and \eqn{\lambda^2/2}, and neither depends on the coefficient. The second
+derivative in \eqn{\lambda} is therefore zero inside the taper, where the
+value is linear in \eqn{\lambda}. With curvature \eqn{c_j} the coordinate
+contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, and each derivative follows
+by the chain rule through \eqn{\lambda/c_j}.
 
-As for SCAD, these derivatives exist and no marginal criterion can use them:
-the expansion such a criterion rests on needs a mode at which the penalty is
-twice differentiable, and a mode with a coefficient at zero is on the kink.
+As for SCAD, a marginal criterion cannot use these derivatives: the
+expansion on which such a criterion rests requires a mode at which the
+penalty is twice differentiable, and a mode with a coefficient at zero lies
+on the kink.
 }
 \examples{
 pen <- mcp_penalty(n_coef = 3)

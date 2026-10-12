@@ -29,12 +29,11 @@ blockwise, whose middle matrix is block diagonal. With a \code{NULL} map the
 first returns \code{diag(h)} and the second returns \eqn{M}.
 }
 \details{
-Both return a base matrix even when the map is a \pkg{Matrix}. A
-\pkg{Matrix} map carries its class through the crossproduct, and the result
-would then be the one thing in the contract that is not a base matrix: the
-identity-map branch is already dense at any width, \code{\link[=map_back]{map_back()}} coerces its
-vector for the same reason, and a consumer writing this into a block of its
-own information fails on the class before it fails on the arithmetic. The
-coercion is done here, where the contract is stated.
+Both return a base matrix even when the map is a \pkg{Matrix} object. The
+crossproduct of a \pkg{Matrix} map would otherwise be a \pkg{Matrix}
+object, whereas the result for a \code{NULL} map is a base matrix and
+\code{\link[=map_back]{map_back()}} returns a plain vector. The conversion is made here so that
+the caller receives a base matrix from every branch and can write it into
+a block of a base information matrix.
 }
 \keyword{internal}

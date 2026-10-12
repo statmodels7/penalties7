@@ -15,8 +15,8 @@ dp_flat(pen, g)
 \item{t}{The mapped coefficient vector \eqn{D\beta}, of length a multiple of
 \code{pen@block}. \code{dp_arg()} only.}
 
-\item{g}{The parent's answer: a vector for a univariate parent, a matrix of
-one row per block for a multivariate one. \code{dp_flat()} only.}
+\item{g}{The result of the parent: a vector for a univariate parent, a
+matrix of one row per block for a multivariate one. \code{dp_flat()} only.}
 }
 \value{
 \code{dp_arg()} the vector unchanged when \code{pen@block} is \code{1L}, and
@@ -24,20 +24,20 @@ otherwise a matrix with \code{pen@block} columns filled by row.
 \code{dp_flat()} a numeric vector, in coefficient order.
 }
 \description{
-\code{dp_arg()} reshapes \eqn{D\beta} into the argument the parent reads: the
+\code{dp_arg()} reshapes \eqn{D\beta} into the argument of the parent: the
 vector itself for a univariate parent, and a matrix of one row per block for
-a multivariate one. \code{dp_flat()} undoes the reshaping, carrying the parent's
-answer back to a vector in coefficient order.
+a multivariate one. \code{dp_flat()} undoes the reshaping, carrying the result
+of the parent back to a vector in coefficient order.
 }
 \details{
 The blocks are the \strong{successive} stretches of \eqn{D\beta}, so the
 reshaping fills by row: block \eqn{i} occupies positions
-\eqn{(i-1)p+1, \dots, ip}. That is the order a grouped design assembles its
-coefficients in, and the order \eqn{I_m \otimes \Sigma} assumes, so the two
-agree without either being told about the other.
+\eqn{(i-1)p+1, \dots, ip}. This is the order in which a grouped design
+assembles its coefficients and the order that \eqn{I_m \otimes \Sigma}
+assumes, so the two agree.
 
-Both are the identity when the block width is one, which is every univariate
-parent, and the pair costs nothing there.
+Both functions return their argument unchanged when the block width is
+one, which is the case of every univariate parent.
 }
 \seealso{
 \code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=dp_blockdiag]{dp_blockdiag()}} for the matrix-valued

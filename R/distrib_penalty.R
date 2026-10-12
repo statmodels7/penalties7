@@ -4,45 +4,89 @@ NULL
 #' @title S7 Class for the Separable Penalty
 #'
 #' @description
-#' The class [distrib_penalty()] builds: a penalty formed by applying a
-#' \pkg{distributions7} log-density to the successive blocks of \eqn{D\beta}.
-#' Beyond the seven properties every penalty carries it stores the parent
-#' distribution, the points where the parent's log-density has a kink, and the
-#' block width, which is one for a univariate parent and the dimension for a
-#' multivariate one.
+#' The class of the penalties that [distrib_penalty()] builds: a penalty formed
+#' by applying a \pkg{distributions7} log-density to the successive blocks of
+#' \eqn{D\beta}. Beyond the seven properties that every penalty carries, the
+#' class stores the parent distribution, the points where the parent's
+#' log-density has a kink, the block width (one for a univariate parent and
+#' the dimension for a multivariate one) and the log-Jacobian of the map.
 #'
 #' @details
-#' The hyperparameters are the parent's own free parameters, and `params`,
-#' `params_bounds` and `link_params` are read straight off the distribution
-#' object. A caller who knows the parent therefore knows the penalty's
-#' hyperparameters, their bounds and their links without being told again.
+#' The hyperparameters are the parent's own free parameters. The properties
+#' `params`, `params_bounds`, `link_params` and `params_smooth` are copied
+#' from the distribution object, so the hyperparameters of the penalty, their
+#' bounds, their links and their smoothness are those of the parent.
+#'
+#' @section Methods:
+#' The methods registered on this class, by the page that documents each.
+#'
+#' * The value and its coefficient derivatives:
+#'   [penalty_value()][penalty_value.DistribPenalty],
+#'   [penalty_gradient()][penalty_gradient.DistribPenalty] and
+#'   [penalty_hessian()][penalty_hessian.DistribPenalty].
+#' * The hyperparameter derivatives:
+#'   [penalty_grad_theta()][penalty_grad_theta.DistribPenalty],
+#'   [penalty_hess_theta()][penalty_hess_theta.DistribPenalty] and
+#'   [penalty_cross()][penalty_cross.DistribPenalty].
+#' * The predicates and the structure of the prior:
+#'   [penalty_kinks()][penalty_kinks.DistribPenalty],
+#'   [is_proper()][is_proper.DistribPenalty],
+#'   [penalty_null_basis()][penalty_null_basis.DistribPenalty] and
+#'   [penalty_readable()][penalty_readable.DistribPenalty].
+#' * The higher derivatives of a marginal criterion:
+#'   [penalty_dhessian()][penalty_dhessian.DistribPenalty],
+#'   [penalty_d2hessian()][penalty_d2hessian.DistribPenalty],
+#'   [penalty_dcross()][penalty_dcross.DistribPenalty] and
+#'   [beta_quadratic()][beta_quadratic.DistribPenalty].
+#' * The movement of the Hessian with the coefficients:
+#'   [penalty_dhessian_beta()][penalty_dhessian_beta.DistribPenalty],
+#'   [penalty_d2hessian_beta()][penalty_d2hessian_beta.DistribPenalty] and
+#'   [penalty_dhessian_beta_theta()][penalty_dhessian_beta_theta.DistribPenalty].
+#' * The proximal operator and the draws:
+#'   [penalty_prox()][penalty_prox.DistribPenalty],
+#'   [penalty_prox_spec()][penalty_prox_spec.DistribPenalty] and
+#'   [penalty_draw()][penalty_draw.DistribPenalty].
+#'
+#' The class registers no [is_quadratic()][is_quadratic.penalty],
+#' [penalty_matrix()][penalty_matrix.penalty],
+#' [penalty_rank()][penalty_rank.penalty] or
+#' [penalty_logpdet()][penalty_logpdet.penalty] method, so the methods of the
+#' base class [penalty()] are used for those generics.
 #'
 #' @inheritParams penalty
-#' @param parent The \pkg{distributions7} object the log-density comes from,
-#'   usually a [distributions7::fixed()] wrapper holding the location at zero.
+#' @param parent The \pkg{distributions7} object that supplies the
+#'   log-density, usually a [distributions7::fixed()] wrapper holding the
+#'   location at zero.
 #' @param kinks A numeric vector of the points where the parent's log-density
-#'   is not differentiable in its argument, possibly empty. Derived by
-#'   [distrib_kinks()] unless the constructor was told otherwise.
+#'   is not differentiable in its argument, possibly empty. [distrib_penalty()]
+#'   derives it with [distrib_kinks()] unless its argument `kinks` is supplied.
 #' @param block The block width: `1L` for a univariate parent and the parent's
 #'   `n_dim` for a multivariate one.
+#' @param log_jacobian \eqn{\log\lvert\det D\rvert}, computed by
+#'   [map_log_jacobian()][dp_diag_entries] when the penalty is built: `0`
+#'   without a map, a finite number for a square nonsingular map, and `NA` for
+#'   a map that is not square or is singular. The default is `NA`.
 #'
 #' @return An S7 object of class `DistribPenalty`, inheriting from [penalty()],
-#'   with the seven inherited properties and the three above.
+#'   with the seven inherited properties and the four above.
 #'
-#' @seealso [distrib_penalty()] for the constructor to use,
+#' @seealso [distrib_penalty()] for the constructor,
 #'   [ridge_penalty()] and its siblings for the named instances,
-#'   [penalty_value.DistribPenalty()] for what the branch computes.
+#'   [penalty_value.DistribPenalty()] for the value of the penalty.
 #'
 #' @examples
 #' pen <- lasso_penalty(n_coef = 2)
 #' S7::S7_inherits(pen, DistribPenalty)
 #'
-#' # The parent is a fixed Laplace, the kink is at zero, blocks are single
-#' # coordinates, and the hyperparameter is the parent's own rate.
+#' # The parent is a fixed Laplace, the kink is at zero, the blocks are single
+#' # coordinates, and the hyperparameter is the rate of the parent.
 #' pen@parent
 #' pen@kinks
 #' pen@block
 #' pen@params
+#'
+#' # Without a map the log-Jacobian is zero.
+#' pen@log_jacobian
 #'
 #' @keywords internal
 #' @export
@@ -52,7 +96,8 @@ DistribPenalty <- S7::new_class(
   properties = list(
     parent = S7::class_any,
     kinks = S7::class_numeric,
-    block = S7::class_integer
+    block = S7::class_integer,
+    log_jacobian = S7::new_property(S7::class_numeric, default = NA_real_)
   )
 )
 
@@ -67,11 +112,11 @@ DistribPenalty <- S7::new_class(
 #' on each other while the blocks stay independent.
 #'
 #' @details
-#' # The hyperparameters are the distribution's
+#' # Hyperparameters and derivatives
 #'
-#' `params`, `params_bounds` and `link_params` are read off the distribution
-#' rather than restated, and every derivative is the distribution's own,
-#' reassembled through the map:
+#' The properties `params`, `params_bounds`, `link_params` and
+#' `params_smooth` are copied from the distribution, and every derivative is
+#' the distribution's own, carried through the map:
 #'
 #' \deqn{\frac{\partial\rho}{\partial\beta} = -D'\ell^{(y)}, \qquad
 #'   \frac{\partial^2\rho}{\partial\beta^2}
@@ -79,64 +124,88 @@ DistribPenalty <- S7::new_class(
 #'   \frac{\partial^2\rho}{\partial\beta\,\partial\theta_k}
 #'     = -D'\ell^{(y\theta_k)},}
 #'
-#' with the middle matrix block diagonal instead of diagonal when the parent is
-#' multivariate. The hyperparameter blocks are the parent's score and Hessian
-#' summed over the blocks, and the mixed block is
-#' [distributions7::distrib_cross_y()], which exists for this.
+#' where the middle matrix is block diagonal instead of diagonal when the
+#' parent is multivariate. The hyperparameter derivatives are the parent's
+#' score and Hessian summed over the blocks, and the mixed derivative comes
+#' from [distributions7::distrib_cross_y()].
 #'
-#' # The constant is kept
+#' # Normalizing constant and Jacobian
 #'
-#' The normalizing constant comes with the density and is not dropped, so the
-#' value is exactly the negative log prior density. A free scale or a free
-#' \eqn{\nu} is then estimable: with the constant dropped, a prior scale could
-#' be sent to infinity for nothing.
+#' The normalizing constant of the density is kept, so the value is the
+#' negative log prior density. This makes a free scale or a free \eqn{\nu}
+#' estimable by a marginal criterion. With the constant dropped, the value of
+#' a Gaussian prior would decrease toward zero as its scale grows, and a
+#' criterion would send the scale to infinity.
 #'
-#' Under a diagonal map, which is what standardization builds, the value also
-#' carries the Jacobian of \eqn{\beta \mapsto D\beta}: it is
-#' \eqn{-\sum_i \log f(b_i;\theta) - \sum_j \log\lvert d_j\rvert}, the
-#' negative log-density of \eqn{\beta} rather than of \eqn{D\beta}. The term
-#' is constant in \eqn{\beta} and in \eqn{\theta}, so no derivative moves;
-#' it is what makes a marginal criterion invariant to the units of a
-#' covariate. Under any other map the value is the density of \eqn{D\beta}.
+#' Under a square nonsingular map the value also carries the Jacobian of
+#' \eqn{\beta \mapsto D\beta}: it is
+#' \eqn{-\sum_i \log f(b_i;\theta) - \log\lvert\det D\rvert}, the negative
+#' log-density of \eqn{\beta} instead of that of \eqn{D\beta}. Under a
+#' diagonal map, which is the map that standardization builds, the term is
+#' \eqn{\sum_j \log\lvert d_j\rvert}. The term is constant in \eqn{\beta} and
+#' in \eqn{\theta}, so it changes no derivative, and it makes a marginal
+#' criterion invariant to the units of a covariate. The determinant is
+#' computed once, when the penalty is built, and stored in the `log_jacobian`
+#' property; for a diagonal map it is recomputed from the entries each time
+#' the value is computed.
+#' Under a map that is not square, or is singular,
+#' \eqn{\exp(-\rho)} does not integrate to one over \eqn{\beta},
+#' [is_proper()] returns `FALSE`, and the value is
+#' \eqn{-\sum_i \log f(b_i;\theta)} with no further constant.
+#'
+#' A square base matrix or \pkg{Matrix} object whose off-diagonal entries are
+#' all exactly zero is stored as a [Matrix::Diagonal()] map. The proximal
+#' operator, the draws and the Jacobian recognize a diagonal map by its class,
+#' so this conversion makes their result depend on the entries of the map and
+#' not on the class in which it was supplied.
 #'
 #' # A multivariate parent
 #'
-#' Centering is the caller's, typically through [distributions7::fixed()] at a
-#' zero mean, and the matrix parameter carries the dependence within a block.
-#' The number of values the penalty is read at must divide into whole blocks,
-#' and the constructor rejects a count that does not, naming both numbers.
+#' The caller centers the parent, typically through
+#' [distributions7::fixed()] at a zero mean, and the matrix parameter carries
+#' the dependence within a block. The number of values at which the penalty
+#' is read must divide into whole blocks; otherwise the constructor signals an
+#' error that names the block width and the count.
 #'
-#' A blockwise penalty has **no proximal operator**: that operator acts one
-#' coordinate at a time and the coordinates of a block do not separate.
-#' [has_prox()] answers `FALSE` and [penalty_prox()] rejects.
+#' A blockwise penalty has **no proximal operator**, because that operator
+#' acts one coordinate at a time and the coordinates of a block do not
+#' separate. [has_prox()] returns `FALSE` and [penalty_prox()] signals an
+#' error.
 #'
 #' @param d A continuous \pkg{distributions7} object, univariate or
 #'   multivariate; typically a [distributions7::fixed()] wrapper holding the
-#'   location at zero. A discrete or otherwise non-continuous object is
-#'   rejected, naming its `dimension`.
+#'   location at zero. A univariate object must inherit from
+#'   [distributions7::continuous_distrib]; otherwise the constructor signals
+#'   an error that names the distribution. A multivariate object is rejected
+#'   in the same way when it is, or wraps, the \pkg{distributions7}
+#'   multinomial; a multivariate family written outside \pkg{distributions7}
+#'   is not checked. An object whose `dimension` is neither `"univariate"`
+#'   nor `"multivariate"` is rejected.
 #' @param map The matrix \eqn{D}, with one column per coefficient, or `NULL`
-#'   (the default) for the identity. A \pkg{Matrix} object keeps its own
-#'   storage, a diagonal map being what standardization is.
-#' @param n_coef The number of coefficients. Required when `map` is `NULL` and
-#'   ignored otherwise, `ncol(map)` being the count then.
+#'   (the default) for the identity. A \pkg{Matrix} object keeps its storage,
+#'   so a diagonal or sparse map is not densified, and a square map whose
+#'   off-diagonal entries are all zero is stored as a [Matrix::Diagonal()].
+#' @param n_coef The number of coefficients. It is required when `map` is
+#'   `NULL` and ignored otherwise, the count being `ncol(map)`.
 #' @param kinks The points where the parent's log-density is not
-#'   differentiable in its argument. `NULL`, the default, derives them with
-#'   [distrib_kinks()]; pass a numeric vector to say so directly, or
-#'   `numeric(0)` to declare there are none. A multivariate parent is given
-#'   `numeric(0)` without asking, a kink being a point of a scalar argument.
+#'   differentiable in its argument. With `NULL`, the default, they are
+#'   derived by [distrib_kinks()] for a univariate parent and set to
+#'   `numeric(0)` for a multivariate one, a kink being a point of a scalar
+#'   argument. A numeric vector is used as given, and `numeric(0)` declares
+#'   that there are none.
 #'
-#' @return A [DistribPenalty()] object whose hyperparameters, bounds and links
-#'   are the parent distribution's.
+#' @return A [DistribPenalty()] object whose hyperparameters, bounds, links
+#'   and `params_smooth` are those of the parent distribution.
 #'
 #' @examples
-#' # A Gaussian prior at zero: the separable twin of the ridge, written by
-#' # its standard deviation rather than by a precision.
+#' # A Gaussian prior at zero: the separable form of the ridge, written by
+#' # its standard deviation instead of a precision.
 #' d <- distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0)
 #' pen <- distrib_penalty(d, n_coef = 3)
 #' pen@params
 #' penalty_value(pen, c(1, 0, -1), list(sigma = 2))
 #'
-#' # Which is exactly the negative log-density of that prior.
+#' # The same number from stats::dnorm().
 #' -sum(stats::dnorm(c(1, 0, -1), sd = 2, log = TRUE))
 #'
 #' # A correlated prior over two coefficients per block, three blocks. The
@@ -149,11 +218,19 @@ DistribPenalty <- S7::new_class(
 #' penalty_value(pen2, c(1, 0, -1, 0.5, 0.2, -0.3),
 #'               list(sigma_log_L1 = 0, sigma_log_L2 = 0, sigma_L2.1 = 0.4))
 #'
-#' # And it has no proximal operator, the coordinates of a block being tied.
+#' # The blockwise penalty has no proximal operator.
 #' has_prox(pen2)
 #'
 #' # A count that does not divide into blocks is rejected.
 #' try(distrib_penalty(mv, n_coef = 5))
+#'
+#' # A square nonsingular map adds -log|det D| to the value, and a diagonal
+#' # base matrix is stored as a Matrix::Diagonal.
+#' D <- matrix(c(2, 1, 0, 3), 2)
+#' pen3 <- distrib_penalty(d, map = D)
+#' penalty_value(pen3, c(0.4, -0.7), list(sigma = 1))
+#' -sum(stats::dnorm(D %*% c(0.4, -0.7), log = TRUE)) - log(abs(det(D)))
+#' methods::is(distrib_penalty(d, map = diag(c(2, 3)))@map, "diagonalMatrix")
 #'
 #' @seealso [ridge_penalty()], [lasso_penalty()], [elasticnet_penalty()] and
 #'   [heavy_penalty()] for the named instances,
@@ -167,8 +244,19 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL, kinks = NULL) {
   }
   mv <- identical(d@dimension, "multivariate")
   if (!mv && !identical(d@dimension, "univariate")) {
-    stop(sprintf("'d' is %s, and a penalty is read one block at a time.",
-                 d@dimension), call. = FALSE)
+    stop(sprintf(paste0(
+      "'d' has dimension '%s'; a separable penalty needs a univariate or a\n",
+      "  multivariate distribution."), d@dimension), call. = FALSE)
+  }
+  # the multivariate branch of distributions7 has no continuous/discrete
+  # split, so the one discrete family it ships is told by its class, at any
+  # depth of wrapping
+  discrete <- if (mv) dp_is_multinomial(d) else
+    !S7::S7_inherits(d, distributions7::continuous_distrib)
+  if (discrete) {
+    stop(sprintf(paste0(
+      "'d' is '%s', which is not a continuous distribution; a separable\n",
+      "  penalty needs a continuous density."), d@distrib_name), call. = FALSE)
   }
   # A kink is a point of a scalar argument, so a multivariate parent has no
   # candidate: this is said here rather than inherited from the univariate
@@ -186,6 +274,13 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL, kinks = NULL) {
   # to avoid -- a diagonal one is a per-coordinate rescaling and costs q
   # numbers, its dense form q^2.
     map <- as_map(map)
+    # a map whose off-diagonal entries are all zero is a rescaling whatever
+    # its class, and is stored as one: the proximal operator, the draws and
+    # the Jacobian read a diagonal map by its class
+    if (!methods::is(map, "diagonalMatrix") && nrow(map) == ncol(map) &&
+        isTRUE(Matrix::isDiagonal(map))) {
+      map <- Matrix::Diagonal(x = as.numeric(Matrix::diag(map)))
+    }
     q <- ncol(map)
   }
   rows <- if (is.null(map)) q else nrow(map)
@@ -202,11 +297,111 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL, kinks = NULL) {
     params = d@params,
     params_bounds = d@params_bounds,
     link_params = d@link_params,
-    params_smooth = stats::setNames(rep(TRUE, length(d@params)), d@params),
+    params_smooth = dp_params_smooth(d),
     parent = d,
     kinks = kinks,
-    block = blk
+    block = blk,
+    log_jacobian = map_log_jacobian(map)
   )
+}
+
+#' Helpers of the Separable Constructor
+#'
+#' @description
+#' `dp_params_smooth()` returns the parent's `params_smooth` aligned to its
+#' `params`, with `TRUE` for a parameter that `params_smooth` does not list.
+#' `dp_is_multinomial()` returns `TRUE` when the object, or any object that
+#' it wraps through `parent_distrib`, is a \pkg{distributions7} multinomial.
+#'
+#' @param d A \pkg{distributions7} object.
+#'
+#' @return `dp_params_smooth()` a named logical vector, one entry per element
+#'   of `d@params`. `dp_is_multinomial()` a single logical.
+#'
+#' @seealso [distrib_penalty()]
+#'
+#' @keywords internal
+dp_params_smooth <- function(d) {
+  out <- stats::setNames(rep(TRUE, length(d@params)), d@params)
+  src <- d@params_smooth
+  hit <- intersect(names(src), d@params)
+  out[hit] <- as.logical(src[hit])
+  out
+}
+
+#' @rdname dp_params_smooth
+#' @keywords internal
+dp_is_multinomial <- function(d) {
+  repeat {
+    if ("distributions7::MultinomialDistrib" %in% class(d)) return(TRUE)
+    if (!"parent_distrib" %in% S7::prop_names(d)) return(FALSE)
+    d <- d@parent_distrib
+  }
+}
+
+
+#' The Diagonal and the Log-Jacobian of a Map
+#'
+#' @description
+#' `dp_diag_entries()` returns the entries of a \pkg{Matrix} diagonal map,
+#' zeros included, and `NULL` for any other map. `map_log_jacobian()` returns
+#' \eqn{\log\lvert\det D\rvert}: `0` for a `NULL` map,
+#' \eqn{\sum_j\log\lvert d_j\rvert} for a diagonal one, the log-modulus of the
+#' determinant for a square nonsingular one, and `NA` for a map that is not
+#' square or is singular. `dp_log_jacobian()` returns the same quantity for a
+#' built penalty.
+#'
+#' @details
+#' A diagonal map is treated as singular when an entry is zero or missing. Any
+#' other square map is densified once; it is treated as singular when an entry
+#' is not finite or when the rank that [qr()] reports at its default tolerance
+#' is below the number of columns, and otherwise the log-modulus comes from
+#' [determinant()].
+#'
+#' `dp_log_jacobian()` recomputes the quantity from the entries of a diagonal
+#' map, at the cost of \eqn{q} logarithms, so that the result stays correct
+#' when a caller replaces the map with a subset of its diagonal through
+#' [S7::set_props()] and the stored property is out of date. For any other
+#' map it reads the stored `log_jacobian`.
+#'
+#' @param map The map \eqn{D}: `NULL`, a base matrix or a \pkg{Matrix}.
+#' @param pen A [DistribPenalty()] object.
+#'
+#' @return `dp_diag_entries()` a numeric vector of length `nrow(map)`, a unit
+#'   diagonal (`diag = "U"`) giving ones, or `NULL`. `map_log_jacobian()` and
+#'   `dp_log_jacobian()` a single number, possibly `NA`.
+#'
+#' @seealso [distrib_penalty()], [penalty_value.DistribPenalty()]
+#'
+#' @keywords internal
+dp_diag_entries <- function(map) {
+  if (is.null(map) || !isS4(map) || !methods::is(map, "diagonalMatrix")) {
+    return(NULL)
+  }
+  if (identical(map@diag, "U")) rep(1, nrow(map)) else as.numeric(map@x)
+}
+
+#' @rdname dp_diag_entries
+#' @keywords internal
+map_log_jacobian <- function(map) {
+  if (is.null(map)) return(0)
+  d <- dp_diag_entries(map)
+  if (!is.null(d)) {
+    if (anyNA(d) || any(d == 0)) return(NA_real_)
+    return(sum(log(abs(d))))
+  }
+  if (nrow(map) != ncol(map)) return(NA_real_)
+  m <- as.matrix(map)
+  if (!all(is.finite(m)) || qr(m)$rank < ncol(m)) return(NA_real_)
+  as.numeric(determinant(m, logarithm = TRUE)$modulus)
+}
+
+#' @rdname dp_diag_entries
+#' @keywords internal
+dp_log_jacobian <- function(pen) {
+  if (is.null(pen@map)) return(0)
+  if (!is.null(dp_diag_entries(pen@map))) return(map_log_jacobian(pen@map))
+  pen@log_jacobian
 }
 
 
@@ -214,80 +409,109 @@ distrib_penalty <- function(d, map = NULL, n_coef = NULL, kinks = NULL) {
 #'
 #' @description
 #' Returns the points at which a separable penalty built on this distribution
-#' would not be differentiable, derived from the distribution itself. Returns
-#' `numeric(0)` where there are none, which is the answer for every family the
-#' toolkit ships except the Laplace and the elastic net.
+#' is not differentiable, derived from the distribution itself, or
+#' `numeric(0)` when there are none. Among the families that
+#' \pkg{distributions7} ships, only the two Laplace parametrizations and the
+#' elastic net have a location in which the log-density is not smooth, so only
+#' these, with the location held by [distributions7::fixed()], give a kink.
 #'
 #' @details
 #' # How a candidate is found
 #'
-#' A distribution records which of its parameters the log-likelihood is
-#' differentiable in, through `params_smooth`, and for a location family a
-#' location that is not smooth is a kink in the argument at that location. A
-#' penalty is the negative log-density read in the coefficient, so a
-#' [distributions7::fixed()] wrapper holding such a parameter at a value puts
-#' the kink there: `fixed(laplace_distrib(), mu = 0)` is the lasso and has a
-#' kink at zero, while `fixed(laplace_distrib(), mu = 2)` has one at two.
+#' A distribution records in `params_smooth` the parameters in which its
+#' log-likelihood is differentiable, and for a location family a location
+#' that is not smooth is a kink in the argument at that location. A penalty
+#' is the negative log-density read at the coefficient, so a
+#' [distributions7::fixed()] wrapper that holds such a parameter at a value
+#' puts the kink at that value: `fixed(laplace_distrib(), mu = 0)` is a
+#' Laplace prior at zero and has a kink at zero, while
+#' `fixed(laplace_distrib(), mu = 2)` has one at two.
 #'
-#' Nothing is taken from a parameter that is **free**, its value being whatever
-#' the hyperparameters say at the time. A Laplace with an unfixed location
-#' therefore reports no kink at all.
+#' A **free** parameter gives no candidate, because its value is set by the
+#' hyperparameters at the time of each evaluation. A Laplace with a free
+#' location therefore has no reported kink.
 #'
-#' # And how it is confirmed
+#' The wrapper is recognized by the properties that it carries,
+#' `parent_distrib` and `fixed_params`, and not by its class, because the
+#' classes of the [distributions7::fixed()] wrapper are not exported and a
+#' family written outside \pkg{distributions7} may hold its parameters in the
+#' same way. The chain of `parent_distrib` is walked from the outermost object
+#' down, and every level that carries `fixed_params` contributes candidates,
+#' so that `truncated(fixed(laplace2_distrib(), mu = 0), lower = -1,
+#' upper = 3)` has its kink at zero.
 #'
-#' Each candidate is the value its parameter is held at, and whether it is a
-#' kink is then measured rather than inferred, by comparing the one-sided
-#' derivatives of the log-density across it at a probe point
-#' ([probe_theta()], [has_jump()]). Inferring alone would put a kink on any
-#' family whose non-smooth parameter is not a location; measuring alone would
-#' need somewhere to look. A candidate whose derivative does not jump is
-#' dropped.
+#' # How a candidate is confirmed
 #'
-#' The wrapper is recognized by the properties it carries, `parent_distrib`
-#' and `fixed_params`, and not by its class: the two `fixed` classes are not
-#' exported, and a family written outside \pkg{distributions7} may hold its
-#' parameters the same way.
+#' A candidate is dropped when it is not finite or when it does not lie
+#' strictly inside the support of the outermost object, a point at the edge of
+#' the support not being a kink of the density on its support: a
+#' `folded()` Laplace held at zero has no kink at zero. Each remaining
+#' candidate is then tested by comparing the one-sided derivatives of the
+#' log-density across it at a probe point ([probe_theta()], [has_jump()]),
+#' and a candidate at which the derivative does not jump is dropped. The
+#' inference from `params_smooth` supplies the points to test, and the test
+#' removes the candidates at which the density is smooth, for example a
+#' candidate that comes from a non-smooth parameter that is not a location.
+#' The test is made on the outermost object, so a wrapper that moves the
+#' point drops the candidate.
 #'
-#' @param d A univariate \pkg{distributions7} object. An object carrying
-#'   neither `parent_distrib` nor `fixed_params` gets `numeric(0)` without
-#'   further inspection.
+#' @param d A univariate \pkg{distributions7} object. An object without
+#'   `parent_distrib`, or whose chain of parents has no level carrying
+#'   `fixed_params`, gets `numeric(0)` without further inspection.
 #'
 #' @return A numeric vector of the confirmed kink points, possibly empty, with
-#'   duplicates and non-finite candidates removed.
+#'   duplicates removed.
 #'
-#' @seealso [distrib_penalty()], which calls this unless told the kinks
-#'   directly, [penalty_kinks()] for what a built penalty reports,
-#'   [has_jump()] for the measurement.
+#' @seealso [distrib_penalty()], which calls this function when its argument
+#'   `kinks` is `NULL`, [penalty_kinks()] for the kinks of a built penalty,
+#'   [has_jump()] for the test.
 #'
 #' @examples
-#' # The lasso's parent: a kink at the location it is held at.
+#' # A Laplace held at a location: a kink at that location.
 #' distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),
 #'                                     mu = 0))
 #' distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),
 #'                                     mu = 2))
 #'
-#' # A Gaussian is smooth everywhere, so there is no candidate to confirm.
+#' # A Gaussian is smooth everywhere, so there is no candidate.
 #' distrib_kinks(distributions7::fixed(distributions7::gaussian1_distrib(),
 #'                                     mu = 0))
 #'
-#' # And a free location gives nothing, its value not being settled.
+#' # A free location gives no candidate.
 #' distrib_kinks(distributions7::laplace_distrib())
+#'
+#' # A fixed() level under another wrapper is found; the origin of a folded
+#' # Laplace is the edge of its support and is dropped.
+#' lap0 <- distributions7::fixed(distributions7::laplace2_distrib(), mu = 0)
+#' distrib_kinks(distributions7::truncated(lap0, lower = -1, upper = 3))
+#' distrib_kinks(distributions7::folded(lap0))
 #'
 #' @export
 distrib_kinks <- function(d) {
   # the wrapper is recognized by what it carries rather than by its class:
   # the two fixed classes are not exported, and a family written outside
-  # distributions7 may hold its parameters the same way
-  if (!all(c("parent_distrib", "fixed_params") %in% S7::prop_names(d))) {
-    return(numeric(0))
+  # distributions7 may hold its parameters the same way. It may sit under
+  # other wrappers, so the chain of parents is walked and every fixed level
+  # contributes its candidates
+  cand <- numeric(0)
+  inner <- d
+  while ("parent_distrib" %in% S7::prop_names(inner)) {
+    if ("fixed_params" %in% S7::prop_names(inner)) {
+      smooth <- inner@parent_distrib@params_smooth
+      fixed_at <- inner@fixed_params
+      rough <- names(smooth)[!smooth]
+      cand <- c(cand, unlist(fixed_at[intersect(rough, names(fixed_at))],
+                             use.names = FALSE))
+    }
+    inner <- inner@parent_distrib
   }
-  smooth <- d@parent_distrib@params_smooth
-  fixed_at <- d@fixed_params
-  rough <- names(smooth)[!smooth]
-  cand <- unlist(fixed_at[intersect(rough, names(fixed_at))],
-                 use.names = FALSE)
-  cand <- unique(cand[is.finite(cand)])
+  # a point at the edge of the outer support (a folded parent's origin) is
+  # not a kink of the density on its support
+  b <- d@bounds
+  cand <- unique(cand[is.finite(cand) & cand > b[1L] & cand < b[2L]])
   if (!length(cand)) return(numeric(0))
+  # confirmed on the OUTER object: a wrapper that moves the point drops the
+  # candidate here
   th <- probe_theta(d)
   as.numeric(cand[vapply(cand, function(k) has_jump(d, th, k), logical(1))])
 }
@@ -297,18 +521,18 @@ distrib_kinks <- function(d) {
 #'
 #' @description
 #' Returns one value per free parameter, at which the parent can be evaluated
-#' when no hyperparameters are in force. Used by [distrib_kinks()], which has
-#' to differentiate the log-density before any penalty exists.
+#' when no hyperparameters are given. [distrib_kinks()] uses it to
+#' differentiate the log-density before any penalty exists.
 #'
 #' @details
-#' The rule is the toolkit's probe rule: the midpoint of a parameter's bounds
-#' where both are finite, one above the lower bound where only that is finite,
-#' one below the upper where only that is, and `1` where neither is. So a scale
-#' on \eqn{(0, \infty)} is probed at 1 and a mixing weight on \eqn{(0, 1)} at
-#' 0.5.
+#' The value of a parameter is the midpoint of its bounds where both are
+#' finite, one above the lower bound where only that bound is finite, one
+#' below the upper bound where only that bound is finite, and `1` where
+#' neither is. A scale on \eqn{(0, \infty)} is therefore probed at 1 and a
+#' mixing weight on \eqn{(0, 1)} at 0.5.
 #'
-#' Whether a point is a kink does not depend on where the other parameters sit,
-#' so any admissible point serves and the rule only has to give one.
+#' The rule assumes that whether a point is a kink does not depend on the
+#' values of the other parameters, so that any admissible point serves.
 #'
 #' @param d A \pkg{distributions7} object.
 #'
@@ -329,33 +553,43 @@ probe_theta <- function(d) {
 }
 
 
-#' Does the Log-Density's Slope Jump Across a Point?
+#' Test for a Jump in the Slope of the Log-Density
 #'
 #' @description
-#' Compares the derivative of the log-density in its argument just either side
-#' of a candidate point, and answers `TRUE` when the two differ by more than a
-#' relative threshold. This is the measurement that turns a candidate kink,
-#' inferred from `params_smooth`, into a confirmed one.
+#' Compares the derivative of the log-density in its argument on either side
+#' of a candidate point at two widths, and returns `TRUE` when the difference
+#' has the behavior of a jump. [distrib_kinks()] uses it to confirm a
+#' candidate kink inferred from `params_smooth`.
 #'
 #' @details
-#' The comparison is `abs(grad_y(at + eps) - grad_y(at - eps))` against
-#' `1e-6 * max(1, abs(at))`, so the threshold is absolute near the origin and
-#' relative away from it. At a genuine kink the difference is of the order of
-#' the jump itself and does not shrink with `eps`: for a Laplace at zero it is
-#' twice the rate. At a smooth point it is \eqn{O(\varepsilon)} and falls well
-#' below the threshold.
+#' With \eqn{s = \max(1, \lvert a\rvert)}, where \eqn{a} is `at`, the
+#' difference \eqn{g(h) = \lvert\ell^{(y)}(a + h) - \ell^{(y)}(a - h)\rvert}
+#' is computed at the narrow width \eqn{h = \varepsilon s} and at the wide
+#' width \eqn{h = 10\varepsilon s}. At a kink the difference is of the order
+#' of the jump at both widths (twice the rate for a Laplace at its location)
+#' and does not grow with the width. At a smooth point it is about
+#' \eqn{2h\lvert\ell^{(yy)}\rvert}, which can exceed any fixed threshold when
+#' the curvature is large, and it grows tenfold from the narrow width to the
+#' wide one. A kink is therefore declared when \eqn{g(\varepsilon s)} exceeds
+#' \eqn{10^{-6}s}, a threshold that is absolute near the origin and relative
+#' away from it, and is more than half of \eqn{g(10\varepsilon s)}. The
+#' widths are scaled up from \eqn{\varepsilon} and not down, so that a slope
+#' that the parent obtains by its own numerical differentiation still
+#' resolves the jump at the narrow width.
 #'
-#' A parent that cannot be differentiated at either point returns `NA` from
-#' [distributions7::distrib_grad_y()] or raises, and both are caught and read
-#' as `FALSE`: an unconfirmed candidate is dropped rather than assumed.
+#' When [distributions7::distrib_grad_y()] returns a value that is not finite
+#' or signals an error at any of the four points, the result is `FALSE`, so
+#' the candidate is dropped.
 #'
 #' @param d A \pkg{distributions7} object.
-#' @param theta A named list of parameter values to read it at, as
-#'   [probe_theta()] returns.
+#' @param theta A named list of parameter values at which the log-density is
+#'   evaluated, as [probe_theta()] returns.
 #' @param at The candidate point, a single number.
-#' @param eps How far either side to look, `1e-5` by default. Large enough that
-#'   the one-sided derivatives are not dominated by rounding, small enough that
-#'   a second feature does not fall inside the window.
+#' @param eps The relative narrow width, `1e-5` by default; the wide width is
+#'   ten times as large, and both are multiplied by \eqn{\max(1,
+#'   \lvert a\rvert)}. It should be large enough that the one-sided
+#'   derivatives are not dominated by rounding, and small enough that a
+#'   second feature of the density does not fall inside the window.
 #'
 #' @return A single logical, `TRUE` when the slope jumps.
 #'
@@ -363,38 +597,45 @@ probe_theta <- function(d) {
 #'
 #' @keywords internal
 has_jump <- function(d, theta, at, eps = 1e-5) {
-  g <- tryCatch({
-    up <- distributions7::distrib_grad_y(d, at + eps, theta)
-    dn <- distributions7::distrib_grad_y(d, at - eps, theta)
+  # at a kink the jump does not grow with the width; at a smooth point it is
+  # about 2 h |l''| and grows tenfold with h. The widths are widened rather
+  # than narrowed so that a slope differenced by the parent's own fallback
+  # still resolves the jump at the narrower one
+  s <- max(1, abs(at))
+  g <- tryCatch(vapply(c(1, 10) * eps * s, function(h) {
+    up <- distributions7::distrib_grad_y(d, at + h, theta)
+    dn <- distributions7::distrib_grad_y(d, at - h, theta)
     abs(as.numeric(up) - as.numeric(dn))
-  }, error = function(e) NA_real_)
-  isTRUE(is.finite(g) && g > 1e-6 * max(1, abs(at)))
+  }, numeric(1)), error = function(e) c(NA_real_, NA_real_))
+  isTRUE(all(is.finite(g)) && g[1L] > 1e-6 * s && g[1L] > g[2L] / 2)
 }
 
 
 #' @title The Named Penalties
 #'
 #' @description
-#' The four penalties a modeling layer names directly: `ridge_penalty()`,
-#' `lasso_penalty()`, `elasticnet_penalty()` and `heavy_penalty()`. Each is a
-#' particular prior centered at zero, and each is written on the chart whose
-#' hyperparameter **measures the shrinkage**, so that a larger value shrinks
-#' harder in all four.
+#' The four penalties that a modeling layer names directly:
+#' `ridge_penalty()`, `lasso_penalty()`, `elasticnet_penalty()` and
+#' `heavy_penalty()`. Each is a prior centered at zero. In the first three the
+#' hyperparameter `lambda` is a precision or a rate, and a larger value
+#' shrinks harder. In `heavy_penalty()` the hyperparameter `sigma` is a scale,
+#' and a larger value shrinks less.
 #'
 #' @details
-#' # Ridge, which is on the other branch
+#' # Ridge
 #'
-#' `ridge_penalty()` is the Gaussian prior at zero, and that prior written by
-#' its **precision** is exactly [quadratic_penalty()] at the identity matrix,
-#' the same value to the last bit. It is therefore built there, and its
-#' hyperparameter is the `lambda` that branch already carries: one name for one
-#' number. It is the only one of the four that is not a `DistribPenalty`, and
-#' [is_quadratic()] answers `TRUE` for it alone.
+#' `ridge_penalty()` is the Gaussian prior at zero written by its
+#' **precision**, which is [quadratic_penalty()] at the identity matrix: its
+#' value agrees with that of the separable Gaussian prior at
+#' \eqn{\sigma = \lambda^{-1/2}} up to rounding. It is therefore built on the
+#' quadratic branch, and its hyperparameter is the `lambda` of that branch. It
+#' is the only one of the four that is not a `DistribPenalty`, and the only
+#' one for which [is_quadratic()] returns `TRUE`.
 #'
-#' The separable twin still exists and is one line,
+#' The separable form is
 #' `distrib_penalty(fixed(gaussian1_distrib(), mu = 0), n_coef = q)`, whose
-#' hyperparameter is the standard deviation \eqn{\sigma} instead. Reach for it
-#' when a standard deviation is the quantity you want reported.
+#' hyperparameter is the standard deviation \eqn{\sigma} instead. It is the
+#' form to use when a standard deviation is the quantity to be reported.
 #'
 #' # Lasso
 #'
@@ -402,11 +643,14 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #' hyperparameter is the rate \eqn{\lambda} and
 #'
 #' \deqn{\rho(\beta;\lambda) = \lambda\lVert D\beta\rVert_1
-#'   - q\log(\lambda/2),}
+#'   - m\log(\lambda/2),}
 #'
-#' with \eqn{q} the number of values the penalty is read at. The kink at zero
-#' is declared, so [penalty_kinks()] reports it and [penalty_prox()] gives the
-#' soft threshold.
+#' where \eqn{m} is the number of values at which the penalty is read (the
+#' number of rows of \eqn{D}, or the number of coefficients without a map).
+#' Under a square nonsingular map the value also carries
+#' \eqn{-\log\lvert\det D\rvert}, as described in [distrib_penalty()]. The
+#' kink at zero is declared, so [penalty_kinks()] reports it and
+#' [penalty_prox()] gives the soft threshold.
 #'
 #' # Elastic net
 #'
@@ -416,23 +660,24 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #'
 #' \deqn{\rho(\beta;\lambda,\alpha) = \lambda\left\{
 #'   \alpha\lVert D\beta\rVert_1
-#'   + (1-\alpha)\lVert D\beta\rVert_2^2/2\right\} + c(\lambda, \alpha).}
+#'   + (1-\alpha)\lVert D\beta\rVert_2^2/2\right\} + m\,c(\lambda, \alpha),}
 #'
-#' The constant depends on **both** hyperparameters, which is why a marginal
-#' criterion can estimate them: measured at
-#' \eqn{(\lambda, \alpha)} of \eqn{(1, 0.5)}, \eqn{(2, 0.5)} and
-#' \eqn{(1, 0.9)}, the per-coordinate constant is `0.7805`, `0.2711` and
-#' `0.7001`. A penalty written as a formula, with no constant, would have
-#' neither hyperparameter identified.
+#' where \eqn{m} is as above and
+#' \eqn{c(\lambda,\alpha) = \log\int \exp[-\lambda\{\alpha\lvert x\rvert +
+#' (1-\alpha)x^2/2\}]\,dx} is the constant of one coordinate. The same
+#' Jacobian term is added under a square nonsingular map. The constant
+#' depends on **both** hyperparameters, and this is what allows a marginal
+#' criterion to estimate them; without it neither hyperparameter would be
+#' identified.
 #'
-#' # The heavy-tailed prior
+#' # Heavy-tailed prior
 #'
-#' The Student t at zero, with a free scale \eqn{\sigma} and a free
-#' \eqn{\nu}. Its \eqn{\nu} is estimable exactly because the normalizing
-#' constant is kept, and estimating it is the point: a small \eqn{\nu} shrinks
-#' small coefficients like a Gaussian prior and leaves large ones nearly alone,
-#' which a Gaussian cannot do at any scale. Alone among the four it declares no
-#' kink, so it produces no exact zeros.
+#' The Student t at zero, with a free scale \eqn{\sigma} and free degrees of
+#' freedom \eqn{\nu}. The normalizing constant is kept, which makes \eqn{\nu}
+#' estimable by a marginal criterion. With a small \eqn{\nu} the prior
+#' shrinks small coefficients as a Gaussian prior does and leaves large ones
+#' nearly unchanged, which a Gaussian prior does not do at any scale. Like the
+#' ridge, it has no kink, so it does not produce exact zeros.
 #'
 #' @param map The matrix \eqn{D}, with one column per coefficient, or `NULL`
 #'   (the default) for the identity. Given a map, the number of coefficients is
@@ -463,7 +708,7 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #' @examples
 #' b <- c(1, -0.5, 0.3)
 #'
-#' # Ridge is on the quadratic branch, so its lambda is a precision.
+#' # The ridge is on the quadratic branch, and its lambda is a precision.
 #' r <- ridge_penalty(n_coef = 3)
 #' class(r)[1]
 #' is_quadratic(r)
@@ -474,21 +719,22 @@ has_jump <- function(d, theta, at, eps = 1e-5) {
 #' penalty_value(l, b, list(lambda = 0.5))
 #' 0.5 * sum(abs(b)) - 3 * log(0.5 / 2)
 #'
-#' # Only the lasso and the elastic net have a kink, so only they can set a
-#' # coefficient exactly to zero.
+#' # Of these four, only the lasso and the elastic net have a kink, so only
+#' # they can set a coefficient exactly to zero.
 #' penalty_kinks(l, list(lambda = 1))
 #' penalty_kinks(heavy_penalty(n_coef = 3), list(sigma = 1, nu = 4))
 #'
-#' # The heavy-tailed prior shrinks a large coefficient far less than a
-#' # ridge at a comparable scale, and the small ones about as much.
+#' # The heavy-tailed prior shrinks the large coefficient far less than a
+#' # unit ridge, and the small ones somewhat more.
 #' penalty_prox(heavy_penalty(n_coef = 3), c(4, 0.3, -1), 1,
 #'              list(sigma = 1, nu = 3))
 #' penalty_prox(r, c(4, 0.3, -1), 1, list(lambda = 1))
 #'
-#' @seealso [distrib_penalty()] for the construction behind three of them,
-#'   [quadratic_penalty()] for the one behind ridge,
+#' @seealso [distrib_penalty()] for the construction of the lasso, the
+#'   elastic net and the heavy-tailed prior,
+#'   [quadratic_penalty()] for the construction of the ridge,
 #'   [scad_penalty()] and [mcp_penalty()] for the non-convex alternatives,
-#'   [penalty_prox()] for the operators these have.
+#'   [penalty_prox()] for their proximal operators.
 #' @export
 ridge_penalty <- function(map = NULL, n_coef = 1L) {
   k <- if (is.null(map)) as.integer(n_coef) else nrow(as.matrix(map))
@@ -525,26 +771,26 @@ heavy_penalty <- function(map = NULL, n_coef = 1L) {
 #' The Parent's Argument, Shaped and Unshaped
 #'
 #' @description
-#' `dp_arg()` reshapes \eqn{D\beta} into the argument the parent reads: the
+#' `dp_arg()` reshapes \eqn{D\beta} into the argument of the parent: the
 #' vector itself for a univariate parent, and a matrix of one row per block for
-#' a multivariate one. `dp_flat()` undoes the reshaping, carrying the parent's
-#' answer back to a vector in coefficient order.
+#' a multivariate one. `dp_flat()` undoes the reshaping, carrying the result
+#' of the parent back to a vector in coefficient order.
 #'
 #' @details
 #' The blocks are the **successive** stretches of \eqn{D\beta}, so the
 #' reshaping fills by row: block \eqn{i} occupies positions
-#' \eqn{(i-1)p+1, \dots, ip}. That is the order a grouped design assembles its
-#' coefficients in, and the order \eqn{I_m \otimes \Sigma} assumes, so the two
-#' agree without either being told about the other.
+#' \eqn{(i-1)p+1, \dots, ip}. This is the order in which a grouped design
+#' assembles its coefficients and the order that \eqn{I_m \otimes \Sigma}
+#' assumes, so the two agree.
 #'
-#' Both are the identity when the block width is one, which is every univariate
-#' parent, and the pair costs nothing there.
+#' Both functions return their argument unchanged when the block width is
+#' one, which is the case of every univariate parent.
 #'
 #' @param pen A [DistribPenalty()] object.
 #' @param t The mapped coefficient vector \eqn{D\beta}, of length a multiple of
 #'   `pen@block`. `dp_arg()` only.
-#' @param g The parent's answer: a vector for a univariate parent, a matrix of
-#'   one row per block for a multivariate one. `dp_flat()` only.
+#' @param g The result of the parent: a vector for a univariate parent, a
+#'   matrix of one row per block for a multivariate one. `dp_flat()` only.
 #'
 #' @return `dp_arg()` the vector unchanged when `pen@block` is `1L`, and
 #'   otherwise a matrix with `pen@block` columns filled by row.
@@ -568,21 +814,21 @@ dp_flat <- function(pen, g) {
 #'
 #' @description
 #' Assembles the parent's \eqn{\partial^2\ell/\partial b\partial b'} into the
-#' block-diagonal matrix a multivariate separable penalty's Hessian is
-#' sandwiched with: one \eqn{p \times p} block per block of coefficients, and
-#' zeros between them.
+#' block-diagonal middle matrix of the Hessian of a multivariate separable
+#' penalty: one \eqn{p \times p} block per block of coefficients, and zeros
+#' between them.
 #'
 #' @details
-#' The zeros between the blocks are the separability. Coordinates in different
-#' blocks are independent under the prior, so the Hessian has no entry linking
-#' them, however dependent the coordinates within a block are.
+#' The zeros between the blocks express the separability. Coordinates in
+#' different blocks are independent under the prior, so the Hessian has no
+#' entry linking them, however dependent the coordinates within a block are.
 #'
 #' Two input shapes are accepted because \pkg{distributions7} returns two. A
-#' family whose response Hessian does not depend on the observation, as the
-#' multivariate gaussian's does not, returns one \eqn{p \times p} matrix and it
-#' is placed in every block; a family whose does returns a
-#' \eqn{p \times p \times n} array and each slice goes to its own block. The
-#' two are told apart with `is.matrix()`.
+#' family whose response Hessian does not depend on the observation, such as
+#' the multivariate Gaussian, returns one \eqn{p \times p} matrix, which is
+#' placed in every block; any other family returns a
+#' \eqn{p \times p \times n} array, and each slice goes to its own block. The
+#' two shapes are distinguished with `is.matrix()`.
 #'
 #' @param pen A [DistribPenalty()] object with `pen@block` above one.
 #' @param h The parent's [distributions7::distrib_hess_y()]: a
@@ -612,16 +858,23 @@ dp_blockdiag <- function(pen, h, nblk) {
 #'
 #' @description
 #' Returns \eqn{-\sum_i \log f(b_i;\theta)}, the negative log-density of the
-#' parent summed over the blocks of \eqn{D\beta}. Because the parent supplies
-#' its own normalizing constant, the value is exactly the negative log prior
-#' density. Under a diagonal map \eqn{\sum_j\log\lvert d_j\rvert} is
-#' subtracted, the Jacobian that makes it the density of \eqn{\beta}.
+#' parent summed over the blocks \eqn{b_i} of \eqn{D\beta}. Because the parent
+#' supplies its own normalizing constant, the value is the negative log prior
+#' density of \eqn{D\beta}. Under a square nonsingular map, diagonal or not,
+#' \eqn{\log\lvert\det D\rvert} is subtracted, which makes the value the
+#' negative log-density of \eqn{\beta}. Under a map that is not square, or is
+#' singular, no constant is subtracted.
 #'
 #' @details
-#' The map is applied, the result reshaped into the parent's argument by
-#' [dp_arg()], and one call to [distributions7::distrib_pdf()] with
-#' `log = TRUE` gives every block's contribution at once. A univariate parent
-#' sees the vector; a \eqn{p}-variate one sees a matrix of one row per block.
+#' The map is applied, the result is reshaped into the argument of the parent
+#' by [dp_arg()], and one call to [distributions7::distrib_pdf()] with
+#' `log = TRUE` gives the contribution of every block at once. A univariate
+#' parent receives the vector, and a \eqn{p}-variate one a matrix of one row
+#' per block.
+#'
+#' The log-determinant is read by [dp_log_jacobian()][dp_diag_entries]: it is
+#' computed from the entries of a diagonal map, and for any other map it is
+#' the `log_jacobian` stored when the penalty was built.
 #'
 #' @param pen A [DistribPenalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`, already coerced by the
@@ -633,17 +886,25 @@ dp_blockdiag <- function(pen, h, nblk) {
 #' @return A single number.
 #'
 #' @examples
-#' # A Gaussian prior at zero, which is the negative log-density of one.
-#' pen <- distrib_penalty(
-#'   distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
-#'   n_coef = 3)
+#' # A Gaussian prior at zero: the value is its negative log-density.
+#' g0 <- distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0)
+#' pen <- distrib_penalty(g0, n_coef = 3)
 #' b <- c(1, 0, -1)
 #' penalty_value(pen, b, list(sigma = 2))
 #' -sum(stats::dnorm(b, sd = 2, log = TRUE))
 #'
-#' # The lasso's value is lambda times the L1 norm plus -q log(lambda/2).
+#' # The value of the lasso is lambda times the L1 norm minus q log(lambda/2).
 #' penalty_value(lasso_penalty(n_coef = 3), b, list(lambda = 0.5))
 #' 0.5 * sum(abs(b)) - 3 * log(0.5 / 2)
+#'
+#' # A diagonal map subtracts the sum of the log-moduli of its entries, and a
+#' # map with fewer rows than columns subtracts nothing.
+#' dg <- distrib_penalty(g0, map = Matrix::Diagonal(x = c(2, 0.5, 4)))
+#' penalty_value(dg, b, list(sigma = 2))
+#' -sum(stats::dnorm(c(2, 0, -4), sd = 2, log = TRUE)) - log(2 * 0.5 * 4)
+#' sh <- distrib_penalty(g0, map = diff(diag(3)))
+#' penalty_value(sh, b, list(sigma = 2))
+#' -sum(stats::dnorm(diff(b), sd = 2, log = TRUE))
 #'
 #' @seealso [distrib_penalty()] for the construction,
 #'   [penalty_gradient.DistribPenalty()] for the coefficient derivatives,
@@ -653,33 +914,36 @@ S7::method(penalty_value, DistribPenalty) <- function(pen, beta, theta, ...) {
   t <- map_apply(pen, beta)
   v <- -sum(distributions7::distrib_pdf(pen@parent, dp_arg(pen, t), theta,
                                         log = TRUE))
-  dg <- map_diagonal(pen)
-  if (is.null(dg)) v else v - sum(log(abs(dg)))
+  if (is.null(pen@map)) return(v)
+  lj <- dp_log_jacobian(pen)
+  if (is.na(lj)) v else v - lj
 }
 
 #' @title Coefficient Derivatives of a Separable Penalty
 #' @name penalty_gradient.DistribPenalty
 #'
 #' @description
-#' The parent's response derivatives, negated and carried back through the map.
-#' `penalty_gradient()` returns \eqn{-D'\ell^{(y)}} and `penalty_hessian()`
-#' returns \eqn{-D'\,\mathrm{diag}(\ell^{(yy)})\,D}, with the middle matrix
-#' block diagonal instead of diagonal when the parent is multivariate.
+#' The response derivatives of the parent, negated and carried back through
+#' the map. `penalty_gradient()` returns \eqn{-D'\ell^{(y)}} and
+#' `penalty_hessian()` returns \eqn{-D'\,\mathrm{diag}(\ell^{(yy)})\,D}, where
+#' the middle matrix is block diagonal instead of diagonal when the parent is
+#' multivariate.
 #'
 #' @details
-#' Everything comes from [distributions7::distrib_grad_y()] and
-#' [distributions7::distrib_hess_y()], which are closed form for every
-#' continuous family, so no derivative is taken here.
+#' The derivatives come from [distributions7::distrib_grad_y()] and
+#' [distributions7::distrib_hess_y()], which are in closed form for the
+#' continuous families that \pkg{distributions7} ships; for a family that
+#' supplies only its density, \pkg{distributions7} differentiates
+#' numerically. No derivative is taken in these methods.
 #'
-#' The `+ 0 * a` in both bodies is a recycling guard. A family whose derivative
-#' does not depend on the argument, a Gaussian's second one for instance,
-#' returns a single number where a vector is wanted, and adding zero times the
-#' argument widens it without changing a value.
+#' The `+ 0 * a` in both bodies is a recycling guard: if a family returns a
+#' single number where a vector is expected, adding zero times the argument
+#' widens it to the length of the argument without changing a value.
 #'
 #' At a kink the gradient is one element of the subdifferential, chosen by the
-#' parent. For the lasso at \eqn{\beta_j = 0} that is `0`, where the true
-#' subdifferential is \eqn{[-\lambda, \lambda]}; [penalty_prox()] is what
-#' produces the exact zero.
+#' parent. For the lasso at \eqn{\beta_j = 0} that element is `0`, while the
+#' subdifferential is \eqn{[-\lambda, \lambda]}; the exact zero of a fit is
+#' produced by [penalty_prox()].
 #'
 #' @param pen A [DistribPenalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`.
@@ -754,25 +1018,27 @@ S7::method(penalty_hessian, DistribPenalty) <- function(pen, beta, theta, ...) {
 #'
 #' @details
 #' The first two are [distributions7::distrib_gradient()] and
-#' [distributions7::distrib_hessian()] read at the blocks and summed, the map
-#' not entering: a hyperparameter of the prior does not act through \eqn{D}.
-#' The third is [distributions7::distrib_cross_y()], which exists for this,
-#' carried back through the map like the coefficient gradient.
+#' [distributions7::distrib_hessian()] evaluated at the blocks and summed. The
+#' map does not enter them, because a hyperparameter of the prior does not act
+#' through \eqn{D}. The third is [distributions7::distrib_cross_y()], carried
+#' back through the map like the coefficient gradient.
 #'
-#' # The reordering
+#' # Keys of the second derivatives
 #'
-#' \pkg{distributions7} keys its Hessian components lexicographically and this
-#' package keys them diagonals first, so the second derivatives are looked up
-#' under both spellings of each pair, `a_b` and `b_a`, and returned under this
-#' package's. The key is composed from the pair rather than parsed out of a
-#' name, a parameter name being free to contain an underscore.
+#' The second derivatives are returned under the keys of [ptheta_pairs()]:
+#' the diagonal pairs first, then the off-diagonal pairs, in the order of
+#' `pen@params`. The shipped continuous families of \pkg{distributions7} use
+#' the same order, but a family may spell a pair the other way, so each pair
+#' is looked up under both spellings, `a_b` and `b_a`. The key is composed
+#' from the pair and not parsed out of a name, because a parameter name may
+#' contain an underscore.
 #'
 #' @param pen A [DistribPenalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`.
 #' @param theta A named list of the parent's free parameters.
-#' @param scale Read by the generic, which applies the chain rule onto the
-#'   unconstrained scale after dispatch, using the parent's own links. These
-#'   methods always return the parameter scale.
+#' @param scale Read by the generic, which applies the chain rule to the
+#'   unconstrained scale after dispatch, with the links copied from the
+#'   parent. These methods always return derivatives on the parameter scale.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return `penalty_grad_theta()` a list of one number per hyperparameter,
@@ -846,44 +1112,59 @@ S7::method(penalty_cross, DistribPenalty) <-
 #'
 #' @description
 #' `penalty_kinks()` returns the kinks recorded on the object at construction,
-#' and `is_proper()` returns `TRUE` unless the map has fewer rows than columns.
+#' and `is_proper()` returns `TRUE` when there is no map or the map is square
+#' and nonsingular, and `FALSE` otherwise.
 #'
 #' @details
-#' The kinks do not move with `theta`, unlike SCAD's and MCP's: they are
-#' properties of where the parent's location is held, settled by
-#' [distrib_kinks()] when the penalty was built. The lasso and the elastic net
-#' report `0`; every other shipped parent reports `numeric(0)`.
+#' The kinks do not move with `theta`, unlike those of SCAD and MCP: they are
+#' fixed by the value at which the location of the parent is held, and they
+#' are set when the penalty is built, by [distrib_kinks()] or by the argument
+#' `kinks` of [distrib_penalty()]. Of the named penalties, the lasso and the
+#' elastic net report `0` and [heavy_penalty()] reports `numeric(0)`.
 #'
-#' Properness here is a test on the map's shape. The parent is a
-#' density by construction, so \eqn{\exp(-\rho)} integrates over the values the
-#' penalty reads; what can fail is that a map with fewer rows than columns
-#' leaves directions of \eqn{\beta} the penalty never sees, and along those the
-#' integral diverges. With no map, or with a map at least as tall as it is
-#' wide, the answer is `TRUE`.
+#' Properness is a test on the map. The parent is a density, so
+#' \eqn{\exp(-\rho)} integrates to one over the values at which the penalty is
+#' read, and under a square nonsingular map the value carries
+#' \eqn{-\log\lvert\det D\rvert}, so that \eqn{\exp(-\rho)} integrates to one
+#' over \eqn{\beta} as well. A map whose rank is below its number of columns
+#' leaves directions of \eqn{\beta} on which the penalty does not depend, and
+#' along those directions the integral diverges. Under a map with more rows
+#' than columns and full column rank the integral does not equal one, and it
+#' depends on the hyperparameters through a constant that the value does not
+#' carry. The test reads the `log_jacobian` stored at construction, or the
+#' entries of a diagonal map, through [dp_log_jacobian()][dp_diag_entries],
+#' and returns `TRUE` exactly when that quantity is finite.
 #'
 #' @param pen A [DistribPenalty()] object.
-#' @param theta A named list of the parent's free parameters. Read by
-#'   `penalty_kinks()`, whose answer does not depend on it.
+#' @param theta A named list of the parent's free parameters. It is accepted
+#'   by `penalty_kinks()`, whose result does not depend on it.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return `penalty_kinks()` a numeric vector, `pen@kinks` as it stands.
 #'   `is_proper()` a single logical.
 #'
 #' @examples
-#' # The lasso has a kink at zero and does not move with lambda.
+#' # The kink of the lasso is at zero for every lambda.
 #' penalty_kinks(lasso_penalty(n_coef = 3), list(lambda = 1))
 #' penalty_kinks(lasso_penalty(n_coef = 3), list(lambda = 20))
 #'
-#' # A Gaussian or Student t prior has none.
+#' # A Student t prior has none.
 #' penalty_kinks(heavy_penalty(n_coef = 3), list(sigma = 1, nu = 4))
 #'
-#' # A map that is shorter than it is wide leaves directions unpenalized.
-#' c(short = is_proper(lasso_penalty(map = diff(diag(3), differences = 2))),
-#'   none  = is_proper(lasso_penalty(n_coef = 3)))
+#' # Proper without a map and with a square nonsingular map; improper with a
+#' # map that has more rows than columns, with a singular one, and with one
+#' # that has fewer rows than columns.
+#' c(none     = is_proper(lasso_penalty(n_coef = 3)),
+#'   square   = is_proper(lasso_penalty(map = matrix(c(2, 1, 0, 3), 2))),
+#'   tall     = is_proper(lasso_penalty(map = rbind(diag(2), c(1, 1)))),
+#'   singular = is_proper(lasso_penalty(map = matrix(1, 2, 2))),
+#'   short    = is_proper(lasso_penalty(map = diff(diag(3), differences = 2))))
 #'
 #' @seealso [penalty_kinks()] and [is_proper()] for the generics,
-#'   [distrib_kinks()] for where the kinks came from,
-#'   [penalty_prox()] for the operator a kink calls for.
+#'   [distrib_kinks()] for the derivation of the kinks,
+#'   [penalty_null_basis.DistribPenalty()] for the directions that an
+#'   improper map leaves free,
+#'   [penalty_prox()] for the proximal operator at a kink.
 #' @keywords internal
 S7::method(penalty_kinks, DistribPenalty) <- function(pen, theta, ...) {
   pen@kinks
@@ -893,33 +1174,87 @@ S7::method(penalty_kinks, DistribPenalty) <- function(pen, theta, ...) {
 #' @name is_proper.DistribPenalty
 #' @keywords internal
 S7::method(is_proper, DistribPenalty) <- function(pen, ...) {
-  is.null(pen@map) || nrow(pen@map) >= ncol(pen@map)
+  isTRUE(is.finite(dp_log_jacobian(pen)))
 }
 
-#' @title What a Separable Penalty's Hyperparameters Are About
+#' @title Null Basis of a Separable Penalty
+#' @name penalty_null_basis.DistribPenalty
+#'
+#' @description
+#' Returns an orthonormal basis of the null space of the map \eqn{D}, that is,
+#' of the directions of \eqn{\beta} on which the penalty does not depend. The
+#' basis has no columns when there is no map or when the map has full column
+#' rank. Under a diagonal map the basis is made of the unit vectors at the
+#' entries of the diagonal that are zero or missing, so it is spanned by
+#' coordinates.
+#'
+#' @details
+#' A separable penalty is not a quadratic form, and its log-density is not
+#' computed through a pseudo-determinant. A marginal criterion needs from an
+#' improper separable prior only the directions that the prior leaves free,
+#' and this basis supplies them. The rank of a non-diagonal map is the rank
+#' that [qr()] reports at its default tolerance, and the basis is formed by the
+#' right singular vectors of the map beyond that rank. For a square map this
+#' is the same rank test that decides [is_proper()]. A map with more rows than
+#' columns and full column rank has an empty basis, although [is_proper()]
+#' returns `FALSE` for it.
+#'
+#' @param pen A [DistribPenalty()] object.
+#' @param ... Unused, and accepted so that the signature matches the generic's.
+#'
+#' @return A numeric matrix with `pen@n_coef` rows and one column per null
+#'   direction.
+#'
+#' @examples
+#' # No map, and a diagonal map with a zero at the second coordinate.
+#' penalty_null_basis(lasso_penalty(n_coef = 3))
+#' penalty_null_basis(lasso_penalty(map = Matrix::Diagonal(x = c(1, 0, 2))))
+#'
+#' # A map with one row and three columns leaves two directions free.
+#' penalty_null_basis(heavy_penalty(map = diff(diag(3), differences = 2)))
+#'
+#' @seealso [penalty_null_basis()] for the generic, [is_proper()] for the
+#'   test of properness.
+#' @keywords internal
+S7::method(penalty_null_basis, DistribPenalty) <- function(pen, ...) {
+  q <- as.integer(pen@n_coef)
+  if (is.null(pen@map)) return(matrix(0, q, 0L))
+  d <- dp_diag_entries(pen@map)
+  if (!is.null(d)) {
+    zero <- which(is.na(d) | d == 0)
+    return(diag(1, q)[, zero, drop = FALSE])
+  }
+  m <- as.matrix(pen@map)
+  r <- qr(m)$rank
+  if (r >= q) return(matrix(0, q, 0L))
+  svd(m, nu = 0L, nv = q)$v[, seq.int(r + 1L, q), drop = FALSE]
+}
+
+#' @title Interpretable Quantities of a Separable Penalty
 #' @name penalty_readable.DistribPenalty
 #'
 #' @description
 #' Returns `NULL` for a univariate parent, whose hyperparameters are already
-#' the quantities a reader reads, and
+#' interpretable quantities, and the result of
 #' [distributions7::mv_derived()] for a multivariate one, whose
 #' hyperparameters are the free values of a matrix parameter.
 #'
 #' @details
-#' A univariate parent's hyperparameters are a scale, a rate, a shape, each
-#' read on its own scale already, so there is nothing to derive and `NULL` says
-#' so. A multivariate parent's are log-Cholesky coordinates or the like, which
-#' nobody interprets; what the prior is about is the standard deviations and
-#' the correlations of the effects within a block, and the parent declares
-#' them.
+#' The hyperparameters of a univariate parent are quantities such as a scale,
+#' a rate or a shape, each on its own scale, so there is nothing to derive and
+#' the method returns `NULL`. Those of a multivariate parent are coordinates
+#' such as log-Cholesky entries, which are not directly interpretable; the
+#' interpretable quantities are the standard deviations and the correlations
+#' of the effects within a block, and the parent declares them through
+#' [distributions7::mv_derived()].
 #'
 #' @param pen A [DistribPenalty()] object.
 #' @param theta A named list of the parent's free parameters.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `NULL` when `pen@block` is `1L`. Otherwise the list
-#'   [distributions7::mv_derived()] returns: `value`, `jacobian`, `transform`
-#'   and `block`.
+#' @return `NULL` when `pen@block` is `1L`. Otherwise the list that
+#'   [distributions7::mv_derived()] returns, with the elements `value`,
+#'   `jacobian`, `transform` and `block`.
 #'
 #' @examples
 #' # A univariate parent: the rate is the quantity, so nothing is derived.
@@ -935,7 +1270,8 @@ S7::method(is_proper, DistribPenalty) <- function(pen, ...) {
 #' r$transform
 #'
 #' @seealso [penalty_readable()] for the generic,
-#'   [distributions7::mv_derived()] for the declaration this passes through.
+#'   [distributions7::mv_derived()] for the quantities that a multivariate
+#'   family declares.
 #' @keywords internal
 S7::method(penalty_readable, DistribPenalty) <- function(pen, theta, ...) {
   # only a blockwise parent has coordinates that are not the quantities: a

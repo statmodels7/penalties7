@@ -8,8 +8,8 @@
 \arguments{
 \item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{theta}{A list holding \code{lambda}. Read by \code{penalty_kinks()}, whose
-answer does not depend on it.}
+\item{theta}{A list holding \code{lambda}. Accepted by \code{penalty_kinks()}, whose
+result does not depend on it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
@@ -20,23 +20,24 @@ answer does not depend on it.}
 coefficients and the null basis has no columns.
 }
 \description{
-The three questions a consumer asks before choosing how to fit a quadratic
-block. \code{penalty_kinks()} returns \code{numeric(0)}, the value being a polynomial
-and smooth everywhere. \code{is_quadratic()} returns \code{TRUE}, so the four marginal
-quantities are available. \code{is_proper()} returns \code{TRUE} only when the penalty
-has full rank.
+The three predicates that a consumer evaluates before choosing how to fit
+a quadratic block. \code{penalty_kinks()} returns \code{numeric(0)}, the value being
+a polynomial and smooth everywhere. \code{is_quadratic()} returns \code{TRUE}, so the
+four marginal quantities are available. \code{is_proper()} returns \code{TRUE} only
+when the penalty has full rank.
 }
 \details{
-Properness is a rank test and nothing else: \eqn{\exp(-\rho)} is flat along
-every null direction of \eqn{D'PD}, so it integrates only when there are
-none. A ridge over \eqn{q} coefficients is proper; second differences over
-\eqn{q} leave the level and the slope free, have rank \eqn{q - 2}, and are
-not. Both are usable, and the difference shows in the normalizing constant,
-which is taken over the range alone.
+Properness is a rank test and nothing else: \eqn{\exp(-\rho)} is constant
+along every null direction of \eqn{D'PD}, so it is integrable only when
+there is no null direction. A ridge over \eqn{q} coefficients is proper;
+second differences over \eqn{q} coefficients leave the level and the slope
+unpenalized, have rank \eqn{q - 2}, and give an improper prior. Both can be
+used, and the difference appears in the normalizing constant, which is
+taken over the range alone.
 
-Because there are no kinks, a quadratic block goes to whatever smooth method
-the fit uses, and \code{\link[=penalty_prox]{penalty_prox()}} is a linear solve rather than a
-threshold.
+Because there are no kinks, a fit can treat a quadratic block with any
+method for smooth objectives, and \code{\link[=penalty_prox]{penalty_prox()}} is a linear solve and
+not a threshold.
 }
 \examples{
 ridge <- quadratic_penalty(diag(4))

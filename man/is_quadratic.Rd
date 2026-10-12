@@ -3,74 +3,78 @@
 \name{is_quadratic}
 \alias{is_quadratic}
 \alias{is_quadratic.penalty}
-\title{Is a Penalty a Quadratic Form With One Scale?}
+\title{Is a Penalty a Quadratic Form?}
 \usage{
 is_quadratic(pen, ...)
 }
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 A single logical.
 }
 \description{
-\code{TRUE} for \code{\link[=quadratic_penalty]{quadratic_penalty()}} and \code{\link[=structured_penalty]{structured_penalty()}}, the two
-branches whose value is \eqn{\tfrac{1}{2}(D\beta)^\top S(\theta) (D\beta)}
-for a matrix that a consumer can ask for. \code{FALSE} everywhere else. A
-marginal likelihood criterion routes on this: where it is \code{TRUE} the
-penalty's contribution to the criterion is a log determinant, which
-\code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}} and
-\code{\link[=penalty_logpdet]{penalty_logpdet()}} supply, and where it is \code{FALSE} those four reject.
+\code{TRUE} for \code{\link[=quadratic_penalty]{quadratic_penalty()}} (and \code{\link[=ridge_penalty]{ridge_penalty()}}, which is built
+on it), \code{\link[=structured_penalty]{structured_penalty()}} and \code{\link[=additive_penalty]{additive_penalty()}}, the branches whose
+value is the quadratic form \eqn{\tfrac{1}{2}\beta^\top S(\theta)\beta}
+plus a normalizing constant, with a matrix \eqn{S(\theta)} that
+\code{\link[=penalty_matrix]{penalty_matrix()}} returns. \code{FALSE} for every other branch. The predicate
+determines how a marginal likelihood criterion treats the penalty: where it
+is \code{TRUE} the penalty's contribution to the criterion is a log
+pseudo-determinant, and \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}},
+\code{\link[=penalty_null_basis]{penalty_null_basis()}} and \code{\link[=penalty_logpdet]{penalty_logpdet()}} supply the pieces. Where it
+is \code{FALSE}, \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}} and \code{\link[=penalty_logpdet]{penalty_logpdet()}}
+signal an error, and \code{\link[=penalty_null_basis]{penalty_null_basis()}} answers only for a separable
+penalty.
 }
-\section{The quantity behind it}{
-A quadratic penalty carries a fixed matrix \eqn{P} and one smoothing
-parameter \eqn{\lambda}, and is the negative log-density of the Gaussian
-prior with precision \eqn{\lambda P} on \eqn{D\beta}:
+\section{The quadratic form}{
+A quadratic penalty carries a fixed matrix \eqn{P}, a map \eqn{D} and one
+smoothing parameter \eqn{\lambda}, and is the negative log-density of the
+Gaussian prior on \eqn{\beta} with precision \eqn{\lambda D^\top P D}:
 
 \deqn{\rho(\beta; \lambda)
   = \tfrac{\lambda}{2} (D\beta)^\top P (D\beta)
-  - \tfrac{1}{2}\log^{+}\lvert \lambda P \rvert
+  - \tfrac{1}{2}\log^{+}\lvert \lambda D^\top P D \rvert
   + \tfrac{r}{2}\log(2\pi),
-  \qquad \log^{+}\lvert \lambda P \rvert
-    = r \log \lambda + \log^{+}\lvert P \rvert,}
+  \qquad \log^{+}\lvert \lambda D^\top P D \rvert
+    = r \log \lambda + \log^{+}\lvert D^\top P D \rvert,}
 
 with \eqn{\log^{+}} the log pseudo-determinant and
-\eqn{r = \operatorname{rank}(P)}. A structured penalty is the same shape
-with \eqn{S(\theta)} a \pkg{parameters7} matrix parameter in place of
-\eqn{\lambda P}, so its matrix moves with several hyperparameters and its
-log-determinant is not linear in any one of them.
-}
+\eqn{r = \operatorname{rank}(D^\top P D)}. Without a map \eqn{D} is the
+identity. A structured penalty has the same form with a \pkg{parameters7}
+matrix parameter \eqn{S(\theta)} in place of \eqn{\lambda D^\top P D}, so
+its matrix moves with several hyperparameters and its log-determinant is
+not linear in any one of them.
 
-\section{The three branches it is TRUE for}{
-\code{\link[=additive_penalty]{additive_penalty()}} is the third, its matrix being
-\eqn{\sum_k \lambda_k P_k}: a sum of quadratic forms is a quadratic form,
-so it has all four quantities. What is particular about it is that the
-matrix moves with one hyperparameter per component rather than with a
-single scale, which is the property \code{\link[=check_penalty]{check_penalty()}} routes on when it
-decides whether to read a slope or to compare a gradient.
+An additive penalty has the matrix \eqn{\sum_k \lambda_k P_k}. A sum of
+quadratic forms is a quadratic form, so it has all four quantities. Its
+matrix moves with one hyperparameter per component, where the plain
+quadratic branch has a single scale \eqn{\lambda}.
 }
 
 \section{Methods}{
 
-The method on the base class \code{\link[=penalty]{penalty()}} returns \code{FALSE}, so a branch that
-is quadratic says so by registering a method of its own and every other
-branch is answered without one.
+The method on the base class \code{\link[=penalty]{penalty()}} returns \code{FALSE}. A quadratic
+branch registers its own method returning \code{TRUE}, as
+\code{\link[=is_quadratic.QuadraticPenalty]{is_quadratic.QuadraticPenalty()}}, \code{\link[=is_quadratic.StructuredPenalty]{is_quadratic.StructuredPenalty()}} and
+\code{\link[=is_quadratic.AdditivePenalty]{is_quadratic.AdditivePenalty()}} do.
 }
 
 \examples{
-# The two branches this is TRUE for.
+# The quadratic and structured branches.
 is_quadratic(quadratic_penalty(diag(2)))
 is_quadratic(ridge_penalty())
 is_quadratic(structured_penalty(
   parameters7::log_cholesky(2)))
 
-# The third, whose matrix moves with one hyperparameter per component.
+# The additive branch, whose matrix moves with one hyperparameter per
+# component.
 add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
 c(quadratic = is_quadratic(add), rank = penalty_rank(add))
 
-# A penalty with a kink has none of it.
+# A separable penalty, SCAD and MCP are not quadratic.
 is_quadratic(lasso_penalty())
 
 }

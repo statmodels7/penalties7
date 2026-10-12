@@ -12,9 +12,9 @@
 
 \item{theta}{A named list of the parent's free parameters.}
 
-\item{scale}{Read by the generic, which applies the chain rule onto the
-unconstrained scale after dispatch, using the parent's own links. These
-methods always return the parameter scale.}
+\item{scale}{Read by the generic, which applies the chain rule to the
+unconstrained scale after dispatch, with the links copied from the
+parent. These methods always return derivatives on the parameter scale.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
@@ -36,17 +36,19 @@ vector per hyperparameter.
 }
 \details{
 The first two are \code{\link[distributions7:distrib_gradient]{distributions7::distrib_gradient()}} and
-\code{\link[distributions7:distrib_hessian]{distributions7::distrib_hessian()}} read at the blocks and summed, the map
-not entering: a hyperparameter of the prior does not act through \eqn{D}.
-The third is \code{\link[distributions7:distrib_cross_y]{distributions7::distrib_cross_y()}}, which exists for this,
-carried back through the map like the coefficient gradient.
+\code{\link[distributions7:distrib_hessian]{distributions7::distrib_hessian()}} evaluated at the blocks and summed. The
+map does not enter them, because a hyperparameter of the prior does not act
+through \eqn{D}. The third is \code{\link[distributions7:distrib_cross_y]{distributions7::distrib_cross_y()}}, carried
+back through the map like the coefficient gradient.
 }
-\section{The reordering}{
-\pkg{distributions7} keys its Hessian components lexicographically and this
-package keys them diagonals first, so the second derivatives are looked up
-under both spellings of each pair, \code{a_b} and \code{b_a}, and returned under this
-package's. The key is composed from the pair rather than parsed out of a
-name, a parameter name being free to contain an underscore.
+\section{Keys of the second derivatives}{
+The second derivatives are returned under the keys of \code{\link[=ptheta_pairs]{ptheta_pairs()}}:
+the diagonal pairs first, then the off-diagonal pairs, in the order of
+\code{pen@params}. The shipped continuous families of \pkg{distributions7} use
+the same order, but a family may spell a pair the other way, so each pair
+is looked up under both spellings, \code{a_b} and \code{b_a}. The key is composed
+from the pair and not parsed out of a name, because a parameter name may
+contain an underscore.
 }
 
 \examples{

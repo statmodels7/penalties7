@@ -9,7 +9,7 @@
 
 \item{v}{A numeric vector of length \code{pen@n_coef}.}
 
-\item{step}{The step length \eqn{t}, a single positive number.}
+\item{step}{The step length \eqn{t}, a single positive finite number.}
 
 \item{theta}{A named list of hyperparameter values.}
 
@@ -21,8 +21,8 @@ A numeric vector of the same length as \code{v}.
 \description{
 One linear solve, \eqn{(I + tS)^{-1}v}, with \eqn{S} the penalty's Hessian:
 \eqn{\lambda D'PD} for a quadratic penalty and \eqn{\Omega(\theta)} for a
-structured one. The two branches share this body, the objective being
-quadratic in both.
+structured one. The two methods have the same body, because the objective
+is quadratic in both.
 }
 \details{
 The subproblem is
@@ -31,11 +31,13 @@ The subproblem is
 \eqn{(\beta - v)/t + S\beta = 0}. The normalizing constant does not depend
 on \eqn{\beta} and drops out.
 
-Because the objective stays quadratic under any linear map, this route needs
-no restriction on \eqn{D}, where the separable branches need the identity or
-a diagonal. The solve is dense and costs \eqn{O(q^3)} whatever the storage
-of \eqn{S}, which for a penalty built with \code{blocks > 1} is a \code{dgCMatrix}
-that is densified by \code{diag(length(v)) + step * S}.
+The objective stays quadratic under any linear map, so this route places no
+restriction on \eqn{D}; the separable branches need the identity map or a
+diagonal one, and a structured penalty has no map. When \eqn{S} is a base
+matrix the solve is dense and costs \eqn{O(q^3)}. For a penalty built with
+\code{blocks > 1}, \eqn{S} is a \code{dgCMatrix}, the sum
+\code{diag(length(v)) + step * S} stays sparse, and \code{solve()} uses the sparse
+factorization of \pkg{Matrix}.
 }
 \examples{
 v <- c(2, 0.3, -1.4)
@@ -44,12 +46,13 @@ v <- c(2, 0.3, -1.4)
 penalty_prox(quadratic_penalty(diag(3)), v, 1, list(lambda = 1.5))
 v / (1 + 1.5)
 
-# A second-difference penalty pulls towards the straight lines it does not
-# charge for, rather than towards zero.
+# A first-difference penalty leaves constant vectors unpenalized, so it
+# pulls the coefficients towards their mean and not towards zero.
 penalty_prox(quadratic_penalty(crossprod(diff(diag(3)))), v, 1,
              list(lambda = 5))
 
-# A structured penalty at a zero log-Cholesky free vector is the ridge.
+# A structured penalty at a zero log-Cholesky free vector is the ridge with
+# lambda = 1.
 s <- structured_penalty(parameters7::log_cholesky(3))
 penalty_prox(s, v, 1,
              as.list(stats::setNames(rep(0, 6), s@params)))

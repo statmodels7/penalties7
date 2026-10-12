@@ -16,10 +16,10 @@ penalty_prox_spec(pen, theta, step, ...)
 \item{theta}{A named list of hyperparameter values, or a named numeric
 vector carrying the same, holding every name in \code{pen@params}.}
 
-\item{step}{A numeric vector of step lengths, one per coefficient, recycled
-from a single value. Every entry must be positive, and \strong{that is not
-checked}: a negative step produces a negative cut and a table nothing
-will reject. \code{\link[=penalty_prox]{penalty_prox()}}, which takes a single step, does check it.}
+\item{step}{A numeric vector of step lengths, either a single value used for
+every coefficient or one value per coefficient. Every entry must be finite
+and positive, and any other length or value is rejected with an error
+naming \code{step}.}
 
 \item{...}{Passed to methods. No shipped method reads it.}
 }
@@ -31,75 +31,106 @@ A list of three matrices, \code{cut}, \code{slope} and \code{icept}, each with
 \description{
 Returns the scalar proximal operator of a separable penalty as an odd
 piecewise linear map: three matrices of cuts, slopes and intercepts from
-which a compiled loop can apply the operator without knowing which family it
-came from. Returns \code{NULL} for a penalty whose operator has no such
-description, and a caller that gets \code{NULL} uses \code{\link[=penalty_prox]{penalty_prox()}} itself.
+which a compiled loop can apply the operator without reference to the
+family. Returns \code{NULL} for a penalty whose operator has no such
+description; where such a penalty has an operator, it is applied with
+\code{\link[=penalty_prox]{penalty_prox()}}.
 }
-\section{What the table says}{
+\section{The piecewise linear map}{
 The operator of a separable penalty acts one coordinate at a time and is
-odd, so it is determined by what it does to \eqn{\lvert u\rvert}: on the
-\eqn{k}-th interval, \eqn{\lvert u\rvert \le} \code{cut[j, k]},
+odd, so it is determined by its action on \eqn{\lvert u\rvert}: on the
+\eqn{k}-th interval, the first for which \eqn{\lvert u\rvert \le}
+\code{cut[j, k]},
 
-\deqn{\mathrm{prox}(u) = \mathrm{sign}(u)\,(a_{jk}\lvert u\rvert + b_{jk}).}
+\deqn{\mathrm{prox}(u) = \mathrm{sign}(u)\,(a_{jk}\lvert u\rvert + b_{jk}),}
 
-Every closed form the package carries has that shape. At
-\eqn{\lambda = 1.5} for the first three, \eqn{\lambda = 1}, \eqn{a = 3.7},
-\eqn{\gamma = 3} for the last two, and a step of \code{0.5}:\tabular{lll}{
+with \eqn{a_{jk}} = \code{slope[j, k]} and \eqn{b_{jk}} = \code{icept[j, k]}. Every
+closed-form operator of a separable penalty in the package has this shape.
+The table below is for a step of \code{0.5}, with \eqn{\sigma = 0.8} for the
+Gaussian prior (whose single cut does not depend on \eqn{\sigma}),
+\eqn{\lambda = 1.5} for the Laplace prior, \eqn{\lambda = 1.5} and
+\eqn{\alpha = 0.6} for the elastic net, \eqn{\lambda = 1} and
+\eqn{\gamma = 3} for MCP, and \eqn{\lambda = 1} and \eqn{a = 3.7} for SCAD:\tabular{lll}{
    penalty \tab pieces \tab cuts \cr
-   Gaussian prior (ridge) \tab 1 \tab \code{Inf} \cr
-   Laplace prior (lasso) \tab 2 \tab \code{0.75}, \code{Inf} \cr
-   elastic net \tab 2 \tab \code{0.45}, \code{Inf} \cr
+   Gaussian prior (\code{gaussian1} parent) \tab 1 \tab \code{Inf} \cr
+   Laplace prior (\code{\link[=lasso_penalty]{lasso_penalty()}}) \tab 2 \tab \code{0.75}, \code{Inf} \cr
+   elastic net (\code{\link[=elasticnet_penalty]{elasticnet_penalty()}}) \tab 2 \tab \code{0.45}, \code{Inf} \cr
    MCP \tab 3 \tab \code{0.5}, \code{3}, \code{Inf} \cr
    SCAD \tab 4 \tab \code{0.5}, \code{1.5}, \code{3.7}, \code{Inf} \cr
 }
 
 
-The last cut is always \code{Inf}. Applied with \code{\link[=prox_apply]{prox_apply()}} and compared
-against \code{\link[=penalty_prox]{penalty_prox()}} at every cut, on both sides of every cut, and over
-a grid across the whole range, all five agree to \code{8.9e-16} or better.
+The last cut is always \code{Inf}. \code{\link[=prox_apply]{prox_apply()}} evaluates a table, and the
+tests of the package compare it with \code{\link[=penalty_prox]{penalty_prox()}} at every cut, on both
+sides of every cut and over a grid of points.
+}
+
+\section{Accuracy near the step limit of SCAD and MCP}{
+The table of SCAD and MCP is ill-conditioned as the step approaches its
+limit, \eqn{a - 1} for SCAD and \eqn{\gamma} for MCP. On the tapering piece
+the slope is \eqn{1/(1 - t/(a-1))} for SCAD and \eqn{1/(1 - t/\gamma)} for
+MCP, which grows without bound as the step approaches the limit, and the
+intercept grows with it and has the opposite sign, so
+\eqn{a_{jk}\lvert u\rvert + b_{jk}} is the difference of two large numbers
+that nearly cancel. The table is therefore less accurate there than
+\code{\link[=penalty_prox]{penalty_prox()}}, which evaluates the same piece in a form without this
+cancellation. With a curvature or a diagonal map the limit applies to the
+scaled step \eqn{t_j c_j d_j^2} described below.
 }
 
 \section{Why a table rather than the operator}{
 A coordinate descent applies the operator once per coordinate per sweep, at
-a point that moves every time, so a compiled loop calling back into R for it
-would spend its gain on the calls. Passing the numbers lets the loop stay
-compiled while the penalty keeps the mathematics: the kernel evaluates any
-map of this shape and names no family.
+a point that moves every time, so a compiled loop that called back into R
+for it would lose its gain to the calls. Passing the numbers keeps the loop
+compiled. The table holds the mathematics of the penalty, and the compiled
+kernel evaluates any map of this shape without reference to the family.
 }
 
 \section{Why the step is a vector}{
 In a coordinate descent the step of coordinate \eqn{j} is \eqn{1/v_j} with
-\eqn{v_j = \sum_i w_i x_{ij}^2}, which does not move while the working
-weights are held. The whole table is therefore built once per weighted least
-squares iteration and every sweep reads it. Note the asymmetry with
-\code{\link[=penalty_prox]{penalty_prox()}}, which takes a \strong{single} step.
+\eqn{v_j = \sum_i w_i x_{ij}^2}, which does not change while the working
+weights are held fixed. The whole table is therefore built once per
+weighted least squares iteration and read by every sweep. \code{\link[=penalty_prox]{penalty_prox()}},
+by contrast, takes a \strong{single} step.
 }
 
 \section{Under a diagonal map}{
 Standardization is a diagonal \eqn{D}, under which a separable penalty stays
-separable and the table survives. The builder is called at the step
-\eqn{t_j d_j^2}, and the resulting cuts and intercepts are divided by
-\eqn{\lvert d_j\rvert} while the slopes do not move, the slope multiplying a
-point that was scaled and then divided back. The operator is odd, so only
-the magnitude of \eqn{d} enters. For a lasso this leaves the cut at
-\eqn{t_j d_j \lambda}: at \eqn{d = (0.5, 2, 3)}, \eqn{t = 0.4} and
-\eqn{\lambda = 1.2} the cuts are \code{0.24}, \code{0.96}, \code{1.44}.
+separable and the table is still available. The builder is called at the
+step \eqn{t_j d_j^2}, and the cuts and intercepts that it returns are
+divided by \eqn{\lvert d_j\rvert}, while the slopes are unchanged because
+each slope multiplies a point that was scaled and then divided back. The
+operator is odd, so only the magnitude of \eqn{d} enters. For a lasso the
+cut is \eqn{t_j \lvert d_j\rvert \lambda} (with \eqn{d = (0.5, 2, 3)},
+\eqn{t = 0.4} and \eqn{\lambda = 1.2} the cuts are \code{0.24}, \code{0.96} and
+\code{1.44}).
 
-The convexity condition of SCAD and MCP is tested on the scaled step, so it
-tightens to \eqn{t < (a-1)/d_j^2} and \eqn{t < \gamma/d_j^2}: a standardized
-penalty takes shorter steps.
+The step limit of SCAD and MCP is tested on the scaled step. With
+\eqn{c_j} the curvature of the coordinate (the \code{curv} property, one when it
+is empty), the table exists only while \eqn{t_j c_j d_j^2 < a - 1} for SCAD
+and \eqn{t_j c_j d_j^2 < \gamma} for MCP in every coordinate, so a
+standardized penalty takes shorter steps.
+
+A diagonal map is recognized by its class through \code{\link[=map_diagonal]{map_diagonal()}}.
+\code{\link[=distrib_penalty]{distrib_penalty()}} (and therefore \code{\link[=lasso_penalty]{lasso_penalty()}} and
+\code{\link[=elasticnet_penalty]{elasticnet_penalty()}}), \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}} store a
+square map whose off-diagonal entries are all zero as a
+\code{\link[Matrix:Diagonal]{Matrix::Diagonal()}} object, so a diagonal base matrix gives a table. A
+diagonal map with a zero entry gives \code{NULL}.
 }
 
-\section{What has no table}{
-\code{NULL} comes back for a quadratic or structured penalty, whose operator is
-one linear solve over every coordinate at once; for a separable penalty under
-a
-map that is not diagonal, which is the generalized-lasso problem; for one
-whose parent is read blockwise, whose coordinates do not separate; for one
-whose operator is a root rather than a formula, such as the heavy-tailed
-Student t prior; for one whose parent is not centered where the quadratic
-pull is; and for SCAD or MCP at a step where the operator is set-valued,
-that is \code{step >= a - 1} or \code{step >= gamma}.
+\section{Penalties without a table}{
+\code{NULL} is returned for a quadratic or structured penalty, whose operator is
+one linear solve over every coordinate at once, and for an additive
+penalty. Among separable penalties, \code{NULL} is returned under a map that is
+not recognized as diagonal, which is the generalized-lasso problem; for a
+parent read blockwise, whose coordinates do not separate; for a parent
+other than the Gaussian, Laplace and elastic-net families, whose operator
+has no closed form (the Student t prior, for example, has an operator
+computed by root finding); for a parent whose gradient at zero is not zero,
+that is, a parent not centered at zero; and for SCAD or MCP when the scaled
+step \eqn{t_j c_j d_j^2} of some coordinate reaches \eqn{a - 1} or
+\eqn{\gamma}, where the operator is set-valued.
 }
 
 \examples{
@@ -108,14 +139,15 @@ pen <- lasso_penalty(n_coef = 2L)
 sp <- penalty_prox_spec(pen, list(lambda = 1.5), step = c(0.5, 2))
 sp$cut
 
-# The table reproduces the operator exactly. The first point sits on its
-# own cut and is set to zero; the second survives, shrunk by t * lambda.
+# The table reproduces the operator. The first point lies on its cut and
+# is set to zero; the second is shrunk by t * lambda.
 u <- c(0.75, 4)
 prox_apply(sp, u)
 c(penalty_prox(lasso_penalty(n_coef = 1), u[1], 0.5, list(lambda = 1.5)),
   penalty_prox(lasso_penalty(n_coef = 1), u[2], 2, list(lambda = 1.5)))
 
-# SCAD needs four pieces, and has none where its operator is set-valued.
+# SCAD has four pieces, and no table at a step where its operator is
+# set-valued.
 penalty_prox_spec(scad_penalty(), list(lambda = 1, a = 3.7),
                   step = 0.5)$cut
 penalty_prox_spec(scad_penalty(), list(lambda = 1, a = 3.7), step = 2.7)

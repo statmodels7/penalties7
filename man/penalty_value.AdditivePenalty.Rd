@@ -27,16 +27,22 @@ normalizing constant taken over the range of the sum.
   - \tfrac{1}{2}\log\mathrm{pdet}\,S(\lambda)
   + \tfrac{r}{2}\log 2\pi,}
 
-with \eqn{r} the stored rank. One eigendecomposition of the sum, through
-\code{\link[=additive_sum]{additive_sum()}}, supplies both the quadratic form's matrix and the log
-pseudo-determinant.
+with \eqn{r} the stored rank. \code{\link[=additive_sum]{additive_sum()}} assembles the matrix
+\eqn{S(\lambda)} of the quadratic form and evaluates the log
+pseudo-determinant by a similarity transformation, which decomposes the
+assembled sum as a whole only when every component joins the dominant
+group or when the dominant group alone has the rank of the sum. The
+accuracy of the log pseudo-determinant is therefore limited by
+the conditioning of the dominant group of components at each level of the
+transformation, and not by the spread of the parameters.
 
-With a single component the value is the plain quadratic penalty's, and the
-two agree to \code{3.6e-15}.
+With a single component the value equals that of \code{\link[=quadratic_penalty]{quadratic_penalty()}} up
+to rounding error.
 
-The log pseudo-determinant comes from \code{\link[=additive_sum]{additive_sum()}}, which transforms by
-similarity rather than decomposing the assembled sum, so the value is
-finite and accurate however far the parameters have spread.
+The value is \code{NaN}, without an error, at a setting that \code{\link[=additive_sum]{additive_sum()}}
+reports as not resolvable: where the weighted sum or one of its reductions
+overflows, or where the rank identity of \code{\link[=additive_check_tol]{additive_check_tol()}} is violated
+or cannot be evaluated.
 }
 \examples{
 P1 <- crossprod(diff(diag(5)))
@@ -46,7 +52,7 @@ b <- c(0.4, -1.1, 0.7, 0.2, -0.3)
 
 penalty_value(pen, b, list(lambda1 = 2, lambda2 = 0.5))
 
-# A constant vector lies in the intersected null space, so only the
+# A constant vector lies in the null space of both components, so only the
 # normalizing constant remains.
 penalty_value(pen, rep(1, 5), list(lambda1 = 2, lambda2 = 0.5))
 penalty_value(pen, rep(0, 5), list(lambda1 = 2, lambda2 = 0.5))
@@ -55,6 +61,6 @@ penalty_value(pen, rep(0, 5), list(lambda1 = 2, lambda2 = 0.5))
 \seealso{
 \code{\link[=additive_penalty]{additive_penalty()}} for the construction,
 \code{\link[=penalty_gradient.AdditivePenalty]{penalty_gradient.AdditivePenalty()}} for the coefficient derivatives,
-\code{\link[=additive_sum]{additive_sum()}} for the decomposition it reads.
+\code{\link[=additive_sum]{additive_sum()}} for the quantities that it reads.
 }
 \keyword{internal}

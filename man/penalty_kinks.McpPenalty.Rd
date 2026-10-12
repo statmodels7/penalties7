@@ -12,34 +12,44 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_kinks()} a numeric vector of three points, in the order
-\code{0}, \eqn{-\gamma\lambda}, \eqn{\gamma\lambda}.
+\code{penalty_kinks()} a numeric vector of distinct points: \code{0}, then
+\eqn{-\gamma\lambda/c_j} and \eqn{\gamma\lambda/c_j} over the distinct
+rates \eqn{\lambda/c_j}. At unit curvature these are the three points
+\code{0}, \eqn{-\gamma\lambda}, \eqn{\gamma\lambda}, in this order.
 \code{is_proper()} the single logical \code{FALSE}.
 }
 \description{
-\code{penalty_kinks()} returns the three points where MCP changes branch, and
-\code{is_proper()} returns \code{FALSE}, MCP being bounded and so not a density at any
-constant.
+\code{penalty_kinks()} returns the points where MCP changes branch, and
+\code{is_proper()} returns \code{FALSE}, since MCP is bounded and so not a density at
+any constant.
 }
 \details{
-The three points are \code{0} and \eqn{\pm\gamma\lambda}, and they differ in
-order. At the origin the first derivative jumps from \eqn{-\lambda} to
-\eqn{\lambda}, the kink that produces exact zeros. At
-\eqn{\pm\gamma\lambda} the first derivative is continuous, both branches
-giving zero, and the second jumps from \eqn{-1/\gamma} to \eqn{0}. Both
-outer points move with the hyperparameters, so \code{theta} is not optional.
+At unit curvature the points are \code{0} and \eqn{\pm\gamma\lambda}, and they
+differ in the order of the derivative that jumps. At the origin the first
+derivative jumps from \eqn{-\lambda} to \eqn{\lambda}, which is the kink
+that produces exact zeros. At \eqn{\pm\gamma\lambda} the first derivative
+is continuous, both branches giving zero, and the second jumps from
+\eqn{-1/\gamma} to \eqn{0} (from \eqn{-c_j/\gamma} with curvature
+\eqn{c_j}). MCP has one pair of outer points where SCAD has two, because its
+taper starts at the origin instead of at \eqn{\lambda}.
 
-MCP has one pair of outer points where SCAD has two, its taper starting at
-the origin instead of at \eqn{\lambda}.
+With \code{curv}, the points \eqn{\pm\gamma\lambda/c_j} are returned for each
+distinct value of \eqn{\lambda/c_j}, so the vector has more than three
+points when the curvatures differ. The outer points move with the
+hyperparameters, so \code{theta} is required.
 }
 \examples{
 penalty_kinks(mcp_penalty(), list(lambda = 1, gamma = 3))
 penalty_kinks(mcp_penalty(), list(lambda = 0.5, gamma = 3))
+
+# Two curvatures give two rates and five points.
+penalty_kinks(mcp_penalty(n_coef = 2, curv = c(1, 2)),
+              list(lambda = 1, gamma = 3))
 is_proper(mcp_penalty())
 
 }
 \seealso{
 \code{\link[=penalty_kinks]{penalty_kinks()}} and \code{\link[=is_proper]{is_proper()}} for the generics,
-\code{\link[=penalty_kinks.ScadPenalty]{penalty_kinks.ScadPenalty()}} for the sibling family's five points.
+\code{\link[=penalty_kinks.ScadPenalty]{penalty_kinks.ScadPenalty()}} for the sibling family.
 }
 \keyword{internal}

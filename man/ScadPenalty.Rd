@@ -3,7 +3,7 @@
 \name{ScadPenalty}
 \alias{ScadPenalty}
 \alias{McpPenalty}
-\title{S7 Classes for the Derivative-Defined Penalties}
+\title{S7 Classes for the SCAD and MCP Penalties}
 \usage{
 ScadPenalty(
   penalty_name = character(0),
@@ -29,12 +29,12 @@ McpPenalty(
 }
 \arguments{
 \item{penalty_name}{A single string naming the penalty, used by \code{print()}
-and by consumers that report which penalty a block carries.}
+and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
-\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own storage;
-a diagonal map is what standardization comes to and is recognized by its
-class.}
+\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
+storage, so a diagonal map, which is what standardization produces, is
+recognized as diagonal by its class.}
 
 \item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
 
@@ -52,33 +52,78 @@ real line.}
 \item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
 where the value is differentiable in it.}
 
-\item{curv}{The curvature of the loss in each coordinate of \eqn{D\beta},
-a numeric vector, or \code{numeric(0)} for ones. See \code{\link[=check_curv]{check_curv()}}.}
+\item{curv}{The curvature of the loss in each coordinate of \eqn{D\beta}, a
+numeric vector of positive finite values with one entry per coordinate,
+or \code{numeric(0)}, which stores no curvature and gives every coordinate
+unit curvature. The constructors \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}}
+build it with \code{\link[=check_curv]{check_curv()}}.}
 }
 \value{
 An S7 object of class \code{ScadPenalty} or \code{McpPenalty}, inheriting from
 \code{\link[=penalty]{penalty()}} and carrying its seven properties and \code{curv}.
 }
 \description{
-\code{ScadPenalty} is the class \code{\link[=scad_penalty]{scad_penalty()}} builds and \code{McpPenalty} the one
-\code{\link[=mcp_penalty]{mcp_penalty()}} builds. Both are families the literature defines by
-\eqn{\rho'} rather than by \eqn{\rho}, and whose value follows from the
-closed piecewise antiderivative anchored at \eqn{\rho(0) = 0}. Neither adds
-a property to \code{\link[=penalty]{penalty()}}: everything the branch needs is the two
-hyperparameters and the map, and every quantity is computed from them.
+\code{ScadPenalty} is the class that \code{\link[=scad_penalty]{scad_penalty()}} builds, and \code{McpPenalty} is
+the class that \code{\link[=mcp_penalty]{mcp_penalty()}} builds. The literature defines both families
+by the derivative \eqn{\rho'}, and their value is the closed piecewise
+antiderivative anchored at \eqn{\rho(0) = 0}. Each class adds one property
+to \code{\link[=penalty]{penalty()}}, \code{curv}, the curvature of the loss in each coordinate of
+\eqn{D\beta}, and every quantity is computed from the two hyperparameters,
+the map and \code{curv}.
 }
 \details{
-Both are improper. \eqn{\rho'} is exactly zero beyond \eqn{a\lambda} for
-SCAD and beyond \eqn{\gamma\lambda} for MCP, so \eqn{\rho} is bounded and
-flat far from the origin and \eqn{\exp(-\rho)} does not integrate over
-\eqn{\mathbb{R}^q} at any constant. \code{\link[=is_proper]{is_proper()}} returns \code{FALSE} for both,
-and the four quantities a marginal criterion reads are unavailable: their
-hyperparameters have to be chosen along a path or by cross-validation.
+Both penalties are improper. The derivative \eqn{\rho'} is exactly zero
+beyond \eqn{a\lambda} for SCAD and beyond \eqn{\gamma\lambda} for MCP, so
+\eqn{\rho} is bounded and flat far from the origin and \eqn{\exp(-\rho)}
+does not integrate over \eqn{\mathbb{R}^q} at any constant. \code{\link[=is_proper]{is_proper()}}
+returns \code{FALSE} for both, and \code{\link[=penalty_matrix]{penalty_matrix()}} and the three quantities
+beside it signal an error, so the hyperparameters are chosen along a path
+or by cross-validation.
 
-The two differ in which shape parameter they carry and where it is bounded:
-SCAD's is \code{a}, on \eqn{(2, \infty)}, and MCP's is \code{gamma}, on
-\eqn{(1, \infty)}.
+The two classes differ in the shape parameter and its bound: SCAD's is \code{a},
+on \eqn{(2, \infty)}, and MCP's is \code{gamma}, on \eqn{(1, \infty)}.
 }
+\section{Methods}{
+
+The two classes register methods for the same generics. For \code{ScadPenalty}:
+\itemize{
+\item value and coefficient derivatives:
+\link[=penalty_value.ScadPenalty]{penalty_value()},
+\link[=penalty_gradient.ScadPenalty]{penalty_gradient()},
+\link[=penalty_hessian.ScadPenalty]{penalty_hessian()};
+\item hyperparameter derivatives:
+\link[=penalty_grad_theta.ScadPenalty]{penalty_grad_theta()},
+\link[=penalty_hess_theta.ScadPenalty]{penalty_hess_theta()},
+\link[=penalty_cross.ScadPenalty]{penalty_cross()};
+\item points of non-smoothness and kind:
+\link[=penalty_kinks.ScadPenalty]{penalty_kinks()},
+\link[=is_proper.ScadPenalty]{is_proper()};
+\item proximal operator: \link[=penalty_prox.ScadPenalty]{penalty_prox()},
+\link[=penalty_prox_spec.ScadPenalty]{penalty_prox_spec()}.
+}
+
+For \code{McpPenalty}:
+\itemize{
+\item value and coefficient derivatives:
+\link[=penalty_value.McpPenalty]{penalty_value()},
+\link[=penalty_gradient.McpPenalty]{penalty_gradient()},
+\link[=penalty_hessian.McpPenalty]{penalty_hessian()};
+\item hyperparameter derivatives:
+\link[=penalty_grad_theta.McpPenalty]{penalty_grad_theta()},
+\link[=penalty_hess_theta.McpPenalty]{penalty_hess_theta()},
+\link[=penalty_cross.McpPenalty]{penalty_cross()};
+\item points of non-smoothness and kind:
+\link[=penalty_kinks.McpPenalty]{penalty_kinks()},
+\link[=is_proper.McpPenalty]{is_proper()};
+\item proximal operator: \link[=penalty_prox.McpPenalty]{penalty_prox()},
+\link[=penalty_prox_spec.McpPenalty]{penalty_prox_spec()}.
+}
+
+Every other generic dispatches to the method of the base class
+\code{\link[=penalty]{penalty()}}: \code{\link[=is_quadratic]{is_quadratic()}} returns \code{FALSE}, and \code{\link[=penalty_matrix]{penalty_matrix()}} and
+the three quantities beside it signal an error.
+}
+
 \examples{
 S7::S7_inherits(scad_penalty(), ScadPenalty)
 S7::S7_inherits(mcp_penalty(), McpPenalty)
@@ -89,7 +134,7 @@ setdiff(names(S7::props(scad_penalty())), names(S7::props(lasso_penalty())))
 }
 \seealso{
 \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}} for the constructors,
-\code{\link[=penalty_value.ScadPenalty]{penalty_value.ScadPenalty()}} and \code{\link[=penalty_value.McpPenalty]{penalty_value.McpPenalty()}} for what
-each computes, \code{\link[=penalty_prox]{penalty_prox()}} for the operator a fit steps with.
+\code{\link[=penalty_value.ScadPenalty]{penalty_value.ScadPenalty()}} and \code{\link[=penalty_value.McpPenalty]{penalty_value.McpPenalty()}} for the
+values, \code{\link[=penalty_prox]{penalty_prox()}} for the proximal operator used in a fit.
 }
 \keyword{internal}

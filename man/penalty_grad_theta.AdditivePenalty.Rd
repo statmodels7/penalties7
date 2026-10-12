@@ -43,12 +43,15 @@ pseudo-inverse of the sum,
     = \tfrac{1}{2}\operatorname{tr}(S^{+}P_kS^{+}P_l), \qquad
   \frac{\partial^2\rho}{\partial\beta\,\partial\lambda_k} = P_k\beta.}
 
-The second derivative has no quadratic-form term, the value being linear in
-each parameter there, and the mixed block has no determinant term.
-\code{penalty_cross()} therefore needs no eigendecomposition at all.
+The second derivative has no term from the quadratic form, which is linear
+in each parameter, and the mixed block has no term from the determinant.
+\code{penalty_cross()} therefore takes no eigendecomposition. The first two
+blocks read the traces from \code{\link[=additive_sum]{additive_sum()}}, and their entries are \code{NaN}
+at a setting that it reports as not resolvable.
 
-The Hessian is keyed by pairs as \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} keys them, diagonals
-first and then the upper off-diagonal pairs joined by an underscore.
+The Hessian is keyed by pairs as \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} keys them: each key
+joins two parameter names by an underscore (\code{lambda1_lambda2}), the
+diagonal pairs come first and the upper off-diagonal pairs follow.
 }
 \examples{
 P1 <- crossprod(diff(diag(5)))
@@ -68,6 +71,6 @@ identical(penalty_cross(pen, b, th),
 \seealso{
 \code{\link[=penalty_value.AdditivePenalty]{penalty_value.AdditivePenalty()}} for the quantity differentiated,
 \code{\link[=penalty_logpdet.AdditivePenalty]{penalty_logpdet.AdditivePenalty()}} for the determinant's own
-derivatives, \code{\link[=additive_sum]{additive_sum()}} for the pseudo-inverse these read.
+derivatives, \code{\link[=additive_sum]{additive_sum()}} for the traces that these read.
 }
 \keyword{internal}

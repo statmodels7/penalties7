@@ -6,85 +6,116 @@ NULL
 #' @description
 #' Returns the scalar proximal operator of a separable penalty as an odd
 #' piecewise linear map: three matrices of cuts, slopes and intercepts from
-#' which a compiled loop can apply the operator without knowing which family it
-#' came from. Returns `NULL` for a penalty whose operator has no such
-#' description, and a caller that gets `NULL` uses [penalty_prox()] itself.
+#' which a compiled loop can apply the operator without reference to the
+#' family. Returns `NULL` for a penalty whose operator has no such
+#' description; where such a penalty has an operator, it is applied with
+#' [penalty_prox()].
 #'
 #' @details
-#' # What the table says
+#' # The piecewise linear map
 #'
 #' The operator of a separable penalty acts one coordinate at a time and is
-#' odd, so it is determined by what it does to \eqn{\lvert u\rvert}: on the
-#' \eqn{k}-th interval, \eqn{\lvert u\rvert \le} `cut[j, k]`,
+#' odd, so it is determined by its action on \eqn{\lvert u\rvert}: on the
+#' \eqn{k}-th interval, the first for which \eqn{\lvert u\rvert \le}
+#' `cut[j, k]`,
 #'
-#' \deqn{\mathrm{prox}(u) = \mathrm{sign}(u)\,(a_{jk}\lvert u\rvert + b_{jk}).}
+#' \deqn{\mathrm{prox}(u) = \mathrm{sign}(u)\,(a_{jk}\lvert u\rvert + b_{jk}),}
 #'
-#' Every closed form the package carries has that shape. At
-#' \eqn{\lambda = 1.5} for the first three, \eqn{\lambda = 1}, \eqn{a = 3.7},
-#' \eqn{\gamma = 3} for the last two, and a step of `0.5`:
+#' with \eqn{a_{jk}} = `slope[j, k]` and \eqn{b_{jk}} = `icept[j, k]`. Every
+#' closed-form operator of a separable penalty in the package has this shape.
+#' The table below is for a step of `0.5`, with \eqn{\sigma = 0.8} for the
+#' Gaussian prior (whose single cut does not depend on \eqn{\sigma}),
+#' \eqn{\lambda = 1.5} for the Laplace prior, \eqn{\lambda = 1.5} and
+#' \eqn{\alpha = 0.6} for the elastic net, \eqn{\lambda = 1} and
+#' \eqn{\gamma = 3} for MCP, and \eqn{\lambda = 1} and \eqn{a = 3.7} for SCAD:
 #'
 #' | penalty | pieces | cuts |
 #' |---|---|---|
-#' | Gaussian prior (ridge) | 1 | `Inf` |
-#' | Laplace prior (lasso) | 2 | `0.75`, `Inf` |
-#' | elastic net | 2 | `0.45`, `Inf` |
+#' | Gaussian prior (`gaussian1` parent) | 1 | `Inf` |
+#' | Laplace prior ([lasso_penalty()]) | 2 | `0.75`, `Inf` |
+#' | elastic net ([elasticnet_penalty()]) | 2 | `0.45`, `Inf` |
 #' | MCP | 3 | `0.5`, `3`, `Inf` |
 #' | SCAD | 4 | `0.5`, `1.5`, `3.7`, `Inf` |
 #'
-#' The last cut is always `Inf`. Applied with [prox_apply()] and compared
-#' against [penalty_prox()] at every cut, on both sides of every cut, and over
-#' a grid across the whole range, all five agree to `8.9e-16` or better.
+#' The last cut is always `Inf`. [prox_apply()] evaluates a table, and the
+#' tests of the package compare it with [penalty_prox()] at every cut, on both
+#' sides of every cut and over a grid of points.
+#'
+#' # Accuracy near the step limit of SCAD and MCP
+#'
+#' The table of SCAD and MCP is ill-conditioned as the step approaches its
+#' limit, \eqn{a - 1} for SCAD and \eqn{\gamma} for MCP. On the tapering piece
+#' the slope is \eqn{1/(1 - t/(a-1))} for SCAD and \eqn{1/(1 - t/\gamma)} for
+#' MCP, which grows without bound as the step approaches the limit, and the
+#' intercept grows with it and has the opposite sign, so
+#' \eqn{a_{jk}\lvert u\rvert + b_{jk}} is the difference of two large numbers
+#' that nearly cancel. The table is therefore less accurate there than
+#' [penalty_prox()], which evaluates the same piece in a form without this
+#' cancellation. With a curvature or a diagonal map the limit applies to the
+#' scaled step \eqn{t_j c_j d_j^2} described below.
 #'
 #' # Why a table rather than the operator
 #'
 #' A coordinate descent applies the operator once per coordinate per sweep, at
-#' a point that moves every time, so a compiled loop calling back into R for it
-#' would spend its gain on the calls. Passing the numbers lets the loop stay
-#' compiled while the penalty keeps the mathematics: the kernel evaluates any
-#' map of this shape and names no family.
+#' a point that moves every time, so a compiled loop that called back into R
+#' for it would lose its gain to the calls. Passing the numbers keeps the loop
+#' compiled. The table holds the mathematics of the penalty, and the compiled
+#' kernel evaluates any map of this shape without reference to the family.
 #'
 #' # Why the step is a vector
 #'
 #' In a coordinate descent the step of coordinate \eqn{j} is \eqn{1/v_j} with
-#' \eqn{v_j = \sum_i w_i x_{ij}^2}, which does not move while the working
-#' weights are held. The whole table is therefore built once per weighted least
-#' squares iteration and every sweep reads it. Note the asymmetry with
-#' [penalty_prox()], which takes a **single** step.
+#' \eqn{v_j = \sum_i w_i x_{ij}^2}, which does not change while the working
+#' weights are held fixed. The whole table is therefore built once per
+#' weighted least squares iteration and read by every sweep. [penalty_prox()],
+#' by contrast, takes a **single** step.
 #'
 #' # Under a diagonal map
 #'
 #' Standardization is a diagonal \eqn{D}, under which a separable penalty stays
-#' separable and the table survives. The builder is called at the step
-#' \eqn{t_j d_j^2}, and the resulting cuts and intercepts are divided by
-#' \eqn{\lvert d_j\rvert} while the slopes do not move, the slope multiplying a
-#' point that was scaled and then divided back. The operator is odd, so only
-#' the magnitude of \eqn{d} enters. For a lasso this leaves the cut at
-#' \eqn{t_j d_j \lambda}: at \eqn{d = (0.5, 2, 3)}, \eqn{t = 0.4} and
-#' \eqn{\lambda = 1.2} the cuts are `0.24`, `0.96`, `1.44`.
+#' separable and the table is still available. The builder is called at the
+#' step \eqn{t_j d_j^2}, and the cuts and intercepts that it returns are
+#' divided by \eqn{\lvert d_j\rvert}, while the slopes are unchanged because
+#' each slope multiplies a point that was scaled and then divided back. The
+#' operator is odd, so only the magnitude of \eqn{d} enters. For a lasso the
+#' cut is \eqn{t_j \lvert d_j\rvert \lambda} (with \eqn{d = (0.5, 2, 3)},
+#' \eqn{t = 0.4} and \eqn{\lambda = 1.2} the cuts are `0.24`, `0.96` and
+#' `1.44`).
 #'
-#' The convexity condition of SCAD and MCP is tested on the scaled step, so it
-#' tightens to \eqn{t < (a-1)/d_j^2} and \eqn{t < \gamma/d_j^2}: a standardized
-#' penalty takes shorter steps.
+#' The step limit of SCAD and MCP is tested on the scaled step. With
+#' \eqn{c_j} the curvature of the coordinate (the `curv` property, one when it
+#' is empty), the table exists only while \eqn{t_j c_j d_j^2 < a - 1} for SCAD
+#' and \eqn{t_j c_j d_j^2 < \gamma} for MCP in every coordinate, so a
+#' standardized penalty takes shorter steps.
 #'
-#' # What has no table
+#' A diagonal map is recognized by its class through [map_diagonal()].
+#' [distrib_penalty()] (and therefore [lasso_penalty()] and
+#' [elasticnet_penalty()]), [scad_penalty()] and [mcp_penalty()] store a
+#' square map whose off-diagonal entries are all zero as a
+#' [Matrix::Diagonal()] object, so a diagonal base matrix gives a table. A
+#' diagonal map with a zero entry gives `NULL`.
 #'
-#' `NULL` comes back for a quadratic or structured penalty, whose operator is
-#' one linear solve over every coordinate at once; for a separable penalty under
-#' a
-#' map that is not diagonal, which is the generalized-lasso problem; for one
-#' whose parent is read blockwise, whose coordinates do not separate; for one
-#' whose operator is a root rather than a formula, such as the heavy-tailed
-#' Student t prior; for one whose parent is not centered where the quadratic
-#' pull is; and for SCAD or MCP at a step where the operator is set-valued,
-#' that is `step >= a - 1` or `step >= gamma`.
+#' # Penalties without a table
+#'
+#' `NULL` is returned for a quadratic or structured penalty, whose operator is
+#' one linear solve over every coordinate at once, and for an additive
+#' penalty. Among separable penalties, `NULL` is returned under a map that is
+#' not recognized as diagonal, which is the generalized-lasso problem; for a
+#' parent read blockwise, whose coordinates do not separate; for a parent
+#' other than the Gaussian, Laplace and elastic-net families, whose operator
+#' has no closed form (the Student t prior, for example, has an operator
+#' computed by root finding); for a parent whose gradient at zero is not zero,
+#' that is, a parent not centered at zero; and for SCAD or MCP when the scaled
+#' step \eqn{t_j c_j d_j^2} of some coordinate reaches \eqn{a - 1} or
+#' \eqn{\gamma}, where the operator is set-valued.
 #'
 #' @param pen A [penalty()] object of any branch.
 #' @param theta A named list of hyperparameter values, or a named numeric
 #'   vector carrying the same, holding every name in `pen@params`.
-#' @param step A numeric vector of step lengths, one per coefficient, recycled
-#'   from a single value. Every entry must be positive, and **that is not
-#'   checked**: a negative step produces a negative cut and a table nothing
-#'   will reject. [penalty_prox()], which takes a single step, does check it.
+#' @param step A numeric vector of step lengths, either a single value used for
+#'   every coefficient or one value per coefficient. Every entry must be finite
+#'   and positive, and any other length or value is rejected with an error
+#'   naming `step`.
 #' @param ... Passed to methods. No shipped method reads it.
 #'
 #' @return A list of three matrices, `cut`, `slope` and `icept`, each with
@@ -97,14 +128,15 @@ NULL
 #' sp <- penalty_prox_spec(pen, list(lambda = 1.5), step = c(0.5, 2))
 #' sp$cut
 #'
-#' # The table reproduces the operator exactly. The first point sits on its
-#' # own cut and is set to zero; the second survives, shrunk by t * lambda.
+#' # The table reproduces the operator. The first point lies on its cut and
+#' # is set to zero; the second is shrunk by t * lambda.
 #' u <- c(0.75, 4)
 #' prox_apply(sp, u)
 #' c(penalty_prox(lasso_penalty(n_coef = 1), u[1], 0.5, list(lambda = 1.5)),
 #'   penalty_prox(lasso_penalty(n_coef = 1), u[2], 2, list(lambda = 1.5)))
 #'
-#' # SCAD needs four pieces, and has none where its operator is set-valued.
+#' # SCAD has four pieces, and no table at a step where its operator is
+#' # set-valued.
 #' penalty_prox_spec(scad_penalty(), list(lambda = 1, a = 3.7),
 #'                   step = 0.5)$cut
 #' penalty_prox_spec(scad_penalty(), list(lambda = 1, a = 3.7), step = 2.7)
@@ -120,6 +152,13 @@ NULL
 penalty_prox_spec <- S7::new_generic("penalty_prox_spec", "pen",
   function(pen, theta, step, ...) {
     theta <- align_ptheta(pen, theta)
+    n <- as.integer(pen@n_coef)
+    if (!is.numeric(step) || !(length(step) %in% c(1L, n)) ||
+        anyNA(step) || any(!is.finite(step)) || any(step <= 0)) {
+      stop(sprintf(paste0(
+        "'step' must be finite and positive, a single value or %d values,\n",
+        "  one per coefficient."), n), call. = FALSE)
+    }
     S7::S7_dispatch()
   })
 
@@ -134,21 +173,28 @@ S7::method(penalty_prox_spec, penalty) <- function(pen, theta, step, ...) {
 #' Assemble a Piecewise Linear Table
 #'
 #' @description
-#' Builds the three matrices [penalty_prox_spec()] returns from a function that
-#' gives one column per piece at a single step, recycling a step that is the
-#' same for every coefficient.
+#' Builds the three matrices that [penalty_prox_spec()] returns from a
+#' function that gives one column per piece for a single coefficient.
+#' `prox_table()` takes a function of the step alone, for a family whose
+#' pieces are the same in every coordinate; `prox_table_j()` takes a function
+#' of the step and the coordinate index, for a family whose rate can differ
+#' by coordinate, as the rate \eqn{\lambda/c_j} of SCAD and MCP does.
 #'
 #' @details
-#' Every branch's builder differs only in that per-step function, so this holds
-#' the recycling and the transposition once. The number of pieces is read from
-#' the first coefficient's answer and every other is required to match, which
-#' is automatic: the piece count depends on the family and on the
-#' hyperparameters, never on the step.
+#' The step vector is recycled to `n_coef`, and the function is called once
+#' per coefficient with that coefficient's own step. The builders of the
+#' branches differ only in that function, so the recycling and the
+#' transposition are written here once. The number of pieces is read from the
+#' first coefficient's columns, and the others must have the same number,
+#' which holds for every shipped builder because the piece count depends on
+#' the family and not on the step or the coordinate.
 #'
 #' @param step The step lengths, a numeric vector recycled to `n_coef`.
 #' @param n_coef How many coefficients, a single whole number.
-#' @param pieces A function of one step returning a matrix of three rows,
-#'   `cut`, `slope` and `icept`, and one column per piece.
+#' @param pieces A function returning a matrix of three rows, `cut`, `slope`
+#'   and `icept`, and one column per piece. For `prox_table()` it takes one
+#'   argument, the step; for `prox_table_j()` it takes two, the step and the
+#'   coordinate index \eqn{j}.
 #'
 #' @return A list of three matrices, `cut`, `slope` and `icept`, each `n_coef`
 #'   by the piece count.
@@ -175,8 +221,9 @@ prox_table_j <- function(step, n_coef, pieces) {
 #'
 #' @description
 #' Builds the table of a separable penalty under a diagonal map from the
-#' builder of its identity-map table, and returns `NULL` where there is a map
-#' and it is not diagonal. With no map at all the builder is called directly.
+#' builder of its identity-map table, and returns `NULL` where the penalty has
+#' a map that is not recognized as diagonal. With no map the builder is
+#' called directly.
 #'
 #' @details
 #' A diagonal map only rescales each coordinate, and the identity
@@ -193,20 +240,24 @@ prox_table_j <- function(step, n_coef, pieces) {
 #' scaled and then divided back. The operator is odd, so only the magnitude of
 #' \eqn{d} enters.
 #'
-#' The step handed to the builder is \eqn{t d^2}, which is where the convexity
-#' condition of SCAD and MCP tightens: a standardized penalty takes shorter
-#' steps and a table may come back `NULL` where the unmapped one exists.
+#' The step passed to the builder is \eqn{t d^2}, and the step limit of SCAD
+#' and MCP is tested on it, so a standardized penalty takes shorter steps and
+#' the table can be `NULL` at a step where the table without the map exists.
 #'
-#' The map is recognized by its class through [map_diagonal()], so a base
-#' matrix that happens to be diagonal is not treated as one.
+#' The map is recognized by its class through [map_diagonal()], which returns
+#' `NULL` for a base matrix and for a diagonal with a zero entry. The
+#' constructors [distrib_penalty()], [scad_penalty()] and [mcp_penalty()] store
+#' a diagonal base matrix as a [Matrix::Diagonal()] object, so its diagonal
+#' map is recognized.
 #'
 #' @param pen A [penalty()] object whose map is `NULL` or diagonal.
-#' @param step A numeric vector of step lengths, recycled to `pen@n_coef`.
+#' @param step A numeric vector of step lengths, of length one or
+#'   `pen@n_coef`, recycled to `pen@n_coef`.
 #' @param build A function of a penalty and a step returning the table, or
-#'   `NULL`. Called on the penalty with its map removed.
+#'   `NULL`. It is called on the penalty with its map removed.
 #'
-#' @return The list [penalty_prox_spec()] returns, or `NULL` when the map is
-#'   not diagonal or the builder itself declines.
+#' @return The list that [penalty_prox_spec()] returns, or `NULL` when the
+#'   map is not recognized as diagonal or the builder returns `NULL`.
 #'
 #' @seealso [penalty_prox_spec()], [map_diagonal()], [prox_table()]
 #'
@@ -316,20 +367,22 @@ S7::method(penalty_prox_spec, McpPenalty) <- function(pen, theta, step, ...) {
 #' Apply a Piecewise Linear Table
 #'
 #' @description
-#' Evaluates the map [penalty_prox_spec()] describes, in R. This is what a
-#' compiled coordinate descent does to each coordinate, and what the tests
-#' compare the table against.
+#' Evaluates in R the map that [penalty_prox_spec()] describes. A compiled
+#' coordinate descent applies the same map to each coordinate, and the tests
+#' compare the result with [penalty_prox()].
 #'
 #' @details
-#' For coordinate \eqn{j} it finds the first cut that \eqn{\lvert u_j\rvert}
-#' does not exceed and returns
+#' For coordinate \eqn{j} the function finds the first cut that
+#' \eqn{\lvert u_j\rvert} does not exceed and returns
 #' \eqn{\mathrm{sign}(u_j)(a_{jk}\lvert u_j\rvert + b_{jk})} for that piece.
-#' The last cut is `Inf`, so a piece is always found; the `NA` guard covers a
-#' table whose cuts are not increasing, which no shipped branch produces.
+#' The last cut of every shipped table is `Inf`, so a piece is always found.
+#' If \eqn{\lvert u_j\rvert} exceeds every cut of its row, which can happen
+#' only in a table whose last cut is finite, the last piece is used.
 #'
-#' Comparing this against [penalty_prox()] is how a table is verified. Over the
-#' five families that have one, probed at every cut, on both sides of every cut
-#' and across the whole range, the worst disagreement is `8.9e-16`.
+#' A table is verified by comparing this function with [penalty_prox()] at
+#' every cut, on both sides of every cut and over a grid of points. For SCAD
+#' and MCP at a step close to its limit the table is less accurate than
+#' [penalty_prox()], as the page of [penalty_prox_spec()] explains.
 #'
 #' @param spec A table, as [penalty_prox_spec()] returns it. Its matrices must
 #'   have at least as many rows as `u` is long.

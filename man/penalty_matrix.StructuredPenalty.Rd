@@ -25,17 +25,17 @@ number per free value) and \code{hess} (a list of one number per unordered
 pair, keyed diagonals first).
 }
 \description{
-The four pieces a REML or marginal likelihood criterion reads.
+The four quantities that a REML or marginal likelihood criterion reads.
 \code{penalty_matrix()} returns the precision \eqn{\Omega(\theta)},
 \code{penalty_rank()} the structure's rank, \code{penalty_null_basis()} its null
 basis, and \code{penalty_logpdet()} the log pseudo-determinant of the precision
 with its first two derivatives in the free values.
 }
 \details{
-Where a plain quadratic penalty has \eqn{\log^{+}\lvert S\rvert} linear in
-\eqn{\log\lambda}, here the log-determinant moves with every free value and
-its derivatives come from the structure's own log-determinant contract,
-negated at every order when the structure describes a covariance.
+For a plain quadratic penalty \eqn{\log^{+}\lvert S\rvert} is linear in
+\eqn{\log\lambda}. Here the log-determinant depends on every free value,
+and its value and derivatives are those of the structure's
+\code{param_logdet()}, \code{param_dlogdet()} and \code{param_d2logdet()}.
 
 The rank and the null basis are properties of the structure and do not
 depend on \eqn{\theta}: a \code{matrix_parameter} records them at construction,
@@ -64,7 +64,7 @@ names(lp$hess)
 \seealso{
 \code{\link[=penalty_matrix]{penalty_matrix()}} and its three siblings for the generics,
 \code{\link[=struct_omega]{struct_omega()}} for where the derivatives come from,
-\code{\link[=penalty_matrix.QuadraticPenalty]{penalty_matrix.QuadraticPenalty()}} for the branch whose determinant is
-linear in one parameter.
+\code{\link[=penalty_matrix.QuadraticPenalty]{penalty_matrix.QuadraticPenalty()}} for the branch whose log
+pseudo-determinant is linear in \eqn{\log\lambda}.
 }
 \keyword{internal}

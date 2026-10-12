@@ -14,17 +14,18 @@ AdditivePenalty(
   params_smooth = logical(0),
   mats = list(),
   p_rank = integer(0),
-  null_basis = NULL
+  null_basis = NULL,
+  tol = 1e-10
 )
 }
 \arguments{
 \item{penalty_name}{A single string naming the penalty, used by \code{print()}
-and by consumers that report which penalty a block carries.}
+and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
-\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own storage;
-a diagonal map is what standardization comes to and is recognized by its
-class.}
+\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
+storage, so a diagonal map, which is what standardization produces, is
+recognized as diagonal by its class.}
 
 \item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
 
@@ -50,30 +51,78 @@ on in this order.}
 \item{p_rank}{The rank of the sum, a single whole number, the same at every
 positive setting of the parameters.}
 
-\item{null_basis}{An orthonormal basis of the components' shared null
-space, \code{n_coef} by \code{n_coef - p_rank}, read from the same
-eigendecomposition as \code{p_rank} and equally fixed.}
+\item{null_basis}{An orthonormal basis of the null space shared by the
+components, \code{n_coef} by \code{n_coef - p_rank}, read from the same
+eigendecomposition as \code{p_rank} and fixed in the same way.}
+
+\item{tol}{The relative eigenvalue tolerance, a single positive number,
+\code{1e-10} by default. \code{\link[=additive_penalty]{additive_penalty()}} counts \code{p_rank} at this
+tolerance, and \code{\link[=additive_sum]{additive_sum()}} passes it to \code{\link[=additive_stable]{additive_stable()}} as
+\code{r_tol}, so the rank of each group of components is counted at the same
+tolerance.}
 }
 \value{
 An S7 object of class \code{AdditivePenalty}, inheriting from \code{\link[=penalty]{penalty()}},
-with the seven inherited properties and the three above. Its \code{map} is
+with the seven inherited properties and the four above. Its \code{map} is
 always \code{NULL}, a map given to the constructor having been absorbed into
 \code{mats}.
 }
 \description{
-The class \code{\link[=additive_penalty]{additive_penalty()}} builds: several quadratic penalties added
-together, each with a smoothing parameter of its own. Beyond the seven
-properties every penalty carries it stores the list of component matrices,
-already carried through the map, and the rank and null basis of the sum.
+The class of the objects that \code{\link[=additive_penalty]{additive_penalty()}} builds: several
+quadratic penalties added together, each with a smoothing parameter of its
+own. Beyond the seven properties that every \code{\link[=penalty]{penalty()}} carries, an object
+of this class stores the list of component matrices, already carried
+through the map, the rank and null basis of the sum, and the eigenvalue
+tolerance at which ranks are counted.
 }
 \details{
 The rank and the null basis are stored because both are properties of the
-components alone: the null space of a sum of positive semidefinite
-matrices is the intersection of the components' null spaces, so neither
-moves with the parameters. Reading the rank off the assembled
-\eqn{S(\lambda)} instead would make it fall as the parameters spread
-apart, which \code{\link[=additive_penalty]{additive_penalty()}} measures.
+components alone. The null space of a sum of positive semidefinite
+matrices with positive weights is the intersection of the null spaces of
+the components, so neither the rank nor the null basis changes with the
+smoothing parameters. A rank counted on the assembled \eqn{S(\lambda)}
+would fall as the parameters spread apart, because the smaller
+contributions drop below any fixed relative eigenvalue tolerance; the last
+example of \code{\link[=additive_penalty]{additive_penalty()}} shows this.
 }
+\section{Methods}{
+
+The methods registered on this class, by the page that documents each.
+\itemize{
+\item The value and its coefficient derivatives:
+\link[=penalty_value.AdditivePenalty]{penalty_value()},
+\link[=penalty_gradient.AdditivePenalty]{penalty_gradient()} and
+\link[=penalty_hessian.AdditivePenalty]{penalty_hessian()}.
+\item The hyperparameter derivatives:
+\link[=penalty_grad_theta.AdditivePenalty]{penalty_grad_theta()},
+\link[=penalty_hess_theta.AdditivePenalty]{penalty_hess_theta()} and
+\link[=penalty_cross.AdditivePenalty]{penalty_cross()}.
+\item The predicates: \link[=penalty_kinks.AdditivePenalty]{penalty_kinks()},
+\link[=is_proper.AdditivePenalty]{is_proper()} and
+\link[=is_quadratic.AdditivePenalty]{is_quadratic()}.
+\item The quantities of a marginal criterion:
+\link[=penalty_matrix.AdditivePenalty]{penalty_matrix()},
+\link[=penalty_rank.AdditivePenalty]{penalty_rank()},
+\link[=penalty_null_basis.AdditivePenalty]{penalty_null_basis()} and
+\link[=penalty_logpdet.AdditivePenalty]{penalty_logpdet()}.
+\item The higher derivatives of a marginal criterion:
+\link[=penalty_dhessian.AdditivePenalty]{penalty_dhessian()},
+\link[=penalty_d2hessian.AdditivePenalty]{penalty_d2hessian()},
+\link[=penalty_dcross.AdditivePenalty]{penalty_dcross()} and
+\link[=beta_quadratic.AdditivePenalty]{beta_quadratic()}.
+\item The movement of the Hessian with the coefficients:
+\link[=penalty_dhessian_beta.AdditivePenalty]{penalty_dhessian_beta()},
+\link[=penalty_d2hessian_beta.penalty]{penalty_d2hessian_beta()} and
+\link[=penalty_dhessian_beta_theta.penalty]{penalty_dhessian_beta_theta()}.
+The last two return zero matrices, the Hessian being free of the
+coefficients, and are documented on the page of the base-class methods.
+}
+
+The class registers no \code{\link[=penalty_prox]{penalty_prox()}}, \code{\link[=penalty_prox_spec]{penalty_prox_spec()}},
+\code{\link[=penalty_draw]{penalty_draw()}} or \code{\link[=penalty_readable]{penalty_readable()}} method, so calls to those
+generics dispatch to the methods of the base class \code{\link[=penalty]{penalty()}}.
+}
+
 \examples{
 pen <- additive_penalty(list(diag(3), diag(c(1, 0, 0))))
 S7::S7_inherits(pen, AdditivePenalty)
@@ -86,7 +135,7 @@ length(pen@mats)
 }
 \seealso{
 \code{\link[=additive_penalty]{additive_penalty()}} for the constructor to use,
-\code{\link[=penalty_value.AdditivePenalty]{penalty_value.AdditivePenalty()}} for what the branch computes,
+\code{\link[=penalty_value.AdditivePenalty]{penalty_value.AdditivePenalty()}} for the value of the penalty,
 \code{\link[=quadratic_penalty]{quadratic_penalty()}} for one matrix with one scale.
 }
 \keyword{internal}

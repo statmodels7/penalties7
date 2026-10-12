@@ -1,3 +1,74 @@
+# penalties7 0.31.0
+
+## Changes in behavior
+
+* Every generic that takes `beta` signals an error when its length differs
+  from `n_coef`; the separable, SCAD and MCP branches used to recycle or
+  truncate it.
+
+* Every hyperparameter must be a single number. A vector, `NULL` or
+  `numeric(0)` signals an error naming the parameter.
+
+* `beta_quadratic()` validates `theta` in its generic, on every branch.
+
+* A separable penalty under a square nonsingular map subtracts
+  \eqn{\log\lvert\det D\rvert} from its value, whether the map is diagonal or
+  not, so that it is the negative log-density of \eqn{\beta}. `is_proper()` is
+  `TRUE` only without a map or with a square nonsingular one; under a tall or
+  singular map the value carries no normalizing constant. The class has a new
+  property, `log_jacobian`.
+
+* `penalty_null_basis()` has a method for a separable penalty: the null space
+  of its map.
+
+* `distrib_penalty()`, `scad_penalty()` and `mcp_penalty()` store a square map
+  whose off-diagonal entries are all zero as a `Matrix::Diagonal()` object, so
+  a diagonal base matrix gives the same value, proximal operator, table and
+  draws as the same map built with `Matrix::Diagonal()`.
+
+* `distrib_penalty()` rejects a parent that is not continuous, and the
+  multinomial. A separable penalty copies its parent's `params_smooth`.
+
+* `distrib_kinks()` finds a kink under wrappers nested around `fixed()`, and
+  drops a candidate at the edge of the outer support (a folded parent has no
+  kink at zero). `has_jump()` compares the jump of the slope at two widths and
+  no longer reads a smooth point as a kink.
+
+* `quadratic_penalty()` rejects a `P` that is not positive semidefinite, a map
+  that makes \eqn{D'PD} the zero matrix, and entries that are not finite. The
+  rank and the null basis are read from the same eigenvalues.
+
+* `additive_penalty()` rejects a component that the map carries to zero and
+  entries that are not finite, stores its `tol` (a new property) and passes it
+  to the rank count of the similarity transformation. A setting where the rank
+  identity cannot be evaluated, or where a weighted sum overflows, gives `NaN`
+  instead of an error.
+
+* The proximal operator of a separable penalty without a closed form returns
+  the global minimizer on the segment from zero to `v` (the Student t prior is
+  not log-concave, and a single root could be a local minimum), and is
+  accurate relative to a small answer.
+
+* The SCAD and MCP operators are computed in a form that stays accurate as the
+  step approaches \eqn{a - 1} or \eqn{\gamma}. Their error message prints the
+  scaled step that violates the condition.
+
+* `penalty_prox()` requires a finite step. `penalty_prox_spec()` requires a
+  finite positive step of length one or `n_coef`.
+
+* `check_penalty()` checks the off-diagonal entries of the hyperparameter
+  Hessian.
+
+* `penalty_draw()` of a separable penalty under a diagonal map with a zero
+  entry returns `NA` only at that coordinate.
+
+## Documentation
+
+* Every page was checked against the code and rewritten in a uniform
+  register; the README, the vignette and the descriptions of the reference
+  index were revised in the same way. Class pages list their methods.
+
+
 # penalties7 0.30.0
 
 * A separable penalty whose parent is a multivariate family that is not

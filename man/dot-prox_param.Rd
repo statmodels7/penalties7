@@ -23,14 +23,20 @@ and from the parent's \code{fixed_params} when \code{\link[distributions7:fixed]
 at a value.
 }
 \details{
-The closed forms below need the number, not the place it is kept. A penalty
-whose scale is held is the same penalty as one whose scale is free, read at
-that scale: \code{penalty_value()}, \code{penalty_gradient()} and \code{penalty_hessian()}
-all already answer identically for the two. Reading only \code{theta} made
-\code{penalty_prox()} the one generic that did not, and it stopped with
-\verb{attempt to select less than one element in get1index} rather than saying so,
-because \code{which()} of an empty comparison is \code{integer(0)}.
+The closed forms need the value of the parameter, wherever it is stored. A
+penalty whose scale is held by \code{\link[distributions7:fixed]{distributions7::fixed()}} is the same penalty
+as one whose scale is free, evaluated at that scale, and
+\code{\link[=penalty_value]{penalty_value()}}, \code{\link[=penalty_gradient]{penalty_gradient()}} and \code{\link[=penalty_hessian]{penalty_hessian()}} return the
+same results for the two. \code{\link[=penalty_prox]{penalty_prox()}} therefore reads the value from
+\code{theta} when it is a free hyperparameter and from the parent's
+\code{fixed_params} otherwise.
 }
+\section{Errors}{
+
+A message naming the penalty and the parameter when the parameter is
+neither a free hyperparameter nor held by \code{\link[distributions7:fixed]{distributions7::fixed()}}.
+}
+
 \seealso{
 \code{\link[=penalty_prox.DistribPenalty]{penalty_prox.DistribPenalty()}}, \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}
 }

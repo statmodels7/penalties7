@@ -15,24 +15,29 @@ bound-checked by the generic.}
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A single number, the sum over coordinates. Bounded above by
-\code{pen@n_coef * gamma * lambda^2 / 2}.
+A single number, the sum over coordinates. It is bounded above by
+\eqn{\sum_j \gamma\lambda^2/(2c_j)}, the sum running over the coordinates
+of \eqn{D\beta}, which is \code{pen@n_coef * gamma * lambda^2 / 2} under the
+identity map at unit curvature.
 }
 \description{
 Returns the closed antiderivative of MCP's defining \eqn{\rho'}, summed over
 the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. No
-constant is added, MCP being improper.
+constant is added, since MCP is improper.
 }
 \details{
-With \eqn{u = \lvert t\rvert} on each coordinate,
+With unit curvature and \eqn{u = \lvert t\rvert} on each coordinate,
 
 \deqn{\rho(u) = \lambda u - \frac{u^2}{2\gamma} \;\;
     (u \le \gamma\lambda), \qquad
   \rho(u) = \frac{\gamma\lambda^2}{2} \;\; (u > \gamma\lambda),}
 
-the two pieces meeting continuously at \eqn{\gamma\lambda}. Where SCAD holds
-the lasso's slope over an interval before tapering, MCP starts tapering at
-once, so its value is a downward parabola from the origin.
+the two pieces meeting continuously at \eqn{\gamma\lambda}. SCAD keeps the
+slope of the lasso over an interval before it tapers, while MCP tapers from
+the origin, so its value is a downward parabola up to \eqn{\gamma\lambda}.
+With curvature \eqn{c_j} (the \code{curv} property), coordinate \eqn{j}
+contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, the same formula with
+\eqn{\lambda/c_j} in place of \eqn{\lambda} and multiplied by \eqn{c_j}.
 }
 \examples{
 pen <- mcp_penalty(n_coef = 1)

@@ -19,29 +19,44 @@ A single number.
 }
 \description{
 Returns \eqn{-\sum_i \log f(b_i;\theta)}, the negative log-density of the
-parent summed over the blocks of \eqn{D\beta}. Because the parent supplies
-its own normalizing constant, the value is exactly the negative log prior
-density. Under a diagonal map \eqn{\sum_j\log\lvert d_j\rvert} is
-subtracted, the Jacobian that makes it the density of \eqn{\beta}.
+parent summed over the blocks \eqn{b_i} of \eqn{D\beta}. Because the parent
+supplies its own normalizing constant, the value is the negative log prior
+density of \eqn{D\beta}. Under a square nonsingular map, diagonal or not,
+\eqn{\log\lvert\det D\rvert} is subtracted, which makes the value the
+negative log-density of \eqn{\beta}. Under a map that is not square, or is
+singular, no constant is subtracted.
 }
 \details{
-The map is applied, the result reshaped into the parent's argument by
-\code{\link[=dp_arg]{dp_arg()}}, and one call to \code{\link[distributions7:distrib_pdf]{distributions7::distrib_pdf()}} with
-\code{log = TRUE} gives every block's contribution at once. A univariate parent
-sees the vector; a \eqn{p}-variate one sees a matrix of one row per block.
+The map is applied, the result is reshaped into the argument of the parent
+by \code{\link[=dp_arg]{dp_arg()}}, and one call to \code{\link[distributions7:distrib_pdf]{distributions7::distrib_pdf()}} with
+\code{log = TRUE} gives the contribution of every block at once. A univariate
+parent receives the vector, and a \eqn{p}-variate one a matrix of one row
+per block.
+
+The log-determinant is read by \link[=dp_diag_entries]{dp_log_jacobian()}: it is
+computed from the entries of a diagonal map, and for any other map it is
+the \code{log_jacobian} stored when the penalty was built.
 }
 \examples{
-# A Gaussian prior at zero, which is the negative log-density of one.
-pen <- distrib_penalty(
-  distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0),
-  n_coef = 3)
+# A Gaussian prior at zero: the value is its negative log-density.
+g0 <- distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0)
+pen <- distrib_penalty(g0, n_coef = 3)
 b <- c(1, 0, -1)
 penalty_value(pen, b, list(sigma = 2))
 -sum(stats::dnorm(b, sd = 2, log = TRUE))
 
-# The lasso's value is lambda times the L1 norm plus -q log(lambda/2).
+# The value of the lasso is lambda times the L1 norm minus q log(lambda/2).
 penalty_value(lasso_penalty(n_coef = 3), b, list(lambda = 0.5))
 0.5 * sum(abs(b)) - 3 * log(0.5 / 2)
+
+# A diagonal map subtracts the sum of the log-moduli of its entries, and a
+# map with fewer rows than columns subtracts nothing.
+dg <- distrib_penalty(g0, map = Matrix::Diagonal(x = c(2, 0.5, 4)))
+penalty_value(dg, b, list(sigma = 2))
+-sum(stats::dnorm(c(2, 0, -4), sd = 2, log = TRUE)) - log(2 * 0.5 * 4)
+sh <- distrib_penalty(g0, map = diff(diag(3)))
+penalty_value(sh, b, list(sigma = 2))
+-sum(stats::dnorm(diff(b), sd = 2, log = TRUE))
 
 }
 \seealso{

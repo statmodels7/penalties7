@@ -15,16 +15,18 @@ bound-checked by the generic.}
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A single number, the sum over coordinates. Bounded above by
-\code{pen@n_coef * (a + 1) * lambda^2 / 2}.
+A single number, the sum over coordinates. It is bounded above by
+\eqn{\sum_j (a+1)\lambda^2/(2c_j)}, the sum running over the coordinates
+of \eqn{D\beta}, which is \code{pen@n_coef * (a + 1) * lambda^2 / 2} under
+the identity map at unit curvature.
 }
 \description{
 Returns the closed antiderivative of SCAD's defining \eqn{\rho'}, summed
 over the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. No
-constant is added, SCAD being improper.
+constant is added, since SCAD is improper.
 }
 \details{
-With \eqn{u = \lvert t\rvert} on each coordinate,
+With unit curvature and \eqn{u = \lvert t\rvert} on each coordinate,
 
 \deqn{\rho(u) = \lambda u \;\; (u \le \lambda), \qquad
   \rho(u) = \frac{2a\lambda u - u^2 - \lambda^2}{2(a-1)}
@@ -32,8 +34,11 @@ With \eqn{u = \lvert t\rvert} on each coordinate,
   \rho(u) = \frac{(a+1)\lambda^2}{2} \;\; (u > a\lambda),}
 
 the three pieces meeting continuously at \eqn{\lambda} and \eqn{a\lambda}.
-The value saturates, leaving a large coefficient unshrunk and making the
-penalty improper.
+With curvature \eqn{c_j} (the \code{curv} property), coordinate \eqn{j}
+contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, the same formula with
+\eqn{\lambda/c_j} in place of \eqn{\lambda} and multiplied by \eqn{c_j}.
+The value saturates, which leaves a large coefficient unshrunk and makes
+the penalty improper.
 }
 \examples{
 pen <- scad_penalty(n_coef = 1)

@@ -8,8 +8,8 @@
 \arguments{
 \item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{theta}{A named list of the structure's free values. Read by
-\code{penalty_kinks()}, whose answer does not depend on it.}
+\item{theta}{A named list of the structure's free values. Accepted by
+\code{penalty_kinks()}, whose result does not depend on it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
@@ -26,10 +26,11 @@ quantities are available. \code{is_proper()} returns \code{TRUE} when the struct
 has full rank.
 }
 \details{
-Properness is the structure's rank against its dimension and nothing else. A
-full-rank structure is a proper Gaussian prior; a rank-deficient one, which
-is admitted only as a precision, is improper and its constant is the log
-pseudo-determinant over the range.
+Properness is a comparison of the structure's rank with its dimension and
+nothing else. A full-rank structure is a proper Gaussian prior. A
+rank-deficient structure, which can be used only as a precision, gives an
+improper prior, and its constant is the log pseudo-determinant over the
+range.
 }
 \examples{
 pen <- structured_penalty(parameters7::ar1(4))

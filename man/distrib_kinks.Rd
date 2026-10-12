@@ -7,66 +7,83 @@
 distrib_kinks(d)
 }
 \arguments{
-\item{d}{A univariate \pkg{distributions7} object. An object carrying
-neither \code{parent_distrib} nor \code{fixed_params} gets \code{numeric(0)} without
-further inspection.}
+\item{d}{A univariate \pkg{distributions7} object. An object without
+\code{parent_distrib}, or whose chain of parents has no level carrying
+\code{fixed_params}, gets \code{numeric(0)} without further inspection.}
 }
 \value{
 A numeric vector of the confirmed kink points, possibly empty, with
-duplicates and non-finite candidates removed.
+duplicates removed.
 }
 \description{
 Returns the points at which a separable penalty built on this distribution
-would not be differentiable, derived from the distribution itself. Returns
-\code{numeric(0)} where there are none, which is the answer for every family the
-toolkit ships except the Laplace and the elastic net.
+is not differentiable, derived from the distribution itself, or
+\code{numeric(0)} when there are none. Among the families that
+\pkg{distributions7} ships, only the two Laplace parametrizations and the
+elastic net have a location in which the log-density is not smooth, so only
+these, with the location held by \code{\link[distributions7:fixed]{distributions7::fixed()}}, give a kink.
 }
 \section{How a candidate is found}{
-A distribution records which of its parameters the log-likelihood is
-differentiable in, through \code{params_smooth}, and for a location family a
-location that is not smooth is a kink in the argument at that location. A
-penalty is the negative log-density read in the coefficient, so a
-\code{\link[distributions7:fixed]{distributions7::fixed()}} wrapper holding such a parameter at a value puts
-the kink there: \code{fixed(laplace_distrib(), mu = 0)} is the lasso and has a
-kink at zero, while \code{fixed(laplace_distrib(), mu = 2)} has one at two.
+A distribution records in \code{params_smooth} the parameters in which its
+log-likelihood is differentiable, and for a location family a location
+that is not smooth is a kink in the argument at that location. A penalty
+is the negative log-density read at the coefficient, so a
+\code{\link[distributions7:fixed]{distributions7::fixed()}} wrapper that holds such a parameter at a value
+puts the kink at that value: \code{fixed(laplace_distrib(), mu = 0)} is a
+Laplace prior at zero and has a kink at zero, while
+\code{fixed(laplace_distrib(), mu = 2)} has one at two.
 
-Nothing is taken from a parameter that is \strong{free}, its value being whatever
-the hyperparameters say at the time. A Laplace with an unfixed location
-therefore reports no kink at all.
+A \strong{free} parameter gives no candidate, because its value is set by the
+hyperparameters at the time of each evaluation. A Laplace with a free
+location therefore has no reported kink.
+
+The wrapper is recognized by the properties that it carries,
+\code{parent_distrib} and \code{fixed_params}, and not by its class, because the
+classes of the \code{\link[distributions7:fixed]{distributions7::fixed()}} wrapper are not exported and a
+family written outside \pkg{distributions7} may hold its parameters in the
+same way. The chain of \code{parent_distrib} is walked from the outermost object
+down, and every level that carries \code{fixed_params} contributes candidates,
+so that \code{truncated(fixed(laplace2_distrib(), mu = 0), lower = -1, upper = 3)} has its kink at zero.
 }
 
-\section{And how it is confirmed}{
-Each candidate is the value its parameter is held at, and whether it is a
-kink is then measured rather than inferred, by comparing the one-sided
-derivatives of the log-density across it at a probe point
-(\code{\link[=probe_theta]{probe_theta()}}, \code{\link[=has_jump]{has_jump()}}). Inferring alone would put a kink on any
-family whose non-smooth parameter is not a location; measuring alone would
-need somewhere to look. A candidate whose derivative does not jump is
-dropped.
-
-The wrapper is recognized by the properties it carries, \code{parent_distrib}
-and \code{fixed_params}, and not by its class: the two \code{fixed} classes are not
-exported, and a family written outside \pkg{distributions7} may hold its
-parameters the same way.
+\section{How a candidate is confirmed}{
+A candidate is dropped when it is not finite or when it does not lie
+strictly inside the support of the outermost object, a point at the edge of
+the support not being a kink of the density on its support: a
+\code{folded()} Laplace held at zero has no kink at zero. Each remaining
+candidate is then tested by comparing the one-sided derivatives of the
+log-density across it at a probe point (\code{\link[=probe_theta]{probe_theta()}}, \code{\link[=has_jump]{has_jump()}}),
+and a candidate at which the derivative does not jump is dropped. The
+inference from \code{params_smooth} supplies the points to test, and the test
+removes the candidates at which the density is smooth, for example a
+candidate that comes from a non-smooth parameter that is not a location.
+The test is made on the outermost object, so a wrapper that moves the
+point drops the candidate.
 }
 
 \examples{
-# The lasso's parent: a kink at the location it is held at.
+# A Laplace held at a location: a kink at that location.
 distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),
                                     mu = 0))
 distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),
                                     mu = 2))
 
-# A Gaussian is smooth everywhere, so there is no candidate to confirm.
+# A Gaussian is smooth everywhere, so there is no candidate.
 distrib_kinks(distributions7::fixed(distributions7::gaussian1_distrib(),
                                     mu = 0))
 
-# And a free location gives nothing, its value not being settled.
+# A free location gives no candidate.
 distrib_kinks(distributions7::laplace_distrib())
+
+# A fixed() level under another wrapper is found; the origin of a folded
+# Laplace is the edge of its support and is dropped.
+lap0 <- distributions7::fixed(distributions7::laplace2_distrib(), mu = 0)
+distrib_kinks(distributions7::truncated(lap0, lower = -1, upper = 3))
+distrib_kinks(distributions7::folded(lap0))
 
 }
 \seealso{
-\code{\link[=distrib_penalty]{distrib_penalty()}}, which calls this unless told the kinks
-directly, \code{\link[=penalty_kinks]{penalty_kinks()}} for what a built penalty reports,
-\code{\link[=has_jump]{has_jump()}} for the measurement.
+\code{\link[=distrib_penalty]{distrib_penalty()}}, which calls this function when its argument
+\code{kinks} is \code{NULL}, \code{\link[=penalty_kinks]{penalty_kinks()}} for the kinks of a built penalty,
+\code{\link[=has_jump]{has_jump()}} for the test.
 }

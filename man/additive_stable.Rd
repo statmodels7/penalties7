@@ -13,34 +13,43 @@ additive_stable(mats, lam, p_rank, d_tol = additive_tol(), r_tol = 1e-10)
 
 \item{p_rank}{The rank of the sum, fixed at construction.}
 
-\item{d_tol}{The gap at which the components are split, \code{\link[=additive_tol]{additive_tol()}} by
-default.}
+\item{d_tol}{The threshold at which the components are split,
+\code{\link[=additive_tol]{additive_tol()}} by default.}
 
-\item{r_tol}{The relative eigenvalue tolerance a group's rank is counted
-at, matching \code{\link[=additive_penalty]{additive_penalty()}}'s own \code{tol}.}
+\item{r_tol}{The relative eigenvalue tolerance at which the rank of a group
+is counted, \code{1e-10} by default. \code{\link[=additive_sum]{additive_sum()}} passes the \code{tol} stored
+in the \code{\link[=AdditivePenalty]{AdditivePenalty()}} object, which is the tolerance at which
+\code{\link[=additive_penalty]{additive_penalty()}} counted the rank of the sum.}
 }
 \value{
 A list of \code{value} (a single number), \code{dlog} (a numeric vector),
-\code{d2log} (a square matrix) and \code{depth} (how many levels the partition
-needed, a diagnostic).
+\code{d2log} (a square matrix) and \code{depth} (the number of levels of the
+partition, a diagnostic).
 }
 \description{
-Evaluates \eqn{\log\mathrm{pdet}\sum_k\lambda_kP_k} with
+Evaluates \eqn{\log\mathrm{pdet}\sum_k\lambda_kP_k} together with
 \eqn{\operatorname{tr}(S^{+}P_k)} and
 \eqn{\operatorname{tr}(S^{+}P_kS^{+}P_l)} by the similarity transformation
-\code{\link[=additive_sum]{additive_sum()}} describes, recursing so that any number of components is
-served.
+that \code{\link[=additive_sum]{additive_sum()}} describes. The function recurses on the Schur
+complement, so it handles any number of components.
 }
 \details{
-A rank is read from the components normalized one by one and never from the
-weighted sum, which is the convention \code{\link[=additive_penalty]{additive_penalty()}} already follows
-for the rank of the whole: the null space of a sum of positive semidefinite
-matrices is the intersection of theirs, so a group's rank is a property of
-that group and its determination is well conditioned. The rank left to the
-next level is the current one less what the dominant group peels, so it is
-obtained by subtraction and never counted again.
+The rank of a group of components is counted on the sum of its
+components, each divided by its largest absolute entry, and never on the
+weighted sum. \code{\link[=additive_penalty]{additive_penalty()}} counts the rank of the whole penalty in
+the same way and at the same tolerance. The null space of a sum of positive semidefinite matrices is
+the intersection of their null spaces, so the rank of a group is a
+property of that group and is counted without the spread of the
+parameters. The rank passed to the next level is the current rank less the
+rank of the dominant group, so it is obtained by subtraction and never
+counted again.
+
+A level returns \code{NaN} for the value and for both derivative blocks when its
+weighted sum or reduction is not finite, when the Cholesky factorization of
+\eqn{A} fails, or, at the last level, when the smallest of the eigenvalues
+that are kept is not positive; a \code{NaN} at a deeper level is passed up.
 }
 \seealso{
-\code{\link[=additive_sum]{additive_sum()}}, which calls it and checks its answer.
+\code{\link[=additive_sum]{additive_sum()}}, which calls it and checks its result.
 }
 \keyword{internal}

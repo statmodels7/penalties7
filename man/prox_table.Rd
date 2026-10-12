@@ -14,24 +14,31 @@ prox_table_j(step, n_coef, pieces)
 
 \item{n_coef}{How many coefficients, a single whole number.}
 
-\item{pieces}{A function of one step returning a matrix of three rows,
-\code{cut}, \code{slope} and \code{icept}, and one column per piece.}
+\item{pieces}{A function returning a matrix of three rows, \code{cut}, \code{slope}
+and \code{icept}, and one column per piece. For \code{prox_table()} it takes one
+argument, the step; for \code{prox_table_j()} it takes two, the step and the
+coordinate index \eqn{j}.}
 }
 \value{
 A list of three matrices, \code{cut}, \code{slope} and \code{icept}, each \code{n_coef}
 by the piece count.
 }
 \description{
-Builds the three matrices \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns from a function that
-gives one column per piece at a single step, recycling a step that is the
-same for every coefficient.
+Builds the three matrices that \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns from a
+function that gives one column per piece for a single coefficient.
+\code{prox_table()} takes a function of the step alone, for a family whose
+pieces are the same in every coordinate; \code{prox_table_j()} takes a function
+of the step and the coordinate index, for a family whose rate can differ
+by coordinate, as the rate \eqn{\lambda/c_j} of SCAD and MCP does.
 }
 \details{
-Every branch's builder differs only in that per-step function, so this holds
-the recycling and the transposition once. The number of pieces is read from
-the first coefficient's answer and every other is required to match, which
-is automatic: the piece count depends on the family and on the
-hyperparameters, never on the step.
+The step vector is recycled to \code{n_coef}, and the function is called once
+per coefficient with that coefficient's own step. The builders of the
+branches differ only in that function, so the recycling and the
+transposition are written here once. The number of pieces is read from the
+first coefficient's columns, and the others must have the same number,
+which holds for every shipped builder because the piece count depends on
+the family and not on the step or the coordinate.
 }
 \seealso{
 \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=prox_apply]{prox_apply()}}

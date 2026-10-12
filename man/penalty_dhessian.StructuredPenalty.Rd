@@ -10,9 +10,9 @@
 \item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
 \item{beta}{A numeric vector of length \code{pen@n_coef}. Read by
-\code{penalty_dcross()}; the other three ignore it.}
+\code{penalty_dcross()}; the other three methods ignore it.}
 
-\item{theta}{A named list of the structure's free values.}
+\item{theta}{A named list of the free values of the structure.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
@@ -26,16 +26,19 @@ unordered pair, keyed the same way.
 \code{beta_quadratic()} the single logical \code{TRUE}.
 }
 \description{
-One page for the branch's answers to the four generics a marginal criterion
-asks beyond the second order. \eqn{S = \Omega(\theta)} is the matrix
-parameter itself, so \code{penalty_dhessian()} and \code{penalty_d2hessian()} are the
-structure's own \code{param_d1} and \code{param_d2}, \code{penalty_dcross()} is the second
-of those applied to the coefficients, and \code{beta_quadratic()} is \code{TRUE}.
+The methods of the structured branch for the four generics that a marginal
+criterion requires beyond the second order. \eqn{S = \Omega(\theta)} is
+the matrix parameter itself, so \code{penalty_dhessian()} and
+\code{penalty_d2hessian()} are the derivatives \code{param_d1} and \code{param_d2} of the
+structure, \code{penalty_dcross()} is the second of those applied to the
+coefficients, and \code{beta_quadratic()} is \code{TRUE}.
 }
 \details{
-Nothing is differentiated here: \pkg{parameters7} supplies both derivative
-arrays exactly for every structure it ships, and this branch unwraps and
-re-keys them.
+Nothing is differentiated here. \pkg{parameters7} supplies both derivative
+arrays in closed form for the structures that it ships, and through its
+numerical fallback for a structure that does not implement them; this
+branch unwraps and re-keys the arrays. The free values in \code{theta} are
+passed to the structure as they are, in \code{pen@params} order.
 
 Since the value is quadratic in the coefficients, the mixed third derivative
 is \eqn{(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta}, so
@@ -44,11 +47,10 @@ is \eqn{(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta}, so
 \section{The keying}{
 \code{param_d2} is a \strong{flat} list whose keys join the free names with a
 separator of its own, so an entry is located through
-\code{\link[parameters7:param_tuple_indices]{parameters7::param_tuple_indices()}}, which enumerates the tuples in exactly
-the order the components are in. Nothing here depends on the spelling of a
-key, which matters because a free name may itself contain the separator. A
-pair with no component raises rather than returning something of the wrong
-shape.
+\code{\link[parameters7:param_tuple_indices]{parameters7::param_tuple_indices()}}, which enumerates the tuples in the
+same order as the components. The method does not parse the keys, because
+a free name may itself contain the separator. If a pair has no component,
+the method signals an error.
 }
 
 \examples{
@@ -71,6 +73,9 @@ all.equal(penalty_dcross(s, b, th)$log_L1_log_L1,
 \seealso{
 \code{\link[=penalty_dhessian]{penalty_dhessian()}} and its siblings for the generics,
 \code{\link[=structured_penalty]{structured_penalty()}} for the branch,
-\code{\link[parameters7:param_d1]{parameters7::param_d1()}} for the arrays it reads.
+\code{\link[parameters7:param_d1]{parameters7::param_d1()}} for the arrays that these methods read,
+\code{\link[=penalty_dhessian_beta.StructuredPenalty]{penalty_dhessian_beta.StructuredPenalty()}} and
+\code{\link[=penalty_d2hessian_beta.StructuredPenalty]{penalty_d2hessian_beta.StructuredPenalty()}} for the derivatives of the
+Hessian in the coefficients.
 }
 \keyword{internal}

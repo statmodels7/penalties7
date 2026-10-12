@@ -23,70 +23,82 @@ NULL
 #'
 #' @description
 #' Returns \eqn{\partial S/\partial\theta_m = \partial^3\rho/\partial\beta^2\,
-#' \partial\theta_m}, one matrix per hyperparameter, saying how the penalty's
-#' curvature in the coefficients moves as each hyperparameter moves. This is
-#' the third-order quantity a marginal likelihood criterion needs and that the
-#' value, the gradient and the Hessian cannot supply between them.
+#' \partial\theta_m}, one matrix per hyperparameter, which describes how the
+#' curvature of the penalty in the coefficients changes with each
+#' hyperparameter. A marginal likelihood criterion needs this third-order
+#' quantity, and the value, the gradient and the Hessian do not determine it.
 #'
 #' @details
-#' # Why a criterion needs it
+#' # Role in a marginal criterion
 #'
 #' Estimating hyperparameters by a marginal likelihood means differentiating a
 #' Laplace approximation, whose determinant is \eqn{\lvert H + S\rvert} with
-#' \eqn{S} the penalty's Hessian in the coefficients. Differentiating
-#' \eqn{\log\lvert H+S\rvert} in \eqn{\theta_m} needs
-#' \eqn{\partial S/\partial\theta_m}, and nothing below third order gives it.
+#' \eqn{S} the Hessian of the penalty in the coefficients. The derivative of
+#' \eqn{\log\lvert H+S\rvert} in \eqn{\theta_m} contains
+#' \eqn{\partial S/\partial\theta_m}, which is a third derivative of
+#' \eqn{\rho}. The derivatives are taken in \eqn{\theta} on its own scale, and
+#' no link is applied.
 #'
-#' # What each branch answers
+#' # The value on each branch
 #'
 #' | branch | \eqn{\partial S/\partial\theta_m} |
 #' |---|---|
 #' | [quadratic_penalty()] | \eqn{D'PD}, free of both \eqn{\lambda} and \eqn{\beta} |
-#' | [additive_penalty()] | the component \eqn{P_k} of each smoothing parameter |
-#' | [structured_penalty()] | the matrix parameter's own `param_d1` |
-#' | [distrib_penalty()] | \eqn{-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D}, from [distributions7::distrib_cross2_y()] |
-#' | [scad_penalty()], [mcp_penalty()] | rejects |
+#' | [additive_penalty()] | the component \eqn{D'P_kD} of each smoothing parameter, which is \eqn{P_k} under the identity map |
+#' | [structured_penalty()] | the derivative `param_d1` of the matrix parameter |
+#' | [distrib_penalty()], univariate parent | \eqn{-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D}, from [distributions7::distrib_cross2_y()] |
+#' | [distrib_penalty()], multivariate parent | the same with a block-diagonal middle matrix |
+#' | [scad_penalty()], [mcp_penalty()] | an error, from the base class |
 #'
-#' Every one of the first four is closed form. The base class rejects, naming
-#' what is missing, so a penalty written later either supplies the three
-#' methods and works in a marginal criterion, or says plainly that it cannot.
+#' The quadratic and additive rows are exact. The structured row is exact for
+#' the structures that \pkg{parameters7} ships, and the separable rows are
+#' exact when the parent supplies [distributions7::distrib_cross2_y()] in
+#' closed form; otherwise the numerical fallbacks of those packages apply. On
+#' the base class the method signals an error that names the penalty, so a
+#' penalty class written later is usable in a marginal criterion only if it
+#' supplies `penalty_dhessian()`, [penalty_d2hessian()] and
+#' [penalty_dcross()].
 #'
-#' A separable penalty with a **kink** rejects as well, whatever its parent:
-#' the third derivative does not exist there, and the mode a marginal criterion
-#' expands around is exactly where a kinked penalty puts coefficients.
+#' A separable penalty with a **kink** signals an error as well, whatever its
+#' parent. The third derivative does not exist at the kink, and the mode at
+#' which a marginal criterion is expanded is where a kinked penalty places
+#' coefficients.
 #'
 #' @param pen A [penalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`. Read only by the
-#'   separable branch, whose parent's derivatives depend on the argument; the
-#'   quadratic, additive and structured branches ignore it.
+#' @param beta A numeric vector of length `pen@n_coef`; the generic signals an
+#'   error for any other length. Only the separable branch reads its values,
+#'   because the derivatives of the parent depend on them; the quadratic,
+#'   additive and structured branches ignore them.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same.
+#'   vector carrying the same. The generic checks that every hyperparameter is
+#'   present as a single number inside its bounds.
 #' @param ... Passed to methods. No shipped method reads it.
 #'
 #' @return A named list of one matrix per hyperparameter, each of side
 #'   `pen@n_coef`, named by `pen@params`. The quadratic branch returns the
-#'   stored matrix in whatever storage it keeps, so a penalty built with
-#'   `blocks > 1` gives a `dgCMatrix`.
+#'   stored matrix in the storage that the penalty keeps, so a penalty built
+#'   with `blocks > 1` gives a `dgCMatrix`; the other branches return base
+#'   matrices.
 #'
 #' @seealso [penalty_hessian()] for the quantity differentiated,
-#'   [penalty_d2hessian()] and [penalty_dcross()] for the other two a marginal
-#'   criterion asks for, [beta_quadratic()] for the predicate that says whether
-#'   a third \eqn{\beta}-derivative is needed at all.
+#'   [penalty_d2hessian()] and [penalty_dcross()] for the other two quantities
+#'   that a marginal criterion requires, [beta_quadratic()] for the predicate
+#'   that indicates whether a third \eqn{\beta}-derivative is needed.
 #'
 #' @examples
 #' # A quadratic penalty's Hessian is lambda D'PD, so the derivative is D'PD
-#' # and does not move with lambda.
+#' # and does not change with lambda.
 #' pen <- quadratic_penalty(crossprod(diff(diag(3))))
 #' b <- c(1, -0.5, 0.3)
 #' penalty_dhessian(pen, b, list(lambda = 2))$lambda
 #' identical(penalty_dhessian(pen, b, list(lambda = 2)),
 #'           penalty_dhessian(pen, b, list(lambda = 99)))
 #'
-#' # An additive penalty answers with its components, one per parameter.
+#' # An additive penalty returns its components, one per parameter.
 #' add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
 #' names(penalty_dhessian(add, b, list(lambda1 = 2, lambda2 = 0.5)))
 #'
-#' # A penalty with a kink has no such quantity and says so.
+#' # A penalty with a kink has no such quantity, and the call is an error.
 #' try(penalty_dhessian(lasso_penalty(n_coef = 3), b, list(lambda = 1)))
 #'
 #' @export
@@ -94,6 +106,9 @@ penalty_dhessian <- S7::new_generic("penalty_dhessian", "pen",
   function(pen, beta, theta, ...) {
     theta <- align_ptheta(pen, theta)
     beta <- as.numeric(beta)
+    if (length(beta) != pen@n_coef) {
+      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    }
     S7::S7_dispatch()
   })
 
@@ -103,30 +118,34 @@ penalty_dhessian <- S7::new_generic("penalty_dhessian", "pen",
 #' @description
 #' Returns \eqn{\partial^2 S/\partial\theta_m\partial\theta_l =
 #' \partial^4\rho/\partial\beta^2\partial\theta_m\partial\theta_l}, one matrix
-#' per unordered pair. A marginal criterion differentiated twice in the
-#' hyperparameters needs it, and so does an exact outer Hessian.
+#' per unordered pair. The second derivative of a marginal criterion in the
+#' hyperparameters contains it, and so does an exact outer Hessian.
 #'
 #' @details
 #' It is **exactly zero** for every penalty whose Hessian is linear in its
 #' hyperparameters, which is the quadratic branch, where
 #' \eqn{S = \lambda D'PD}, and the additive branch, where
-#' \eqn{S = \sum_k \lambda_k P_k}. The structured branch reads the matrix
-#' parameter's `param_d2`, and the separable branch the second
-#' \eqn{\theta}-derivative of the parent's response curvature, through
-#' [distributions7::distrib_hess_y_hess()].
+#' \eqn{S = \sum_k \lambda_k D'P_kD}. The structured branch reads the second
+#' derivative `param_d2` of the matrix parameter, and the separable branch the
+#' second \eqn{\theta}-derivative of the response curvature of the parent,
+#' through [distributions7::distrib_hess_y_hess()], carried through the map as
+#' in [penalty_dhessian()]. The derivatives are taken in \eqn{\theta} on its
+#' own scale.
 #'
-#' The keys are [penalty_hess_theta()]'s: diagonals first in `pen@params`
-#' order, then the upper off-diagonal pairs, each joined by an underscore. A
-#' consumer looking a pair up therefore need not know which order it was
-#' written in.
+#' The keys are those of [penalty_hess_theta()]: the diagonal pairs first in
+#' `pen@params` order, then the upper off-diagonal pairs, each pair joined by
+#' an underscore. Each unordered pair has one key, written in `pen@params`
+#' order (`sigma_nu` and not `nu_sigma` when `sigma` comes first), and the
+#' reversed name is not an element of the list.
 #'
-#' A penalty with a kink rejects, and so does the base class.
+#' A penalty with a kink signals an error, and so does the base class.
 #'
 #' @param pen A [penalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`. Read only by the
-#'   separable branch.
+#' @param beta A numeric vector of length `pen@n_coef`; the generic signals an
+#'   error for any other length. Only the separable branch reads its values.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same.
+#'   vector carrying the same, checked by the generic as in
+#'   [penalty_dhessian()].
 #' @param ... Passed to methods. No shipped method reads it.
 #'
 #' @return A named list of one matrix per unordered pair of hyperparameters,
@@ -143,12 +162,12 @@ penalty_dhessian <- S7::new_generic("penalty_dhessian", "pen",
 #' pen <- quadratic_penalty(diag(3))
 #' penalty_d2hessian(pen, b, list(lambda = 2))
 #'
-#' # And for an additive one, keyed diagonals first over three pairs.
+#' # Zero for an additive one as well, keyed diagonals first over three pairs.
 #' add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
 #' names(penalty_d2hessian(add, b, list(lambda1 = 2, lambda2 = 0.5)))
 #'
-#' # Not zero for a structured penalty, whose matrix is not linear in any
-#' # one free value.
+#' # Not zero for a structured penalty, whose matrix is not linear in its
+#' # free values.
 #' s <- structured_penalty(parameters7::log_cholesky(2))
 #' th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
 #' penalty_d2hessian(s, c(1, -0.5), th)$log_L1_log_L1
@@ -158,6 +177,9 @@ penalty_d2hessian <- S7::new_generic("penalty_d2hessian", "pen",
   function(pen, beta, theta, ...) {
     theta <- align_ptheta(pen, theta)
     beta <- as.numeric(beta)
+    if (length(beta) != pen@n_coef) {
+      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    }
     S7::S7_dispatch()
   })
 
@@ -166,31 +188,35 @@ penalty_d2hessian <- S7::new_generic("penalty_d2hessian", "pen",
 #'
 #' @description
 #' Returns \eqn{\partial^3\rho/\partial\beta\,\partial\theta_m\partial\theta_l},
-#' one coefficient vector per unordered pair. Where [penalty_cross()] says how
-#' the coefficient gradient moves with one hyperparameter, this says how that
-#' movement itself moves with a second.
+#' one coefficient vector per unordered pair. [penalty_cross()] gives the
+#' derivative of the coefficient gradient in one hyperparameter, and this
+#' generic gives the derivative of that quantity in a second hyperparameter.
 #'
 #' @details
 #' A marginal criterion is evaluated at the penalized mode, and the mode moves
-#' with the hyperparameters. Differentiating the criterion twice therefore
-#' needs the derivative of the mode's own derivative, and this is the penalty's
-#' contribution to it.
+#' with the hyperparameters. The second derivative of the criterion therefore
+#' contains the second derivative of the mode, and this quantity is the
+#' contribution of the penalty to it.
 #'
 #' It is **exactly zero** wherever the penalty is quadratic in the coefficients
 #' with a Hessian linear in the hyperparameters, which covers the quadratic and
-#' additive branches. The structured branch answers
-#' \eqn{(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta}, reusing
-#' [penalty_d2hessian()], and the separable branch reads the parent's
-#' [distributions7::distrib_grad_y_hess()].
+#' additive branches. The structured branch returns
+#' \eqn{(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta}, computed
+#' from [penalty_d2hessian()], and the separable branch returns
+#' \eqn{-D'(\partial^3\ell/\partial y\,\partial\theta_m\partial\theta_l)}, from
+#' [distributions7::distrib_grad_y_hess()] of the parent evaluated at
+#' \eqn{D\beta}.
 #'
-#' The keys are [penalty_hess_theta()]'s, diagonals first.
+#' The keys are those of [penalty_hess_theta()], diagonal pairs first.
 #'
 #' @param pen A [penalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`. Read by the structured
-#'   and separable branches; the quadratic and additive ones answer zero
-#'   whatever it is.
+#' @param beta A numeric vector of length `pen@n_coef`; the generic signals an
+#'   error for any other length. The structured and separable branches read
+#'   its values; the quadratic and additive branches return zero for any
+#'   value.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same.
+#'   vector carrying the same, checked by the generic as in
+#'   [penalty_dhessian()].
 #' @param ... Passed to methods. No shipped method reads it.
 #'
 #' @return A named list of one numeric vector of length `pen@n_coef` per
@@ -198,7 +224,7 @@ penalty_d2hessian <- S7::new_generic("penalty_d2hessian", "pen",
 #'
 #' @seealso [penalty_cross()] for the first order,
 #'   [penalty_dhessian()] and [penalty_d2hessian()] for the other two
-#'   quantities a marginal criterion asks for.
+#'   quantities that a marginal criterion requires.
 #'
 #' @examples
 #' b <- c(1, -0.5, 0.3)
@@ -219,6 +245,9 @@ penalty_dcross <- S7::new_generic("penalty_dcross", "pen",
   function(pen, beta, theta, ...) {
     theta <- align_ptheta(pen, theta)
     beta <- as.numeric(beta)
+    if (length(beta) != pen@n_coef) {
+      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    }
     S7::S7_dispatch()
   })
 
@@ -226,58 +255,67 @@ penalty_dcross <- S7::new_generic("penalty_dcross", "pen",
 #' Is a Penalty Quadratic in the Coefficients?
 #'
 #' @description
-#' `TRUE` when \eqn{\partial^3\rho/\partial\beta^3} is exactly zero, so a
-#' consumer can skip that third derivative altogether. Asked of the penalty
-#' rather than measured by a consumer, which would be guessing at a property
-#' the penalty knows.
+#' `TRUE` when \eqn{\partial^3\rho/\partial\beta^3} is exactly zero, so that a
+#' consumer can skip that third derivative. The value comes from a method of
+#' the class of the penalty, so a consumer does not have to test the property
+#' numerically.
 #'
 #' @details
 #' # Three independent properties
 #'
-#' This is not [is_quadratic()], which is about the whole construction. The
-#' three questions a consumer may ask are independent:
+#' This predicate differs from [is_quadratic()], which reports whether the
+#' penalty is a quadratic form whose matrix, rank and log pseudo-determinant
+#' are available through [penalty_matrix()] and its siblings. The two
+#' predicates and the linearity of \eqn{S} in \eqn{\theta} are independent
+#' properties:
 #'
 #' | penalty | `is_quadratic()` | `beta_quadratic()` | \eqn{S} linear in \eqn{\theta} |
 #' |---|---|---|---|
 #' | [quadratic_penalty()] | `TRUE` | `TRUE` | yes |
 #' | [structured_penalty()] | `TRUE` | `TRUE` | no |
-#' | [additive_penalty()] | `FALSE` | `TRUE` | yes |
+#' | [additive_penalty()] | `TRUE` | `TRUE` | yes |
 #' | a Gaussian [distrib_penalty()] | `FALSE` | `TRUE` | no |
 #' | [heavy_penalty()] | `FALSE` | `FALSE` | no |
 #'
-#' # How the separable branch answers
+#' # The method of the separable branch
 #'
-#' By probing, not by differentiating three times. The log-density is quadratic
-#' in the response exactly when its second derivative there does not depend on
-#' it, so [distributions7::distrib_hess_y()] is read at four points and
-#' compared for constancy at a tolerance of `1e-12`. The question is put to the
-#' second derivative because that one is analytic for almost every family,
-#' where the third is often a finite difference whose noise no threshold
-#' separates from a true zero.
+#' The log-density is quadratic in the response exactly when its second
+#' derivative in the response does not depend on the response. The method
+#' therefore evaluates [distributions7::distrib_hess_y()] of the parent at four
+#' points and tests whether the values agree across the points with
+#' [all.equal()] at a tolerance of `1e-12`, which is a relative tolerance. No
+#' third derivative is computed. The page
+#' [beta_quadratic.DistribPenalty()] describes the points and the multivariate
+#' case.
 #'
-#' # What `TRUE` does not promise
+#' # The meaning of `TRUE`
 #'
-#' It does not say the marginal derivatives are available. A lasso answers
-#' `TRUE`, its log-density being linear in the response away from the kink, and
-#' [penalty_dhessian()] still rejects for it: the third derivative is zero
-#' where it exists and undefined at the kink, which is where a selecting fit
-#' puts its coefficients.
+#' `TRUE` does not imply that the marginal derivatives are available. A lasso
+#' gives `TRUE`, because its log-density is linear in the response away from
+#' the kink, and [penalty_dhessian()] still signals an error for it: the third
+#' derivative is zero where it exists and undefined at the kink, which is where
+#' a selecting fit places its coefficients.
 #'
 #' @param pen A [penalty()] object.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same. Read by the separable branch, to evaluate the
-#'   parent; the other branches answer a constant.
+#'   vector carrying the same, holding every name in `pen@params`. The
+#'   generic checks it as [penalty_dhessian()] does, so a missing
+#'   hyperparameter or a value outside its open bounds is an error on every
+#'   branch. The separable branch evaluates the parent at it, and the other
+#'   branches return a constant without reading its values.
 #' @param ... Passed to methods. No shipped method reads it.
 #'
-#' @return A single logical. `FALSE` from the base class, so a penalty that
-#'   says nothing is treated as needing the third derivative.
+#' @return A single logical. The base class returns `FALSE`, so a penalty
+#'   class without a method of its own is treated as needing the third
+#'   derivative.
 #'
-#' @seealso [is_quadratic()] for the different question about the
-#'   construction, [penalty_dhessian()] for what a consumer skips when this is
-#'   `TRUE`, [penalty_hessian()] for the derivative that is then constant.
+#' @seealso [is_quadratic()] for the property of the construction,
+#'   [penalty_dhessian_beta()] for the derivative that is zero when this is
+#'   `TRUE`, [penalty_hessian()] for the Hessian that is then constant in the
+#'   coefficients.
 #'
 #' @examples
-#' # The two branches that answer TRUE to both predicates.
+#' # Two of the three branches that give TRUE for both predicates.
 #' beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
 #' beta_quadratic(structured_penalty(
 #'   parameters7::log_cholesky(2)),
@@ -299,33 +337,40 @@ penalty_dcross <- S7::new_generic("penalty_dcross", "pen",
 #'
 #' @export
 beta_quadratic <- S7::new_generic("beta_quadratic", "pen",
-  function(pen, theta, ...) S7::S7_dispatch())
+  function(pen, theta, ...) {
+    theta <- align_ptheta(pen, theta)
+    S7::S7_dispatch()
+  })
 
 
 # --- the base class rejects -------------------------------------------------
 
-#' @title What the Base Class Answers to the Marginal Generics
+#' @title Base Class Methods of the Marginal Generics
 #' @name penalty_dhessian.penalty
 #'
 #' @description
-#' One page for the base class's answers to the four generics a marginal
-#' criterion asks beyond the second order. `penalty_dhessian()`,
-#' `penalty_d2hessian()` and `penalty_dcross()` each reject, naming the penalty
-#' and the generic; `beta_quadratic()` answers `FALSE`.
+#' The methods of the base class for the four generics that a marginal
+#' criterion requires beyond the second order. `penalty_dhessian()`,
+#' `penalty_d2hessian()` and `penalty_dcross()` each signal an error that
+#' names the penalty and the generic; `beta_quadratic()` returns `FALSE`.
+#' [scad_penalty()] and [mcp_penalty()] register none of the four and reach
+#' these methods.
 #'
 #' @details
-#' A marginal criterion is a Laplace approximation and asks for derivatives
-#' beyond the second. A penalty that does not supply them cannot be estimated
-#' by one, and reporting that is better than a criterion assembled from a
-#' quantity nobody wrote. `penalty_dhessian()`'s message says so in full; the
-#' other two name the generic alone, a caller who has reached the second having
-#' already read the first.
+#' A marginal criterion based on a Laplace approximation requires derivatives
+#' of the penalty beyond the second order. For a penalty that does not supply
+#' them, these methods signal an error, so the hyperparameters of such a
+#' penalty cannot be estimated by a marginal criterion. The message of
+#' `penalty_dhessian()` states that consequence; the messages of
+#' `penalty_d2hessian()` and `penalty_dcross()` name only the penalty and the
+#' generic.
 #'
-#' `beta_quadratic()`'s `FALSE` is the conservative default: a penalty that
-#' says nothing about its third \eqn{\beta}-derivative is treated as having
-#' one.
+#' The `FALSE` of `beta_quadratic()` is the conservative default: a penalty
+#' class without a method of its own is treated as having a third
+#' \eqn{\beta}-derivative.
 #'
-#' @param pen A [penalty()] object of a class registering none of these.
+#' @param pen A [penalty()] object of a class that registers none of these
+#'   methods.
 #' @param beta A numeric vector of coefficients. Unused.
 #' @param theta A named list of hyperparameter values. Unused.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
@@ -334,7 +379,7 @@ beta_quadratic <- S7::new_generic("beta_quadratic", "pen",
 #'   signal an error. `beta_quadratic()` returns the single logical `FALSE`.
 #'
 #' @seealso [penalty_dhessian()] and its siblings for the generics,
-#'   [penalty_dhessian.QuadraticPenalty()] for a branch that answers.
+#'   [penalty_dhessian.QuadraticPenalty()] for a branch that supplies them.
 #' @keywords internal
 S7::method(penalty_dhessian, penalty) <- function(pen, beta, theta, ...) {
   stop(sprintf(paste0("'%s' does not supply penalty_dhessian(), so its\n",
@@ -371,27 +416,28 @@ S7::method(beta_quadratic, penalty) <- function(pen, theta, ...) FALSE
 #' @name penalty_dhessian.QuadraticPenalty
 #'
 #' @description
-#' One page for the branch's answers to the four generics a marginal criterion
-#' asks beyond the second order. \eqn{S = \lambda D'PD} is linear in
-#' \eqn{\lambda} and free of the coefficients, so `penalty_dhessian()` returns
-#' \eqn{D'PD}, `penalty_d2hessian()` and `penalty_dcross()` return zeros, and
-#' `beta_quadratic()` returns `TRUE`.
+#' The methods of the quadratic branch for the four generics that a marginal
+#' criterion requires beyond the second order. \eqn{S = \lambda D'PD} is
+#' linear in \eqn{\lambda} and free of the coefficients, so
+#' `penalty_dhessian()` returns \eqn{D'PD}, `penalty_d2hessian()` and
+#' `penalty_dcross()` return zeros, and `beta_quadratic()` returns `TRUE`.
 #'
 #' @details
-#' `penalty_dhessian()` returns the stored \eqn{D'PD} **in whatever storage the
-#' penalty keeps it**, `unclass()`ed to strip the attributes a base matrix may
-#' carry and leaving an S4 matrix untouched. A penalty built with `blocks > 1`
-#' therefore answers with a `dgCMatrix`, and a consumer that needs a base
-#' matrix coerces where the two meet.
+#' `penalty_dhessian()` returns the stored \eqn{D'PD} **in the storage that
+#' the penalty keeps**. A base matrix is passed through `unclass()`, which
+#' removes the attributes that it may carry, and an S4 matrix is returned
+#' unchanged. A penalty built with `blocks > 1` therefore gives a
+#' `dgCMatrix`, and a consumer that needs a base matrix coerces it.
 #'
-#' The zeros are exact. The Hessian is \eqn{\lambda \cdot} a constant, so its
-#' second derivative in \eqn{\lambda} vanishes identically, and so does the
-#' third derivative of the value in \eqn{\beta} and two hyperparameters.
+#' The zeros are exact. The Hessian is \eqn{\lambda} times a constant matrix,
+#' so its second derivative in \eqn{\lambda} vanishes identically, and so does
+#' the third derivative of the value in \eqn{\beta} and two hyperparameters.
 #'
 #' @param pen A [QuadraticPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`. Unused: no quantity
-#'   here depends on the coefficients.
-#' @param theta A named list holding `lambda`. Unused for the same reason.
+#' @param beta A numeric vector of length `pen@n_coef`. Unused, because none
+#'   of these quantities depends on the coefficients.
+#' @param theta A named list holding `lambda`. Unused, because none of these
+#'   quantities depends on \eqn{\lambda}.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return `penalty_dhessian()` a list of one matrix named `lambda`.
@@ -403,7 +449,7 @@ S7::method(beta_quadratic, penalty) <- function(pen, theta, ...) FALSE
 #' pen <- quadratic_penalty(crossprod(diff(diag(3))))
 #' b <- c(1, -0.5, 0.3)
 #'
-#' # The derivative is D'PD, so it does not move with lambda at all.
+#' # The derivative is D'PD, so it does not change with lambda.
 #' max(abs(penalty_dhessian(pen, b, list(lambda = 2))$lambda -
 #'           penalty_dhessian(pen, b, list(lambda = 99))$lambda))
 #'
@@ -413,7 +459,10 @@ S7::method(beta_quadratic, penalty) <- function(pen, theta, ...) FALSE
 #' beta_quadratic(pen, list(lambda = 2))
 #'
 #' @seealso [penalty_dhessian()] and its siblings for the generics,
-#'   [quadratic_penalty()] for the branch, [zero_pairs()] for the zeros.
+#'   [quadratic_penalty()] for the branch, [zero_pairs()] for the zeros,
+#'   [penalty_dhessian_beta.QuadraticPenalty()] and
+#'   [penalty_d2hessian_beta.QuadraticPenalty()] for the derivatives of the
+#'   Hessian in the coefficients.
 #' @keywords internal
 S7::method(penalty_dhessian, QuadraticPenalty) <- function(pen, beta, theta,
                                                            ...) {
@@ -452,30 +501,29 @@ S7::method(beta_quadratic, QuadraticPenalty) <- function(pen, theta, ...) TRUE
 #' @name penalty_dhessian.AdditivePenalty
 #'
 #' @description
-#' One page for the branch's answers to the four generics a marginal criterion
-#' asks beyond the second order. \eqn{S = \sum_k \lambda_k P_k} is linear in
-#' the smoothing parameters and free of the coefficients, so
-#' `penalty_dhessian()` returns the components themselves,
-#' `penalty_d2hessian()` and `penalty_dcross()` return zeros, and
-#' `beta_quadratic()` returns `TRUE`.
+#' The methods of the additive branch for the four generics that a marginal
+#' criterion requires beyond the second order. With \eqn{S_k = D'P_kD}, the
+#' Hessian \eqn{S = \sum_k \lambda_k S_k} is linear in the smoothing
+#' parameters and free of the coefficients, so `penalty_dhessian()` returns
+#' the components \eqn{S_k} themselves, `penalty_d2hessian()` and
+#' `penalty_dcross()` return zeros, and `beta_quadratic()` returns `TRUE`.
 #'
 #' @details
-#' Every entry is exact and none is computed at call time: the components were
-#' fixed at construction, already carried through the map, so the first
-#' derivative is a lookup and the higher ones are zeros of the right shape.
+#' Every entry is exact, and none is computed at call time. The components
+#' were fixed at construction and are stored already carried through the map,
+#' so the first derivative is a lookup of `pen@mats` and the higher ones are
+#' zeros of the right shape. Under the identity map \eqn{S_k = P_k}.
 #'
-#' This is the one branch whose marginal derivatives are reachable while
-#' [is_quadratic()] answers `FALSE` for it. A consumer routing on that
-#' predicate rather than on these methods will not find them; see
-#' [additive_penalty()].
+#' [is_quadratic()] returns `TRUE` for this branch, as it does for the
+#' quadratic and structured branches.
 #'
 #' @param pen An [AdditivePenalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`. Unused.
 #' @param theta A named list of `lambda1`, `lambda2`, ... Unused.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_dhessian()` a list of one matrix per component, named by
-#'   `pen@params`.
+#' @return `penalty_dhessian()` a list of one base matrix per component, named
+#'   by `pen@params`.
 #'   `penalty_d2hessian()` a list of zero matrices, one per unordered pair.
 #'   `penalty_dcross()` a list of zero vectors, one per unordered pair.
 #'   `beta_quadratic()` the single logical `TRUE`.
@@ -495,8 +543,10 @@ S7::method(beta_quadratic, QuadraticPenalty) <- function(pen, theta, ...) TRUE
 #' max(abs(unlist(penalty_d2hessian(add, b, th))))
 #'
 #' @seealso [penalty_dhessian()] and its siblings for the generics,
-#'   [additive_penalty()] for the branch and for what `is_quadratic()` costs
-#'   it.
+#'   [additive_penalty()] for the branch,
+#'   [penalty_dhessian_beta.AdditivePenalty()] and
+#'   [penalty_d2hessian_beta.AdditivePenalty()] for the derivatives of the
+#'   Hessian in the coefficients.
 #' @keywords internal
 S7::method(penalty_dhessian, AdditivePenalty) <- function(pen, beta, theta,
                                                           ...) {
@@ -531,16 +581,19 @@ S7::method(beta_quadratic, AdditivePenalty) <- function(pen, theta, ...) TRUE
 #' @name penalty_dhessian.StructuredPenalty
 #'
 #' @description
-#' One page for the branch's answers to the four generics a marginal criterion
-#' asks beyond the second order. \eqn{S = \Omega(\theta)} is the matrix
-#' parameter itself, so `penalty_dhessian()` and `penalty_d2hessian()` are the
-#' structure's own `param_d1` and `param_d2`, `penalty_dcross()` is the second
-#' of those applied to the coefficients, and `beta_quadratic()` is `TRUE`.
+#' The methods of the structured branch for the four generics that a marginal
+#' criterion requires beyond the second order. \eqn{S = \Omega(\theta)} is
+#' the matrix parameter itself, so `penalty_dhessian()` and
+#' `penalty_d2hessian()` are the derivatives `param_d1` and `param_d2` of the
+#' structure, `penalty_dcross()` is the second of those applied to the
+#' coefficients, and `beta_quadratic()` is `TRUE`.
 #'
 #' @details
-#' Nothing is differentiated here: \pkg{parameters7} supplies both derivative
-#' arrays exactly for every structure it ships, and this branch unwraps and
-#' re-keys them.
+#' Nothing is differentiated here. \pkg{parameters7} supplies both derivative
+#' arrays in closed form for the structures that it ships, and through its
+#' numerical fallback for a structure that does not implement them; this
+#' branch unwraps and re-keys the arrays. The free values in `theta` are
+#' passed to the structure as they are, in `pen@params` order.
 #'
 #' Since the value is quadratic in the coefficients, the mixed third derivative
 #' is \eqn{(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta}, so
@@ -550,16 +603,15 @@ S7::method(beta_quadratic, AdditivePenalty) <- function(pen, theta, ...) TRUE
 #'
 #' `param_d2` is a **flat** list whose keys join the free names with a
 #' separator of its own, so an entry is located through
-#' [parameters7::param_tuple_indices()], which enumerates the tuples in exactly
-#' the order the components are in. Nothing here depends on the spelling of a
-#' key, which matters because a free name may itself contain the separator. A
-#' pair with no component raises rather than returning something of the wrong
-#' shape.
+#' [parameters7::param_tuple_indices()], which enumerates the tuples in the
+#' same order as the components. The method does not parse the keys, because
+#' a free name may itself contain the separator. If a pair has no component,
+#' the method signals an error.
 #'
 #' @param pen A [StructuredPenalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`. Read by
-#'   `penalty_dcross()`; the other three ignore it.
-#' @param theta A named list of the structure's free values.
+#'   `penalty_dcross()`; the other three methods ignore it.
+#' @param theta A named list of the free values of the structure.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return `penalty_dhessian()` a list of one matrix per free value, named by
@@ -588,7 +640,10 @@ S7::method(beta_quadratic, AdditivePenalty) <- function(pen, theta, ...) TRUE
 #'
 #' @seealso [penalty_dhessian()] and its siblings for the generics,
 #'   [structured_penalty()] for the branch,
-#'   [parameters7::param_d1()] for the arrays it reads.
+#'   [parameters7::param_d1()] for the arrays that these methods read,
+#'   [penalty_dhessian_beta.StructuredPenalty()] and
+#'   [penalty_d2hessian_beta.StructuredPenalty()] for the derivatives of the
+#'   Hessian in the coefficients.
 #' @keywords internal
 S7::method(penalty_dhessian, StructuredPenalty) <- function(pen, beta, theta,
                                                             ...) {
@@ -641,62 +696,70 @@ S7::method(beta_quadratic, StructuredPenalty) <- function(pen, theta, ...) TRUE
 #' @name penalty_dhessian.DistribPenalty
 #'
 #' @description
-#' One page for the branch's answers to the four generics a marginal criterion
-#' asks beyond the second order. With
+#' The methods of the separable branch for the four generics that a marginal
+#' criterion requires beyond the second order. With
 #' \eqn{\rho = -\sum_j \log f((D\beta)_j;\theta)} the Hessian is
 #' \eqn{-D'\mathrm{diag}(\ell^{(yy)})D}, so its \eqn{\theta}-derivatives are
-#' the parent's own higher components carried through the same map.
+#' the higher components of the parent carried through the same map.
 #'
 #' @details
-#' # Where each comes from
+#' # The component of the parent behind each method
 #'
-#' | generic | parent's component |
-#' |---|---|
-#' | `penalty_dhessian()` | [distributions7::distrib_cross2_y()] |
-#' | `penalty_d2hessian()` | [distributions7::distrib_hess_y_hess()] |
-#' | `penalty_dcross()` | [distributions7::distrib_grad_y_hess()] |
+#' | generic | component of the parent | result |
+#' |---|---|---|
+#' | `penalty_dhessian()` | [distributions7::distrib_cross2_y()] | \eqn{-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D} |
+#' | `penalty_d2hessian()` | [distributions7::distrib_hess_y_hess()] | \eqn{-D'\mathrm{diag}(\partial^4\ell/\partial y^2\partial\theta_m\partial\theta_l)D} |
+#' | `penalty_dcross()` | [distributions7::distrib_grad_y_hess()] | \eqn{-D'(\partial^3\ell/\partial y\,\partial\theta_m\partial\theta_l)} |
 #'
-#' Nothing is differentiated here. A parent with closed forms for those, the
-#' gaussian among them and so every Gaussian random effect, makes this branch
-#' exact; a parent without them inherits that package's documented fallback,
-#' one central difference of its analytic first-order component.
+#' Each component is evaluated at \eqn{D\beta} and at `theta` on the parameter
+#' scale of the parent, so the derivatives are in \eqn{\theta} itself and no
+#' link is applied.
+#'
+#' Nothing is differentiated here. A parent with closed forms for these
+#' components, such as the Gaussian and therefore every Gaussian random
+#' effect, makes this branch exact. A parent without them takes the fallback
+#' of \pkg{distributions7}, which applies one stencil to the highest-order
+#' quantity that the family implements itself, usually its analytic response
+#' Hessian.
 #'
 #' A multivariate parent is read blockwise: each component is assembled into a
 #' block-diagonal matrix by [dp_blockdiag()] and carried through the map by
-#' [map_quad_full()], where a univariate one goes through [map_quad()].
+#' [map_quad_full()], and a univariate one goes through [map_quad()].
 #'
-#' # What rejects
+#' # Kinked parents
 #'
 #' A penalty whose parent declares a kink, which is the lasso and the elastic
-#' net. The third derivative does not exist at the kink, and the mode a
-#' marginal criterion expands around is exactly where a kinked penalty puts
-#' coefficients, so all three derivative generics reject with the penalty
-#' named. `beta_quadratic()` does not: it answers `TRUE` for the lasso, whose
-#' log-density is linear in the response away from the kink.
+#' net, signals an error in `penalty_dhessian()`, `penalty_d2hessian()` and
+#' `penalty_dcross()`, with the penalty named (see [reject_kinked()]). The
+#' third derivative does not exist at the kink, and the mode at which a
+#' marginal criterion is expanded is where a kinked penalty places
+#' coefficients. `beta_quadratic()` signals no error and returns `TRUE` for
+#' the lasso, whose log-density is linear in the response away from the kink.
 #'
-#' # How `beta_quadratic()` decides
+#' # The test of `beta_quadratic()`
 #'
-#' By probing the parent's [distributions7::distrib_hess_y()] at four points
-#' and asking whether it is constant to `1e-12` BETWEEN THEM. A point is
-#' `pen@block` numbers, so a multivariate parent answers with one
-#' \eqn{p \times p} matrix per point, or with a single one where that matrix
-#' does not move, and the comparison is between the readings rather than
-#' between the entries of one of them -- asking whether every entry equals
-#' the first compares an off-diagonal with a diagonal and is false for any
-#' prior over more than one coordinate. The log-density is quadratic
-#' in the response exactly when its second derivative there does not depend on
-#' it, and that second derivative is analytic for almost every family, where
-#' the third is often a difference whose noise no threshold separates from a
-#' true zero.
+#' The log-density is quadratic in the response exactly when its second
+#' derivative in the response does not depend on the response. The generic
+#' has already checked `theta` (an invalid value is an error), and the method
+#' evaluates [distributions7::distrib_hess_y()] of the parent at four points of
+#' `pen@block` coordinates each, and tests with [all.equal()] at a relative
+#' tolerance of `1e-12` whether the values agree across the points. A
+#' multivariate parent returns one \eqn{p \times p} matrix per point, or a
+#' single matrix when that matrix does not depend on the response, and the
+#' comparison is made between the matrices of different points, not between
+#' the entries of one matrix. A single value or a single matrix, which carries
+#' no dimension for the points, gives `TRUE`. If the parent signals an error,
+#' or returns a number of values that is not a multiple of `pen@block^2`, the
+#' method returns `FALSE`.
 #'
 #' @param pen A [DistribPenalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`. Read by all three
-#'   derivative methods, the parent's components depending on the argument.
-#' @param theta A named list of the parent's free parameters.
+#'   derivative methods, because the components of the parent depend on it.
+#' @param theta A named list of the free parameters of the parent.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_dhessian()` a list of one matrix of side `pen@n_coef` per
-#'   hyperparameter.
+#' @return `penalty_dhessian()` a list of one base matrix of side `pen@n_coef`
+#'   per hyperparameter.
 #'   `penalty_d2hessian()` a list of one such matrix per unordered pair, keyed
 #'   diagonals first.
 #'   `penalty_dcross()` a list of one numeric vector of length `pen@n_coef` per
@@ -715,17 +778,20 @@ S7::method(beta_quadratic, StructuredPenalty) <- function(pen, theta, ...) TRUE
 #' rep(-2 / 1.2^3, 3)
 #'
 #' # A Student t prior is not quadratic in the coefficients, so its
-#' # derivative moves with them.
+#' # derivative changes with them.
 #' h <- heavy_penalty(n_coef = 3)
 #' beta_quadratic(h, list(sigma = 1, nu = 4))
 #' diag(penalty_dhessian(h, b, list(sigma = 1, nu = 4))$nu)
 #'
-#' # A kinked parent has no third derivative and says so.
+#' # A kinked parent has no third derivative, and the call is an error.
 #' try(penalty_dhessian(lasso_penalty(n_coef = 3), b, list(lambda = 1)))
 #'
 #' @seealso [penalty_dhessian()] and its siblings for the generics,
-#'   [distrib_penalty()] for the branch, [reject_kinked()] for the refusal,
-#'   [carry_pairs()] for the re-keying.
+#'   [distrib_penalty()] for the branch, [reject_kinked()] for the error on a
+#'   kinked parent, [carry_pairs()] for the re-keying,
+#'   [penalty_dhessian_beta.DistribPenalty()] and
+#'   [penalty_d2hessian_beta.DistribPenalty()] for the derivatives of the
+#'   Hessian in the coefficients.
 #' @keywords internal
 S7::method(penalty_dhessian, DistribPenalty) <- function(pen, beta, theta,
                                                          ...) {
@@ -804,11 +870,13 @@ S7::method(beta_quadratic, DistribPenalty) <- function(pen, theta, ...) {
   # the response: four values answer FALSE at p = 2 and 3 and TRUE at 4 and
   # 5, where the truth is FALSE at every p. The offset is zero at p = 1, so
   # a univariate parent is probed at exactly the four values it always was.
+  # theta is validated by the generic, outside the tryCatch, which is there
+  # for a parent that cannot evaluate its response curvature and not for an
+  # invalid argument
   p <- as.integer(pen@block)
   t <- dp_arg(pen, rep(c(-1.73, -0.29, 0.61, 2.04), each = p) +
                      0.37 * (rep(seq_len(p), 4L) - 1L))
-  h <- tryCatch(distributions7::distrib_hess_y(pen@parent, t,
-                                               align_ptheta(pen, theta)),
+  h <- tryCatch(distributions7::distrib_hess_y(pen@parent, t, theta),
                 error = function(e) NULL)
   if (is.null(h) || !length(h)) return(FALSE)
   k <- as.integer(pen@block)^2L
@@ -816,7 +884,7 @@ S7::method(beta_quadratic, DistribPenalty) <- function(pen, theta, ...) {
   n <- length(h) %/% k
   # a reading carrying no observation dimension does not move with the
   # response, which is the answer rather than a case to compare
-  if (n <= 1L) return(k > 1L || length(h) > 1L)
+  if (n <= 1L) return(TRUE)
   v <- as.numeric(h)
   isTRUE(all.equal(v, rep(v[seq_len(k)], n), tolerance = 1e-12))
 }
@@ -830,15 +898,18 @@ S7::method(beta_quadratic, DistribPenalty) <- function(pen, theta, ...) {
 #'
 #' @details
 #' The two enumerations of pairs are built the same way from the same names, so
-#' a key from one is a key of the other; it is looked up by name in both
-#' orders rather than by position, since a hyperparameter whose own name
-#' contains the separator would not survive being taken apart.
+#' a key of one is a key of the other. Each pair is looked up by name, first in
+#' `pen@params` order and then in the reversed order, and not by position or
+#' by splitting a key, since a hyperparameter whose own name contains the
+#' separator could not be split back into its two names. If neither name is
+#' present, the function signals an error that names the pair.
 #'
 #' @param pen A [penalty()] object.
-#' @param comp The parent's components, keyed by parameter pair.
-#' @param carry A function placing one component into coefficient space.
+#' @param comp The components of the parent, keyed by parameter pair.
+#' @param carry A function that places one component into coefficient space.
 #'
-#' @return A named list keyed by hyperparameter pair.
+#' @return A named list keyed by hyperparameter pair, in the order of
+#'   [ptheta_pairs()].
 #'
 #' @keywords internal
 carry_pairs <- function(pen, comp, carry) {
@@ -861,8 +932,9 @@ carry_pairs <- function(pen, comp, carry) {
 #'
 #' @description
 #' Returns a list holding the same zero object under every hyperparameter-pair
-#' key, which is the answer of a penalty whose Hessian is linear in its
-#' hyperparameters.
+#' key, which is the value of [penalty_d2hessian()] and [penalty_dcross()] for
+#' a penalty whose Hessian is linear in its hyperparameters and free of the
+#' coefficients.
 #'
 #' @details
 #' The quadratic and additive branches use it for both
@@ -889,23 +961,28 @@ zero_pairs <- function(pen, z) {
 #' Reject a Kinked Penalty
 #'
 #' @description
-#' Signals an error naming the penalty and the generic when the penalty carries
-#' a kink, and returns invisibly otherwise. Called at the head of each of the
-#' separable branch's three marginal derivative methods.
+#' Signals an error naming the penalty and the generic when `pen@kinks` holds
+#' at least one finite value, and returns invisibly otherwise. It is called at
+#' the head of the six methods of the separable branch that need a third or
+#' higher derivative: `penalty_dhessian()`, `penalty_d2hessian()`,
+#' `penalty_dcross()`, `penalty_dhessian_beta()`, `penalty_d2hessian_beta()`
+#' and `penalty_dhessian_beta_theta()`.
 #'
 #' @details
 #' A marginal criterion is a Laplace expansion at the penalized mode, and a
-#' kinked penalty puts coefficients exactly at the kink, where the third
-#' derivative does not exist. Rejecting there is better than returning the
-#' one-sided value, which would give a criterion no one could interpret.
+#' kinked penalty places coefficients exactly at the kink, where the third
+#' derivative does not exist. The function therefore signals an error and
+#' does not return a one-sided derivative.
 #'
-#' The kinks are read straight off `pen@kinks` rather than through
-#' [penalty_kinks()], which takes a `theta` this is asked before there is one
-#' to pass. An object without that property, which no shipped branch is, is
-#' treated as having none.
+#' The kinks are read directly from `pen@kinks` and not through
+#' [penalty_kinks()], because that generic takes a `theta` and this function
+#' receives only the penalty and the name of the generic. A penalty without a
+#' `kinks` property is treated as having no kink; every caller in the package
+#' is a method of [DistribPenalty()], which has the property.
 #'
 #' @param pen A [penalty()] object.
-#' @param what The generic's name, a single string, quoted back in the message.
+#' @param what The name of the generic, a single string, inserted in the
+#'   message followed by `()`.
 #'
 #' @return `NULL`, invisibly, when there is no kink.
 #'
@@ -937,27 +1014,28 @@ reject_kinked <- function(pen, what) {
 #' @description
 #' Returns \eqn{\partial S/\partial\beta\,[v] = \sum_c v_c\,
 #' \partial^3\rho/\partial\beta\,\partial\beta'\,\partial\beta_c}, the
-#' coefficient Hessian's derivative along a direction \eqn{v}, as one matrix of
-#' side `pen@n_coef`. It is zero for every penalty quadratic in the
-#' coefficients.
+#' derivative of the coefficient Hessian along a direction \eqn{v}, as one
+#' matrix of side `pen@n_coef`. It is zero for every penalty whose Hessian
+#' does not depend on the coefficients, apart from a kinked separable penalty,
+#' for which the generic signals an error.
 #'
 #' @details
-#' # Why a criterion needs it
+#' # Role in a marginal criterion
 #'
 #' A marginal criterion reads \eqn{\log\lvert H + S\rvert} at the penalized
-#' mode, and the mode moves with the hyperparameters. Where \eqn{S} does not
-#' depend on the coefficients that movement reaches the determinant through
-#' \eqn{H} alone. Where it does, as for a heavy-tailed prior on a random effect,
-#' it reaches it through \eqn{S} as well, and the gradient needs
-#' \eqn{\mathrm{tr}(M\,\partial S/\partial\beta[v])} with \eqn{v} the mode's
-#' movement. A prediction-error criterion reads the same matrix inside the trace
-#' that counts its degrees of freedom.
+#' mode, and the mode moves with the hyperparameters. When \eqn{S} does not
+#' depend on the coefficients, that movement reaches the determinant through
+#' \eqn{H} alone. When it does, as for a heavy-tailed prior on a random effect,
+#' the movement reaches the determinant through \eqn{S} as well, and the
+#' gradient contains \eqn{\mathrm{tr}(M\,\partial S/\partial\beta[v])} with
+#' \eqn{v} the derivative of the mode. A prediction-error criterion contains
+#' the same matrix inside the trace that gives its degrees of freedom.
 #'
-#' The direction is contracted here rather than returning the array of order
-#' three, because every consumer reads the array along a direction and it has
-#' \eqn{q^3} entries.
+#' The method contracts the direction and does not return the array of order
+#' three, which has \eqn{q^3} entries, because the criteria read that array
+#' only along a direction.
 #'
-#' # What each branch answers
+#' # The value on each branch
 #'
 #' | branch | \eqn{\partial S/\partial\beta[v]} |
 #' |---|---|
@@ -965,46 +1043,55 @@ reject_kinked <- function(pen, what) {
 #' | [distrib_penalty()] whose parent is quadratic in the argument | zero |
 #' | [distrib_penalty()] with a univariate parent otherwise | \eqn{-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)\,D} |
 #' | [distrib_penalty()] with a multivariate parent otherwise | \eqn{-D'\mathrm{blockdiag}(T_i)D}, \eqn{(T_i)_{ab} = \sum_c \ell^{(y_ay_by_c)}(b_i)(Dv)_{ic}} |
-#' | a kinked parent, [scad_penalty()], [mcp_penalty()] | rejects |
+#' | a kinked parent, [scad_penalty()], [mcp_penalty()] | an error |
 #'
 #' The univariate row follows from \eqn{S = -D'\mathrm{diag}(\ell^{(yy)}(D\beta))D}:
 #' differentiating \eqn{\ell^{(yy)}((D\beta)_j)} in \eqn{\beta_c} gives
 #' \eqn{\ell^{(yyy)}((D\beta)_j) D_{jc}}, and summing against \eqn{v_c} gives
-#' \eqn{(Dv)_j}. The third response derivative is read from
-#' [distributions7::distrib_deriv3_y()], which is closed form for every
-#' location family and so for a Student t prior.
+#' the factor \eqn{(Dv)_j}. The third response derivative is read from
+#' [distributions7::distrib_deriv3_y()], which is closed form for every family
+#' that \pkg{distributions7} ships, the Student t among them, and one stencil
+#' on the log-density for a family defined by its density alone.
 #'
-#' A multivariate parent that is not quadratic, a multivariate t prior among
-#' them, is read through its third response derivative as an array per block,
-#' [distributions7::distrib_deriv3_y()] returning one
-#' \eqn{p \times p \times p} array per block, whose last index is contracted
-#' against the block's coordinates of \eqn{Dv} by [dp_contract()]. A parent
-#' that does not supply the array is rejected rather than given a matrix
-#' missing that piece. Whether the parent is quadratic is asked of
-#' [beta_quadratic()] first, so a Gaussian prior of any dimension answers zero
-#' without reaching the parent at all.
+#' In the multivariate row \eqn{b_i} is block \eqn{i} of \eqn{D\beta} and
+#' \eqn{(Dv)_{ic}} is coordinate \eqn{c} of block \eqn{i} of \eqn{Dv}. A
+#' multivariate parent that is not quadratic, such as a multivariate Student t
+#' prior, is read through [distributions7::distrib_deriv3_y()], which returns
+#' one \eqn{p \times p \times p} array per block; [dp_contract()] contracts its
+#' last index against the coordinates of the block in \eqn{Dv}. If the parent
+#' cannot supply the array, the method signals an error that names the
+#' penalty (see [dp_parent_or_reject()]). The separable method calls
+#' [beta_quadratic()] first, which evaluates the response Hessian of the
+#' parent, and returns zero when it gives `TRUE`. A Gaussian prior of any
+#' dimension therefore gives zero, and the third response derivative of the
+#' parent is not computed.
 #'
 #' @param pen A [penalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param beta A numeric vector of length `pen@n_coef`; the generic signals an
+#'   error for any other length.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same.
-#' @param v A numeric vector of length `pen@n_coef`, the direction.
+#'   vector carrying the same, checked by the generic as in
+#'   [penalty_dhessian()].
+#' @param v A numeric vector of length `pen@n_coef`, the direction; the
+#'   generic signals an error for any other length.
 #' @param ... Passed to methods. No shipped method reads it.
 #'
 #' @return A square base matrix of side `pen@n_coef`.
 #'
 #' @seealso [penalty_hessian()] for the quantity differentiated,
-#'   [beta_quadratic()] for the predicate that says it is zero,
-#'   [penalty_dhessian()] for the derivative in the hyperparameters.
+#'   [beta_quadratic()] for the predicate under which it is zero,
+#'   [penalty_dhessian()] for the derivative in the hyperparameters,
+#'   [penalty_d2hessian_beta()] for the derivatives of this quantity.
 #'
 #' @examples
 #' b <- c(1, -0.5, 0.3)
 #' v <- c(0.2, 0.1, -0.4)
 #'
-#' # Zero for a quadratic penalty, whose Hessian does not move with beta.
+#' # Zero for a quadratic penalty, whose Hessian does not change with beta.
 #' penalty_dhessian_beta(quadratic_penalty(diag(3)), b, list(lambda = 2), v)
 #'
-#' # A Student t prior's Hessian does move, and this is its derivative along v.
+#' # The Hessian of a Student t prior changes with beta, and this is its
+#' # derivative along v, compared with a central difference.
 #' h <- heavy_penalty(n_coef = 3)
 #' th <- list(sigma = 1, nu = 4)
 #' D <- penalty_dhessian_beta(h, b, th, v)
@@ -1013,7 +1100,8 @@ reject_kinked <- function(pen, what) {
 #'         penalty_hessian(h, b - eps * v, th)) / (2 * eps)
 #' max(abs(D - num))
 #'
-#' # A kinked parent has no such derivative at the kink and says so.
+#' # A kinked parent has no such derivative at the kink, and the call is an
+#' # error.
 #' try(penalty_dhessian_beta(lasso_penalty(n_coef = 3), b, list(lambda = 1), v))
 #'
 #' @export
@@ -1021,6 +1109,9 @@ penalty_dhessian_beta <- S7::new_generic("penalty_dhessian_beta", "pen",
   function(pen, beta, theta, v, ...) {
     theta <- align_ptheta(pen, theta)
     beta <- as.numeric(beta)
+    if (length(beta) != pen@n_coef) {
+      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    }
     v <- as.numeric(v)
     if (length(v) != length(beta)) {
       stop(sprintf("'v' has length %d where the coefficients have %d.",
@@ -1029,18 +1120,19 @@ penalty_dhessian_beta <- S7::new_generic("penalty_dhessian_beta", "pen",
     S7::S7_dispatch()
   })
 
-#' @title What Each Branch Answers to penalty_dhessian_beta()
+#' @title Methods of penalty_dhessian_beta()
 #' @name penalty_dhessian_beta.penalty
 #'
 #' @description
-#' The base class rejects, naming the penalty. The quadratic, additive and
-#' structured branches return a zero matrix, their Hessian being free of the
-#' coefficients. The separable branch returns zero where its parent is
-#' quadratic in the argument and
+#' The method of the base class signals an error that names the penalty; it is
+#' the method that [scad_penalty()] and [mcp_penalty()] reach. The quadratic,
+#' additive and structured branches return a zero matrix, because their
+#' Hessian is free of the coefficients. The separable branch returns zero when
+#' [beta_quadratic()] is `TRUE` for it, and
 #' \eqn{-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)D} otherwise, with a
-#' block-diagonal middle matrix for a multivariate parent, and rejects for a
-#' kinked parent and for a multivariate parent that supplies no third response
-#' derivative.
+#' block-diagonal middle matrix for a multivariate parent. It signals an error
+#' for a kinked parent and for a multivariate parent that cannot supply its
+#' third response derivative.
 #'
 #' @param pen A [penalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`.
@@ -1109,28 +1201,37 @@ S7::method(penalty_dhessian_beta, DistribPenalty) <- function(pen, beta, theta,
 }
 
 
-#' How the Movement of the Coefficient Hessian Moves
+#' Second Derivatives of the Coefficient Hessian in the Coefficients and the
+#' Hyperparameters
 #'
 #' @description
 #' The two derivatives of [penalty_dhessian_beta()] that the second derivative
-#' of a marginal criterion reads. `penalty_d2hessian_beta()` is
-#' \eqn{\partial^2 S/\partial\beta^2\,[v, w]}, the Hessian's second derivative
-#' in the coefficients contracted along two directions.
+#' of a marginal criterion contains. `penalty_d2hessian_beta()` is
+#' \eqn{\partial^2 S/\partial\beta^2\,[v, w]}, the second derivative of the
+#' Hessian in the coefficients contracted along two directions.
 #' `penalty_dhessian_beta_theta()` is
 #' \eqn{\partial^2 S/\partial\beta\,\partial\theta_m\,[v]}, the derivative of
 #' \eqn{\partial S/\partial\beta\,[v]} in each hyperparameter.
 #'
 #' @details
-#' Differentiating the criterion's gradient once more in the hyperparameters,
-#' the determinant's matrix \eqn{K_m = S_m + T[b_m]} moves in three ways that a
-#' penalty whose Hessian depends on the coefficients adds to: through
-#' \eqn{T[b_{ml}]}, which [penalty_dhessian_beta()] supplies; through the second
-#' derivative in the coefficients along the two directions the mode moves in;
-#' and through \eqn{\partial S_m/\partial\beta\,[b_l]} and
-#' \eqn{\partial S_l/\partial\beta\,[b_m]}, which are one quantity by the
-#' symmetry of mixed partials.
+#' Write \eqn{S_m = \partial S/\partial\theta_m}, \eqn{T[v] = \partial
+#' S/\partial\beta\,[v]}, and \eqn{b_m} and \eqn{b_{ml}} for the first and
+#' second derivatives of the mode in the hyperparameters. The matrix
+#' \eqn{K_m = S_m + T[b_m]} enters the gradient of the criterion, and its
+#' derivative in \eqn{\theta_l} has three parts that are present only for a
+#' penalty whose Hessian depends on the coefficients: \eqn{T[b_{ml}]}, from
+#' [penalty_dhessian_beta()]; the second derivative in the coefficients along
+#' \eqn{b_m} and \eqn{b_l}, from `penalty_d2hessian_beta()`; and the two
+#' matrices \eqn{\partial S_m/\partial\beta\,[b_l]} and
+#' \eqn{\partial S_l/\partial\beta\,[b_m]}. Both of these come from
+#' `penalty_dhessian_beta_theta()`, the first as its component \eqn{m} along
+#' \eqn{b_l} and the second as its component \eqn{l} along \eqn{b_m}, because
+#' by the symmetry of mixed partials in \eqn{\beta} and \eqn{\theta} the
+#' derivative of \eqn{T[b_m]} in \eqn{\theta_l} equals
+#' \eqn{\partial S_l/\partial\beta\,[b_m]}. The two matrices are in general
+#' different.
 #'
-#' # What each branch answers
+#' # The value on each branch
 #'
 #' | branch | \eqn{\partial^2 S/\partial\beta^2[v,w]} | \eqn{\partial^2 S/\partial\beta\partial\theta_m[v]} |
 #' |---|---|---|
@@ -1138,24 +1239,34 @@ S7::method(penalty_dhessian_beta, DistribPenalty) <- function(pen, beta, theta,
 #' | separable, parent quadratic in its argument | zero | zero for every hyperparameter |
 #' | separable, univariate parent otherwise | \eqn{-D'\mathrm{diag}(\ell^{(yyyy)} \odot Dv \odot Dw)D} | \eqn{-D'\mathrm{diag}(\partial_{\theta_m}\ell^{(yyy)} \odot Dv)D} |
 #' | separable, multivariate parent otherwise | the same per block, contracted by [dp_contract()] | the same per block |
-#' | a kinked parent, [scad_penalty()], [mcp_penalty()] | rejects | rejects |
+#' | a kinked parent, [scad_penalty()], [mcp_penalty()] | an error | an error |
 #'
 #' The univariate rows follow from
 #' \eqn{\partial S/\partial\beta[v] = -D'\mathrm{diag}(\ell^{(yyy)}(D\beta) \odot
 #' Dv)D} by differentiating \eqn{\ell^{(yyy)}((D\beta)_j)} once more, in
 #' \eqn{\beta} along \eqn{w} or in \eqn{\theta_m}. The fourth response
-#' derivative is [distributions7::distrib_deriv4_y()] and the mixed one
-#' [distributions7::distrib_cross3_y()], both closed for every location family
-#' and so for a Student t prior. A multivariate parent supplies the two as
-#' arrays per block, of \eqn{p^4} and \eqn{p^3} entries, which
-#' [dp_contract()] contracts against the block's coordinates of the
-#' directions; the multivariate Student t does.
+#' derivative is [distributions7::distrib_deriv4_y()], closed form for every
+#' family that \pkg{distributions7} ships and one stencil for a family defined
+#' by its density alone. The mixed one is
+#' [distributions7::distrib_cross3_y()], closed form for the location families
+#' listed on its page, the Student t among them, and one central difference of
+#' the third response derivative for the other families. A multivariate
+#' parent supplies the two as arrays per block, of \eqn{p^4} and \eqn{p^3}
+#' entries, which [dp_contract()] contracts against the coordinates of the
+#' block in the directions; the multivariate Student t supplies both. The
+#' derivatives are taken in \eqn{\theta} on its own scale.
+#'
+#' The methods of the base class and of each branch are described on
+#' [penalty_d2hessian_beta.penalty()].
 #'
 #' @param pen A [penalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param beta A numeric vector of length `pen@n_coef`; the generics signal an
+#'   error for any other length.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same.
-#' @param v,w Numeric vectors of length `pen@n_coef`, the directions.
+#'   vector carrying the same, checked by the generics as in
+#'   [penalty_dhessian()].
+#' @param v,w Numeric vectors of length `pen@n_coef`, the directions; the
+#'   generics signal an error for any other length.
 #' @param ... Passed to methods. No shipped method reads it.
 #'
 #' @return `penalty_d2hessian_beta()` a square base matrix of side
@@ -1164,8 +1275,8 @@ S7::method(penalty_dhessian_beta, DistribPenalty) <- function(pen, beta, theta,
 #'
 #' @seealso [penalty_dhessian_beta()] for the quantity differentiated,
 #'   [penalty_dhessian()] for the derivative of the Hessian in the
-#'   hyperparameters, [beta_quadratic()] for the predicate that says both are
-#'   zero.
+#'   hyperparameters, [beta_quadratic()] for the predicate under which both
+#'   are zero.
 #'
 #' @examples
 #' h <- heavy_penalty(n_coef = 3)
@@ -1197,6 +1308,9 @@ penalty_d2hessian_beta <- S7::new_generic("penalty_d2hessian_beta", "pen",
   function(pen, beta, theta, v, w, ...) {
     theta <- align_ptheta(pen, theta)
     beta <- as.numeric(beta)
+    if (length(beta) != pen@n_coef) {
+      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    }
     v <- as.numeric(v)
     w <- as.numeric(w)
     if (length(v) != length(beta) || length(w) != length(beta)) {
@@ -1214,6 +1328,9 @@ penalty_dhessian_beta_theta <- S7::new_generic("penalty_dhessian_beta_theta",
   function(pen, beta, theta, v, ...) {
     theta <- align_ptheta(pen, theta)
     beta <- as.numeric(beta)
+    if (length(beta) != pen@n_coef) {
+      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    }
     v <- as.numeric(v)
     if (length(v) != length(beta)) {
       stop(sprintf("'v' has length %d where the coefficients have %d.",
@@ -1222,17 +1339,29 @@ penalty_dhessian_beta_theta <- S7::new_generic("penalty_dhessian_beta_theta",
     S7::S7_dispatch()
   })
 
-#' @title What Each Branch Answers to the Second Movement of the Hessian
+#' @title Methods of penalty_d2hessian_beta() and penalty_dhessian_beta_theta()
 #' @name penalty_d2hessian_beta.penalty
+#' @aliases penalty_d2hessian_beta.QuadraticPenalty
+#'   penalty_d2hessian_beta.AdditivePenalty
+#'   penalty_d2hessian_beta.StructuredPenalty
+#'   penalty_dhessian_beta_theta.QuadraticPenalty
+#'   penalty_dhessian_beta_theta.AdditivePenalty
+#'   penalty_dhessian_beta_theta.StructuredPenalty
 #'
 #' @description
-#' The base class rejects both, naming the penalty. The quadratic, additive and
-#' structured branches return zero matrices, their Hessian being free of the
-#' coefficients. The separable branch returns zero where its parent is
-#' quadratic in the argument, the closed forms of [penalty_d2hessian_beta()]
-#' otherwise, contracted per block for a multivariate parent, and rejects for
-#' a kinked parent and for a multivariate parent that supplies no fourth or
-#' mixed third response derivative.
+#' The methods of the base class for both generics signal an error that names
+#' the penalty; they are the methods that [scad_penalty()] and [mcp_penalty()]
+#' reach. The quadratic, additive and structured branches
+#' ([QuadraticPenalty()], [AdditivePenalty()] and [StructuredPenalty()]) share
+#' one method per generic, which returns a zero matrix of side `pen@n_coef`
+#' from `penalty_d2hessian_beta()` and a list of such zero matrices, one per
+#' hyperparameter, from `penalty_dhessian_beta_theta()`, because their Hessian
+#' is free of the coefficients. The separable branch returns the same zeros
+#' when [beta_quadratic()] is `TRUE` for it, and otherwise the closed forms
+#' given on the page of [penalty_d2hessian_beta()], contracted per block for a
+#' multivariate parent. It signals an error for a kinked parent and for a
+#' multivariate parent that cannot supply its fourth or mixed third response
+#' derivative.
 #'
 #' @param pen A [penalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`.
@@ -1243,7 +1372,9 @@ penalty_dhessian_beta_theta <- S7::new_generic("penalty_dhessian_beta_theta",
 #' @return A square base matrix of side `pen@n_coef`, a list of them keyed by
 #'   `pen@params`, or an error.
 #'
-#' @seealso [penalty_d2hessian_beta()] for the generics.
+#' @seealso [penalty_d2hessian_beta()] for the generics,
+#'   [penalty_dhessian_beta.penalty()] for the methods of the derivative of
+#'   first order.
 #' @keywords internal
 S7::method(penalty_d2hessian_beta, penalty) <- function(pen, beta, theta, v, w,
                                                         ...) {
@@ -1264,7 +1395,9 @@ S7::method(penalty_dhessian_beta_theta, penalty) <- function(pen, beta, theta,
                pen@penalty_name), call. = FALSE)
 }
 
-# the three branches whose Hessian does not depend on the coefficients
+# the three branches whose Hessian does not depend on the coefficients; the
+# methods are documented on the page penalty_d2hessian_beta.penalty, which
+# carries their aliases
 for (.cls in list(QuadraticPenalty, AdditivePenalty, StructuredPenalty)) {
   S7::method(penalty_d2hessian_beta, .cls) <- function(pen, beta, theta, v, w,
                                                        ...) {
@@ -1339,26 +1472,28 @@ S7::method(penalty_dhessian_beta_theta, DistribPenalty) <- function(pen, beta,
 #' rows and \eqn{p} columns, it returns the \eqn{p \times p \times n} array
 #' whose slice \eqn{i} is
 #' \eqn{\sum_{c_1 \dots c_m} A_{ab c_1 \dots c_m i}\,v_{1,ic_1}\cdots
-#' v_{m,ic_m}}. That is the movement of a block's response Hessian along the
-#' block's coordinates of the directions, which [dp_blockdiag()] then places
-#' on the diagonal.
+#' v_{m,ic_m}}. That is the derivative of the response Hessian of block
+#' \eqn{i} along the coordinates of the block in the directions, which
+#' [dp_blockdiag()] then places on the diagonal. Arrays of four and five
+#' dimensions are handled, that is one or two directions.
 #'
-#' `dp_parent_or_reject()` asks the parent for a response tensor and, where
-#' the parent does not supply one, rejects with the penalty named, so that a
-#' criterion is left without an exact gradient rather than given one missing
-#' a piece.
+#' `dp_parent_or_reject()` calls the generic `fun` of the parent. If that call
+#' signals an error of any kind, it signals in its place an error that names
+#' the penalty and the derivative, so that a criterion receives either the
+#' complete tensor or an error.
 #'
 #' @param A A numeric array with \eqn{n} as its last dimension.
-#' @param dirs A list of \eqn{n \times p} matrices, one per contracted index,
-#'   the last index first contracted against the last direction.
+#' @param dirs A list of \eqn{n \times p} matrices, one per contracted index;
+#'   the last remaining index of the array is contracted first, against the
+#'   last direction.
 #' @param pen A [DistribPenalty()] object.
 #' @param what A word naming the derivative, for the message.
 #' @param fun The \pkg{distributions7} generic to call.
-#' @param a The parent's argument, from [dp_arg()].
-#' @param theta A named list of the parent's free parameters.
+#' @param a The argument of the parent, from [dp_arg()].
+#' @param theta A named list of the free parameters of the parent.
 #'
 #' @return `dp_contract()` a \eqn{p \times p \times n} numeric array.
-#'   `dp_parent_or_reject()` the parent's answer, or an error.
+#'   `dp_parent_or_reject()` the value returned by `fun`, or an error.
 #'
 #' @seealso [penalty_dhessian_beta()], [penalty_d2hessian_beta()].
 #'

@@ -14,17 +14,18 @@ DistribPenalty(
   params_smooth = logical(0),
   parent = NULL,
   kinks = integer(0),
-  block = integer(0)
+  block = integer(0),
+  log_jacobian = NA_real_
 )
 }
 \arguments{
 \item{penalty_name}{A single string naming the penalty, used by \code{print()}
-and by consumers that report which penalty a block carries.}
+and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
-\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own storage;
-a diagonal map is what standardization comes to and is recognized by its
-class.}
+\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
+storage, so a diagonal map, which is what standardization produces, is
+recognized as diagonal by its class.}
 
 \item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
 
@@ -42,49 +43,97 @@ real line.}
 \item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
 where the value is differentiable in it.}
 
-\item{parent}{The \pkg{distributions7} object the log-density comes from,
-usually a \code{\link[distributions7:fixed]{distributions7::fixed()}} wrapper holding the location at zero.}
+\item{parent}{The \pkg{distributions7} object that supplies the
+log-density, usually a \code{\link[distributions7:fixed]{distributions7::fixed()}} wrapper holding the
+location at zero.}
 
 \item{kinks}{A numeric vector of the points where the parent's log-density
-is not differentiable in its argument, possibly empty. Derived by
-\code{\link[=distrib_kinks]{distrib_kinks()}} unless the constructor was told otherwise.}
+is not differentiable in its argument, possibly empty. \code{\link[=distrib_penalty]{distrib_penalty()}}
+derives it with \code{\link[=distrib_kinks]{distrib_kinks()}} unless its argument \code{kinks} is supplied.}
 
 \item{block}{The block width: \code{1L} for a univariate parent and the parent's
 \code{n_dim} for a multivariate one.}
+
+\item{log_jacobian}{\eqn{\log\lvert\det D\rvert}, computed by
+\link[=dp_diag_entries]{map_log_jacobian()} when the penalty is built: \code{0}
+without a map, a finite number for a square nonsingular map, and \code{NA} for
+a map that is not square or is singular. The default is \code{NA}.}
 }
 \value{
 An S7 object of class \code{DistribPenalty}, inheriting from \code{\link[=penalty]{penalty()}},
-with the seven inherited properties and the three above.
+with the seven inherited properties and the four above.
 }
 \description{
-The class \code{\link[=distrib_penalty]{distrib_penalty()}} builds: a penalty formed by applying a
-\pkg{distributions7} log-density to the successive blocks of \eqn{D\beta}.
-Beyond the seven properties every penalty carries it stores the parent
-distribution, the points where the parent's log-density has a kink, and the
-block width, which is one for a univariate parent and the dimension for a
-multivariate one.
+The class of the penalties that \code{\link[=distrib_penalty]{distrib_penalty()}} builds: a penalty formed
+by applying a \pkg{distributions7} log-density to the successive blocks of
+\eqn{D\beta}. Beyond the seven properties that every penalty carries, the
+class stores the parent distribution, the points where the parent's
+log-density has a kink, the block width (one for a univariate parent and
+the dimension for a multivariate one) and the log-Jacobian of the map.
 }
 \details{
-The hyperparameters are the parent's own free parameters, and \code{params},
-\code{params_bounds} and \code{link_params} are read straight off the distribution
-object. A caller who knows the parent therefore knows the penalty's
-hyperparameters, their bounds and their links without being told again.
+The hyperparameters are the parent's own free parameters. The properties
+\code{params}, \code{params_bounds}, \code{link_params} and \code{params_smooth} are copied
+from the distribution object, so the hyperparameters of the penalty, their
+bounds, their links and their smoothness are those of the parent.
 }
+\section{Methods}{
+
+The methods registered on this class, by the page that documents each.
+\itemize{
+\item The value and its coefficient derivatives:
+\link[=penalty_value.DistribPenalty]{penalty_value()},
+\link[=penalty_gradient.DistribPenalty]{penalty_gradient()} and
+\link[=penalty_hessian.DistribPenalty]{penalty_hessian()}.
+\item The hyperparameter derivatives:
+\link[=penalty_grad_theta.DistribPenalty]{penalty_grad_theta()},
+\link[=penalty_hess_theta.DistribPenalty]{penalty_hess_theta()} and
+\link[=penalty_cross.DistribPenalty]{penalty_cross()}.
+\item The predicates and the structure of the prior:
+\link[=penalty_kinks.DistribPenalty]{penalty_kinks()},
+\link[=is_proper.DistribPenalty]{is_proper()},
+\link[=penalty_null_basis.DistribPenalty]{penalty_null_basis()} and
+\link[=penalty_readable.DistribPenalty]{penalty_readable()}.
+\item The higher derivatives of a marginal criterion:
+\link[=penalty_dhessian.DistribPenalty]{penalty_dhessian()},
+\link[=penalty_d2hessian.DistribPenalty]{penalty_d2hessian()},
+\link[=penalty_dcross.DistribPenalty]{penalty_dcross()} and
+\link[=beta_quadratic.DistribPenalty]{beta_quadratic()}.
+\item The movement of the Hessian with the coefficients:
+\link[=penalty_dhessian_beta.DistribPenalty]{penalty_dhessian_beta()},
+\link[=penalty_d2hessian_beta.DistribPenalty]{penalty_d2hessian_beta()} and
+\link[=penalty_dhessian_beta_theta.DistribPenalty]{penalty_dhessian_beta_theta()}.
+\item The proximal operator and the draws:
+\link[=penalty_prox.DistribPenalty]{penalty_prox()},
+\link[=penalty_prox_spec.DistribPenalty]{penalty_prox_spec()} and
+\link[=penalty_draw.DistribPenalty]{penalty_draw()}.
+}
+
+The class registers no \link[=is_quadratic.penalty]{is_quadratic()},
+\link[=penalty_matrix.penalty]{penalty_matrix()},
+\link[=penalty_rank.penalty]{penalty_rank()} or
+\link[=penalty_logpdet.penalty]{penalty_logpdet()} method, so the methods of the
+base class \code{\link[=penalty]{penalty()}} are used for those generics.
+}
+
 \examples{
 pen <- lasso_penalty(n_coef = 2)
 S7::S7_inherits(pen, DistribPenalty)
 
-# The parent is a fixed Laplace, the kink is at zero, blocks are single
-# coordinates, and the hyperparameter is the parent's own rate.
+# The parent is a fixed Laplace, the kink is at zero, the blocks are single
+# coordinates, and the hyperparameter is the rate of the parent.
 pen@parent
 pen@kinks
 pen@block
 pen@params
 
+# Without a map the log-Jacobian is zero.
+pen@log_jacobian
+
 }
 \seealso{
-\code{\link[=distrib_penalty]{distrib_penalty()}} for the constructor to use,
+\code{\link[=distrib_penalty]{distrib_penalty()}} for the constructor,
 \code{\link[=ridge_penalty]{ridge_penalty()}} and its siblings for the named instances,
-\code{\link[=penalty_value.DistribPenalty]{penalty_value.DistribPenalty()}} for what the branch computes.
+\code{\link[=penalty_value.DistribPenalty]{penalty_value.DistribPenalty()}} for the value of the penalty.
 }
 \keyword{internal}

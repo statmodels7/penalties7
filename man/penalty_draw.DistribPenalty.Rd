@@ -11,23 +11,27 @@
 \item{...}{Ignored.}
 }
 \value{
-A numeric vector of length \code{pen@n_coef}, all \code{NA} under a
-non-diagonal map.
+A numeric vector of length \code{pen@n_coef}, \code{NA} where a diagonal map
+has a zero entry and \code{NA} throughout under a map that is not diagonal.
 }
 \description{
-One draw per coordinate from the parent family, carried back through the
-map.
+Draws from the parent family, one draw per coordinate for a univariate
+parent and one per block for a multivariate parent, carried back through
+the map.
 }
 \details{
-The penalty is the parent's negative log-density applied to each coordinate
-of \eqn{D\beta}, so a draw is \code{\link[distributions7:distrib_rng]{distributions7::distrib_rng()}} at the
-hyperparameters, which are the parent's own parameters. Under a
-multivariate parent the draw is one row per block, flattened the way
-\code{\link[=dp_arg]{dp_arg()}} reads it.
+The penalty is the parent's negative log-density applied to each
+coordinate (or block) of \eqn{D\beta}, so a draw is
+\code{\link[distributions7:distrib_rng]{distributions7::distrib_rng()}} at the hyperparameters, which are the
+parent's own parameters. Under a multivariate parent the draw has one row
+per block and is flattened in the order in which \code{\link[=dp_arg]{dp_arg()}} reads it.
 
-A diagonal map is inverted by dividing, the prior being on \eqn{d_j\beta_j};
-any other map comes back \code{NA}, the coefficients not being determined by a
-prior on a lower-dimensional image of them.
+A diagonal map is inverted by dividing, since the prior is on
+\eqn{d_j\beta_j}. A coordinate whose \eqn{d_j} is zero is not determined by
+the prior and is \code{NA}, and the other coordinates are drawn as usual. A
+square map whose off-diagonal entries are all zero is stored as a diagonal
+map by \code{\link[=distrib_penalty]{distrib_penalty()}}, whatever its class, and is treated in the same
+way. Under any other map every coordinate is \code{NA}.
 }
 \seealso{
 \code{\link[=penalty_draw]{penalty_draw()}}, \code{\link[=distrib_penalty]{distrib_penalty()}}

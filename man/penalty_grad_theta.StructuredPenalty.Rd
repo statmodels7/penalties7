@@ -34,8 +34,7 @@ per free value, \code{penalty_hess_theta()} one per unordered pair, and
 }
 \details{
 With \eqn{A_k = \partial_k\Omega} and \eqn{A_{kl} = \partial_{kl}\Omega} the
-precision's derivative arrays, transported from the covariance where the
-structure describes one,
+derivative arrays of the precision, as the structure supplies them,
 
 \deqn{\frac{\partial\rho}{\partial\theta_k}
     = \tfrac{1}{2}\beta'A_k\beta
@@ -45,14 +44,14 @@ structure describes one,
       - \tfrac{1}{2}\partial_{kl} \log\mathrm{pdet}\,\Omega, \qquad
   \frac{\partial^2\rho}{\partial\beta\,\partial\theta_k} = A_k\beta.}
 
-The mixed block carries no log-determinant term, that term not depending on
-the coefficients.
+The mixed block has no log-determinant term, because that term does not
+depend on the coefficients.
 
 The second-order components are keyed by pairs as \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}
 keys them, diagonals first and then the upper off-diagonal pairs joined by
-an underscore. Internally they are looked up in the structure's own keying,
-the two free names joined by a colon and sorted by position, and the key is
-constructed from the pair rather than parsed out of a name.
+an underscore. Internally they are looked up in the keying of the
+structure, the two free names joined by a colon and sorted by position, and
+the key is constructed from the pair, not parsed out of a name.
 }
 \examples{
 pen <- structured_penalty(parameters7::ar1(4))
@@ -66,10 +65,12 @@ names(penalty_hess_theta(pen, b, th))
 all.equal(penalty_grad_theta(pen, b, th),
           penalty_grad_theta(pen, b, th, scale = "link"))
 
-# The mixed block is A_k beta, so summing it against beta gives twice the
-# quadratic part of the gradient in that direction.
+# The mixed block is A_k beta, so half its inner product with beta is the
+# quadratic part of the gradient in z_rho, b' A_k b / 2.
 cr <- penalty_cross(pen, b, th)
 sum(b * cr$z_rho) / 2
+sum(b * (parameters7::param_d1(parameters7::ar1(4), c(0.2, 0.5))$z_rho \%*\%
+           b)) / 2
 
 }
 \seealso{

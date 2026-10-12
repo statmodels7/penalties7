@@ -8,7 +8,7 @@
 
 \item{v}{A numeric vector of length \code{pen@n_coef}.}
 
-\item{step}{The step length \eqn{t}, a single positive number.}
+\item{step}{The step length \eqn{t}, a single positive finite number.}
 
 \item{theta}{A named list of hyperparameter values.}
 
@@ -18,9 +18,11 @@
 A numeric vector of the same length as \code{v}.
 }
 \description{
-Closed form for the three families that have one, and a coordinatewise root
-for every other parent with a differentiable log-density. A diagonal map is
-handled by rescaling; anything else is rejected.
+Closed forms for the Gaussian, the Laplace (in both parametrizations) and
+the elastic net, and for every other parent with a differentiable
+log-density the stationary point of smallest objective, coordinate by
+coordinate. A diagonal map is handled by rescaling, and any other map is
+rejected.
 }
 \section{The closed forms}{
 \tabular{ll}{
@@ -31,37 +33,44 @@ handled by rescaling; anything else is rejected.
 }
 
 
-The elastic net's two steps come out of one stationary condition:
-\eqn{(\beta - v)/t + a\,\mathrm{sign}(\beta) + c\beta = 0} with
-\eqn{a = \lambda\alpha} and \eqn{c = \lambda(1-\alpha)} separates into the
-Laplace part's threshold followed by the Gaussian part's shrinkage.
+For the \code{laplace} parametrization \eqn{\lambda = 1/\sigma}. The two steps of
+the elastic net follow from one stationary condition:
+\eqn{(\beta - v)/t + a\,\mathrm{sign}(\beta) + c\beta = 0}, with
+\eqn{a = \lambda\alpha} and \eqn{c = \lambda(1-\alpha)}, separates into the
+threshold of the Laplace part followed by the shrinkage of the Gaussian
+part.
 }
 
-\section{Where the parent must sit}{
+\section{The location of the parent}{
 The Laplace and elastic-net forms are written for a parent centered at zero,
-and a family name does not say where a location is. The gradient at the
-origin is evaluated and required to vanish, and an off-center parent is
-rejected. The Gaussian needs no such restriction: its location enters the
+and the family name does not carry the location. The gradient of the
+penalty at the origin is therefore evaluated, and the call signals an error
+when its largest absolute entry exceeds \eqn{10^{-8}\max(1, \lambda)}. The
+Gaussian form has no such restriction, because the location enters the
 stationary condition linearly and is carried through as \eqn{g_0}.
 }
 
-\section{The root}{
-Any other parent is solved coordinatewise from
-\eqn{(\beta - v)/t = \ell^{(y)}(\beta)}, the right-hand side being
-\code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}}. For a log-concave density the difference
-of the two sides is strictly increasing, so the root is unique; the bracket
-starts one unit either side of \eqn{\min(v, 0)} and \eqn{\max(v, 0)} and is
-doubled up to sixty times, then \code{uniroot()} refines to \code{eps^0.75}. A parent
-declaring a kink, and outside the closed-form families, is rejected instead:
-the root is a smooth instrument and the kink is where the answer is.
+\section{Parents without a closed form}{
+Any other parent is solved coordinate by coordinate from
+\eqn{(\beta - v)/t = \ell^{(y)}(\beta)}, whose right-hand side is
+\code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}}. The condition can have more than one
+root when the density is not log-concave, so every change of sign on the
+segment between zero and \eqn{v} is refined and the root of smallest
+objective is returned, as \code{\link[=.prox_root]{.prox_root()}} describes. That root is the
+global minimizer when the penalty is smallest at zero and non-decreasing in
+\eqn{\lvert\beta\rvert}. A parent that declares a kink and is not one of
+the closed-form families is rejected, because the stationary condition does
+not hold at a kink and the minimizer of such a penalty can lie there.
 }
 
 \section{Errors}{
 
-A parent read in blocks, a map that is not diagonal, an off-center Laplace
-or elastic-net parent, a parent with an unrecognized kink, and a bracket
-that could not be found, each with a message naming the penalty and the
-reason.
+A parent read in blocks, a map that is not a \pkg{Matrix} diagonal object
+with nonzero entries, a Laplace or elastic-net parent that is not centered
+at zero, a parent that declares a kink and has no closed form, and a
+stationary condition with no change of sign on the segment or in the
+widened bracket each signal an error with a message giving the reason; all
+but the off-center parent name the penalty.
 }
 
 \examples{
@@ -75,10 +84,13 @@ penalty_prox(elasticnet_penalty(n_coef = 3), v, 1,
              list(lambda = 1, alpha = 0.6))
 sign(v) * pmax(abs(v) - 1 * 1 * 0.6, 0) / (1 + 1 * 1 * (1 - 0.6))
 
-# A Student t prior has no closed form. The root leaves the large
-# coordinate nearly where it was, which a Gaussian prior would not.
-penalty_prox(heavy_penalty(n_coef = 3), v, 1, list(sigma = 1, nu = 4))
-penalty_prox(ridge_penalty(n_coef = 3), v, 1, list(lambda = 1))
+# A Student t prior has no closed form, and the operator is found from the
+# stationary condition. With sigma = 1, nu = 4 and step 1 it maps 2 to 1,
+# as the ridge with lambda = 1 does; the two differ for coordinates that
+# are large relative to sigma, such as 10.
+v2 <- c(2, 0.3, 10)
+penalty_prox(heavy_penalty(n_coef = 3), v2, 1, list(sigma = 1, nu = 4))
+penalty_prox(ridge_penalty(n_coef = 3), v2, 1, list(lambda = 1))
 
 }
 \seealso{

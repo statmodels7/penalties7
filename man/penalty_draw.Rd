@@ -11,91 +11,106 @@ penalty_draw(pen, theta, ...)
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, as every other generic here takes them.}
+vector carrying the same, as for the other generics of the package.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 A numeric vector of length \code{pen@n_coef}, \code{NA} in the coordinates
-the prior does not determine and possibly \code{NA} throughout.
+that the prior does not determine and possibly \code{NA} throughout.
 }
 \description{
-A vector drawn from the distribution whose negative log-density the penalty
-is, at the hyperparameters given, with \code{NA} in the coordinates that
-distribution does not determine.
+A vector drawn from the distribution of which the penalty is the negative
+log-density, at the given hyperparameters, with \code{NA} in the coordinates
+that the distribution does not determine.
 }
 \details{
-A penalty is a negative log-prior, which is why \code{\link[=penalty_value]{penalty_value()}} keeps the
-normalizing constant, and a prior is something one draws from. Simulating
-from a model that carries a random effect, a ridge or a lasso means drawing
-those coefficients from exactly this distribution instead of from a normal
-chosen by whoever wrote the simulation.
+A proper penalty is a negative log-prior, and \code{\link[=penalty_value]{penalty_value()}} includes
+its normalizing constant for that reason. Simulating from a model that
+contains a random effect, a ridge or a lasso therefore amounts to drawing
+those coefficients from this distribution.
 }
-\section{Which branches answer}{
-A separable penalty draws coordinatewise from its own parent family, so a
-Gaussian prior gives Gaussian effects, a Laplace prior gives Laplace ones
-and a Student t prior gives heavy-tailed ones. That is the case a random
-effect is, and the one this exists for.
+\section{Branches that draw}{
+A separable penalty draws from its own parent family, so a Gaussian prior
+gives Gaussian effects, a Laplace prior gives Laplace effects and a Student
+t prior gives heavy-tailed effects. A univariate parent is drawn once per
+coordinate, and a multivariate parent once per block of coordinates.
 
 A quadratic, additive or structured penalty is a Gaussian prior with
-precision \eqn{S(\theta)}, and two of its shapes are cheap. Where \eqn{S} is
-diagonal each coordinate is drawn on its own at a standard deviation
-\eqn{S_{jj}^{-1/2}}, which covers a ridge and a Demmler-Reinsch smooth,
-whose penalty is \eqn{\mathrm{diag}(0, 1, \dots, 1)}; a zero on that
-diagonal is a direction the prior says nothing about and comes back \code{NA}.
-Where \eqn{S} is not diagonal but has full rank, one Cholesky factor gives
-the draw, \eqn{\beta = R^{-1}z} having covariance \eqn{S^{-1}}.
+precision \eqn{S(\theta)}, and two cases are drawn directly. Where \eqn{S}
+is diagonal each coordinate is drawn on its own with standard deviation
+\eqn{S_{jj}^{-1/2}}, which covers a ridge and a smooth in a basis whose
+penalty is diagonal (such as the Demmler-Reinsch basis); a zero on that
+diagonal is a direction that the prior does not determine, and its entry
+is \code{NA}. Where \eqn{S} is not diagonal but has full rank, one Cholesky
+factor \eqn{S = R^\top R} gives the draw, since \eqn{\beta = R^{-1}z} has
+covariance \eqn{S^{-1}}.
 
-A deficient non-diagonal \eqn{S}, which an anisotropic tensor smooth has,
-comes back all \code{NA}. The prior is flat along its null space and drawing on
-the range alone needs a basis of that range, which is a decomposition of a
-matrix these branches are built not to form.
+A rank-deficient \eqn{S} that is not diagonal, such as the penalty of an
+anisotropic tensor smooth, gives a vector of \code{NA}. The prior is flat along
+the null space of \eqn{S}, and a draw on the range alone would require a
+basis of that range, a decomposition that these branches do not compute.
 
-SCAD and MCP are improper by construction, densities of nothing, and answer
-\code{NA} everywhere. So does any penalty whose branch says nothing here.
+SCAD and MCP are improper and are not densities, so their draws are \code{NA}
+everywhere. A branch that is not quadratic and does not register a method
+of its own also gives \code{NA} everywhere.
 }
 
 \section{The map}{
-The penalty is a prior on \eqn{D\beta}, so a draw of the coefficients
-inverts the map. For a separable penalty the identity and a diagonal map,
-which is what standardization is, invert coordinatewise, and anything else
-comes back \code{NA}: under a general map the prior leaves the coefficients
-underdetermined, which is the same fact that makes \code{\link[=penalty_prox]{penalty_prox()}} reject
-one. A quadratic penalty needs no such care, \code{\link[=penalty_matrix]{penalty_matrix()}} returning
-the precision in the coefficients themselves.
+A separable penalty is a prior on \eqn{D\beta}, so a draw of the
+coefficients inverts the map. Without a map the draw is returned as it is.
+Under a diagonal map, which is what standardization produces, each
+coordinate is divided by its diagonal entry, and a coordinate whose entry
+is zero is not determined by the prior and is \code{NA}. Under any other map,
+square and invertible included, the draw is not inverted and every
+coordinate is \code{NA}. A quadratic penalty does not need this step, because
+\code{\link[=penalty_matrix]{penalty_matrix()}} returns the precision in the coefficients themselves.
 }
 
-\section{Why the unanswered coordinates are \code{NA} rather than zero}{
-A caller drawing a whole model has a rule of its own for a coefficient no
-prior covers, an intercept being the ordinary case. Returning zero would be
-indistinguishable from a prior that genuinely concentrates there, and the
-caller could not tell which coordinates it still has to fill.
+\section{Undetermined coordinates}{
+The coordinates that the prior does not determine are \code{NA} rather than
+zero. A caller that draws a whole model has its own rule for a coefficient
+that is not covered by any prior, an intercept being the ordinary case.
+A zero would be indistinguishable from a prior that concentrates at zero,
+and the caller could not tell which coordinates remain to be filled.
+}
+
+\section{Methods}{
+
+The method on the base class \code{\link[=penalty]{penalty()}} draws from a quadratic penalty
+(for which \code{\link[=is_quadratic]{is_quadratic()}} is \code{TRUE}) read as a Gaussian prior, as
+described above, and returns \code{NA} for any other branch. A separable
+penalty registers \code{\link[=penalty_draw.DistribPenalty]{penalty_draw.DistribPenalty()}}.
 }
 
 \examples{
 set.seed(1)
 
-# A Gaussian prior on ten effects: ten Gaussian effects.
+# A Gaussian prior on ten effects gives ten Gaussian draws.
 ridge <- ridge_penalty(n_coef = 10)
 round(penalty_draw(ridge, list(lambda = 4)), 3)
 
-# The scale is the prior's own, so a larger lambda shrinks the draw.
+# The scale is that of the prior, so a larger lambda shrinks the draw.
 c(loose = stats::sd(penalty_draw(ridge, list(lambda = 0.25))),
   tight = stats::sd(penalty_draw(ridge, list(lambda = 100))))
 
-# A Laplace prior gives Laplace effects, which is what a lasso says.
+# The lasso is a Laplace prior and gives Laplace draws.
 round(penalty_draw(lasso_penalty(n_coef = 6), list(lambda = 2)), 3)
 
-# A smooth leaves its null space undetermined, and says so.
+# The unpenalized direction of a smooth is NA.
 P <- diag(c(0, rep(1, 4)))
 penalty_draw(quadratic_penalty(P), list(lambda = 1))
 
-# SCAD is the density of nothing.
+# A diagonal map with a zero entry leaves that coordinate NA.
+penalty_draw(lasso_penalty(map = Matrix::Diagonal(x = c(1, 0, 2))),
+             list(lambda = 1))
+
+# SCAD is not a density, so every coordinate is NA.
 penalty_draw(scad_penalty(n_coef = 3), list(lambda = 1, a = 3.7))
 
 }
 \seealso{
-\code{\link[=penalty_value]{penalty_value()}} for the log-density this inverts,
-\code{\link[=is_proper]{is_proper()}} for whether there is a distribution to draw from at all,
-\code{\link[=penalty_matrix]{penalty_matrix()}} for the precision the Gaussian branches read.
+\code{\link[=penalty_value]{penalty_value()}} for the negative log-density from which the
+draw is made, \code{\link[=is_proper]{is_proper()}} for whether the penalty is a proper prior,
+\code{\link[=penalty_matrix]{penalty_matrix()}} for the precision of the Gaussian branches.
 }

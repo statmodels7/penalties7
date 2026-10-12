@@ -14,26 +14,30 @@ A numeric vector of length \code{nrow(pen@map)}, or \code{NULL}. A unit
 diagonal object (\code{diag = "U"}) gives a vector of ones.
 }
 \description{
-Returns the diagonal entries of \eqn{D} where the map is a \pkg{Matrix}
-diagonal object, and \code{NULL} where there is no map, where the map is of
-another class, or where a diagonal entry is zero or missing.
+Returns the diagonal entries of \eqn{D} when the map is a \pkg{Matrix}
+diagonal object, and \code{NULL} when there is no map, when the map has another
+class, or when a diagonal entry is zero or missing.
 }
 \details{
-A diagonal map rescales each coordinate on its own, and a separable penalty
-under one is still separable. That is what standardization comes to:
-penalizing a column divided by its own spread is penalizing
-\eqn{\rho(s_j\beta_j)}, so the scaling never has to touch the design and the
-sparsity of a block survives it. A general \eqn{D} mixes coordinates and
-turns the problem into the generalized-lasso one, which is a different
-algorithm and not a different formula.
+A diagonal map rescales each coordinate on its own, so a separable penalty
+under a diagonal map stays separable. Standardization is such a map:
+penalizing a column divided by its own spread \eqn{s_j} is penalizing
+\eqn{\rho(s_j\beta_j)}, so the scaling leaves the design unchanged and the
+sparsity of a block is kept. A general \eqn{D} mixes the coordinates and
+turns the problem into the generalized-lasso problem, which requires a
+different algorithm.
 
-The map is recognized by its \strong{class} and not by inspecting its entries: a
-\pkg{Matrix} diagonal object says what it is and costs \eqn{q} numbers,
-where testing a dense matrix for diagonality would cost \eqn{q^2} and defeat
-the point. A base matrix that happens to be diagonal therefore answers
-\code{NULL}, and a penalty carrying one has no proximal operator.
+The map is recognized by its \strong{class}, without inspecting its entries: a
+\pkg{Matrix} diagonal object stores \eqn{q} numbers, while testing a dense
+matrix for diagonality would cost \eqn{q^2} operations at every call. A base
+matrix that is diagonal in value therefore gives \code{NULL}. \code{\link[=distrib_penalty]{distrib_penalty()}},
+\code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}} convert a square map whose
+off-diagonal entries are all zero to a \code{\link[Matrix:Diagonal]{Matrix::Diagonal()}} when the penalty
+is built, so a separable, SCAD or MCP penalty built from such a base matrix
+has a proximal operator.
 
-A zero on the diagonal is rejected as well, the transport dividing by it.
+A zero on the diagonal also gives \code{NULL}, because the transport divides by
+the diagonal entries.
 }
 \seealso{
 \code{\link[=has_prox]{has_prox()}}, \code{\link[=penalty_prox]{penalty_prox()}}, \code{\link[=spec_diag]{spec_diag()}}

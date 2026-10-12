@@ -3,7 +3,7 @@
 \name{penalty_readable}
 \alias{penalty_readable}
 \alias{penalty_readable.penalty}
-\title{What a Penalty's Hyperparameters Are About}
+\title{Interpretable Quantities of a Penalty's Hyperparameters}
 \usage{
 penalty_readable(pen, theta, ...)
 }
@@ -13,7 +13,7 @@ penalty_readable(pen, theta, ...)
 \item{theta}{A named list of hyperparameter values, or a named numeric
 vector carrying the same, holding every name in \code{pen@params}.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 \code{NULL}, or a list of four as \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} returns
@@ -25,65 +25,70 @@ vector naming the scale each interval is built on (\code{"log"}, \code{"atanh"},
 printing.
 }
 \description{
-Returns the quantities a reader reads, for a penalty whose hyperparameters
-are coordinates of a chart and not the quantities themselves, together with
-the Jacobian from those coordinates and the scale each one's interval
-belongs on. Returns \code{NULL} where the hyperparameters already are the
-quantities, which is every branch but one.
+For a penalty whose hyperparameters are coordinates of a chart rather than
+interpretable quantities, returns the quantities to be reported, together
+with the Jacobian from those coordinates and the scale on which each
+quantity's interval is built. Returns \code{NULL} where the hyperparameters are
+reported as they stand.
 }
-\section{The case this exists for}{
-A penalty whose prior is a multivariate family carries the free values of a
-matrix parameter as its hyperparameters: the logarithms of the diagonal of a
-Cholesky factor and the entries below it. Nobody reads those. What the prior
-is about is the standard deviations and the correlations of the effects it
-describes, so \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} declares them and this generic
-passes them through. It is the same distinction
-\code{\link[parameters7:param_readable]{parameters7::param_readable()}} makes for a matrix parameter.
+\section{Multivariate priors}{
+A separable penalty whose parent is a multivariate family carries the free
+values of a matrix parameter as its hyperparameters: the logarithms of the
+diagonal of a Cholesky factor and the entries below it, which are not
+interpretable directly. The interpretable quantities are the standard
+deviations and the correlations of the effects, which
+\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} computes and this generic returns. The same
+distinction is made by \code{\link[parameters7:param_readable]{parameters7::param_readable()}} for a matrix
+parameter.
 
-The Jacobian is what a delta-method standard error needs: with \eqn{V} the
+The Jacobian gives a delta-method standard error: with \eqn{V} the
 variance matrix of the hyperparameters, the reported quantities have
-variance \eqn{JVJ^\top}. The \code{transform} element says which scale each
-quantity's confidence interval should be built on and mapped back from, so
-that a standard deviation stays positive and a correlation stays inside
-\eqn{(-1, 1)}.
+variance \eqn{JVJ^\top}. The \code{transform} element names the scale on which
+each quantity's confidence interval is built and from which it is mapped
+back, so that a standard deviation stays positive and a correlation stays
+inside \eqn{(-1, 1)}.
 }
 
 \section{The base method}{
-\code{NULL} says that the hyperparameters are the quantities and a consumer
-should report them as they stand. That is the answer for every other branch:
-a smoothing parameter, a rate and a shape are each read on their own scale
-already.
+\code{NULL} means that the hyperparameters are reported as they stand. This is
+the result for the quadratic, additive, SCAD and MCP branches and for a
+separable penalty with a univariate parent, whose hyperparameters (a
+smoothing parameter, a rate, a scale, a shape) are interpretable on their
+own scale. A structured penalty also returns \code{NULL}, although its
+hyperparameters are the free values of a \pkg{parameters7} matrix
+parameter.
 }
 
 \section{Methods}{
 
-The method on the base class \code{\link[=penalty]{penalty()}} returns \code{NULL}, which is the answer
-for every branch whose hyperparameters already are the quantities a reader
-reads. Only a branch that carries them on a chart registers a method.
+The method on the base class \code{\link[=penalty]{penalty()}} returns \code{NULL}. A separable
+penalty registers \code{\link[=penalty_readable.DistribPenalty]{penalty_readable.DistribPenalty()}}, which returns the
+result of \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} for a multivariate parent and
+\code{NULL} for a univariate one.
 }
 
 \examples{
 # A bivariate Gaussian prior on three pairs of effects. Its hyperparameters
-# are log-Cholesky coordinates, which nobody interprets.
+# are log-Cholesky coordinates.
 pen <- distrib_penalty(
   distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                         mu1 = 0, mu2 = 0), n_coef = 6)
 pen@params
 
-# What the prior is about is two standard deviations and a correlation.
+# The reported quantities are two standard deviations and a correlation.
 r <- penalty_readable(pen, list(sigma_log_L1 = 0.2, sigma_log_L2 = -0.1,
                                 sigma_L2.1 = 0.5))
 r$value
 r$transform
 dim(r$jacobian)
 
-# A smoothing parameter is already the quantity it names, so there is
-# nothing to derive.
+# A smoothing parameter is reported as it stands.
 penalty_readable(quadratic_penalty(diag(2)), list(lambda = 1))
 
 }
 \seealso{
 \code{\link[=penalty_value]{penalty_value()}}, \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} for the
-declaration this passes through, \code{\link[parameters7:param_readable]{parameters7::param_readable()}} for the
-same distinction on a matrix parameter.
+quantities returned for a multivariate prior,
+\code{\link[parameters7:param_readable]{parameters7::param_readable()}} for the same distinction on a matrix
+parameter.
 }

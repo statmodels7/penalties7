@@ -24,7 +24,10 @@ mcp_penalty(
 \arguments{
 \item{map}{The matrix \eqn{D}, with one column per coefficient, or \code{NULL}
 (the default) for the identity. Given a map, \code{n_coef} is taken from its
-column count and the argument is ignored.}
+column count and the argument is ignored. A \pkg{Matrix} object keeps
+its storage, and a square map whose off-diagonal entries are all zero is
+stored as a \code{\link[Matrix:Diagonal]{Matrix::Diagonal()}}, so that a diagonal map has a proximal
+operator whatever its class.}
 
 \item{n_coef}{The number of coefficients when \code{map} is \code{NULL}. A single
 whole number, \code{1L} by default.}
@@ -36,8 +39,8 @@ the whole real line. \code{linkfunctions7::log_link()} by default,
 \item{link_a}{The link carrying SCAD's shape parameter, bounded below at 2.
 \code{linkfunctions7::bounded_link(lwr = 2)} by default. \code{scad_penalty()} only.}
 
-\item{curv}{\code{NULL} (the default) for unit curvature, or positive numbers,
-one per coordinate of \eqn{D\beta} or one repeated.}
+\item{curv}{\code{NULL} (the default) for unit curvature, or positive finite
+numbers, one per coordinate of \eqn{D\beta} or a single value repeated.}
 
 \item{link_gamma}{The link carrying MCP's shape parameter, bounded below at
 \enumerate{
@@ -53,74 +56,84 @@ only.
 }
 \description{
 The two non-convex selection penalties that shrink small coefficients like
-the lasso and leave large ones alone. Both are defined by their derivative
-on \eqn{t \ge 0} and extended evenly, so \code{scad_penalty()} and
+the lasso and leave large ones unshrunk. Both are defined by their
+derivative on \eqn{t \ge 0} and extended evenly, and \code{scad_penalty()} and
 \code{mcp_penalty()} build objects whose value is the closed antiderivative
 anchored at \eqn{\rho(0) = 0}.
 }
 \section{The two derivatives}{
-SCAD, after Fan and Li (2001), holds the lasso's slope up to \eqn{\lambda},
-tapers it linearly to zero over the next \eqn{(a-1)\lambda}, and stops:
+SCAD, after Fan and Li (2001), keeps the slope \eqn{\lambda} of the lasso
+up to \eqn{\lambda}, tapers it linearly to zero over the next
+\eqn{(a-1)\lambda}, and is zero beyond:
 
 \deqn{\rho'(t) = \lambda \;\; (t \le \lambda), \qquad
   \rho'(t) = \frac{a\lambda - t}{a - 1} \;\; (\lambda < t \le a\lambda),
   \qquad \rho'(t) = 0 \;\; (t > a\lambda).}
 
-MCP, after Zhang (2010), starts tapering at once:
+MCP, after Zhang (2010), tapers from the origin:
 
 \deqn{\rho'(t) = \left(\lambda - t/\gamma\right)_{+}.}
 
-Integrating gives the values, which saturate at
-\eqn{(a+1)\lambda^2/2} and \eqn{\gamma\lambda^2/2}. Both agree with a
-quadrature of the published derivative to \code{4e-15} or better at every
-argument, in each of the three regions and at the boundaries between them.
+Integrating gives the values, which saturate at \eqn{(a+1)\lambda^2/2} for
+SCAD and at \eqn{\gamma\lambda^2/2} for MCP. These are the forms for unit
+curvature; the section on the curvature of the loss gives the form that
+\code{curv} produces.
 }
 
-\section{What the shape parameter buys}{
-Near zero both behave like a lasso at rate \eqn{\lambda}, so they threshold
-and produce exact zeros. Far from zero both are flat, so a large coefficient
-is estimated without shrinkage, so the lasso's bias is gone. The
-shape parameter says how quickly the transition happens: \eqn{a \to \infty}
-and \eqn{\gamma \to \infty} recover the lasso, while small values approach
-hard thresholding. The literature's defaults are \eqn{a = 3.7} and
-\eqn{\gamma = 3}, and neither constructor supplies one, the value being
-the caller's to set or a path's to sweep.
+\section{The shape parameter}{
+Near zero both penalties behave like a lasso at rate \eqn{\lambda}, so they
+threshold and produce exact zeros. Far from zero both are flat, so a large
+coefficient is estimated without shrinkage and without the bias of the
+lasso. The shape parameter sets how quickly the transition happens:
+\eqn{a \to \infty} and \eqn{\gamma \to \infty} recover the lasso, smaller
+values make the transition more abrupt, and MCP approaches hard
+thresholding as \eqn{\gamma \to 1}. The values used in the literature are
+\eqn{a = 3.7} and \eqn{\gamma = 3}. Neither constructor supplies a value,
+which the caller sets or a path sweeps.
 }
 
-\section{Where they are not smooth}{
-Both have a kink at zero, and both change branch again where the taper
-begins or ends. \code{\link[=penalty_kinks]{penalty_kinks()}} returns all of them: \code{0}, \eqn{\pm\lambda}
-and \eqn{\pm a\lambda} for SCAD, \code{0} and \eqn{\pm\gamma\lambda} for MCP. At
-the outer points the first derivative is continuous and the second jumps.
-\code{\link[=check_penalty]{check_penalty()}} asks the object and keeps its grids away from all of them.
+\section{Points of non-smoothness}{
+Both penalties have a kink at zero, and both change branch again where the
+taper begins or ends. \code{\link[=penalty_kinks]{penalty_kinks()}} returns all of these points: at
+unit curvature they are \code{0}, \eqn{\pm\lambda} and \eqn{\pm a\lambda} for
+SCAD and \code{0} and \eqn{\pm\gamma\lambda} for MCP, and with \code{curv} the rate
+\eqn{\lambda} in them becomes \eqn{\lambda/c_j}. At the points other than
+the origin the first derivative is continuous and the second jumps. When
+\code{beta} is not supplied, \code{\link[=check_penalty]{check_penalty()}} draws its coefficients away from
+the points that \code{\link[=penalty_kinks]{penalty_kinks()}} returns.
 }
 
 \section{The curvature of the loss}{
-Both are defined on the canonical problem
+Both penalties are defined on the canonical problem
 \eqn{\tfrac12(z-\theta)^2 + \rho(\theta)}, whose loss has unit curvature
-(Fan and Lv 2010), and \eqn{a = 3.7} is suggested in that problem. A
-likelihood has curvature \eqn{c_j} in coordinate \eqn{j}, so \code{curv}
-writes the penalty as \eqn{\sum_j c_j\,\rho(t_j;\ \lambda/c_j)}: the
-slope at zero stays \eqn{\lambda}, the knee moves to
-\eqn{a\lambda/c_j} (\eqn{\gamma\lambda/c_j} for MCP), and the ratio of
-knee to threshold is the shape parameter in every coordinate. The proximal
-operator with step \eqn{s} is then the unscaled one at step \eqn{s c_j}
-and rate \eqn{\lambda/c_j}, so where the step is \eqn{1/c_j} its
-condition is \eqn{a > 2} and \eqn{\gamma > 1} whatever the data. By
-default \code{curv} is empty and every coordinate has \eqn{c_j = 1}.
+(Fan and Lv 2010), and the value \eqn{a = 3.7} of Fan and Li (2001) is
+suggested for that problem. A likelihood has curvature \eqn{c_j} in
+coordinate \eqn{j}, and with \code{curv} the penalty is
+\eqn{\sum_j c_j\,\rho(t_j;\ \lambda/c_j)}. The slope at zero stays
+\eqn{\lambda}, the knee moves to \eqn{a\lambda/c_j} (\eqn{\gamma\lambda/c_j}
+for MCP), and the ratio of the knee to \eqn{\lambda/c_j} is the shape
+parameter in every coordinate. Coordinate \eqn{j} saturates at
+\eqn{(a+1)\lambda^2/(2c_j)} for SCAD and \eqn{\gamma\lambda^2/(2c_j)} for
+MCP, and its second derivative over the taper is \eqn{-c_j/(a-1)} for SCAD
+and \eqn{-c_j/\gamma} for MCP. The proximal operator with step \eqn{s} is
+the unscaled operator at step \eqn{s c_j} and rate \eqn{\lambda/c_j}, so it
+is single-valued while \eqn{s c_j < a - 1} for SCAD and
+\eqn{s c_j < \gamma} for MCP. At the step \eqn{s = 1/c_j} these conditions
+are \eqn{a > 2} and \eqn{\gamma > 1} for any data. By default \code{curv} is
+\code{NULL}, no curvature is stored, and every coordinate has \eqn{c_j = 1}.
 }
 
-\section{What they are not}{
-Both are improper: \eqn{\rho} is bounded, so \eqn{\exp(-\rho)} is not a
-density at any constant. \code{\link[=is_proper]{is_proper()}} is \code{FALSE}, \code{\link[=is_quadratic]{is_quadratic()}} is
-\code{FALSE}, and \code{\link[=penalty_matrix]{penalty_matrix()}} and its three siblings reject. A marginal
-criterion cannot reach these hyperparameters; a path or cross-validation
-can.
+\section{Improper penalties}{
+Both penalties are improper: \eqn{\rho} is bounded, so \eqn{\exp(-\rho)} is
+not a density at any constant. \code{\link[=is_proper]{is_proper()}} and \code{\link[=is_quadratic]{is_quadratic()}} return
+\code{FALSE}, and \code{\link[=penalty_matrix]{penalty_matrix()}} and the three quantities beside it signal an
+error. A marginal criterion therefore cannot be used to choose these
+hyperparameters, which are chosen along a path or by cross-validation.
 }
 
 \examples{
-# SCAD at the literature's shape. Small coefficients pay the lasso's rate,
-# large ones pay a constant.
+# SCAD at the shape used in the literature. A small coefficient is
+# penalized at the rate of the lasso, a large one by a constant.
 pen <- scad_penalty(n_coef = 3)
 th <- list(lambda = 1, a = 3.7)
 penalty_value(pen, c(0.5, 2, 5), th)
@@ -129,7 +142,8 @@ penalty_value(pen, c(0.5, 2, 5), th)
 penalty_value(scad_penalty(n_coef = 1), 100, th)
 (3.7 + 1) * 1^2 / 2
 
-# So the gradient of a large coefficient is exactly zero: no shrinkage.
+# The gradient at a large coefficient is exactly zero, so that coefficient
+# is not shrunk.
 penalty_gradient(pen, c(0.5, 2, 5), th)
 
 # MCP saturates sooner, at gamma lambda^2 / 2.
@@ -140,10 +154,15 @@ penalty_gradient(mcp, c(0.5, 2, 5), list(lambda = 1, gamma = 3))
 # Both are bounded, so neither is a density.
 c(scad = is_proper(pen), mcp = is_proper(mcp))
 
-# Letting the shape run recovers the lasso's linear penalty.
+# As the shape grows, the value at 2 approaches the lasso's value 2.
 sapply(c(3.7, 50, 1000),
        function(a) penalty_value(scad_penalty(n_coef = 1), 2,
                                  list(lambda = 1, a = a)))
+
+# With curv = 2 the slope at zero stays lambda and the value saturates at
+# (a + 1) lambda^2 / (2 * 2).
+penalty_value(scad_penalty(n_coef = 1, curv = 2), 100, th)
+(3.7 + 1) * 1^2 / (2 * 2)
 
 }
 \references{
@@ -151,12 +170,16 @@ Fan, J. and Li, R. (2001). Variable selection via nonconcave penalized
 likelihood and its oracle properties. \emph{Journal of the American Statistical
 Association} \strong{96}, 1348-1360.
 
+Fan, J. and Lv, J. (2010). A selective overview of variable selection in
+high dimensional feature space. \emph{Statistica Sinica} \strong{20}, 101-148.
+
 Zhang, C.-H. (2010). Nearly unbiased variable selection under minimax
 concave penalty. \emph{Annals of Statistics} \strong{38}, 894-942.
 }
 \seealso{
-\code{\link[=lasso_penalty]{lasso_penalty()}} for the convex penalty these improve on,
-\code{\link[=penalty_prox]{penalty_prox()}} for the closed operator each has over its convex
-region, \code{\link[=penalty_kinks]{penalty_kinks()}} for where they change branch,
-\code{\link[=is_proper]{is_proper()}} for why no marginal criterion reaches them.
+\code{\link[=lasso_penalty]{lasso_penalty()}} for the convex penalty that both modify,
+\code{\link[=penalty_prox]{penalty_prox()}} for the closed proximal operator, defined for steps
+below \eqn{a - 1} for SCAD and below \eqn{\gamma} for MCP,
+\code{\link[=penalty_kinks]{penalty_kinks()}} for the points where they change branch, and
+\code{\link[=is_proper]{is_proper()}} for the property that excludes a marginal criterion.
 }

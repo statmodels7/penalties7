@@ -8,8 +8,9 @@
 
 \item{v}{A numeric vector of length \code{pen@n_coef}.}
 
-\item{step}{The step length \eqn{t}, a single positive number below
-\eqn{a-1}.}
+\item{step}{The step length \eqn{t}, a single positive finite number with
+\eqn{t c_j < a-1} in every coordinate (\eqn{t < a - 1} at unit
+curvature).}
 
 \item{theta}{A named list holding \code{lambda} and \code{a}.}
 
@@ -34,11 +35,25 @@ With \eqn{u = \lvert v\rvert} and \eqn{s} its sign,
     v & u > a\lambda.
   \end{cases}}
 
-The middle piece divides by \eqn{1 - t/(a-1)}, which is where the step
-matters: SCAD's curvature is \eqn{-1/(a-1)} there, so the subproblem is
-convex only while \eqn{t < a-1}. At or beyond that the operator is
-set-valued and the call is rejected with the bound printed. Under a diagonal
-map the condition tightens to \eqn{t < (a-1)/d_j^2}.
+The middle piece is computed in the equivalent form
+\eqn{s\,(u - t(a\lambda - u)/(a - 1 - t))}, in which \eqn{a\lambda - u} and
+\eqn{a - 1 - t} are differences of exact operands, so that the value stays
+accurate as \eqn{t} approaches \eqn{a - 1}.
+
+The step enters through the division by \eqn{1 - t/(a-1)}: the curvature of
+SCAD is \eqn{-1/(a-1)} in the middle piece, so the subproblem is convex only
+while \eqn{t < a-1}. At or beyond that bound the operator is set-valued, and
+the call signals an error that prints \eqn{a - 1} and the largest scaled
+step, defined below.
+
+The formula is written for unit curvature. With the curvature \eqn{c_j} of
+\code{\link[=scad_penalty]{scad_penalty()}} (argument \code{curv}), the penalty in coordinate \eqn{j} is
+\eqn{c_j\rho(\cdot;\ \lambda/c_j)}, and the operator is the formula above
+with \eqn{t c_j} in place of \eqn{t} and \eqn{\lambda/c_j} in place of
+\eqn{\lambda}. Under a diagonal map the step is \eqn{t d_j^2}, so the
+condition becomes \eqn{t c_j d_j^2 < a - 1} in every coordinate, which is
+stricter than \eqn{t < a - 1} where \eqn{c_j d_j^2 > 1} and looser where
+\eqn{c_j d_j^2 < 1}.
 }
 \examples{
 th <- list(lambda = 1, a = 3.7)
@@ -51,7 +66,8 @@ penalty_prox(scad_penalty(n_coef = 3), c(1.5, 3, 6), 1, th)
 penalty_prox(scad_penalty(n_coef = 1), 6, 1, th)
 penalty_prox(lasso_penalty(n_coef = 1), 6, 1, list(lambda = 1))
 
-# Beyond the convexity bound the operator is set-valued and rejects.
+# At the convexity bound the operator is set-valued, and the call signals
+# an error.
 try(penalty_prox(scad_penalty(n_coef = 1), 2, 2.7, th))
 
 }

@@ -19,13 +19,14 @@ and \eqn{q} columns, or \code{NULL}.}
 }
 \value{
 \code{map_apply()} a numeric vector of length \eqn{m}; \code{map_back()} a
-numeric vector of length \eqn{q}. Both are plain numeric even when the map
-is a \pkg{Matrix}, so a consumer never meets a one-column \code{Matrix} where it
-expected a vector.
+numeric vector of length \eqn{q}. Both are plain numeric vectors even
+when the map is a \pkg{Matrix} object, rather than one-column
+\pkg{Matrix} objects.
 }
 \description{
 \code{map_apply()} computes \eqn{t = D\beta}, carrying a coefficient vector to
-the argument \eqn{\rho} is evaluated at. \code{map_back()} computes \eqn{D'g},
+the argument at which \eqn{\rho} is evaluated. \code{map_back()} computes
+\eqn{D'g},
 carrying a gradient in \eqn{t} back to a gradient in \eqn{\beta}. A \code{NULL}
 map is the identity and both return their argument untouched.
 }

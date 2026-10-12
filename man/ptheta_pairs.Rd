@@ -7,13 +7,13 @@
 ptheta_pairs(params)
 }
 \arguments{
-\item{params}{A character vector of hyperparameter names, in the order the
-penalty holds them. May be empty.}
+\item{params}{A character vector of hyperparameter names, in the order in
+which the penalty holds them. May be empty.}
 }
 \value{
 A named list of length \eqn{p(p+1)/2}, empty when \code{params} is. Each
-element is a character pair naming the two hyperparameters differentiated
-in, and each name is those two joined by an underscore.
+element is a character pair naming the two hyperparameters of the
+derivative, and each name is those two joined by an underscore.
 }
 \description{
 The keys of a penalty's second hyperparameter derivatives, and the pairs
@@ -24,18 +24,16 @@ they stand for: the \eqn{p} diagonals first, in \code{params} order, then the
 order \code{\link[=ptheta_to_link]{ptheta_to_link()}} reads.
 }
 \details{
-Diagonals first rather than lexicographically, because a consumer reading
-only the variances can take the first \eqn{p} entries. The same convention
-names \pkg{distributions7}'s Hessian components.
+The diagonals come first, rather than in lexicographic order, so that the
+first \eqn{p} entries are the diagonal of the Hessian. The same convention
+names the Hessian components of \pkg{distributions7}.
 
-\code{character(0)} gives the empty \strong{named} list. A penalty with no free
-hyperparameters has no pair to differentiate in, and the named form keeps
-\code{\link[=penalty_hess_theta]{penalty_hess_theta()}} the same shape as its two siblings
-\code{\link[=penalty_grad_theta]{penalty_grad_theta()}} and \code{\link[=penalty_cross]{penalty_cross()}}, both of which already answered
-for that case. The guard is needed rather than incidental:
-\code{paste0(character(0), "_", character(0))} recycles the zero-length argument
-against the length-one literal and gives the single string \code{"_"}, so without
-it the names are one element long while the list of pairs is empty and
-\code{\link[stats:setNames]{stats::setNames()}} raises.
+\code{character(0)} gives an empty \strong{named} list. A penalty with no free
+hyperparameters has no pair in which to differentiate, and the named empty
+list is the shape that \code{\link[=penalty_grad_theta]{penalty_grad_theta()}} and \code{\link[=penalty_cross]{penalty_cross()}} return
+in that case. The function treats this case separately, because
+\code{paste0(character(0), "_", character(0))} returns the single string \code{"_"}
+and \code{\link[stats:setNames]{stats::setNames()}} would then signal an error on the empty list of
+pairs.
 }
 \keyword{internal}

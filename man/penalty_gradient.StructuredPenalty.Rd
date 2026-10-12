@@ -15,21 +15,23 @@
 }
 \value{
 \code{penalty_gradient()} an unnamed numeric vector of length
-\code{pen@n_coef}; \code{penalty_hessian()} the symmetric precision matrix of that
-side, \strong{carrying the structure's own dimnames} (\code{v1}, \code{v2}, ... for the
-\pkg{parameters7} primitives). The other branches return matrices with no
-dimnames, so a comparison across branches wants \code{unname()}.
+\code{pen@n_coef}; \code{penalty_hessian()} the symmetric precision matrix
+\eqn{\Omega(\theta)}, \strong{carrying the structure's own dimnames} (\code{v1},
+\code{v2}, ... for the \pkg{parameters7} primitives). The quadratic and
+additive branches return matrices with no dimnames, so a comparison
+across branches requires \code{unname()}.
 }
 \description{
 \code{penalty_gradient()} returns \eqn{\Omega(\theta)\beta} and
 \code{penalty_hessian()} returns \eqn{\Omega(\theta)} itself. The value is a
-quadratic form in \eqn{\beta}, so the Hessian does not move with the
+quadratic form in \eqn{\beta}, so the Hessian does not depend on the
 coefficients and the gradient is the Hessian applied to them.
 }
 \details{
-Where the structure is a covariance, both read the inverse it implies, so
-each call costs one solve. A caller taking several derivatives at one
-\eqn{\theta} pays for that inversion once per generic.
+Both methods evaluate \eqn{\Omega(\theta)} through the structure's
+\code{param_value()}. When the structure is \code{parameters7::inverse_of(s)}, that
+evaluation includes the inversion of the matrix of \code{s}, and each generic
+repeats it.
 }
 \examples{
 pen <- structured_penalty(parameters7::ar1(4))

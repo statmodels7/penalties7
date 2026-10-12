@@ -10,7 +10,7 @@
 generic.}
 
 \item{theta}{A named list of the structure's free values, already aligned by
-the generic. The bounds are the whole line, so nothing is rejected here.}
+the generic. The bounds are the whole line, so no value is rejected here.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
@@ -18,25 +18,27 @@ the generic. The bounds are the whole line, so nothing is rejected here.}
 A single number.
 }
 \description{
-Returns the negative log-density of the Gaussian prior the structure
-describes, evaluated in the precision whichever of the two matrices the
-structure supplies.
+Returns the negative log-density of the Gaussian prior whose precision
+\eqn{\Omega(\theta)} is the matrix of the structure. A structure built with
+\code{parameters7::inverse_of()} supplies the inverse of the matrix that it
+wraps, so that matrix is then the covariance.
 }
 \details{
 \deqn{\rho(\beta; \theta) = \tfrac{1}{2}\,\beta'\Omega(\theta)\beta
   - \tfrac{1}{2}\log\mathrm{pdet}\,\Omega(\theta)
   + \tfrac{r}{2}\log 2\pi,}
 
-with \eqn{r} the structure's rank, and the log-determinant negated where the
-structure is a covariance. For a full-rank structure this is exactly a
-multivariate normal log-density with mean zero.
+with \eqn{r} the structure's rank. For a full-rank structure this is the
+negative log-density of a multivariate normal distribution with mean zero
+and precision \eqn{\Omega(\theta)}.
 }
 \examples{
-# A covariance structure gives exactly a multivariate normal log-density.
+# A structure wrapped in inverse_of() places the AR(1) matrix S on the
+# covariance side, and the value is the negative log-density of N(0, S).
 s <- parameters7::inverse_of(parameters7::ar1(4))
 pen <- structured_penalty(s)
 b <- c(0.3, -0.1, 0.4, 0.2)
-S <- unclass(parameters7::param_value(s, c(0.2, 0.5)))
+S <- unclass(parameters7::param_value(parameters7::ar1(4), c(0.2, 0.5)))
 penalty_value(pen, b, list(log_scale = 0.2, z_rho = 0.5)) -
   (0.5 * sum(b * solve(S, b)) +
      0.5 * as.numeric(determinant(S, logarithm = TRUE)$modulus) +
@@ -46,6 +48,7 @@ penalty_value(pen, b, list(log_scale = 0.2, z_rho = 0.5)) -
 \seealso{
 \code{\link[=structured_penalty]{structured_penalty()}} for the construction,
 \code{\link[=penalty_gradient.StructuredPenalty]{penalty_gradient.StructuredPenalty()}} for the coefficient derivatives,
-\code{\link[=struct_omega]{struct_omega()}} for the transport.
+\code{\link[=struct_omega]{struct_omega()}} for the helpers that read the precision from the
+structure.
 }
 \keyword{internal}

@@ -16,20 +16,22 @@ have at least as many rows as \code{u} is long.}
 A numeric vector as long as \code{u}.
 }
 \description{
-Evaluates the map \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} describes, in R. This is what a
-compiled coordinate descent does to each coordinate, and what the tests
-compare the table against.
+Evaluates in R the map that \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} describes. A compiled
+coordinate descent applies the same map to each coordinate, and the tests
+compare the result with \code{\link[=penalty_prox]{penalty_prox()}}.
 }
 \details{
-For coordinate \eqn{j} it finds the first cut that \eqn{\lvert u_j\rvert}
-does not exceed and returns
+For coordinate \eqn{j} the function finds the first cut that
+\eqn{\lvert u_j\rvert} does not exceed and returns
 \eqn{\mathrm{sign}(u_j)(a_{jk}\lvert u_j\rvert + b_{jk})} for that piece.
-The last cut is \code{Inf}, so a piece is always found; the \code{NA} guard covers a
-table whose cuts are not increasing, which no shipped branch produces.
+The last cut of every shipped table is \code{Inf}, so a piece is always found.
+If \eqn{\lvert u_j\rvert} exceeds every cut of its row, which can happen
+only in a table whose last cut is finite, the last piece is used.
 
-Comparing this against \code{\link[=penalty_prox]{penalty_prox()}} is how a table is verified. Over the
-five families that have one, probed at every cut, on both sides of every cut
-and across the whole range, the worst disagreement is \code{8.9e-16}.
+A table is verified by comparing this function with \code{\link[=penalty_prox]{penalty_prox()}} at
+every cut, on both sides of every cut and over a grid of points. For SCAD
+and MCP at a step close to its limit the table is less accurate than
+\code{\link[=penalty_prox]{penalty_prox()}}, as the page of \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} explains.
 }
 \examples{
 pen <- lasso_penalty(n_coef = 2L)

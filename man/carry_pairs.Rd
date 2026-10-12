@@ -9,12 +9,13 @@ carry_pairs(pen, comp, carry)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{comp}{The parent's components, keyed by parameter pair.}
+\item{comp}{The components of the parent, keyed by parameter pair.}
 
-\item{carry}{A function placing one component into coefficient space.}
+\item{carry}{A function that places one component into coefficient space.}
 }
 \value{
-A named list keyed by hyperparameter pair.
+A named list keyed by hyperparameter pair, in the order of
+\code{\link[=ptheta_pairs]{ptheta_pairs()}}.
 }
 \description{
 Re-keys a \pkg{distributions7} component keyed by parameter pair into this
@@ -22,8 +23,10 @@ package's own keys, and places each through the penalty's map.
 }
 \details{
 The two enumerations of pairs are built the same way from the same names, so
-a key from one is a key of the other; it is looked up by name in both
-orders rather than by position, since a hyperparameter whose own name
-contains the separator would not survive being taken apart.
+a key of one is a key of the other. Each pair is looked up by name, first in
+\code{pen@params} order and then in the reversed order, and not by position or
+by splitting a key, since a hyperparameter whose own name contains the
+separator could not be split back into its two names. If neither name is
+present, the function signals an error that names the pair.
 }
 \keyword{internal}

@@ -20,11 +20,11 @@ struct_logdet(pen, eta, order = 2L)
 
 \item{eta}{The structure's free vector, as \code{\link[=struct_eta]{struct_eta()}} returns it.}
 
-\item{omega}{Accepted and unused, kept so the call sites that pass a
-precision they already hold need no branch. \code{struct_d1()} and
-\code{struct_d2()} only.}
+\item{omega}{Accepted and unused; no call in the package passes it.
+\code{struct_d1()} and \code{struct_d2()} only.}
 
-\item{order}{The highest derivative wanted, 0, 1 or 2.}
+\item{order}{The highest log-determinant derivative wanted: \code{0}, \code{1} or
+\code{2}. \code{struct_logdet()} only, \code{2L} by default.}
 }
 \value{
 \code{struct_omega()} a symmetric base matrix of side
@@ -41,15 +41,16 @@ named list, one number per pair, keyed as \code{struct_d2()} is).
 The four helpers that read the prior's precision and its derivatives off the
 structure. \code{struct_omega()} returns \eqn{\Omega}, \code{struct_d1()} its first
 derivatives, \code{struct_d2()} its second, and \code{struct_logdet()} the
-log-determinant with as many orders as asked for.
+log-determinant with its derivatives up to the requested order.
 }
 \details{
-The structure is the precision, so each helper unwraps the structure's own
-answer and returns it, and no transport happens here. A caller who wants a
-structure read as a covariance passes
-\code{parameters7::inverse_of()} of it, which carries
-\eqn{\partial_k\Omega = -\Omega A_k \Omega} and its higher orders inside
-the structure, where the log-determinant stays exact.
+The structure is the precision, so each helper returns the structure's own
+result with its class removed, and no conversion between covariance and
+precision happens here. To read a structure \code{s} as a covariance, pass
+\code{parameters7::inverse_of(s)}, which carries
+\eqn{\partial_k\Omega = -\Omega B_k \Omega}, with \eqn{B_k} the derivative
+of the covariance, and its higher orders inside the structure, where the
+log-determinant stays exact.
 
 Second-order components are keyed as \pkg{parameters7} keys them: the two
 free names joined by a colon, the pair sorted by position in \code{free_names}.
@@ -59,6 +60,6 @@ free name may itself contain a colon.
 \seealso{
 \code{\link[=structured_penalty]{structured_penalty()}} for the prior these serve,
 \code{\link[parameters7:param_d1]{parameters7::param_d1()}} and \code{\link[parameters7:param_dlogdet]{parameters7::param_dlogdet()}} for the
-contract they read.
+generics that they call.
 }
 \keyword{internal}

@@ -2,10 +2,16 @@
 % Please edit documentation in R/marginal_derivatives.R
 \name{penalty_d2hessian_beta.penalty}
 \alias{penalty_d2hessian_beta.penalty}
+\alias{penalty_d2hessian_beta.QuadraticPenalty}
+\alias{penalty_d2hessian_beta.AdditivePenalty}
+\alias{penalty_d2hessian_beta.StructuredPenalty}
+\alias{penalty_dhessian_beta_theta.QuadraticPenalty}
+\alias{penalty_dhessian_beta_theta.AdditivePenalty}
+\alias{penalty_dhessian_beta_theta.StructuredPenalty}
 \alias{penalty_dhessian_beta_theta.penalty}
 \alias{penalty_d2hessian_beta.DistribPenalty}
 \alias{penalty_dhessian_beta_theta.DistribPenalty}
-\title{What Each Branch Answers to the Second Movement of the Hessian}
+\title{Methods of penalty_d2hessian_beta() and penalty_dhessian_beta_theta()}
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
@@ -22,15 +28,23 @@ A square base matrix of side \code{pen@n_coef}, a list of them keyed by
 \code{pen@params}, or an error.
 }
 \description{
-The base class rejects both, naming the penalty. The quadratic, additive and
-structured branches return zero matrices, their Hessian being free of the
-coefficients. The separable branch returns zero where its parent is
-quadratic in the argument, the closed forms of \code{\link[=penalty_d2hessian_beta]{penalty_d2hessian_beta()}}
-otherwise, contracted per block for a multivariate parent, and rejects for
-a kinked parent and for a multivariate parent that supplies no fourth or
-mixed third response derivative.
+The methods of the base class for both generics signal an error that names
+the penalty; they are the methods that \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}}
+reach. The quadratic, additive and structured branches
+(\code{\link[=QuadraticPenalty]{QuadraticPenalty()}}, \code{\link[=AdditivePenalty]{AdditivePenalty()}} and \code{\link[=StructuredPenalty]{StructuredPenalty()}}) share
+one method per generic, which returns a zero matrix of side \code{pen@n_coef}
+from \code{penalty_d2hessian_beta()} and a list of such zero matrices, one per
+hyperparameter, from \code{penalty_dhessian_beta_theta()}, because their Hessian
+is free of the coefficients. The separable branch returns the same zeros
+when \code{\link[=beta_quadratic]{beta_quadratic()}} is \code{TRUE} for it, and otherwise the closed forms
+given on the page of \code{\link[=penalty_d2hessian_beta]{penalty_d2hessian_beta()}}, contracted per block for a
+multivariate parent. It signals an error for a kinked parent and for a
+multivariate parent that cannot supply its fourth or mixed third response
+derivative.
 }
 \seealso{
-\code{\link[=penalty_d2hessian_beta]{penalty_d2hessian_beta()}} for the generics.
+\code{\link[=penalty_d2hessian_beta]{penalty_d2hessian_beta()}} for the generics,
+\code{\link[=penalty_dhessian_beta.penalty]{penalty_dhessian_beta.penalty()}} for the methods of the derivative of
+first order.
 }
 \keyword{internal}

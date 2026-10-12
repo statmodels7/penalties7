@@ -20,11 +20,13 @@ diagonal under the identity map and negative semidefinite always.
 }
 \description{
 \code{penalty_gradient()} returns SCAD's defining derivative carried back through
-the map, and \code{penalty_hessian()} its second derivative, which is
-\eqn{-1/(a-1)} in the tapering region and zero elsewhere.
+the map, and \code{penalty_hessian()} its second derivative carried back through
+the map. At unit curvature the second derivative is \eqn{-1/(a-1)} in the
+tapering region and zero elsewhere.
 }
 \details{
-On each coordinate, with \eqn{u = \lvert t\rvert} and \eqn{s} its sign,
+With unit curvature, on each coordinate, with \eqn{u = \lvert t\rvert} and
+\eqn{s} its sign,
 
 \deqn{\frac{\partial\rho}{\partial t} = s \cdot
   \begin{cases} \lambda & u \le \lambda \\
@@ -34,16 +36,21 @@ On each coordinate, with \eqn{u = \lvert t\rvert} and \eqn{s} its sign,
   \begin{cases} -1/(a-1) & \lambda < u \le a\lambda \\
     0 & \text{otherwise.}\end{cases}}
 
-The Hessian is \strong{negative} where it is not zero, which is the non-convexity
-the family is named for: the penalty bends the wrong way over the taper. A
-penalized objective stays convex only while the likelihood's own curvature
-exceeds \eqn{\lambda/(a-1)}, and a solver that assumes convexity has no
-guarantee here.
+With curvature \eqn{c_j} the regions end at \eqn{\lambda/c_j} and
+\eqn{a\lambda/c_j}, the first derivative is \eqn{s\lambda} up to
+\eqn{\lambda/c_j} and \eqn{s\,(a\lambda - c_j u)/(a-1)} over the taper,
+and the second derivative over the taper is \eqn{-c_j/(a-1)}.
 
-At \eqn{t = 0} the sign is zero, so the gradient returned is \code{0}: one
-element of the subdifferential \eqn{[-\lambda, \lambda]}, and the one a
-smooth method can take a step with. Selection happens through
-\code{\link[=penalty_prox]{penalty_prox()}}, not through this.
+The Hessian is \strong{negative} where it is not zero, so the penalty is concave
+over the taper. A penalized objective stays convex only while the curvature
+of the likelihood in each coordinate exceeds \eqn{1/(a-1)}
+(\eqn{c_j/(a-1)} with \code{curv}), and outside that condition a solver that
+assumes convexity has no guarantee of convergence.
+
+At \eqn{t = 0} the sign is zero, so the gradient returned is \code{0}. This is
+one element of the subdifferential \eqn{[-\lambda, \lambda]}, and the one
+with which a smooth method can take a step. Exact zeros are produced by
+\code{\link[=penalty_prox]{penalty_prox()}}, not by the gradient.
 }
 \examples{
 pen <- scad_penalty(n_coef = 3)

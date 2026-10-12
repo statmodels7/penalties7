@@ -11,111 +11,130 @@ check_penalty(pen, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
 
 \item{beta}{A numeric coefficient vector of length \code{pen@n_coef}. \code{NULL},
 the default, draws one from \code{rnorm(sd = 1.3)} rounded to two places and
-shifted by \code{0.11}, then pushes it clear of the kinks as above.
-The draw is taken from a fixed seed, so the report is the same on two runs,
-and the caller's own \code{.Random.seed} is restored on exit, so a call in the
-middle of a simulation leaves that simulation unchanged.}
+shifted by \code{0.11}, then moves it away from the kinks as above.
+The draw is taken from a fixed seed, so the report is the same on two
+runs, and the caller's own \code{.Random.seed} is restored on exit (or removed,
+if there was none), so a call in the middle of a simulation leaves that
+simulation unchanged.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
 vector carrying the same. \code{NULL}, the default, places each hyperparameter
 six tenths of the way across its own bounds, reading an infinite lower
 bound as \code{-1} and an infinite upper bound as two above the lower. That
-gives \code{lambda = 1.2} on every branch that has one, \code{alpha = 0.6} for the
-elastic net, \code{a = 3.2} for SCAD and \code{gamma = 2.2} for MCP.}
+gives \code{lambda = 1.2} for a hyperparameter bounded on
+\eqn{(0, \infty)}, \code{alpha = 0.6} for the elastic net, \code{a = 3.2} for SCAD
+and \code{gamma = 2.2} for MCP.}
 
-\item{tol}{The relative error above which a row is reported as \code{FAILED}.
-A single positive number, \code{1e-6} by default. Over the nine shipped
-branches the worst error measured is \code{2.1e-10}, four orders under it, so
-the default separates a correct penalty from one whose formula is wrong
-in its fifth digit.}
+\item{tol}{The scaled error at or above which a row is reported as
+\code{FAILED}. A single positive number, \code{1e-6} by default. A row whose error
+is not finite is also reported as \code{FAILED}.}
 
 \item{verbose}{\code{TRUE}, the default, prints the table without row names.
 The result is returned invisibly either way.}
 }
 \value{
 A data frame with one row per check and three columns: \code{check}
-(character, the row's name as tabulated above), \code{max_error} (numeric, the
-worst absolute difference divided by \code{max(1, max(abs(reference)))}), and
-\code{status} (character, \code{"OK"} or \code{"FAILED"}). Returned invisibly.
+(character, the row's name as tabulated above), \code{max_error} (numeric) and
+\code{status} (character, \code{"OK"} or \code{"FAILED"}). Returned invisibly. For the
+rows that compare with a numerical reference, \code{max_error} is the worst
+absolute difference divided by \code{max(1, max(abs(reference)))}. For the
+three-point identity it is the absolute value of the combination divided
+by \code{max(1, abs(rho(beta)))}; for the slope of the log pseudo-determinant,
+the absolute difference between the increase and the rank; for the null
+basis, the largest absolute entry of \eqn{S(\theta)N} divided by
+\code{max(1, max(abs(S)))}.
 }
 \description{
-Compares every closed form a penalty declares against a route that shares
-no code with it, and returns one row per comparison carrying the worst
-relative error and a pass or fail. The gradient and the Hessian go against
-\pkg{numDeriv} on the value; each hyperparameter block goes against
-\pkg{numDeriv} in that hyperparameter, the mixed block by Richardson on the
-analytic gradient so that no difference is ever taken of another difference;
-and a quadratic penalty has its three-point identity, its log
-pseudo-determinant and its null basis tested as well. Write a penalty of
-your own and this says whether its derivatives are right.
+Compares the derivatives that a penalty declares with numerical
+references, and returns one row per comparison carrying the worst scaled
+error and a pass or fail. The gradient is compared with a \pkg{numDeriv}
+gradient of the value, and the Hessian with a numerical Jacobian of the
+analytic gradient. Each hyperparameter gradient is compared with a
+numerical derivative of the value in that hyperparameter, each entry of
+the hyperparameter Hessian, diagonal or off-diagonal, with a numerical
+derivative of the analytic hyperparameter gradient, and each mixed block
+with a numerical Jacobian of the analytic coefficient gradient, so that no
+reference is a difference of another difference. A quadratic penalty also has its
+three-point identity, its log pseudo-determinant and its null basis tested.
+The function serves to verify the derivatives of a penalty written by the
+user.
 }
 \section{The rows}{
 Two rows are produced for every penalty, three more for each
-hyperparameter, and up to three more when \code{\link[=is_quadratic]{is_quadratic()}} is \code{TRUE}:\tabular{ll}{
+hyperparameter, one more for each pair of distinct hyperparameters, and
+two or three more when \code{\link[=is_quadratic]{is_quadratic()}} is \code{TRUE}:\tabular{ll}{
    row \tab compares \cr
    \verb{gradient vs numDeriv} \tab \code{\link[=penalty_gradient]{penalty_gradient()}} against a numerical gradient of \code{\link[=penalty_value]{penalty_value()}} \cr
    \verb{hessian vs numDeriv on the gradient} \tab \code{\link[=penalty_hessian]{penalty_hessian()}} against a numerical Jacobian of the analytic gradient, symmetrized \cr
    \verb{grad_theta[p] vs numDeriv} \tab \code{\link[=penalty_grad_theta]{penalty_grad_theta()}} against a numerical derivative of the value in hyperparameter \code{p} \cr
-   \verb{hess_theta[p_p] vs numDeriv} \tab \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} against a numerical derivative of the analytic \code{grad_theta} \cr
+   \verb{hess_theta[p_p] vs numDeriv} \tab the diagonal entry of \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} against a numerical derivative of the analytic \code{grad_theta} \cr
+   \verb{hess_theta[p_r] vs numDeriv} \tab the off-diagonal entry of \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} for hyperparameters \code{p} and \code{r}, with \code{p} before \code{r} in \code{pen@params}, against a numerical derivative in \code{r} of the analytic \code{grad_theta} of \code{p} \cr
    \verb{cross[p] vs Richardson on the gradient} \tab \code{\link[=penalty_cross]{penalty_cross()}} against a numerical Jacobian of the analytic coefficient gradient in \code{p} \cr
    \verb{quadratic three-point identity} \tab \eqn{\rho(2\beta) - 4\rho(\beta) + 3\rho(0)}, which vanishes when the value is a quadratic form with no linear term \cr
-   \verb{logpdet linear in log lambda with slope r} \tab raising \code{lambda} by a factor of \eqn{e} raises \code{\link[=penalty_logpdet]{penalty_logpdet()}} by exactly the rank \cr
-   \verb{logpdet gradient vs numDeriv} \tab the \code{grad} element of \code{penalty_logpdet()} against a numerical derivative of its \code{value}, for a quadratic penalty whose hyperparameters are not a single \code{lambda} \cr
-   \verb{null basis annihilates the matrix} \tab \eqn{PN}, where \code{N} is \code{\link[=penalty_null_basis]{penalty_null_basis()}} \cr
+   \verb{logpdet linear in log lambda with slope r} \tab raising \code{lambda} by a factor of \eqn{e} raises the value of \code{\link[=penalty_logpdet]{penalty_logpdet()}} by the rank \cr
+   \verb{logpdet gradient vs numDeriv} \tab the \code{grad} element of \code{penalty_logpdet()} against a numerical derivative of its \code{value} \cr
+   \verb{null basis annihilates the matrix} \tab \eqn{S(\theta)N}, where \eqn{S(\theta)} is \code{\link[=penalty_matrix]{penalty_matrix()}} and \eqn{N} is \code{\link[=penalty_null_basis]{penalty_null_basis()}} \cr
 }
 
 
-The last two of the log-determinant rows are alternatives: the first is
-taken when \code{lambda} is among the hyperparameters, which is the plain
-quadratic branch of one scale multiplying a constant matrix, and the second
-otherwise, which is the structured branch. The null-basis row appears only
-when the null basis has columns.
+The two log pseudo-determinant rows are alternatives, as described below.
+The null-basis row appears only when the null basis has columns. With
+\eqn{p} hyperparameters the count is therefore \eqn{2 + 3p + p(p-1)/2} for
+a penalty that is not quadratic, and two or three more for a quadratic
+one. A lasso gives 5 rows, SCAD 9, a full-rank ridge 7, a quadratic
+penalty over second differences 8, and a structured penalty over a
+\verb{3 x 3} log-Cholesky precision 37.
+}
 
-So the count is \code{2 + 3 * length(pen@params)} plus one, two or three. A
-lasso gives 5 rows, a full-rank ridge 7, a quadratic penalty over second
-differences 8, and a structured penalty over a \verb{3 x 3} log-Cholesky
-precision 22.
+\section{Which log pseudo-determinant row a quadratic branch gets}{
+The quadratic rows are produced for every branch for which
+\code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE}: the three-point identity, one of the two
+log pseudo-determinant rows, and the null-basis row when the null basis
+has columns. When \code{"lambda"} is among \code{pen@params}, the matrix is one scale
+times a constant, the log pseudo-determinant is linear in
+\eqn{\log\lambda} with slope the rank, and the row tests that identity.
+Otherwise the matrix depends on several hyperparameters, as in a
+structured or an additive penalty, and the row compares the reported
+gradient with a numerical derivative of the value. A two-component
+additive penalty whose sum has a null space therefore produces 12 rows:
+the 9 rows of its two hyperparameters, the three-point identity, the
+gradient of the log pseudo-determinant and the null basis. When the sum
+has full rank the null-basis row is absent and the count is 11.
 }
 
 \section{What is not checked}{
-The pass is over the value and its derivatives, and over the pieces a
-marginal criterion reads. It does not touch \code{\link[=penalty_prox]{penalty_prox()}},
+The check covers the value and its derivatives on the parameter scale, and
+the quantities that a marginal criterion reads. It does not test the
+\code{hess} element of \code{\link[=penalty_logpdet]{penalty_logpdet()}}, the \code{scale = "link"} option of the
+hyperparameter derivatives, \code{\link[=is_proper]{is_proper()}}, \code{\link[=penalty_prox]{penalty_prox()}},
 \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=penalty_dhessian]{penalty_dhessian()}}, \code{\link[=penalty_d2hessian]{penalty_d2hessian()}},
-\code{\link[=penalty_dcross]{penalty_dcross()}} or \code{\link[=penalty_readable]{penalty_readable()}}. It calls \code{\link[=penalty_kinks]{penalty_kinks()}} to
-place the grid but never tests the kinks themselves.
+\code{\link[=penalty_dcross]{penalty_dcross()}}, \code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}}, \code{\link[=penalty_d2hessian_beta]{penalty_d2hessian_beta()}},
+\code{\link[=penalty_dhessian_beta_theta]{penalty_dhessian_beta_theta()}}, \code{\link[=penalty_draw]{penalty_draw()}} or \code{\link[=penalty_readable]{penalty_readable()}}.
+It calls \code{\link[=penalty_kinks]{penalty_kinks()}} to place the coefficients but does not test the
+kinks themselves. Every row reads the stored rank, so a wrong rank stored
+in the object passes the check.
 }
 
-\section{Which logpdet row a quadratic branch gets}{
-The three quadratic rows run for every branch \code{\link[=is_quadratic]{is_quadratic()}} answers
-\code{TRUE} for, and the middle one comes in two shapes. Where the matrix is one
-scale times a constant, which is \code{"lambda" \%in\% pen@params}, the log
-pseudo-determinant is linear in \verb{log lambda} with slope the rank, and that
-identity is read directly. Where it moves with several hyperparameters, as
-in a structured or an additive penalty, there is no such slope and the row
-compares the reported gradient against \code{numDeriv} instead. A two-component
-additive penalty therefore produces 11 rows: the 8 its two hyperparameters
-earn, plus the three-point identity, the log pseudo-determinant's gradient
-and the null basis.
-}
-
-\section{Where the grid is placed}{
+\section{Where the coefficients are placed}{
 A penalty with a kink has no derivative there, so a numerical reference
-straddling one measures the kink and not the formula. With \code{beta} left at
-\code{NULL} the draw is nudged in steps of \code{0.033}, up to fifty times, until
-every coordinate of \eqn{D\beta} sits at least \code{0.05} from every kink the
-object declares. At the default coefficient count the first draw already
-clears the SCAD and MCP kink sets and no step is taken.
+that straddles one measures the kink and not the formula. With \code{beta} left
+at \code{NULL}, \code{0.033} is added to every coefficient, up to fifty times, until
+every coordinate of \eqn{D\beta} lies more than \code{0.05} from every kink that
+\code{\link[=penalty_kinks]{penalty_kinks()}} returns. A draw that already clears the kinks is used
+unchanged, and after fifty steps the last draw is used whether or not it
+clears them.
 }
 
 \section{Errors}{
 
-\pkg{numDeriv} is in \code{Suggests} and every row needs it, so the function
-stops when it is not installed. A \code{theta} outside the penalty's open bounds
-or missing a hyperparameter is rejected before any check runs.
+\pkg{numDeriv} is in \code{Suggests} and the derivative rows need it, so the
+function signals an error when it is not installed. A \code{theta} outside the
+penalty's open bounds or missing a hyperparameter is rejected before any
+check runs.
 }
 
 \examples{
-# Second differences over five coefficients: rank 4, one null direction.
+# First differences over five coefficients: rank 4, one null direction.
 pen <- quadratic_penalty(crossprod(diff(diag(5))))
 res <- check_penalty(pen)
 all(res$status == "OK")
@@ -123,9 +142,9 @@ all(res$status == "OK")
 # A separable penalty has fewer rows: no matrix, so no quadratic checks.
 nrow(check_penalty(lasso_penalty(n_coef = 4), verbose = FALSE))
 
-# The validator earns its keep on a penalty that is wrong. Register the
-# broken method on a subclass: registering on the real class would mutate
-# the generic for the rest of the session.
+# A penalty with a wrong gradient fails the rows that read the gradient.
+# The broken method is registered on a subclass, because registering it on
+# the real class would change the generic for the rest of the session.
 Broken <- S7::new_class("Broken", parent = QuadraticPenalty)
 bad <- do.call(Broken, S7::props(quadratic_penalty(diag(3))))
 S7::method(penalty_gradient, Broken) <- function(pen, beta, theta, ...) {
@@ -137,8 +156,8 @@ failed[failed$status != "OK", c("check", "max_error")]
 }
 \seealso{
 \code{\link[=penalty_value]{penalty_value()}} and \code{\link[=penalty_gradient]{penalty_gradient()}} for the quantities
-checked, \code{\link[=penalty_kinks]{penalty_kinks()}} for the set the grid avoids,
-\code{numericals7::check_abs_smoother()} for the same service on a smoother,
+checked, \code{\link[=penalty_kinks]{penalty_kinks()}} for the set that the coefficients avoid,
+\code{numericals7::check_abs_smoother()} for the same check on a smoother,
 \code{\link[linkfunctions7:check_link]{linkfunctions7::check_link()}} and \code{\link[distributions7:check_distrib]{distributions7::check_distrib()}} for
-the siblings this follows.
+the corresponding checks of a link and of a distribution.
 }

@@ -16,29 +16,28 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_dhessian()} a list of one matrix per component, named by
-\code{pen@params}.
+\code{penalty_dhessian()} a list of one base matrix per component, named
+by \code{pen@params}.
 \code{penalty_d2hessian()} a list of zero matrices, one per unordered pair.
 \code{penalty_dcross()} a list of zero vectors, one per unordered pair.
 \code{beta_quadratic()} the single logical \code{TRUE}.
 }
 \description{
-One page for the branch's answers to the four generics a marginal criterion
-asks beyond the second order. \eqn{S = \sum_k \lambda_k P_k} is linear in
-the smoothing parameters and free of the coefficients, so
-\code{penalty_dhessian()} returns the components themselves,
-\code{penalty_d2hessian()} and \code{penalty_dcross()} return zeros, and
-\code{beta_quadratic()} returns \code{TRUE}.
+The methods of the additive branch for the four generics that a marginal
+criterion requires beyond the second order. With \eqn{S_k = D'P_kD}, the
+Hessian \eqn{S = \sum_k \lambda_k S_k} is linear in the smoothing
+parameters and free of the coefficients, so \code{penalty_dhessian()} returns
+the components \eqn{S_k} themselves, \code{penalty_d2hessian()} and
+\code{penalty_dcross()} return zeros, and \code{beta_quadratic()} returns \code{TRUE}.
 }
 \details{
-Every entry is exact and none is computed at call time: the components were
-fixed at construction, already carried through the map, so the first
-derivative is a lookup and the higher ones are zeros of the right shape.
+Every entry is exact, and none is computed at call time. The components
+were fixed at construction and are stored already carried through the map,
+so the first derivative is a lookup of \code{pen@mats} and the higher ones are
+zeros of the right shape. Under the identity map \eqn{S_k = P_k}.
 
-This is the one branch whose marginal derivatives are reachable while
-\code{\link[=is_quadratic]{is_quadratic()}} answers \code{FALSE} for it. A consumer routing on that
-predicate rather than on these methods will not find them; see
-\code{\link[=additive_penalty]{additive_penalty()}}.
+\code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE} for this branch, as it does for the
+quadratic and structured branches.
 }
 \examples{
 add <- additive_penalty(list(crossprod(diff(diag(4))), diag(4)))
@@ -57,7 +56,9 @@ max(abs(unlist(penalty_d2hessian(add, b, th))))
 }
 \seealso{
 \code{\link[=penalty_dhessian]{penalty_dhessian()}} and its siblings for the generics,
-\code{\link[=additive_penalty]{additive_penalty()}} for the branch and for what \code{is_quadratic()} costs
-it.
+\code{\link[=additive_penalty]{additive_penalty()}} for the branch,
+\code{\link[=penalty_dhessian_beta.AdditivePenalty]{penalty_dhessian_beta.AdditivePenalty()}} and
+\code{\link[=penalty_d2hessian_beta.AdditivePenalty]{penalty_d2hessian_beta.AdditivePenalty()}} for the derivatives of the
+Hessian in the coefficients.
 }
 \keyword{internal}

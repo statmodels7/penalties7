@@ -12,8 +12,9 @@ dp_parent_or_reject(pen, what, fun, a, theta)
 \arguments{
 \item{A}{A numeric array with \eqn{n} as its last dimension.}
 
-\item{dirs}{A list of \eqn{n \times p} matrices, one per contracted index,
-the last index first contracted against the last direction.}
+\item{dirs}{A list of \eqn{n \times p} matrices, one per contracted index;
+the last remaining index of the array is contracted first, against the
+last direction.}
 
 \item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
@@ -21,13 +22,13 @@ the last index first contracted against the last direction.}
 
 \item{fun}{The \pkg{distributions7} generic to call.}
 
-\item{a}{The parent's argument, from \code{\link[=dp_arg]{dp_arg()}}.}
+\item{a}{The argument of the parent, from \code{\link[=dp_arg]{dp_arg()}}.}
 
-\item{theta}{A named list of the parent's free parameters.}
+\item{theta}{A named list of the free parameters of the parent.}
 }
 \value{
 \code{dp_contract()} a \eqn{p \times p \times n} numeric array.
-\code{dp_parent_or_reject()} the parent's answer, or an error.
+\code{dp_parent_or_reject()} the value returned by \code{fun}, or an error.
 }
 \description{
 \code{dp_contract()} contracts the trailing response indices of a per-block
@@ -36,14 +37,15 @@ tensor against one direction each: given an array of dimension
 rows and \eqn{p} columns, it returns the \eqn{p \times p \times n} array
 whose slice \eqn{i} is
 \eqn{\sum_{c_1 \dots c_m} A_{ab c_1 \dots c_m i}\,v_{1,ic_1}\cdots
-v_{m,ic_m}}. That is the movement of a block's response Hessian along the
-block's coordinates of the directions, which \code{\link[=dp_blockdiag]{dp_blockdiag()}} then places
-on the diagonal.
+v_{m,ic_m}}. That is the derivative of the response Hessian of block
+\eqn{i} along the coordinates of the block in the directions, which
+\code{\link[=dp_blockdiag]{dp_blockdiag()}} then places on the diagonal. Arrays of four and five
+dimensions are handled, that is one or two directions.
 
-\code{dp_parent_or_reject()} asks the parent for a response tensor and, where
-the parent does not supply one, rejects with the penalty named, so that a
-criterion is left without an exact gradient rather than given one missing
-a piece.
+\code{dp_parent_or_reject()} calls the generic \code{fun} of the parent. If that call
+signals an error of any kind, it signals in its place an error that names
+the penalty and the derivative, so that a criterion receives either the
+complete tensor or an error.
 }
 \examples{
 A <- array(1, c(2, 2, 2, 3))

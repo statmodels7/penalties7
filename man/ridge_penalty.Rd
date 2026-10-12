@@ -34,24 +34,26 @@ whole number, \code{1L} by default.}
 \eqn{(0, \infty)}, and no kink.
 }
 \description{
-The four penalties a modeling layer names directly: \code{ridge_penalty()},
-\code{lasso_penalty()}, \code{elasticnet_penalty()} and \code{heavy_penalty()}. Each is a
-particular prior centered at zero, and each is written on the chart whose
-hyperparameter \strong{measures the shrinkage}, so that a larger value shrinks
-harder in all four.
+The four penalties that a modeling layer names directly:
+\code{ridge_penalty()}, \code{lasso_penalty()}, \code{elasticnet_penalty()} and
+\code{heavy_penalty()}. Each is a prior centered at zero. In the first three the
+hyperparameter \code{lambda} is a precision or a rate, and a larger value
+shrinks harder. In \code{heavy_penalty()} the hyperparameter \code{sigma} is a scale,
+and a larger value shrinks less.
 }
-\section{Ridge, which is on the other branch}{
-\code{ridge_penalty()} is the Gaussian prior at zero, and that prior written by
-its \strong{precision} is exactly \code{\link[=quadratic_penalty]{quadratic_penalty()}} at the identity matrix,
-the same value to the last bit. It is therefore built there, and its
-hyperparameter is the \code{lambda} that branch already carries: one name for one
-number. It is the only one of the four that is not a \code{DistribPenalty}, and
-\code{\link[=is_quadratic]{is_quadratic()}} answers \code{TRUE} for it alone.
+\section{Ridge}{
+\code{ridge_penalty()} is the Gaussian prior at zero written by its
+\strong{precision}, which is \code{\link[=quadratic_penalty]{quadratic_penalty()}} at the identity matrix: its
+value agrees with that of the separable Gaussian prior at
+\eqn{\sigma = \lambda^{-1/2}} up to rounding. It is therefore built on the
+quadratic branch, and its hyperparameter is the \code{lambda} of that branch. It
+is the only one of the four that is not a \code{DistribPenalty}, and the only
+one for which \code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE}.
 
-The separable twin still exists and is one line,
+The separable form is
 \code{distrib_penalty(fixed(gaussian1_distrib(), mu = 0), n_coef = q)}, whose
-hyperparameter is the standard deviation \eqn{\sigma} instead. Reach for it
-when a standard deviation is the quantity you want reported.
+hyperparameter is the standard deviation \eqn{\sigma} instead. It is the
+form to use when a standard deviation is the quantity to be reported.
 }
 
 \section{Lasso}{
@@ -59,11 +61,14 @@ The Laplace in location and rate (\code{laplace2}) held at zero, so the free
 hyperparameter is the rate \eqn{\lambda} and
 
 \deqn{\rho(\beta;\lambda) = \lambda\lVert D\beta\rVert_1
-  - q\log(\lambda/2),}
+  - m\log(\lambda/2),}
 
-with \eqn{q} the number of values the penalty is read at. The kink at zero
-is declared, so \code{\link[=penalty_kinks]{penalty_kinks()}} reports it and \code{\link[=penalty_prox]{penalty_prox()}} gives the
-soft threshold.
+where \eqn{m} is the number of values at which the penalty is read (the
+number of rows of \eqn{D}, or the number of coefficients without a map).
+Under a square nonsingular map the value also carries
+\eqn{-\log\lvert\det D\rvert}, as described in \code{\link[=distrib_penalty]{distrib_penalty()}}. The
+kink at zero is declared, so \code{\link[=penalty_kinks]{penalty_kinks()}} reports it and
+\code{\link[=penalty_prox]{penalty_prox()}} gives the soft threshold.
 }
 
 \section{Elastic net}{
@@ -73,29 +78,30 @@ rate \eqn{\lambda} and the mixing weight \eqn{\alpha} on \eqn{(0, 1)}:
 
 \deqn{\rho(\beta;\lambda,\alpha) = \lambda\left\{
   \alpha\lVert D\beta\rVert_1
-  + (1-\alpha)\lVert D\beta\rVert_2^2/2\right\} + c(\lambda, \alpha).}
+  + (1-\alpha)\lVert D\beta\rVert_2^2/2\right\} + m\,c(\lambda, \alpha),}
 
-The constant depends on \strong{both} hyperparameters, which is why a marginal
-criterion can estimate them: measured at
-\eqn{(\lambda, \alpha)} of \eqn{(1, 0.5)}, \eqn{(2, 0.5)} and
-\eqn{(1, 0.9)}, the per-coordinate constant is \code{0.7805}, \code{0.2711} and
-\code{0.7001}. A penalty written as a formula, with no constant, would have
-neither hyperparameter identified.
+where \eqn{m} is as above and
+\eqn{c(\lambda,\alpha) = \log\int \exp[-\lambda\{\alpha\lvert x\rvert +
+(1-\alpha)x^2/2\}]\,dx} is the constant of one coordinate. The same
+Jacobian term is added under a square nonsingular map. The constant
+depends on \strong{both} hyperparameters, and this is what allows a marginal
+criterion to estimate them; without it neither hyperparameter would be
+identified.
 }
 
-\section{The heavy-tailed prior}{
-The Student t at zero, with a free scale \eqn{\sigma} and a free
-\eqn{\nu}. Its \eqn{\nu} is estimable exactly because the normalizing
-constant is kept, and estimating it is the point: a small \eqn{\nu} shrinks
-small coefficients like a Gaussian prior and leaves large ones nearly alone,
-which a Gaussian cannot do at any scale. Alone among the four it declares no
-kink, so it produces no exact zeros.
+\section{Heavy-tailed prior}{
+The Student t at zero, with a free scale \eqn{\sigma} and free degrees of
+freedom \eqn{\nu}. The normalizing constant is kept, which makes \eqn{\nu}
+estimable by a marginal criterion. With a small \eqn{\nu} the prior
+shrinks small coefficients as a Gaussian prior does and leaves large ones
+nearly unchanged, which a Gaussian prior does not do at any scale. Like the
+ridge, it has no kink, so it does not produce exact zeros.
 }
 
 \examples{
 b <- c(1, -0.5, 0.3)
 
-# Ridge is on the quadratic branch, so its lambda is a precision.
+# The ridge is on the quadratic branch, and its lambda is a precision.
 r <- ridge_penalty(n_coef = 3)
 class(r)[1]
 is_quadratic(r)
@@ -106,13 +112,13 @@ l <- lasso_penalty(n_coef = 3)
 penalty_value(l, b, list(lambda = 0.5))
 0.5 * sum(abs(b)) - 3 * log(0.5 / 2)
 
-# Only the lasso and the elastic net have a kink, so only they can set a
-# coefficient exactly to zero.
+# Of these four, only the lasso and the elastic net have a kink, so only
+# they can set a coefficient exactly to zero.
 penalty_kinks(l, list(lambda = 1))
 penalty_kinks(heavy_penalty(n_coef = 3), list(sigma = 1, nu = 4))
 
-# The heavy-tailed prior shrinks a large coefficient far less than a
-# ridge at a comparable scale, and the small ones about as much.
+# The heavy-tailed prior shrinks the large coefficient far less than a
+# unit ridge, and the small ones somewhat more.
 penalty_prox(heavy_penalty(n_coef = 3), c(4, 0.3, -1), 1,
              list(sigma = 1, nu = 3))
 penalty_prox(r, c(4, 0.3, -1), 1, list(lambda = 1))
@@ -130,8 +136,9 @@ the elastic net. \emph{Journal of the Royal Statistical Society, Series B}
 \strong{67}, 301-320.
 }
 \seealso{
-\code{\link[=distrib_penalty]{distrib_penalty()}} for the construction behind three of them,
-\code{\link[=quadratic_penalty]{quadratic_penalty()}} for the one behind ridge,
+\code{\link[=distrib_penalty]{distrib_penalty()}} for the construction of the lasso, the
+elastic net and the heavy-tailed prior,
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} for the construction of the ridge,
 \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}} for the non-convex alternatives,
-\code{\link[=penalty_prox]{penalty_prox()}} for the operators these have.
+\code{\link[=penalty_prox]{penalty_prox()}} for their proximal operators.
 }

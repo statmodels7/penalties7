@@ -16,12 +16,12 @@ penalty(
 }
 \arguments{
 \item{penalty_name}{A single string naming the penalty, used by \code{print()}
-and by consumers that report which penalty a block carries.}
+and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
-\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own storage;
-a diagonal map is what standardization comes to and is recognized by its
-class.}
+\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
+storage, so a diagonal map, which is what standardization produces, is
+recognized as diagonal by its class.}
 
 \item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
 
@@ -41,67 +41,115 @@ where the value is differentiable in it.}
 }
 \value{
 An S7 object of class \code{penalty} carrying the seven properties
-above. The class is abstract: an object of exactly this class answers
-\code{print()}, and every generic that computes something rejects it.
+above. The class is abstract: an object of exactly this class can be
+printed, it receives the defaults listed under Methods, and
+\code{\link[=penalty_value]{penalty_value()}} and the other generics without a base method signal an
+error for it.
 }
 \description{
 The abstract parent of every penalty in this package. A penalty is a scalar
 function of the coefficients, written \eqn{\rho(D\beta; \theta)}: a linear
 map \eqn{D} that selects or combines coefficients, a scalar function
 \eqn{\rho} applied to what the map returns, and hyperparameters \eqn{\theta}
-that scale or shape it. The class holds no mathematics of its own; it
-records the pieces every branch needs, so that a consumer can read a
-penalty's size, its hyperparameter names and their bounds without knowing
-which branch it holds.
+that scale or shape it. The class holds no mathematics of its own. It
+records the pieces that every branch needs, so that a penalty's size, its
+hyperparameter names and their bounds can be read without knowing which
+branch it is.
 }
-\section{What the properties mean}{
+\section{The properties}{
 With \eqn{q} coefficients and a map of \eqn{m} rows, \code{beta} is a vector of
 length \eqn{q}, \eqn{D\beta} has length \eqn{m}, and every derivative in the
-coefficients comes back at length \eqn{q} or shape \eqn{q \times q}. A
+coefficients is returned with length \eqn{q} or shape \eqn{q \times q}. A
 \code{NULL} map is the identity, and then \eqn{m = q} and no arithmetic is done.
 
 Each hyperparameter carries a \pkg{linkfunctions7} link in \code{link_params},
-mapping its own open interval onto the whole real line. A penalty is
-therefore optimizable on the unconstrained scale: a caller works in
-\eqn{\eta = g(\theta)}, never has to police the bounds, and
-\code{\link[=penalty_grad_theta]{penalty_grad_theta()}} and its second-order siblings answer on either scale
-through their \code{scale} argument.
+which maps its own open interval onto the whole real line. A penalty can
+therefore be optimized on the unconstrained scale: a caller works in
+\eqn{\eta = g(\theta)}, without bound constraints, and
+\code{\link[=penalty_grad_theta]{penalty_grad_theta()}}, \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} and \code{\link[=penalty_cross]{penalty_cross()}}
+return either scale through their \code{scale} argument.
 
-\code{params_smooth} records which hyperparameters the value is differentiable
-in. It is \code{TRUE} for every hyperparameter of every shipped branch; the slot
-exists so that a branch with a non-differentiable hyperparameter can say so,
-as \pkg{distributions7} does for a Laplace location.
+\code{params_smooth} records in which hyperparameters the value is
+differentiable. It is \code{TRUE} for every hyperparameter of the quadratic,
+structured, additive, SCAD and MCP branches. A separable penalty copies the
+entries of its parent distribution, so a penalty built by
+\code{\link[=distrib_penalty]{distrib_penalty()}} on a Laplace distribution with a free location has
+\code{FALSE} for that location.
 }
 
-\section{What a subclass owes}{
-Construct this class directly only to write a branch of your own. The
-generics registered on \code{penalty} itself are the refusals and the defaults:
-\code{\link[=penalty_value]{penalty_value()}} has no method here at all and a bare \code{penalty} object
-rejects it, while \code{\link[=is_quadratic]{is_quadratic()}}, \code{\link[=is_proper]{is_proper()}}, \code{\link[=penalty_matrix]{penalty_matrix()}} and
-the three quantities beside it answer \code{FALSE} or reject. A subclass supplies
-the value, the gradient, the Hessian, the three hyperparameter blocks and
-\code{\link[=penalty_kinks]{penalty_kinks()}}, and \code{\link[=check_penalty]{check_penalty()}} then says whether they agree with
-each other.
+\section{Writing a branch}{
+This class is constructed directly only to write a new branch. A subclass
+supplies \code{\link[=penalty_value]{penalty_value()}}, \code{\link[=penalty_gradient]{penalty_gradient()}}, \code{\link[=penalty_hessian]{penalty_hessian()}},
+\code{\link[=penalty_grad_theta]{penalty_grad_theta()}}, \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}, \code{\link[=penalty_cross]{penalty_cross()}},
+\code{\link[=penalty_kinks]{penalty_kinks()}} and \code{\link[=is_proper]{is_proper()}}, which have no method on the base
+class, and \code{\link[=check_penalty]{check_penalty()}} then compares the derivatives with numerical
+derivatives of the value. The methods registered on the base class, listed
+below, supply defaults for everything else.
 
-The four branches that ship are \code{\link[=quadratic_penalty]{quadratic_penalty()}},
-\code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=scad_penalty]{scad_penalty()}} with \code{\link[=mcp_penalty]{mcp_penalty()}}, and
-\code{\link[=additive_penalty]{additive_penalty()}}, with \code{\link[=structured_penalty]{structured_penalty()}} a fifth built on a
-\pkg{parameters7} matrix parameter.
+The shipped branches are \code{\link[=quadratic_penalty]{quadratic_penalty()}} (with \code{\link[=ridge_penalty]{ridge_penalty()}}),
+\code{\link[=distrib_penalty]{distrib_penalty()}} (with \code{\link[=lasso_penalty]{lasso_penalty()}} and \code{\link[=elasticnet_penalty]{elasticnet_penalty()}}),
+\code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}}, \code{\link[=additive_penalty]{additive_penalty()}} and
+\code{\link[=structured_penalty]{structured_penalty()}}, the last built on a \pkg{parameters7} matrix
+parameter.
+}
+
+\section{Methods}{
+
+The methods registered on \code{penalty} itself are inherited by every branch
+that does not register its own.
+
+Predicates and readable quantities:
+\itemize{
+\item \code{\link[=is_quadratic.penalty]{is_quadratic()}} returns \code{FALSE}.
+\item \code{\link[=penalty_readable.penalty]{penalty_readable()}} returns \code{NULL}.
+\item \code{\link[=beta_quadratic.penalty]{beta_quadratic()}} returns \code{FALSE}.
+}
+
+Quantities of a quadratic penalty, which signal an error:
+\itemize{
+\item \code{\link[=penalty_matrix.penalty]{penalty_matrix()}},
+\code{\link[=penalty_rank.penalty]{penalty_rank()}},
+\code{\link[=penalty_null_basis.penalty]{penalty_null_basis()}} and
+\code{\link[=penalty_logpdet.penalty]{penalty_logpdet()}}.
+}
+
+Derivatives for a marginal criterion, which signal an error:
+\itemize{
+\item \code{\link[=penalty_dhessian.penalty]{penalty_dhessian()}},
+\code{\link[=penalty_d2hessian.penalty]{penalty_d2hessian()}} and
+\code{\link[=penalty_dcross.penalty]{penalty_dcross()}};
+\item \code{\link[=penalty_dhessian_beta.penalty]{penalty_dhessian_beta()}};
+\item \code{\link[=penalty_d2hessian_beta.penalty]{penalty_d2hessian_beta()}} and
+\code{\link[=penalty_dhessian_beta_theta.penalty]{penalty_dhessian_beta_theta()}}.
+}
+
+Proximal operator:
+\itemize{
+\item \code{\link[=penalty_prox.penalty]{penalty_prox()}} signals an error.
+\item \code{\link[=penalty_prox_spec.penalty]{penalty_prox_spec()}} returns \code{NULL}.
+}
+
+Draws and printing:
+\itemize{
+\item \code{\link[=penalty_draw.penalty]{penalty_draw()}} draws from a quadratic penalty
+read as a Gaussian prior and returns \code{NA} otherwise.
+\item \code{\link[=print.penalty]{print()}} writes one line describing the penalty.
+}
 }
 
 \examples{
-# Every branch inherits from this class, so a consumer can test for it.
+# Every branch inherits from this class.
 pen <- quadratic_penalty(crossprod(diff(diag(4))), map = NULL)
 S7::S7_inherits(pen, penalty)
 
-# The properties a consumer reads without knowing the branch.
+# The properties that can be read without knowing the branch.
 pen@penalty_name
 pen@n_coef
 pen@params
 pen@params_bounds
 
-# A second-difference penalty over four coefficients, restricted to the
-# first three by a map: three coefficients in, two rows out.
+# A first-difference map over three coefficients: three coefficients in,
+# two rows out.
 D <- diff(diag(3))
 mapped <- quadratic_penalty(diag(2), map = D)
 mapped
@@ -109,7 +157,8 @@ mapped
 }
 \seealso{
 \code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=scad_penalty]{scad_penalty()}},
-\code{\link[=additive_penalty]{additive_penalty()}} and \code{\link[=structured_penalty]{structured_penalty()}} for the branches;
+\code{\link[=mcp_penalty]{mcp_penalty()}}, \code{\link[=additive_penalty]{additive_penalty()}} and \code{\link[=structured_penalty]{structured_penalty()}} for the
+branches;
 \code{\link[=penalty_value]{penalty_value()}} and \code{\link[=penalty_gradient]{penalty_gradient()}} for what a branch supplies;
 \code{\link[=check_penalty]{check_penalty()}} to verify one.
 }

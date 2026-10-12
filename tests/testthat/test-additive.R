@@ -114,7 +114,7 @@ test_that("a map is carried into the components, and inputs are validated", {
   expect_error(additive_penalty(list()), "non-empty")
   expect_error(additive_penalty(list(diag(3), diag(4))), "same dimension")
   expect_error(additive_penalty(list(matrix(c(1, 2, 3, 4), 2))), "symmetric")
-  expect_error(additive_penalty(list(-diag(3))), "negative definite")
+  expect_error(additive_penalty(list(-diag(3))), "negative semidefinite")
 })
 
 test_that("a single component reproduces the quadratic penalty", {
@@ -170,10 +170,10 @@ test_that("the additive branch is quadratic and answers as one", {
     expect_equal(lp$grad[[p]], ref, tolerance = 1e-7)
   }
 
-  # check_penalty() runs the three quadratic rows on the branch now, and they
-  # pass: 8 rows before, 11 after
+  # check_penalty() runs the three quadratic rows on the branch, and they
+  # pass: 9 rows for the two hyperparameters and 3 quadratic ones
   res <- check_penalty(pen, theta = th, verbose = FALSE)
-  expect_identical(nrow(res), 11L)
+  expect_identical(nrow(res), 12L)
   expect_true(all(res$status == "OK"),
               info = paste(res$check[res$status != "OK"], collapse = ", "))
   expect_true(all(c("quadratic three-point identity",

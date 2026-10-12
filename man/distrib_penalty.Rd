@@ -9,25 +9,32 @@ distrib_penalty(d, map = NULL, n_coef = NULL, kinks = NULL)
 \arguments{
 \item{d}{A continuous \pkg{distributions7} object, univariate or
 multivariate; typically a \code{\link[distributions7:fixed]{distributions7::fixed()}} wrapper holding the
-location at zero. A discrete or otherwise non-continuous object is
-rejected, naming its \code{dimension}.}
+location at zero. A univariate object must inherit from
+\link[distributions7:continuous_distrib]{distributions7::continuous_distrib}; otherwise the constructor signals
+an error that names the distribution. A multivariate object is rejected
+in the same way when it is, or wraps, the \pkg{distributions7}
+multinomial; a multivariate family written outside \pkg{distributions7}
+is not checked. An object whose \code{dimension} is neither \code{"univariate"}
+nor \code{"multivariate"} is rejected.}
 
 \item{map}{The matrix \eqn{D}, with one column per coefficient, or \code{NULL}
-(the default) for the identity. A \pkg{Matrix} object keeps its own
-storage, a diagonal map being what standardization is.}
+(the default) for the identity. A \pkg{Matrix} object keeps its storage,
+so a diagonal or sparse map is not densified, and a square map whose
+off-diagonal entries are all zero is stored as a \code{\link[Matrix:Diagonal]{Matrix::Diagonal()}}.}
 
-\item{n_coef}{The number of coefficients. Required when \code{map} is \code{NULL} and
-ignored otherwise, \code{ncol(map)} being the count then.}
+\item{n_coef}{The number of coefficients. It is required when \code{map} is
+\code{NULL} and ignored otherwise, the count being \code{ncol(map)}.}
 
 \item{kinks}{The points where the parent's log-density is not
-differentiable in its argument. \code{NULL}, the default, derives them with
-\code{\link[=distrib_kinks]{distrib_kinks()}}; pass a numeric vector to say so directly, or
-\code{numeric(0)} to declare there are none. A multivariate parent is given
-\code{numeric(0)} without asking, a kink being a point of a scalar argument.}
+differentiable in its argument. With \code{NULL}, the default, they are
+derived by \code{\link[=distrib_kinks]{distrib_kinks()}} for a univariate parent and set to
+\code{numeric(0)} for a multivariate one, a kink being a point of a scalar
+argument. A numeric vector is used as given, and \code{numeric(0)} declares
+that there are none.}
 }
 \value{
-A \code{\link[=DistribPenalty]{DistribPenalty()}} object whose hyperparameters, bounds and links
-are the parent distribution's.
+A \code{\link[=DistribPenalty]{DistribPenalty()}} object whose hyperparameters, bounds, links
+and \code{params_smooth} are those of the parent distribution.
 }
 \description{
 Builds the penalty \eqn{\rho(D\beta;\theta) = -\sum_i \log f(b_i;\theta)},
@@ -37,10 +44,10 @@ coordinate, which is the separable penalty; a \eqn{p}-variate parent gives
 blocks of \eqn{p}, a prior under which the coordinates of one block depend
 on each other while the blocks stay independent.
 }
-\section{The hyperparameters are the distribution's}{
-\code{params}, \code{params_bounds} and \code{link_params} are read off the distribution
-rather than restated, and every derivative is the distribution's own,
-reassembled through the map:
+\section{Hyperparameters and derivatives}{
+The properties \code{params}, \code{params_bounds}, \code{link_params} and
+\code{params_smooth} are copied from the distribution, and every derivative is
+the distribution's own, carried through the map:
 
 \deqn{\frac{\partial\rho}{\partial\beta} = -D'\ell^{(y)}, \qquad
   \frac{\partial^2\rho}{\partial\beta^2}
@@ -48,47 +55,64 @@ reassembled through the map:
   \frac{\partial^2\rho}{\partial\beta\,\partial\theta_k}
     = -D'\ell^{(y\theta_k)},}
 
-with the middle matrix block diagonal instead of diagonal when the parent is
-multivariate. The hyperparameter blocks are the parent's score and Hessian
-summed over the blocks, and the mixed block is
-\code{\link[distributions7:distrib_cross_y]{distributions7::distrib_cross_y()}}, which exists for this.
+where the middle matrix is block diagonal instead of diagonal when the
+parent is multivariate. The hyperparameter derivatives are the parent's
+score and Hessian summed over the blocks, and the mixed derivative comes
+from \code{\link[distributions7:distrib_cross_y]{distributions7::distrib_cross_y()}}.
 }
 
-\section{The constant is kept}{
-The normalizing constant comes with the density and is not dropped, so the
-value is exactly the negative log prior density. A free scale or a free
-\eqn{\nu} is then estimable: with the constant dropped, a prior scale could
-be sent to infinity for nothing.
+\section{Normalizing constant and Jacobian}{
+The normalizing constant of the density is kept, so the value is the
+negative log prior density. This makes a free scale or a free \eqn{\nu}
+estimable by a marginal criterion. With the constant dropped, the value of
+a Gaussian prior would decrease toward zero as its scale grows, and a
+criterion would send the scale to infinity.
 
-Under a diagonal map, which is what standardization builds, the value also
-carries the Jacobian of \eqn{\beta \mapsto D\beta}: it is
-\eqn{-\sum_i \log f(b_i;\theta) - \sum_j \log\lvert d_j\rvert}, the
-negative log-density of \eqn{\beta} rather than of \eqn{D\beta}. The term
-is constant in \eqn{\beta} and in \eqn{\theta}, so no derivative moves;
-it is what makes a marginal criterion invariant to the units of a
-covariate. Under any other map the value is the density of \eqn{D\beta}.
+Under a square nonsingular map the value also carries the Jacobian of
+\eqn{\beta \mapsto D\beta}: it is
+\eqn{-\sum_i \log f(b_i;\theta) - \log\lvert\det D\rvert}, the negative
+log-density of \eqn{\beta} instead of that of \eqn{D\beta}. Under a
+diagonal map, which is the map that standardization builds, the term is
+\eqn{\sum_j \log\lvert d_j\rvert}. The term is constant in \eqn{\beta} and
+in \eqn{\theta}, so it changes no derivative, and it makes a marginal
+criterion invariant to the units of a covariate. The determinant is
+computed once, when the penalty is built, and stored in the \code{log_jacobian}
+property; for a diagonal map it is recomputed from the entries each time
+the value is computed.
+Under a map that is not square, or is singular,
+\eqn{\exp(-\rho)} does not integrate to one over \eqn{\beta},
+\code{\link[=is_proper]{is_proper()}} returns \code{FALSE}, and the value is
+\eqn{-\sum_i \log f(b_i;\theta)} with no further constant.
+
+A square base matrix or \pkg{Matrix} object whose off-diagonal entries are
+all exactly zero is stored as a \code{\link[Matrix:Diagonal]{Matrix::Diagonal()}} map. The proximal
+operator, the draws and the Jacobian recognize a diagonal map by its class,
+so this conversion makes their result depend on the entries of the map and
+not on the class in which it was supplied.
 }
 
 \section{A multivariate parent}{
-Centering is the caller's, typically through \code{\link[distributions7:fixed]{distributions7::fixed()}} at a
-zero mean, and the matrix parameter carries the dependence within a block.
-The number of values the penalty is read at must divide into whole blocks,
-and the constructor rejects a count that does not, naming both numbers.
+The caller centers the parent, typically through
+\code{\link[distributions7:fixed]{distributions7::fixed()}} at a zero mean, and the matrix parameter carries
+the dependence within a block. The number of values at which the penalty
+is read must divide into whole blocks; otherwise the constructor signals an
+error that names the block width and the count.
 
-A blockwise penalty has \strong{no proximal operator}: that operator acts one
-coordinate at a time and the coordinates of a block do not separate.
-\code{\link[=has_prox]{has_prox()}} answers \code{FALSE} and \code{\link[=penalty_prox]{penalty_prox()}} rejects.
+A blockwise penalty has \strong{no proximal operator}, because that operator
+acts one coordinate at a time and the coordinates of a block do not
+separate. \code{\link[=has_prox]{has_prox()}} returns \code{FALSE} and \code{\link[=penalty_prox]{penalty_prox()}} signals an
+error.
 }
 
 \examples{
-# A Gaussian prior at zero: the separable twin of the ridge, written by
-# its standard deviation rather than by a precision.
+# A Gaussian prior at zero: the separable form of the ridge, written by
+# its standard deviation instead of a precision.
 d <- distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0)
 pen <- distrib_penalty(d, n_coef = 3)
 pen@params
 penalty_value(pen, c(1, 0, -1), list(sigma = 2))
 
-# Which is exactly the negative log-density of that prior.
+# The same number from stats::dnorm().
 -sum(stats::dnorm(c(1, 0, -1), sd = 2, log = TRUE))
 
 # A correlated prior over two coefficients per block, three blocks. The
@@ -101,11 +125,19 @@ pen2@params
 penalty_value(pen2, c(1, 0, -1, 0.5, 0.2, -0.3),
               list(sigma_log_L1 = 0, sigma_log_L2 = 0, sigma_L2.1 = 0.4))
 
-# And it has no proximal operator, the coordinates of a block being tied.
+# The blockwise penalty has no proximal operator.
 has_prox(pen2)
 
 # A count that does not divide into blocks is rejected.
 try(distrib_penalty(mv, n_coef = 5))
+
+# A square nonsingular map adds -log|det D| to the value, and a diagonal
+# base matrix is stored as a Matrix::Diagonal.
+D <- matrix(c(2, 1, 0, 3), 2)
+pen3 <- distrib_penalty(d, map = D)
+penalty_value(pen3, c(0.4, -0.7), list(sigma = 1))
+-sum(stats::dnorm(D \%*\% c(0.4, -0.7), log = TRUE)) - log(abs(det(D)))
+methods::is(distrib_penalty(d, map = diag(c(2, 3)))@map, "diagonalMatrix")
 
 }
 \seealso{

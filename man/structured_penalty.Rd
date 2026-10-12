@@ -12,10 +12,10 @@ precision. Pass \code{parameters7::inverse_of(s)} to put \code{s} on the covaria
 side instead.
 
 It may be rank deficient, giving an improper prior: \code{\link[=is_proper]{is_proper()}} then
-answers \code{FALSE} and the constant uses the rank and the log
-pseudo-determinant. That is the one case the covariance reading cannot
-have, and \code{parameters7::inverse_of()} rejects it there for the reason a
-deficient covariance has no inverse.}
+returns \code{FALSE} and the constant uses the rank and the log
+pseudo-determinant. A rank-deficient structure can be used only on the
+precision side, because \code{parameters7::inverse_of()} rejects it, a
+singular matrix having no inverse.}
 }
 \value{
 A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object whose hyperparameters are the
@@ -23,62 +23,69 @@ structure's \code{free_names}, each unconstrained and on an identity link.
 }
 \description{
 Builds the exact negative log-density of the Gaussian prior
-\eqn{\beta \sim N(0, \Sigma(\theta))}, where the matrix is a
-\pkg{parameters7} matrix parameter and the hyperparameters are its free
-values. This is the correlated prior \code{\link[=quadratic_penalty]{quadratic_penalty()}} cannot express:
-there one scale multiplies a constant matrix, here the hyperparameters reach
-every entry.
+\eqn{\beta \sim N(0, \Omega(\theta)^{-1})}, where the precision
+\eqn{\Omega(\theta)} is a \pkg{parameters7} matrix parameter and the
+hyperparameters are its free values. This is the correlated prior that
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} cannot express: in a quadratic penalty one scale
+multiplies a constant matrix, while here the hyperparameters reach every
+entry of the matrix.
 }
 \section{The value}{
-Writing \eqn{\Omega} for the precision, which is what the structure
-supplies,
+Writing \eqn{\Omega} for the precision, which is the matrix that the
+structure supplies,
 
 \deqn{\rho(\beta; \theta) = \tfrac{1}{2}\,\beta'\Omega(\theta)\beta
   - \tfrac{1}{2}\log\mathrm{pdet}\,\Omega(\theta)
   + \tfrac{r}{2}\log 2\pi,}
 
-with \eqn{r} the structure's rank. For a full-rank structure this is exactly
-\code{-mvtnorm}-style multivariate normal log-density, which the examples check
-against a hand-written one.
+with \eqn{r} the structure's rank. For a full-rank structure this is the
+negative log-density of the multivariate normal distribution with mean zero
+and precision \eqn{\Omega(\theta)}; the examples compare it with a direct
+evaluation of that density.
 }
 
 \section{The structure is the precision}{
-The matrix the structure supplies is the prior's \strong{precision}:
-\eqn{\Omega = M(\eta)}. That is a property of the construction and not a
-choice offered to the caller, \eqn{\rho} being a negative log-density and
-the matrix it needs being the one in the quadratic form.
+The matrix that the structure supplies is the prior's \strong{precision}:
+\eqn{\Omega = M(\eta)}. This follows from the construction and is not an
+option, because \eqn{\rho} is a negative log-density and the matrix that
+enters its quadratic form is the precision.
 
-Which side a structure is meant for still matters, because the two are
-different priors: there is in general no free vector at which they agree,
-the inverse of an AR(1) covariance being tridiagonal and not an AR(1) at any
-parameters. A caller who wants the structure on the covariance side says so
-by building the family whose value is its inverse,
+The choice of the side on which a structure is placed still matters,
+because the two readings are different priors. For a positive definite
+matrix they agree only where \eqn{M = M^{-1}}, that is at the identity. The
+inverse of an AR(1) matrix is tridiagonal, so for a dimension of three or
+more it is an AR(1) matrix only at zero correlation. To place a structure
+\code{s} on the covariance side, build the family whose value is its inverse,
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{structured_penalty(parameters7::inverse_of(s))
 }\if{html}{\out{</div>}}
 
-which carries \eqn{\partial_k \Sigma^{-1} = -\Sigma^{-1}A_k\Sigma^{-1}} and
-its higher orders inside the structure, where the log-determinant stays
-exact. For \code{\link[parameters7:ar1]{parameters7::ar1()}} and \code{\link[parameters7:autoregressive]{parameters7::autoregressive()}} the
-inverse has a name of its own, \code{\link[parameters7:ar1_inv]{parameters7::ar1_inv()}} and
-\code{\link[parameters7:autoregressive_inv]{parameters7::autoregressive_inv()}}, and for a structure closed under
-inversion nothing is needed at all.
+which carries
+\eqn{\partial_k \Sigma^{-1} = -\Sigma^{-1}B_k\Sigma^{-1}}, with
+\eqn{B_k = \partial_k\Sigma} the derivative of the covariance, and its
+higher orders inside the structure, where the log-determinant stays exact.
+For \code{\link[parameters7:ar1]{parameters7::ar1()}} and \code{\link[parameters7:autoregressive]{parameters7::autoregressive()}} the inverse
+has a constructor of its own, \code{\link[parameters7:ar1_inv]{parameters7::ar1_inv()}} and
+\code{\link[parameters7:autoregressive_inv]{parameters7::autoregressive_inv()}}, and a structure closed under inversion
+requires no wrapper.
 }
 
 \section{The derivatives}{
-Every derivative comes from the structure's own contract. The hyperparameter
-gradient is
-\eqn{\tfrac{1}{2}\beta'A_k\beta - \tfrac{1}{2}\partial_k\log\mathrm{pdet}}
-with \eqn{A_k} the structure's \code{param_d1}, the Hessian adds \code{param_d2}, and
-the mixed block is \eqn{A_k\beta}. Nothing is transported here: a structure
-meant for the other side is a different structure, and it supplies its own
-arrays.
+Every derivative is computed from the derivative arrays that the structure
+supplies. The hyperparameter gradient is
+\eqn{\tfrac{1}{2}\beta'A_k\beta
+  - \tfrac{1}{2}\partial_k\log\mathrm{pdet}\,\Omega},
+with \eqn{A_k = \partial_k\Omega} the structure's \code{param_d1}; the Hessian
+uses \code{param_d2}, and the mixed block is \eqn{A_k\beta}. No conversion
+between covariance and precision happens in this package: a structure
+meant for the covariance side is a different structure, and it supplies
+its own arrays.
 }
 
 \section{No map}{
 There is no \code{map} argument. A linear image of a structured precision is a
 different precision, and composing it into the structure, where its
-log-determinant stays exact, is the structure's own business.
+log-determinant stays exact, is left to \pkg{parameters7}.
 }
 
 \examples{
@@ -90,19 +97,20 @@ theta <- list(log_scale = 0.2, z_rho = 0.5)
 b <- c(0.3, -0.1, 0.4, 0.2)
 penalty_value(pen, b, theta)
 
-# The Hessian is the structure's own matrix, read as a precision.
+# The Hessian is the matrix of the structure, read as a precision.
 Om <- parameters7::param_value(parameters7::ar1(4),
                                c(0.2, 0.5))
 max(abs(penalty_hessian(pen, b, theta) - unclass(Om)))
 
-# The same structure read as a covariance is a DIFFERENT prior at the same
-# free values: there the Hessian is the inverse of that matrix.
+# The same structure read as a covariance is a different prior at the same
+# free values: its Hessian is the inverse of that matrix.
 cov <- structured_penalty(parameters7::inverse_of(parameters7::ar1(4)))
 max(abs(penalty_hessian(cov, b, theta) - solve(unclass(Om))))
 c(precision = penalty_value(pen, b, theta),
   covariance = penalty_value(cov, b, theta))
 
-# And the covariance reading is exactly a multivariate normal log-density.
+# The covariance reading is the negative log-density of the multivariate
+# normal with covariance S, written out directly.
 S <- unclass(Om)
 penalty_value(cov, b, theta) -
   (0.5 * sum(b * solve(S, b)) +
@@ -110,7 +118,7 @@ penalty_value(cov, b, theta) -
      2 * log(2 * pi))
 
 # At a zero log-Cholesky free vector the structure is the identity, so the
-# penalty is the plain ridge at lambda = 1, to the last bit.
+# penalty equals the plain ridge at lambda = 1, up to rounding.
 s <- structured_penalty(parameters7::log_cholesky(3))
 z <- as.list(stats::setNames(rep(0, length(s@params)), s@params))
 bb <- c(0.4, -1.1, 0.7)
@@ -123,6 +131,7 @@ penalty_value(s, bb, z) - penalty_value(ridge_penalty(n_coef = 3), bb,
 \code{\link[=additive_penalty]{additive_penalty()}} for a sum of quadratics,
 \code{\link[=distrib_penalty]{distrib_penalty()}} for a coordinatewise prior,
 \code{\link[parameters7:log_cholesky]{parameters7::log_cholesky()}} and \code{\link[parameters7:ar1]{parameters7::ar1()}} for structures to
-pass in, \code{\link[=penalty_readable]{penalty_readable()}} for reporting the hyperparameters as
-standard deviations and correlations.
+pass in, \code{\link[parameters7:param_readable]{parameters7::param_readable()}} for the interpretable quantities
+(a scale, a correlation) of a structure that defines them
+(\code{\link[=penalty_readable]{penalty_readable()}} returns \code{NULL} for this branch).
 }

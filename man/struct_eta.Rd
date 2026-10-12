@@ -16,9 +16,9 @@ it.}
 An unnamed numeric vector of length \code{length(pen@params)}.
 }
 \description{
-Unlists the aligned hyperparameter list into the numeric vector the
-structure's own generics take, in \code{pen@params} order, which is the
-structure's \code{free_names} order.
+Unlists the aligned hyperparameter list into the numeric vector that the
+generics of the structure take, in \code{pen@params} order, which is the order
+of the structure's \code{free_names}.
 }
 \seealso{
 \code{\link[=struct_omega]{struct_omega()}}, \code{\link[=align_ptheta]{align_ptheta()}}

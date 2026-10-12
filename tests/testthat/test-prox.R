@@ -101,8 +101,9 @@ test_that("a separable penalty under a map is rejected, and says why", {
 })
 
 test_that("a separable penalty with no closed form is solved from its score", {
-  # the heavy-tailed prior: a Student t at zero, log-concave in y for the
-  # purpose of the root, and with no elementary proximal operator
+  # the heavy-tailed prior: a Student t at zero, with no elementary proximal
+  # operator. Its log-density is not concave, so the stationary condition can
+  # have several roots, and the route returns the one of smallest objective
   pen <- heavy_penalty(n_coef = 3)
   th <- list(sigma = 1, nu = 6)
   vt <- c(0.4, -2.5, 6)

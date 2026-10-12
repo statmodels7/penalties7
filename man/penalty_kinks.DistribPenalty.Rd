@@ -7,8 +7,8 @@
 \arguments{
 \item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
-\item{theta}{A named list of the parent's free parameters. Read by
-\code{penalty_kinks()}, whose answer does not depend on it.}
+\item{theta}{A named list of the parent's free parameters. It is accepted
+by \code{penalty_kinks()}, whose result does not depend on it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
@@ -18,37 +18,52 @@
 }
 \description{
 \code{penalty_kinks()} returns the kinks recorded on the object at construction,
-and \code{is_proper()} returns \code{TRUE} unless the map has fewer rows than columns.
+and \code{is_proper()} returns \code{TRUE} when there is no map or the map is square
+and nonsingular, and \code{FALSE} otherwise.
 }
 \details{
-The kinks do not move with \code{theta}, unlike SCAD's and MCP's: they are
-properties of where the parent's location is held, settled by
-\code{\link[=distrib_kinks]{distrib_kinks()}} when the penalty was built. The lasso and the elastic net
-report \code{0}; every other shipped parent reports \code{numeric(0)}.
+The kinks do not move with \code{theta}, unlike those of SCAD and MCP: they are
+fixed by the value at which the location of the parent is held, and they
+are set when the penalty is built, by \code{\link[=distrib_kinks]{distrib_kinks()}} or by the argument
+\code{kinks} of \code{\link[=distrib_penalty]{distrib_penalty()}}. Of the named penalties, the lasso and the
+elastic net report \code{0} and \code{\link[=heavy_penalty]{heavy_penalty()}} reports \code{numeric(0)}.
 
-Properness here is a test on the map's shape. The parent is a
-density by construction, so \eqn{\exp(-\rho)} integrates over the values the
-penalty reads; what can fail is that a map with fewer rows than columns
-leaves directions of \eqn{\beta} the penalty never sees, and along those the
-integral diverges. With no map, or with a map at least as tall as it is
-wide, the answer is \code{TRUE}.
+Properness is a test on the map. The parent is a density, so
+\eqn{\exp(-\rho)} integrates to one over the values at which the penalty is
+read, and under a square nonsingular map the value carries
+\eqn{-\log\lvert\det D\rvert}, so that \eqn{\exp(-\rho)} integrates to one
+over \eqn{\beta} as well. A map whose rank is below its number of columns
+leaves directions of \eqn{\beta} on which the penalty does not depend, and
+along those directions the integral diverges. Under a map with more rows
+than columns and full column rank the integral does not equal one, and it
+depends on the hyperparameters through a constant that the value does not
+carry. The test reads the \code{log_jacobian} stored at construction, or the
+entries of a diagonal map, through \link[=dp_diag_entries]{dp_log_jacobian()},
+and returns \code{TRUE} exactly when that quantity is finite.
 }
 \examples{
-# The lasso has a kink at zero and does not move with lambda.
+# The kink of the lasso is at zero for every lambda.
 penalty_kinks(lasso_penalty(n_coef = 3), list(lambda = 1))
 penalty_kinks(lasso_penalty(n_coef = 3), list(lambda = 20))
 
-# A Gaussian or Student t prior has none.
+# A Student t prior has none.
 penalty_kinks(heavy_penalty(n_coef = 3), list(sigma = 1, nu = 4))
 
-# A map that is shorter than it is wide leaves directions unpenalized.
-c(short = is_proper(lasso_penalty(map = diff(diag(3), differences = 2))),
-  none  = is_proper(lasso_penalty(n_coef = 3)))
+# Proper without a map and with a square nonsingular map; improper with a
+# map that has more rows than columns, with a singular one, and with one
+# that has fewer rows than columns.
+c(none     = is_proper(lasso_penalty(n_coef = 3)),
+  square   = is_proper(lasso_penalty(map = matrix(c(2, 1, 0, 3), 2))),
+  tall     = is_proper(lasso_penalty(map = rbind(diag(2), c(1, 1)))),
+  singular = is_proper(lasso_penalty(map = matrix(1, 2, 2))),
+  short    = is_proper(lasso_penalty(map = diff(diag(3), differences = 2))))
 
 }
 \seealso{
 \code{\link[=penalty_kinks]{penalty_kinks()}} and \code{\link[=is_proper]{is_proper()}} for the generics,
-\code{\link[=distrib_kinks]{distrib_kinks()}} for where the kinks came from,
-\code{\link[=penalty_prox]{penalty_prox()}} for the operator a kink calls for.
+\code{\link[=distrib_kinks]{distrib_kinks()}} for the derivation of the kinks,
+\code{\link[=penalty_null_basis.DistribPenalty]{penalty_null_basis.DistribPenalty()}} for the directions that an
+improper map leaves free,
+\code{\link[=penalty_prox]{penalty_prox()}} for the proximal operator at a kink.
 }
 \keyword{internal}

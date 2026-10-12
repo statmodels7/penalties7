@@ -26,21 +26,21 @@ matrix ordinarily and a \code{dgCMatrix} when the penalty was built with
 number, \code{lambda}) and \code{hess} (a list of one number, \code{lambda_lambda}).
 }
 \description{
-The four pieces a REML or marginal likelihood criterion reads.
-\code{penalty_matrix()} returns \eqn{\lambda D'PD}, \code{penalty_rank()} the rank
-fixed at construction, \code{penalty_null_basis()} the stored orthonormal basis
-of the null space, and \code{penalty_logpdet()} the log pseudo-determinant with
-its first two derivatives in \eqn{\lambda}.
+The four quantities that a REML or marginal likelihood criterion reads.
+\code{penalty_matrix()} returns \eqn{\lambda D'PD}, \code{penalty_rank()} the rank of
+\eqn{D'PD} fixed at construction, \code{penalty_null_basis()} the stored
+orthonormal basis of its null space, and \code{penalty_logpdet()} the log
+pseudo-determinant with its first two derivatives in \eqn{\lambda}.
 }
 \details{
 Since \eqn{S(\lambda) = \lambda D'PD} and only the range contributes,
 
 \deqn{\log^{+}\lvert S(\lambda) \rvert = r\log\lambda
-  + \log\mathrm{pdet}(P), \qquad
+  + \log\mathrm{pdet}(D'PD), \qquad
   \frac{\partial}{\partial\lambda} = \frac{r}{\lambda}, \qquad
   \frac{\partial^2}{\partial\lambda^2} = -\frac{r}{\lambda^2},}
 
-all three exact and none of them needing a decomposition at call time. The
+all three exact and computed without a decomposition at call time. The
 rank and the null basis do not depend on \eqn{\lambda} and their generics
 take no \code{theta}.
 }
@@ -48,7 +48,7 @@ take no \code{theta}.
 pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
 penalty_rank(pen)
 
-# The null basis spans the straight lines, and the matrix kills it.
+# The null basis spans the straight lines, and the matrix annihilates it.
 N <- penalty_null_basis(pen)
 dim(N)
 max(abs(penalty_matrix(pen, list(lambda = 3)) \%*\% N))

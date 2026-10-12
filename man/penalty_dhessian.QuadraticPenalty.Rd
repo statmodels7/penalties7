@@ -9,10 +9,11 @@
 \arguments{
 \item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}. Unused: no quantity
-here depends on the coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. Unused, because none
+of these quantities depends on the coefficients.}
 
-\item{theta}{A named list holding \code{lambda}. Unused for the same reason.}
+\item{theta}{A named list holding \code{lambda}. Unused, because none of these
+quantities depends on \eqn{\lambda}.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
@@ -23,28 +24,28 @@ here depends on the coefficients.}
 \code{beta_quadratic()} the single logical \code{TRUE}.
 }
 \description{
-One page for the branch's answers to the four generics a marginal criterion
-asks beyond the second order. \eqn{S = \lambda D'PD} is linear in
-\eqn{\lambda} and free of the coefficients, so \code{penalty_dhessian()} returns
-\eqn{D'PD}, \code{penalty_d2hessian()} and \code{penalty_dcross()} return zeros, and
-\code{beta_quadratic()} returns \code{TRUE}.
+The methods of the quadratic branch for the four generics that a marginal
+criterion requires beyond the second order. \eqn{S = \lambda D'PD} is
+linear in \eqn{\lambda} and free of the coefficients, so
+\code{penalty_dhessian()} returns \eqn{D'PD}, \code{penalty_d2hessian()} and
+\code{penalty_dcross()} return zeros, and \code{beta_quadratic()} returns \code{TRUE}.
 }
 \details{
-\code{penalty_dhessian()} returns the stored \eqn{D'PD} \strong{in whatever storage the
-penalty keeps it}, \code{unclass()}ed to strip the attributes a base matrix may
-carry and leaving an S4 matrix untouched. A penalty built with \code{blocks > 1}
-therefore answers with a \code{dgCMatrix}, and a consumer that needs a base
-matrix coerces where the two meet.
+\code{penalty_dhessian()} returns the stored \eqn{D'PD} \strong{in the storage that
+the penalty keeps}. A base matrix is passed through \code{unclass()}, which
+removes the attributes that it may carry, and an S4 matrix is returned
+unchanged. A penalty built with \code{blocks > 1} therefore gives a
+\code{dgCMatrix}, and a consumer that needs a base matrix coerces it.
 
-The zeros are exact. The Hessian is \eqn{\lambda \cdot} a constant, so its
-second derivative in \eqn{\lambda} vanishes identically, and so does the
-third derivative of the value in \eqn{\beta} and two hyperparameters.
+The zeros are exact. The Hessian is \eqn{\lambda} times a constant matrix,
+so its second derivative in \eqn{\lambda} vanishes identically, and so does
+the third derivative of the value in \eqn{\beta} and two hyperparameters.
 }
 \examples{
 pen <- quadratic_penalty(crossprod(diff(diag(3))))
 b <- c(1, -0.5, 0.3)
 
-# The derivative is D'PD, so it does not move with lambda at all.
+# The derivative is D'PD, so it does not change with lambda.
 max(abs(penalty_dhessian(pen, b, list(lambda = 2))$lambda -
           penalty_dhessian(pen, b, list(lambda = 99))$lambda))
 
@@ -56,6 +57,9 @@ beta_quadratic(pen, list(lambda = 2))
 }
 \seealso{
 \code{\link[=penalty_dhessian]{penalty_dhessian()}} and its siblings for the generics,
-\code{\link[=quadratic_penalty]{quadratic_penalty()}} for the branch, \code{\link[=zero_pairs]{zero_pairs()}} for the zeros.
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} for the branch, \code{\link[=zero_pairs]{zero_pairs()}} for the zeros,
+\code{\link[=penalty_dhessian_beta.QuadraticPenalty]{penalty_dhessian_beta.QuadraticPenalty()}} and
+\code{\link[=penalty_d2hessian_beta.QuadraticPenalty]{penalty_d2hessian_beta.QuadraticPenalty()}} for the derivatives of the
+Hessian in the coefficients.
 }
 \keyword{internal}

@@ -14,8 +14,8 @@ ptheta_to_link(pen, theta, g = NULL, H = NULL, cross = NULL)
 \item{g}{The parameter-scale gradient list, keyed by \code{pen@params}. Required
 for the gradient and for the Hessian; \code{NULL} otherwise.}
 
-\item{H}{The parameter-scale Hessian list, keyed as \code{\link[=ptheta_pairs]{ptheta_pairs()}} keys
-it. Supply it with \code{g} to get the second order.}
+\item{H}{The parameter-scale Hessian list, keyed as \code{\link[=ptheta_pairs]{ptheta_pairs()}}
+names the pairs. Supplied with \code{g} for the second order.}
 
 \item{cross}{The parameter-scale mixed list, keyed by \code{pen@params}, each
 element a vector of length \code{pen@n_coef}. Supplied alone.}
@@ -44,12 +44,13 @@ and the chain rule needs no partition sums. Writing \eqn{h = g^{-1}} and
   + \delta_{ij}\, \frac{\partial\rho}{\partial\theta_i}\, h_i''(\eta_i).}
 
 The second-derivative term appears on the diagonal alone, which is why the
-Hessian branch needs the gradient as well. The mixed block
+Hessian branch requires the gradient as well. The mixed block
 \eqn{\partial^2\rho / \partial\beta\,\partial\theta_i} is first order in
-\eqn{\theta} and picks up one factor of \eqn{h_i'}, the coefficient
-direction being untouched by a reparametrization of the hyperparameters.
+\eqn{\theta} and picks up one factor of \eqn{h_i'}, because a
+reparametrization of the hyperparameters does not change the coefficient
+direction.
 
-This is \pkg{distributions7}'s interception, restricted to the two orders a
-penalty consumer needs.
+This is the chain rule that \pkg{distributions7} applies to the link scale
+of a distribution's parameters, restricted to the first two orders.
 }
 \keyword{internal}

@@ -16,9 +16,9 @@ A single number, non-negative for a positive semidefinite \eqn{P}.
 }
 \description{
 Computes \eqn{(D\beta)'P(D\beta)}, the part of the value that depends on the
-coefficients. Shared by \code{\link[=penalty_value.QuadraticPenalty]{penalty_value.QuadraticPenalty()}} and the
-hyperparameter derivatives, both of which need it and neither of which needs
-anything else from \eqn{\beta}.
+coefficients. It is shared by \code{\link[=penalty_value.QuadraticPenalty]{penalty_value.QuadraticPenalty()}} and the
+hyperparameter derivatives, which use \eqn{\beta} only through this
+quantity.
 }
 \details{
 Uses \eqn{P} and the map, not the cached \eqn{D'PD}, so the intermediate is

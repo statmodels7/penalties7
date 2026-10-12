@@ -20,21 +20,21 @@ with \code{nblk} blocks.
 }
 \description{
 Assembles the parent's \eqn{\partial^2\ell/\partial b\partial b'} into the
-block-diagonal matrix a multivariate separable penalty's Hessian is
-sandwiched with: one \eqn{p \times p} block per block of coefficients, and
-zeros between them.
+block-diagonal middle matrix of the Hessian of a multivariate separable
+penalty: one \eqn{p \times p} block per block of coefficients, and zeros
+between them.
 }
 \details{
-The zeros between the blocks are the separability. Coordinates in different
-blocks are independent under the prior, so the Hessian has no entry linking
-them, however dependent the coordinates within a block are.
+The zeros between the blocks express the separability. Coordinates in
+different blocks are independent under the prior, so the Hessian has no
+entry linking them, however dependent the coordinates within a block are.
 
 Two input shapes are accepted because \pkg{distributions7} returns two. A
-family whose response Hessian does not depend on the observation, as the
-multivariate gaussian's does not, returns one \eqn{p \times p} matrix and it
-is placed in every block; a family whose does returns a
-\eqn{p \times p \times n} array and each slice goes to its own block. The
-two are told apart with \code{is.matrix()}.
+family whose response Hessian does not depend on the observation, such as
+the multivariate Gaussian, returns one \eqn{p \times p} matrix, which is
+placed in every block; any other family returns a
+\eqn{p \times p \times n} array, and each slice goes to its own block. The
+two shapes are distinguished with \code{is.matrix()}.
 }
 \seealso{
 \code{\link[=dp_arg]{dp_arg()}}, and \code{\link[=map_quad_full]{map_quad_full()}}, which carries this through the

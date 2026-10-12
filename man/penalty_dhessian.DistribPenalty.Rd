@@ -10,15 +10,15 @@
 \item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
 \item{beta}{A numeric vector of length \code{pen@n_coef}. Read by all three
-derivative methods, the parent's components depending on the argument.}
+derivative methods, because the components of the parent depend on it.}
 
-\item{theta}{A named list of the parent's free parameters.}
+\item{theta}{A named list of the free parameters of the parent.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_dhessian()} a list of one matrix of side \code{pen@n_coef} per
-hyperparameter.
+\code{penalty_dhessian()} a list of one base matrix of side \code{pen@n_coef}
+per hyperparameter.
 \code{penalty_d2hessian()} a list of one such matrix per unordered pair, keyed
 diagonals first.
 \code{penalty_dcross()} a list of one numeric vector of length \code{pen@n_coef} per
@@ -26,53 +26,61 @@ unordered pair.
 \code{beta_quadratic()} a single logical.
 }
 \description{
-One page for the branch's answers to the four generics a marginal criterion
-asks beyond the second order. With
+The methods of the separable branch for the four generics that a marginal
+criterion requires beyond the second order. With
 \eqn{\rho = -\sum_j \log f((D\beta)_j;\theta)} the Hessian is
 \eqn{-D'\mathrm{diag}(\ell^{(yy)})D}, so its \eqn{\theta}-derivatives are
-the parent's own higher components carried through the same map.
+the higher components of the parent carried through the same map.
 }
-\section{Where each comes from}{
-\tabular{ll}{
-   generic \tab parent's component \cr
-   \code{penalty_dhessian()} \tab \code{\link[distributions7:distrib_cross2_y]{distributions7::distrib_cross2_y()}} \cr
-   \code{penalty_d2hessian()} \tab \code{\link[distributions7:distrib_hess_y_hess]{distributions7::distrib_hess_y_hess()}} \cr
-   \code{penalty_dcross()} \tab \code{\link[distributions7:distrib_grad_y_hess]{distributions7::distrib_grad_y_hess()}} \cr
+\section{The component of the parent behind each method}{
+\tabular{lll}{
+   generic \tab component of the parent \tab result \cr
+   \code{penalty_dhessian()} \tab \code{\link[distributions7:distrib_cross2_y]{distributions7::distrib_cross2_y()}} \tab \eqn{-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D} \cr
+   \code{penalty_d2hessian()} \tab \code{\link[distributions7:distrib_hess_y_hess]{distributions7::distrib_hess_y_hess()}} \tab \eqn{-D'\mathrm{diag}(\partial^4\ell/\partial y^2\partial\theta_m\partial\theta_l)D} \cr
+   \code{penalty_dcross()} \tab \code{\link[distributions7:distrib_grad_y_hess]{distributions7::distrib_grad_y_hess()}} \tab \eqn{-D'(\partial^3\ell/\partial y\,\partial\theta_m\partial\theta_l)} \cr
 }
 
 
-Nothing is differentiated here. A parent with closed forms for those, the
-gaussian among them and so every Gaussian random effect, makes this branch
-exact; a parent without them inherits that package's documented fallback,
-one central difference of its analytic first-order component.
+Each component is evaluated at \eqn{D\beta} and at \code{theta} on the parameter
+scale of the parent, so the derivatives are in \eqn{\theta} itself and no
+link is applied.
+
+Nothing is differentiated here. A parent with closed forms for these
+components, such as the Gaussian and therefore every Gaussian random
+effect, makes this branch exact. A parent without them takes the fallback
+of \pkg{distributions7}, which applies one stencil to the highest-order
+quantity that the family implements itself, usually its analytic response
+Hessian.
 
 A multivariate parent is read blockwise: each component is assembled into a
 block-diagonal matrix by \code{\link[=dp_blockdiag]{dp_blockdiag()}} and carried through the map by
-\code{\link[=map_quad_full]{map_quad_full()}}, where a univariate one goes through \code{\link[=map_quad]{map_quad()}}.
+\code{\link[=map_quad_full]{map_quad_full()}}, and a univariate one goes through \code{\link[=map_quad]{map_quad()}}.
 }
 
-\section{What rejects}{
+\section{Kinked parents}{
 A penalty whose parent declares a kink, which is the lasso and the elastic
-net. The third derivative does not exist at the kink, and the mode a
-marginal criterion expands around is exactly where a kinked penalty puts
-coefficients, so all three derivative generics reject with the penalty
-named. \code{beta_quadratic()} does not: it answers \code{TRUE} for the lasso, whose
-log-density is linear in the response away from the kink.
+net, signals an error in \code{penalty_dhessian()}, \code{penalty_d2hessian()} and
+\code{penalty_dcross()}, with the penalty named (see \code{\link[=reject_kinked]{reject_kinked()}}). The
+third derivative does not exist at the kink, and the mode at which a
+marginal criterion is expanded is where a kinked penalty places
+coefficients. \code{beta_quadratic()} signals no error and returns \code{TRUE} for
+the lasso, whose log-density is linear in the response away from the kink.
 }
 
-\section{How \code{beta_quadratic()} decides}{
-By probing the parent's \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}} at four points
-and asking whether it is constant to \code{1e-12} BETWEEN THEM. A point is
-\code{pen@block} numbers, so a multivariate parent answers with one
-\eqn{p \times p} matrix per point, or with a single one where that matrix
-does not move, and the comparison is between the readings rather than
-between the entries of one of them -- asking whether every entry equals
-the first compares an off-diagonal with a diagonal and is false for any
-prior over more than one coordinate. The log-density is quadratic
-in the response exactly when its second derivative there does not depend on
-it, and that second derivative is analytic for almost every family, where
-the third is often a difference whose noise no threshold separates from a
-true zero.
+\section{The test of \code{beta_quadratic()}}{
+The log-density is quadratic in the response exactly when its second
+derivative in the response does not depend on the response. The generic
+has already checked \code{theta} (an invalid value is an error), and the method
+evaluates \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}} of the parent at four points of
+\code{pen@block} coordinates each, and tests with \code{\link[=all.equal]{all.equal()}} at a relative
+tolerance of \code{1e-12} whether the values agree across the points. A
+multivariate parent returns one \eqn{p \times p} matrix per point, or a
+single matrix when that matrix does not depend on the response, and the
+comparison is made between the matrices of different points, not between
+the entries of one matrix. A single value or a single matrix, which carries
+no dimension for the points, gives \code{TRUE}. If the parent signals an error,
+or returns a number of values that is not a multiple of \code{pen@block^2}, the
+method returns \code{FALSE}.
 }
 
 \examples{
@@ -87,18 +95,21 @@ diag(penalty_dhessian(g, b, list(sigma = 1.2))$sigma)
 rep(-2 / 1.2^3, 3)
 
 # A Student t prior is not quadratic in the coefficients, so its
-# derivative moves with them.
+# derivative changes with them.
 h <- heavy_penalty(n_coef = 3)
 beta_quadratic(h, list(sigma = 1, nu = 4))
 diag(penalty_dhessian(h, b, list(sigma = 1, nu = 4))$nu)
 
-# A kinked parent has no third derivative and says so.
+# A kinked parent has no third derivative, and the call is an error.
 try(penalty_dhessian(lasso_penalty(n_coef = 3), b, list(lambda = 1)))
 
 }
 \seealso{
 \code{\link[=penalty_dhessian]{penalty_dhessian()}} and its siblings for the generics,
-\code{\link[=distrib_penalty]{distrib_penalty()}} for the branch, \code{\link[=reject_kinked]{reject_kinked()}} for the refusal,
-\code{\link[=carry_pairs]{carry_pairs()}} for the re-keying.
+\code{\link[=distrib_penalty]{distrib_penalty()}} for the branch, \code{\link[=reject_kinked]{reject_kinked()}} for the error on a
+kinked parent, \code{\link[=carry_pairs]{carry_pairs()}} for the re-keying,
+\code{\link[=penalty_dhessian_beta.DistribPenalty]{penalty_dhessian_beta.DistribPenalty()}} and
+\code{\link[=penalty_d2hessian_beta.DistribPenalty]{penalty_d2hessian_beta.DistribPenalty()}} for the derivatives of the
+Hessian in the coefficients.
 }
 \keyword{internal}

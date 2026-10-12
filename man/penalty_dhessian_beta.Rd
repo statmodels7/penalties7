@@ -9,12 +9,15 @@ penalty_dhessian_beta(pen, beta, theta, v, ...)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}; the generic signals an
+error for any other length.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same.}
+vector carrying the same, checked by the generic as in
+\code{\link[=penalty_dhessian]{penalty_dhessian()}}.}
 
-\item{v}{A numeric vector of length \code{pen@n_coef}, the direction.}
+\item{v}{A numeric vector of length \code{pen@n_coef}, the direction; the
+generic signals an error for any other length.}
 
 \item{...}{Passed to methods. No shipped method reads it.}
 }
@@ -24,62 +27,68 @@ A square base matrix of side \code{pen@n_coef}.
 \description{
 Returns \eqn{\partial S/\partial\beta\,[v] = \sum_c v_c\,
 \partial^3\rho/\partial\beta\,\partial\beta'\,\partial\beta_c}, the
-coefficient Hessian's derivative along a direction \eqn{v}, as one matrix of
-side \code{pen@n_coef}. It is zero for every penalty quadratic in the
-coefficients.
+derivative of the coefficient Hessian along a direction \eqn{v}, as one
+matrix of side \code{pen@n_coef}. It is zero for every penalty whose Hessian
+does not depend on the coefficients, apart from a kinked separable penalty,
+for which the generic signals an error.
 }
-\section{Why a criterion needs it}{
+\section{Role in a marginal criterion}{
 A marginal criterion reads \eqn{\log\lvert H + S\rvert} at the penalized
-mode, and the mode moves with the hyperparameters. Where \eqn{S} does not
-depend on the coefficients that movement reaches the determinant through
-\eqn{H} alone. Where it does, as for a heavy-tailed prior on a random effect,
-it reaches it through \eqn{S} as well, and the gradient needs
-\eqn{\mathrm{tr}(M\,\partial S/\partial\beta[v])} with \eqn{v} the mode's
-movement. A prediction-error criterion reads the same matrix inside the trace
-that counts its degrees of freedom.
+mode, and the mode moves with the hyperparameters. When \eqn{S} does not
+depend on the coefficients, that movement reaches the determinant through
+\eqn{H} alone. When it does, as for a heavy-tailed prior on a random effect,
+the movement reaches the determinant through \eqn{S} as well, and the
+gradient contains \eqn{\mathrm{tr}(M\,\partial S/\partial\beta[v])} with
+\eqn{v} the derivative of the mode. A prediction-error criterion contains
+the same matrix inside the trace that gives its degrees of freedom.
 
-The direction is contracted here rather than returning the array of order
-three, because every consumer reads the array along a direction and it has
-\eqn{q^3} entries.
+The method contracts the direction and does not return the array of order
+three, which has \eqn{q^3} entries, because the criteria read that array
+only along a direction.
 }
 
-\section{What each branch answers}{
+\section{The value on each branch}{
 \tabular{ll}{
    branch \tab \eqn{\partial S/\partial\beta[v]} \cr
    \code{\link[=quadratic_penalty]{quadratic_penalty()}}, \code{\link[=additive_penalty]{additive_penalty()}}, \code{\link[=structured_penalty]{structured_penalty()}} \tab zero \cr
    \code{\link[=distrib_penalty]{distrib_penalty()}} whose parent is quadratic in the argument \tab zero \cr
    \code{\link[=distrib_penalty]{distrib_penalty()}} with a univariate parent otherwise \tab \eqn{-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)\,D} \cr
    \code{\link[=distrib_penalty]{distrib_penalty()}} with a multivariate parent otherwise \tab \eqn{-D'\mathrm{blockdiag}(T_i)D}, \eqn{(T_i)_{ab} = \sum_c \ell^{(y_ay_by_c)}(b_i)(Dv)_{ic}} \cr
-   a kinked parent, \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}} \tab rejects \cr
+   a kinked parent, \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}} \tab an error \cr
 }
 
 
 The univariate row follows from \eqn{S = -D'\mathrm{diag}(\ell^{(yy)}(D\beta))D}:
 differentiating \eqn{\ell^{(yy)}((D\beta)_j)} in \eqn{\beta_c} gives
 \eqn{\ell^{(yyy)}((D\beta)_j) D_{jc}}, and summing against \eqn{v_c} gives
-\eqn{(Dv)_j}. The third response derivative is read from
-\code{\link[distributions7:distrib_deriv3_y]{distributions7::distrib_deriv3_y()}}, which is closed form for every
-location family and so for a Student t prior.
+the factor \eqn{(Dv)_j}. The third response derivative is read from
+\code{\link[distributions7:distrib_deriv3_y]{distributions7::distrib_deriv3_y()}}, which is closed form for every family
+that \pkg{distributions7} ships, the Student t among them, and one stencil
+on the log-density for a family defined by its density alone.
 
-A multivariate parent that is not quadratic, a multivariate t prior among
-them, is read through its third response derivative as an array per block,
-\code{\link[distributions7:distrib_deriv3_y]{distributions7::distrib_deriv3_y()}} returning one
-\eqn{p \times p \times p} array per block, whose last index is contracted
-against the block's coordinates of \eqn{Dv} by \code{\link[=dp_contract]{dp_contract()}}. A parent
-that does not supply the array is rejected rather than given a matrix
-missing that piece. Whether the parent is quadratic is asked of
-\code{\link[=beta_quadratic]{beta_quadratic()}} first, so a Gaussian prior of any dimension answers zero
-without reaching the parent at all.
+In the multivariate row \eqn{b_i} is block \eqn{i} of \eqn{D\beta} and
+\eqn{(Dv)_{ic}} is coordinate \eqn{c} of block \eqn{i} of \eqn{Dv}. A
+multivariate parent that is not quadratic, such as a multivariate Student t
+prior, is read through \code{\link[distributions7:distrib_deriv3_y]{distributions7::distrib_deriv3_y()}}, which returns
+one \eqn{p \times p \times p} array per block; \code{\link[=dp_contract]{dp_contract()}} contracts its
+last index against the coordinates of the block in \eqn{Dv}. If the parent
+cannot supply the array, the method signals an error that names the
+penalty (see \code{\link[=dp_parent_or_reject]{dp_parent_or_reject()}}). The separable method calls
+\code{\link[=beta_quadratic]{beta_quadratic()}} first, which evaluates the response Hessian of the
+parent, and returns zero when it gives \code{TRUE}. A Gaussian prior of any
+dimension therefore gives zero, and the third response derivative of the
+parent is not computed.
 }
 
 \examples{
 b <- c(1, -0.5, 0.3)
 v <- c(0.2, 0.1, -0.4)
 
-# Zero for a quadratic penalty, whose Hessian does not move with beta.
+# Zero for a quadratic penalty, whose Hessian does not change with beta.
 penalty_dhessian_beta(quadratic_penalty(diag(3)), b, list(lambda = 2), v)
 
-# A Student t prior's Hessian does move, and this is its derivative along v.
+# The Hessian of a Student t prior changes with beta, and this is its
+# derivative along v, compared with a central difference.
 h <- heavy_penalty(n_coef = 3)
 th <- list(sigma = 1, nu = 4)
 D <- penalty_dhessian_beta(h, b, th, v)
@@ -88,12 +97,14 @@ num <- (penalty_hessian(h, b + eps * v, th) -
         penalty_hessian(h, b - eps * v, th)) / (2 * eps)
 max(abs(D - num))
 
-# A kinked parent has no such derivative at the kink and says so.
+# A kinked parent has no such derivative at the kink, and the call is an
+# error.
 try(penalty_dhessian_beta(lasso_penalty(n_coef = 3), b, list(lambda = 1), v))
 
 }
 \seealso{
 \code{\link[=penalty_hessian]{penalty_hessian()}} for the quantity differentiated,
-\code{\link[=beta_quadratic]{beta_quadratic()}} for the predicate that says it is zero,
-\code{\link[=penalty_dhessian]{penalty_dhessian()}} for the derivative in the hyperparameters.
+\code{\link[=beta_quadratic]{beta_quadratic()}} for the predicate under which it is zero,
+\code{\link[=penalty_dhessian]{penalty_dhessian()}} for the derivative in the hyperparameters,
+\code{\link[=penalty_d2hessian_beta]{penalty_d2hessian_beta()}} for the derivatives of this quantity.
 }

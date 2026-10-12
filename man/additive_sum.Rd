@@ -2,7 +2,7 @@
 % Please edit documentation in R/additive_penalty.R
 \name{additive_sum}
 \alias{additive_sum}
-\title{The Weighted Sum and the Determinant It Carries}
+\title{The Weighted Sum and Its Log Pseudo-Determinant}
 \usage{
 additive_sum(pen, theta)
 }
@@ -24,64 +24,73 @@ Assembles \eqn{S(\lambda) = \sum_k \lambda_k P_k} and returns it together
 with its log pseudo-determinant and the two derivative blocks
 \eqn{\operatorname{tr}(S^{+}P_k)} and
 \eqn{\operatorname{tr}(S^{+}P_kS^{+}P_l)}. The value, the hyperparameter
-derivatives and \code{\link[=penalty_logpdet]{penalty_logpdet()}} all read some of these, and this is the
-only place the decomposition happens.
+derivatives and \code{\link[=penalty_logpdet]{penalty_logpdet()}} of an \code{\link[=AdditivePenalty]{AdditivePenalty()}} read these
+quantities from this function, which calls \code{\link[=additive_stable]{additive_stable()}} for the
+last three.
 }
-\section{Why one decomposition is not enough}{
-Taking a single eigendecomposition of \eqn{S(\lambda)} and keeping its
-\code{p_rank} largest eigenvalues fails once the parameters spread apart. A
-symmetric eigendecomposition computes its eigenvalues with an absolute
-accuracy of order \eqn{d\,\epsilon\lVert S\rVert_{2}}, so the smallest
-eigenvalue spanning the range falls below that resolution and carries no
-significant digit: the sum of logarithms is then \code{NaN} where that value
-comes back negative and a plausible wrong number where it comes back
-positive. Measured on one anisotropic \code{te()} fit, 8419 calls of 12026
-returned the second, with no warning, and the log pseudo-determinant was
-out by as much as 618 against the exact asymptote.
+\section{A single decomposition of the sum}{
+A single eigendecomposition of \eqn{S(\lambda)}, keeping its \code{p_rank}
+largest eigenvalues, fails once the parameters spread apart. A symmetric
+eigendecomposition computes its eigenvalues with an absolute accuracy of
+order \eqn{d\,\epsilon\lVert S\rVert_{2}}, so the smallest eigenvalue on the
+range can fall below that resolution and carry no significant digit. The
+sum of logarithms is then \code{NaN} if that eigenvalue is computed as negative
+and an inaccurate number if it is computed as positive, and neither case
+raises a warning.
 }
 
 \section{The similarity transformation}{
-\code{\link[=additive_stable]{additive_stable()}} partitions the components by the size they contribute,
-\eqn{\lambda_k\lVert P_k\rVert}, and rotates onto the eigenvectors of the
-dominant group. With \eqn{U_{+}} spanning that group's range and
-\eqn{U_{0}} its kernel, \eqn{A = U_{+}^{\top}SU_{+}},
-\eqn{C = U_{+}^{\top}SU_{0}}, \eqn{F = A^{-1}C} and
-\eqn{M = U_{0}^{\top}SU_{0} - C^{\top}F},
+\code{\link[=additive_stable]{additive_stable()}} partitions the components by the size of their
+contributions, \eqn{\lambda_k\max_{ij}\lvert(P_k)_{ij}\rvert}, and rotates
+onto the eigenvectors of the dominant group, the components whose
+contribution is at least \code{\link[=additive_tol]{additive_tol()}} times the largest. With
+\eqn{U_{+}} spanning the range of that group and \eqn{U_{0}} its kernel,
+\eqn{A = U_{+}^{\top}SU_{+}}, \eqn{C = U_{+}^{\top}SU_{0}},
+\eqn{F = A^{-1}C} and \eqn{M = U_{0}^{\top}SU_{0} - C^{\top}F},
 
 \deqn{\log\mathrm{pdet}\,S = \log\lvert A\rvert + \log\mathrm{pdet}\,M,
   \qquad S^{+} = U_{+}A^{-1}U_{+}^{\top} + GM^{+}G^{\top},
   \qquad G = U_{0} - U_{+}F.}
 
-Both are exact. The first says no decomposition ever has to resolve the
-spread, since \eqn{A} carries the dominant group alone and \eqn{M} what is
-left; the second says every trace is a well-scaled trace against
-\eqn{A^{-1}} plus the same question one level down, so the derivatives are
-taken in the transformed coordinates and never from a materialized
-\eqn{S^{+}}. Measured, taking them in the original coordinates instead
-loses one digit per order of magnitude of spread:
-\eqn{\lambda_1\operatorname{tr}(S^{+}P_1)} read 99537 where it is 15.
+Both identities are exact, because the null space of \eqn{S} lies in the
+span of \eqn{U_{0}}. In the first, \eqn{A} is the whole sum restricted to
+the range of the dominant group, where the dominant group sets the scale,
+and \eqn{M} is a Schur complement of the size of the subordinate
+components, so the decomposition of \eqn{A} does not have to resolve the
+spread between the two. The second writes every trace against \eqn{S^{+}}
+as a trace against \eqn{A^{-1}} plus a trace of the same kind against
+\eqn{M^{+}}, so the derivatives are taken in the transformed coordinates
+and never from a materialized \eqn{S^{+}}. \eqn{M} is treated in the same
+way at the next level. The recursion stops at a level where every
+remaining component joins the dominant group, or where the rank of the
+dominant group is zero or reaches the rank left, and that level takes one
+eigendecomposition.
 
-Two quantities are \strong{exactly zero and are dropped rather than computed},
-and the accuracy rests on both. The dominant group vanishes on \eqn{U_{0}},
-that subspace being its kernel, so computing it there costs
-\eqn{O(\lambda_{\mathrm{dom}}\epsilon)} and swamps the subordinate terms;
-and a dominant component's own \eqn{U_{0}} blocks vanish for the same
-reason. What the next level does not carry is likewise built from the
-dominant reductions rather than obtained by subtracting the subordinate
-ones from \eqn{M}, which would be a difference of two quantities of the
-dominant size whose difference is of the subordinate one: measured, that
-spelling left a third component's log-scale gradient at \code{5.0e-04} where it
-is exactly 8.
+Two quantities are exactly zero and are dropped instead of computed. The
+dominant group vanishes on \eqn{U_{0}}, that subspace being its kernel, so
+a computed value there would consist of rounding errors of order
+\eqn{\lambda_{\mathrm{dom}}\epsilon}, which would swamp the subordinate
+terms; the blocks of each dominant component on \eqn{U_{0}} vanish for the
+same reason. The part of \eqn{M} that the next level does not carry as
+components is likewise built from the reductions of the dominant
+components and not obtained by subtracting the subordinate reductions
+from \eqn{M}, since that subtraction would be a difference of two
+quantities of the dominant size.
 }
 
-\section{What is rejected}{
+\section{The rank identity}{
 \eqn{\operatorname{tr}(S^{+}S) = r} exactly, so
-\eqn{\sum_k\lambda_k\operatorname{tr}(S^{+}P_k)} must be the rank. The
-identity costs nothing, needs no reference and is checked at every call;
-where it is violated by more than \code{additive_check_tol()} the point is not
-resolvable in double precision and \code{logpdet}, \code{dlog} and \code{d2log} are \code{NaN}.
-\code{S} is assembled without any decomposition and is returned as it stands,
-which is why \code{\link[=penalty_hessian]{penalty_hessian()}} stays finite there.
+\eqn{\sum_k\lambda_k\operatorname{tr}(S^{+}P_k)} must equal the rank. The
+identity needs no reference and is checked at every call. Where the value
+returned by \code{\link[=additive_stable]{additive_stable()}} is not finite, where the identity is
+violated by more than \code{additive_check_tol()} times the rank, or where it
+cannot be evaluated because a trace overflows, the point is treated as not
+resolvable in double precision, and \code{logpdet}, \code{dlog} and \code{d2log} are
+\code{NaN}, without an error. \code{S} is assembled without any decomposition and is
+returned as it is. \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_gradient]{penalty_gradient()}} and
+\code{\link[=penalty_hessian]{penalty_hessian()}} assemble the sum themselves and do not call this
+function, so they stay finite at such a point unless the weighted sum
+itself overflows.
 }
 
 \seealso{

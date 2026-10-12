@@ -20,25 +20,27 @@ the identity map with a univariate parent and block diagonal with a
 multivariate one.
 }
 \description{
-The parent's response derivatives, negated and carried back through the map.
-\code{penalty_gradient()} returns \eqn{-D'\ell^{(y)}} and \code{penalty_hessian()}
-returns \eqn{-D'\,\mathrm{diag}(\ell^{(yy)})\,D}, with the middle matrix
-block diagonal instead of diagonal when the parent is multivariate.
+The response derivatives of the parent, negated and carried back through
+the map. \code{penalty_gradient()} returns \eqn{-D'\ell^{(y)}} and
+\code{penalty_hessian()} returns \eqn{-D'\,\mathrm{diag}(\ell^{(yy)})\,D}, where
+the middle matrix is block diagonal instead of diagonal when the parent is
+multivariate.
 }
 \details{
-Everything comes from \code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}} and
-\code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}}, which are closed form for every
-continuous family, so no derivative is taken here.
+The derivatives come from \code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}} and
+\code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}}, which are in closed form for the
+continuous families that \pkg{distributions7} ships; for a family that
+supplies only its density, \pkg{distributions7} differentiates
+numerically. No derivative is taken in these methods.
 
-The \code{+ 0 * a} in both bodies is a recycling guard. A family whose derivative
-does not depend on the argument, a Gaussian's second one for instance,
-returns a single number where a vector is wanted, and adding zero times the
-argument widens it without changing a value.
+The \code{+ 0 * a} in both bodies is a recycling guard: if a family returns a
+single number where a vector is expected, adding zero times the argument
+widens it to the length of the argument without changing a value.
 
 At a kink the gradient is one element of the subdifferential, chosen by the
-parent. For the lasso at \eqn{\beta_j = 0} that is \code{0}, where the true
-subdifferential is \eqn{[-\lambda, \lambda]}; \code{\link[=penalty_prox]{penalty_prox()}} is what
-produces the exact zero.
+parent. For the lasso at \eqn{\beta_j = 0} that element is \code{0}, while the
+subdifferential is \eqn{[-\lambda, \lambda]}; the exact zero of a fit is
+produced by \code{\link[=penalty_prox]{penalty_prox()}}.
 }
 \examples{
 b <- c(1, 0, -1)

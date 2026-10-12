@@ -67,7 +67,8 @@ test_that("SCAD and MCP match the literature and pass the battery", {
   expect_equal(d1, ref, tolerance = 1e-14)
   expect_equal(penalty_value(pen, 0 * t, th), 0)
   # constant beyond the shoulder
-  expect_equal(penalty_value(pen, 10, th), penalty_value(pen, 100, th))
+  expect_equal(penalty_value(pen, rep(10, 6), th),
+               penalty_value(pen, rep(100, 6), th))
   res <- check_penalty(pen, beta = t, theta = th, verbose = FALSE)
   expect_true(all(res$status == "OK"),
               info = paste(res$check[res$status != "OK"], collapse = ", "))

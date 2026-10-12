@@ -3,7 +3,8 @@
 \name{penalty_d2hessian_beta}
 \alias{penalty_d2hessian_beta}
 \alias{penalty_dhessian_beta_theta}
-\title{How the Movement of the Coefficient Hessian Moves}
+\title{Second Derivatives of the Coefficient Hessian in the Coefficients and the
+Hyperparameters}
 \usage{
 penalty_d2hessian_beta(pen, beta, theta, v, w, ...)
 
@@ -12,12 +13,15 @@ penalty_dhessian_beta_theta(pen, beta, theta, v, ...)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}; the generics signal an
+error for any other length.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same.}
+vector carrying the same, checked by the generics as in
+\code{\link[=penalty_dhessian]{penalty_dhessian()}}.}
 
-\item{v, w}{Numeric vectors of length \code{pen@n_coef}, the directions.}
+\item{v, w}{Numeric vectors of length \code{pen@n_coef}, the directions; the
+generics signal an error for any other length.}
 
 \item{...}{Passed to methods. No shipped method reads it.}
 }
@@ -28,31 +32,39 @@ per hyperparameter, keyed by \code{pen@params}.
 }
 \description{
 The two derivatives of \code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}} that the second derivative
-of a marginal criterion reads. \code{penalty_d2hessian_beta()} is
-\eqn{\partial^2 S/\partial\beta^2\,[v, w]}, the Hessian's second derivative
-in the coefficients contracted along two directions.
+of a marginal criterion contains. \code{penalty_d2hessian_beta()} is
+\eqn{\partial^2 S/\partial\beta^2\,[v, w]}, the second derivative of the
+Hessian in the coefficients contracted along two directions.
 \code{penalty_dhessian_beta_theta()} is
 \eqn{\partial^2 S/\partial\beta\,\partial\theta_m\,[v]}, the derivative of
 \eqn{\partial S/\partial\beta\,[v]} in each hyperparameter.
 }
 \details{
-Differentiating the criterion's gradient once more in the hyperparameters,
-the determinant's matrix \eqn{K_m = S_m + T[b_m]} moves in three ways that a
-penalty whose Hessian depends on the coefficients adds to: through
-\eqn{T[b_{ml}]}, which \code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}} supplies; through the second
-derivative in the coefficients along the two directions the mode moves in;
-and through \eqn{\partial S_m/\partial\beta\,[b_l]} and
-\eqn{\partial S_l/\partial\beta\,[b_m]}, which are one quantity by the
-symmetry of mixed partials.
+Write \eqn{S_m = \partial S/\partial\theta_m}, \eqn{T[v] = \partial
+S/\partial\beta\,[v]}, and \eqn{b_m} and \eqn{b_{ml}} for the first and
+second derivatives of the mode in the hyperparameters. The matrix
+\eqn{K_m = S_m + T[b_m]} enters the gradient of the criterion, and its
+derivative in \eqn{\theta_l} has three parts that are present only for a
+penalty whose Hessian depends on the coefficients: \eqn{T[b_{ml}]}, from
+\code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}}; the second derivative in the coefficients along
+\eqn{b_m} and \eqn{b_l}, from \code{penalty_d2hessian_beta()}; and the two
+matrices \eqn{\partial S_m/\partial\beta\,[b_l]} and
+\eqn{\partial S_l/\partial\beta\,[b_m]}. Both of these come from
+\code{penalty_dhessian_beta_theta()}, the first as its component \eqn{m} along
+\eqn{b_l} and the second as its component \eqn{l} along \eqn{b_m}, because
+by the symmetry of mixed partials in \eqn{\beta} and \eqn{\theta} the
+derivative of \eqn{T[b_m]} in \eqn{\theta_l} equals
+\eqn{\partial S_l/\partial\beta\,[b_m]}. The two matrices are in general
+different.
 }
-\section{What each branch answers}{
+\section{The value on each branch}{
 \tabular{lll}{
    branch \tab \eqn{\partial^2 S/\partial\beta^2[v,w]} \tab \eqn{\partial^2 S/\partial\beta\partial\theta_m[v]} \cr
    quadratic, additive, structured \tab zero \tab zero for every hyperparameter \cr
    separable, parent quadratic in its argument \tab zero \tab zero for every hyperparameter \cr
    separable, univariate parent otherwise \tab \eqn{-D'\mathrm{diag}(\ell^{(yyyy)} \odot Dv \odot Dw)D} \tab \eqn{-D'\mathrm{diag}(\partial_{\theta_m}\ell^{(yyy)} \odot Dv)D} \cr
    separable, multivariate parent otherwise \tab the same per block, contracted by \code{\link[=dp_contract]{dp_contract()}} \tab the same per block \cr
-   a kinked parent, \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}} \tab rejects \tab rejects \cr
+   a kinked parent, \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}} \tab an error \tab an error \cr
 }
 
 
@@ -60,12 +72,19 @@ The univariate rows follow from
 \eqn{\partial S/\partial\beta[v] = -D'\mathrm{diag}(\ell^{(yyy)}(D\beta) \odot
 Dv)D} by differentiating \eqn{\ell^{(yyy)}((D\beta)_j)} once more, in
 \eqn{\beta} along \eqn{w} or in \eqn{\theta_m}. The fourth response
-derivative is \code{\link[distributions7:distrib_deriv3_y]{distributions7::distrib_deriv4_y()}} and the mixed one
-\code{\link[distributions7:distrib_cross3_y]{distributions7::distrib_cross3_y()}}, both closed for every location family
-and so for a Student t prior. A multivariate parent supplies the two as
-arrays per block, of \eqn{p^4} and \eqn{p^3} entries, which
-\code{\link[=dp_contract]{dp_contract()}} contracts against the block's coordinates of the
-directions; the multivariate Student t does.
+derivative is \code{\link[distributions7:distrib_deriv3_y]{distributions7::distrib_deriv4_y()}}, closed form for every
+family that \pkg{distributions7} ships and one stencil for a family defined
+by its density alone. The mixed one is
+\code{\link[distributions7:distrib_cross3_y]{distributions7::distrib_cross3_y()}}, closed form for the location families
+listed on its page, the Student t among them, and one central difference of
+the third response derivative for the other families. A multivariate
+parent supplies the two as arrays per block, of \eqn{p^4} and \eqn{p^3}
+entries, which \code{\link[=dp_contract]{dp_contract()}} contracts against the coordinates of the
+block in the directions; the multivariate Student t supplies both. The
+derivatives are taken in \eqn{\theta} on its own scale.
+
+The methods of the base class and of each branch are described on
+\code{\link[=penalty_d2hessian_beta.penalty]{penalty_d2hessian_beta.penalty()}}.
 }
 
 \examples{
@@ -97,6 +116,6 @@ penalty_d2hessian_beta(quadratic_penalty(diag(3)), b, list(lambda = 2), v, w)
 \seealso{
 \code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}} for the quantity differentiated,
 \code{\link[=penalty_dhessian]{penalty_dhessian()}} for the derivative of the Hessian in the
-hyperparameters, \code{\link[=beta_quadratic]{beta_quadratic()}} for the predicate that says both are
-zero.
+hyperparameters, \code{\link[=beta_quadratic]{beta_quadratic()}} for the predicate under which both
+are zero.
 }

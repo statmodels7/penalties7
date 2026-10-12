@@ -2,7 +2,7 @@
 % Please edit documentation in R/additive_penalty.R
 \name{additive_check_tol}
 \alias{additive_check_tol}
-\title{How Far the Rank Identity May Be Violated}
+\title{The Tolerance of the Rank Identity}
 \usage{
 additive_check_tol()
 }
@@ -10,20 +10,20 @@ additive_check_tol()
 A single number.
 }
 \description{
-The relative departure from
-\eqn{\sum_k\lambda_k\operatorname{tr}(S^{+}P_k) = r} past which
-\code{\link[=additive_sum]{additive_sum()}} reports \code{NaN} rather than a number.
+Returns \code{1e-3}, the relative departure from
+\eqn{\sum_k\lambda_k\operatorname{tr}(S^{+}P_k) = r} beyond which
+\code{\link[=additive_sum]{additive_sum()}} reports \code{NaN} instead of a number. The departure is
+taken relative to the rank \eqn{r}.
 }
 \details{
-It is a threshold on an exact identity and not an accuracy claim. Measured
-over 200 random parameter vectors per shape on nine shapes -- anisotropic
-\code{te()} at two and three margins and with margins of different dimension,
-and \code{\link[basis7:adaptive_smooth]{basis7::adaptive_smooth()}} at three, five, eight and twelve components
--- with each parameter drawn log-uniformly over the range a fit visits, the
-worst violation at \code{\link[=additive_tol]{additive_tol()}} is \code{5.3e-05} and the median is at
-machine precision. The threshold is two orders above that worst case, so it
-fires where the transformation has genuinely run out of precision and not
-where it has merely lost its last digits.
+The identity is exact, so a departure from it is accumulated rounding in
+the similarity transformation of \code{\link[=additive_stable]{additive_stable()}}. The threshold is
+chosen above the departures that rounding produces at points that the
+transformation resolves, so that a departure beyond it signals that the
+smaller eigenvalues have been lost. The threshold is not a bound on the
+error of the returned quantities: at a point that passes the check, the
+error of the log pseudo-determinant can exceed the departure from the
+identity.
 }
 \seealso{
 \code{\link[=additive_sum]{additive_sum()}}, which reads it.

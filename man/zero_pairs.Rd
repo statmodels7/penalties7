@@ -19,8 +19,9 @@ A named list of \eqn{p(p+1)/2} entries, keyed as
 }
 \description{
 Returns a list holding the same zero object under every hyperparameter-pair
-key, which is the answer of a penalty whose Hessian is linear in its
-hyperparameters.
+key, which is the value of \code{\link[=penalty_d2hessian]{penalty_d2hessian()}} and \code{\link[=penalty_dcross]{penalty_dcross()}} for
+a penalty whose Hessian is linear in its hyperparameters and free of the
+coefficients.
 }
 \details{
 The quadratic and additive branches use it for both

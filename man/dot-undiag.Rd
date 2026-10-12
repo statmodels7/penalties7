@@ -13,14 +13,15 @@
 The same object with \code{map} set to \code{NULL}.
 }
 \description{
-Returns the same penalty with \code{map} set to \code{NULL}, which is the object the
-diagonal-map transport hands to the identity-map formulas.
+Returns the same penalty with \code{map} set to \code{NULL}, which is the object that
+the diagonal-map transport passes to the formulas written for the identity
+map.
 }
 \details{
-The transport applies the diagonal to the point and to the step before
-calling, and divides the answer back afterwards, so what the formula needs
-is the penalty without its map. Nothing else on the object changes, and in
-particular \code{n_coef} is unaffected, a diagonal map being square.
+The transport applies the diagonal to the point and to the step before the
+call and divides the result by the diagonal afterwards, so the formula needs
+the penalty without its map. The other properties are unchanged; in
+particular \code{n_coef} is unaffected, because a diagonal map is square.
 }
 \seealso{
 \code{\link[=.prox_scaling]{.prox_scaling()}}, \code{\link[=spec_diag]{spec_diag()}}, \code{\link[=map_diagonal]{map_diagonal()}}

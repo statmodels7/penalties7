@@ -8,20 +8,19 @@
 penalty_prox(pen, v, step, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object. Ask \code{\link[=has_prox]{has_prox()}} first if you do not know
-the branch.}
+\item{pen}{A \code{\link[=penalty]{penalty()}} object. \code{\link[=has_prox]{has_prox()}} tests whether it has an
+operator.}
 
-\item{v}{A numeric vector of length \code{pen@n_coef}, the point pulled towards.
-Coerced with \code{as.numeric()}.}
+\item{v}{A numeric vector of length \code{pen@n_coef}, the point of the quadratic
+pull. Coerced with \code{as.numeric()}.}
 
-\item{step}{The step length \eqn{t}, a single positive number. A vector is
-rejected; \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} is the interface that takes one per
-coefficient.}
+\item{step}{The step length \eqn{t}, a single positive finite number. A
+vector is rejected; \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} takes one step per coefficient.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in \code{pen@params}.}
+vector, holding every name in \code{pen@params}, each a single number.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not use it.}
 }
 \value{
 A numeric vector of the same length as \code{v}.
@@ -34,77 +33,102 @@ Returns the point that minimizes the penalty plus a quadratic pull towards
   \left\{ \tfrac{1}{2t}\lVert \beta - v \rVert^{2} +
   \rho(\beta;\theta) \right\},}
 
-A proximal gradient method applies it after each gradient step. It is the
-operation that lets a penalty with a kink be minimized without
-differencing it, and the one that sets a coefficient exactly to zero where a
-gradient method only makes it small.
+A proximal gradient method applies the operator after each gradient step.
+With it, a penalty with a kink is minimized without differentiating it at
+the kink, and a coefficient can be set exactly to zero, where a gradient
+method only brings it close to zero.
 }
-\section{The four routes}{
+\section{The operator of each branch}{
 \tabular{ll}{
    branch \tab operator \cr
-   quadratic, structured \tab one linear solve, \eqn{(I + tS)^{-1}v} \cr
-   Gaussian prior \tab the shrinkage \eqn{v/(1 + t/\sigma^2)} \cr
+   quadratic, structured \tab one linear solve, \eqn{(I + tS)^{-1}v}, with \eqn{S} the penalty's Hessian \cr
+   Gaussian prior centered at zero \tab the shrinkage \eqn{v/(1 + t/\sigma^2)} \cr
    Laplace prior \tab the soft threshold \eqn{\mathrm{sign}(v)(\lvert v\rvert - t\lambda)_{+}} \cr
-   elastic net \tab the soft threshold followed by the shrinkage \cr
-   SCAD, MCP \tab the closed piecewise operators of their papers \cr
-   any other separable parent \tab a coordinatewise root, found by bisection \cr
+   elastic net \tab the soft threshold at \eqn{t\lambda\alpha}, followed by division by \eqn{1 + t\lambda(1-\alpha)} \cr
+   SCAD, MCP \tab the piecewise operators of Fan and Li (2001) and Zhang (2010) \cr
+   any other separable parent \tab the stationary point of smallest objective, coordinate by coordinate \cr
 }
 
 
-Checked against a direct minimization of the defining objective,
-coordinate by coordinate on a three-vector at a step of 1, all eight shipped
-penalties agree to \code{2.7e-08} or better, which is the reference minimizer's
-own accuracy.
+Each closed form is the minimizer of the defining objective, and the page of
+each method gives its formula.
 }
 
-\section{The root, where there is no formula}{
-Any separable penalty whose parent has a differentiable log-density is
-solved from the stationary condition
+\section{The stationary condition, where there is no closed form}{
+A separable penalty whose parent has a differentiable log-density, and which
+is not one of the closed-form families, is solved coordinate by coordinate
+from the stationary condition
 
 \deqn{\frac{\beta - v}{t} = \ell^{(y)}(\beta),}
 
-with the right-hand side \code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}}, closed form for
-every continuous family. Log-concavity of the density makes the left side
-minus the right side strictly increasing, so the root is unique; the
-bracket is widened up to sixty times and then \code{uniroot()} finds it to
-\code{eps^0.75}. A parent that declares a kink and is not one of the closed-form
-families is rejected instead, a smooth root being the wrong instrument
-there.
+whose right-hand side is \code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}}. For a density
+that is not log-concave, such as the Student t of \code{\link[=heavy_penalty]{heavy_penalty()}}, the
+condition can have more than one root, and the operator is the root of
+smallest objective. The segment between zero and \eqn{v} is scanned for
+changes of sign, each change is refined by \code{uniroot()} to a relative
+accuracy of about \code{eps^0.75}, and the candidate of smallest objective is
+returned. When the penalty is smallest at zero and non-decreasing in
+\eqn{\lvert\beta\rvert}, the global minimizer lies on that segment and the
+value returned is the global minimizer. For a parent whose density is not
+largest at zero, the value returned is a stationary point that need not be
+the global minimizer; \code{\link[=.prox_root]{.prox_root()}} gives the details. A parent that
+declares a kink and is not one of the closed-form families is rejected,
+because the stationary condition does not hold at a kink and the minimizer
+of such a penalty can lie there.
 }
 
 \section{Under a map}{
-The quadratic and structured branches take \strong{any} map, the objective
-staying quadratic. The separable branches need the identity map or a
-diagonal one, under which the operator is the unmapped one read at
-\eqn{dv} with the step \eqn{td^2}, divided back by \eqn{d}: that is what
-standardization comes to. A general \eqn{D} mixes coordinates and makes this
-the generalized-lasso problem, which needs an algorithm of its own, so it is
-rejected by name.
+The quadratic branch takes \strong{any} map, because the objective stays
+quadratic, and a structured penalty has no map. The separable, SCAD and MCP
+branches need the identity map or a diagonal one. Under a diagonal map with
+entries \eqn{d_j}, the operator is the operator without the map evaluated at
+\eqn{d_j v_j} with the step \eqn{t d_j^2}, and then divided by \eqn{d_j};
+this is how the standardization of a column is carried into the operator.
+A general \eqn{D} mixes the coordinates and turns the problem into the
+generalized-lasso problem, which requires an algorithm of its own, so such
+a penalty is rejected with a message naming it. A diagonal map is recognized
+by its \pkg{Matrix} class, as \code{\link[=map_diagonal]{map_diagonal()}} describes.
 }
 
-\section{What rejects}{
+\section{Calls that signal an error}{
 \itemize{
-\item a penalty with no operator at all, \code{\link[=additive_penalty]{additive_penalty()}} being the one that
-ships, with a message naming \code{\link[=has_prox]{has_prox()}};
-\item a separable penalty under a map that is not diagonal;
-\item a separable penalty whose parent is read in blocks, whose coordinates do
-not separate;
-\item a Laplace or elastic-net parent not centered at zero, the closed form
-being written for one that is;
-\item SCAD at \code{step >= a - 1} and MCP at \code{step >= gamma}, where the subproblem
-is not convex and the operator is set-valued;
-\item a \code{step} that is not a single positive number, or a \code{v} whose length is
-not \code{pen@n_coef}.
+\item a penalty with no operator, such as an \code{\link[=additive_penalty]{additive_penalty()}}, with a
+message naming \code{\link[=has_prox]{has_prox()}};
+\item a separable, SCAD or MCP penalty under a map that is not a \pkg{Matrix}
+diagonal object with nonzero entries;
+\item a separable penalty whose parent is read in blocks, because the
+coordinates of a block do not separate;
+\item a Laplace or elastic-net parent that is not centered at zero, because the
+closed form is written for a parent centered at zero;
+\item a separable parent that declares a kink and has no closed form;
+\item a stationary condition that changes sign neither on the segment from zero
+to \eqn{v} nor in a widened bracket;
+\item SCAD where \eqn{t c_j \ge a - 1} and MCP where \eqn{t c_j \ge \gamma} in
+some coordinate, with \eqn{c_j} the curvature \code{curv} of the penalty and
+\eqn{t} multiplied by \eqn{d_j^2} under a diagonal map; the subproblem is
+then not convex and the operator is set-valued;
+\item a \code{step} that is not a single positive finite number, or a \code{v} whose
+length is not \code{pen@n_coef}.
 }
 }
 
 \section{Methods}{
 
 The method on the base class \code{\link[=penalty]{penalty()}} signals an error naming the penalty
-and pointing at \code{\link[=has_prox]{has_prox()}}. A penalty supplies the operator when it is
-quadratic, or separable under a map that is the identity or diagonal;
-a separable penalty under a general map is the generalized-lasso problem and
-has no closed operator, so it is rejected rather than approximated.
+and pointing to \code{\link[=has_prox]{has_prox()}}; \code{\link[=AdditivePenalty]{AdditivePenalty()}} inherits it. The classes
+with an operator of their own are:
+\itemize{
+\item one linear solve;
+\item \code{\link[=StructuredPenalty]{StructuredPenalty()}}:
+\code{\link[=penalty_prox.StructuredPenalty]{penalty_prox()}}, the same linear
+solve;
+\item a closed form for the Gaussian, Laplace and elastic-net parents and the
+stationary point of smallest objective for any other parent;
+\item \code{\link[=ScadPenalty]{ScadPenalty()}}: \code{\link[=penalty_prox.ScadPenalty]{penalty_prox()}}, the
+piecewise operator of Fan and Li (2001);
+\item \code{\link[=McpPenalty]{McpPenalty()}}: \code{\link[=penalty_prox.McpPenalty]{penalty_prox()}}, the
+piecewise operator of Zhang (2010).
+}
 }
 
 \examples{
@@ -113,20 +137,24 @@ v <- c(2, 0.3, -1.4)
 # The lasso: a soft threshold, so the middle coordinate becomes exactly 0.
 penalty_prox(lasso_penalty(n_coef = 3), v, 1, list(lambda = 1))
 
-# A ridge: a shrinkage towards zero, and nothing reaches it.
+# A ridge: a shrinkage towards zero, which sets no coordinate to zero.
 penalty_prox(ridge_penalty(n_coef = 3), v, 1, list(lambda = 1.5))
 v / (1 + 1 * 1.5)
 
-# The elastic net is the one followed by the other.
+# The elastic net: the soft threshold followed by the shrinkage.
 penalty_prox(elasticnet_penalty(n_coef = 3), v, 1,
              list(lambda = 1, alpha = 0.6))
 
-# A heavy-tailed prior has no closed form, so this is a bracketed root.
-# It leaves the large coordinate nearly alone, which is the point of it.
-penalty_prox(heavy_penalty(n_coef = 3), v, 1, list(sigma = 1, nu = 4))
+# A heavy-tailed prior has no closed form, so the operator is found from
+# the stationary condition. With sigma = 1, nu = 4 and step 1 it maps 2 to
+# 1, as the ridge with lambda = 1 does, and it moves the coordinate 10 much
+# less than that ridge does.
+v2 <- c(2, 0.3, 10)
+penalty_prox(heavy_penalty(n_coef = 3), v2, 1, list(sigma = 1, nu = 4))
+penalty_prox(ridge_penalty(n_coef = 3), v2, 1, list(lambda = 1))
 
-# Every one of them minimizes the defining objective. Checking the lasso's
-# first coordinate directly:
+# Each operator minimizes the defining objective. For the first coordinate
+# of the lasso:
 rho <- lasso_penalty(n_coef = 3)
 obj <- function(b1) {
   x <- v; x[1] <- b1
@@ -134,14 +162,22 @@ obj <- function(b1) {
 }
 stats::optimize(obj, c(-5, 5), tol = 1e-12)$minimum
 
-# A branch with no operator says so rather than approximating.
+# An additive penalty has no operator, and the call signals an error.
 try(penalty_prox(additive_penalty(list(diag(3), diag(c(1, 1, 0)))),
                  v, 1, list(lambda1 = 1, lambda2 = 1)))
 
 }
+\references{
+Fan, J. and Li, R. (2001). Variable selection via nonconcave penalized
+likelihood and its oracle properties. \emph{Journal of the American Statistical
+Association} \strong{96}, 1348-1360.
+
+Zhang, C.-H. (2010). Nearly unbiased variable selection under minimax
+concave penalty. \emph{Annals of Statistics} \strong{38}, 894-942.
+}
 \seealso{
-\code{\link[=has_prox]{has_prox()}} to ask before calling, \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} for the
-same operator as a table a compiled loop can read, \code{\link[=penalty_kinks]{penalty_kinks()}} for
-where a gradient method would fail, \code{\link[=penalty_gradient]{penalty_gradient()}} for what to use
-where the penalty is smooth.
+\code{\link[=has_prox]{has_prox()}} to test whether a penalty has an operator,
+\code{\link[=penalty_prox_spec]{penalty_prox_spec()}} for the same operator as a table that a compiled
+loop can read, \code{\link[=penalty_kinks]{penalty_kinks()}} for the points where a gradient method
+fails, \code{\link[=penalty_gradient]{penalty_gradient()}} for the gradient where the penalty is smooth.
 }

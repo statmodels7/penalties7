@@ -2,7 +2,7 @@
 % Please edit documentation in R/distrib_penalty.R
 \name{penalty_readable.DistribPenalty}
 \alias{penalty_readable.DistribPenalty}
-\title{What a Separable Penalty's Hyperparameters Are About}
+\title{Interpretable Quantities of a Separable Penalty}
 \arguments{
 \item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
@@ -11,23 +11,24 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{NULL} when \code{pen@block} is \code{1L}. Otherwise the list
-\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} returns: \code{value}, \code{jacobian}, \code{transform}
-and \code{block}.
+\code{NULL} when \code{pen@block} is \code{1L}. Otherwise the list that
+\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} returns, with the elements \code{value},
+\code{jacobian}, \code{transform} and \code{block}.
 }
 \description{
 Returns \code{NULL} for a univariate parent, whose hyperparameters are already
-the quantities a reader reads, and
+interpretable quantities, and the result of
 \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} for a multivariate one, whose
 hyperparameters are the free values of a matrix parameter.
 }
 \details{
-A univariate parent's hyperparameters are a scale, a rate, a shape, each
-read on its own scale already, so there is nothing to derive and \code{NULL} says
-so. A multivariate parent's are log-Cholesky coordinates or the like, which
-nobody interprets; what the prior is about is the standard deviations and
-the correlations of the effects within a block, and the parent declares
-them.
+The hyperparameters of a univariate parent are quantities such as a scale,
+a rate or a shape, each on its own scale, so there is nothing to derive and
+the method returns \code{NULL}. Those of a multivariate parent are coordinates
+such as log-Cholesky entries, which are not directly interpretable; the
+interpretable quantities are the standard deviations and the correlations
+of the effects within a block, and the parent declares them through
+\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}}.
 }
 \examples{
 # A univariate parent: the rate is the quantity, so nothing is derived.
@@ -45,6 +46,7 @@ r$transform
 }
 \seealso{
 \code{\link[=penalty_readable]{penalty_readable()}} for the generic,
-\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} for the declaration this passes through.
+\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} for the quantities that a multivariate
+family declares.
 }
 \keyword{internal}

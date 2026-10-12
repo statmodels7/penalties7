@@ -17,12 +17,12 @@ StructuredPenalty(
 }
 \arguments{
 \item{penalty_name}{A single string naming the penalty, used by \code{print()}
-and by consumers that report which penalty a block carries.}
+and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
-\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own storage;
-a diagonal map is what standardization comes to and is recognized by its
-class.}
+\code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
+storage, so a diagonal map, which is what standardization produces, is
+recognized as diagonal by its class.}
 
 \item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
 
@@ -49,18 +49,59 @@ An S7 object of class \code{StructuredPenalty}, inheriting from
 \code{\link[=penalty]{penalty()}}, with the seven inherited properties and \code{structure}.
 }
 \description{
-The class \code{\link[=structured_penalty]{structured_penalty()}} builds: the Gaussian prior whose precision
-is a \pkg{parameters7} matrix parameter. It adds one
-property to \code{\link[=penalty]{penalty()}}, the structure itself, and every quantity the branch
-supplies is read off that structure's own contract.
+The class of the objects that \code{\link[=structured_penalty]{structured_penalty()}} builds: the Gaussian
+prior whose precision is a \pkg{parameters7} matrix parameter. It adds one
+property to \code{\link[=penalty]{penalty()}}, the structure itself, and every quantity of the
+branch is computed from the methods of the structure.
 }
 \details{
 The hyperparameters are the structure's free vector, so \code{params} is its
 \code{free_names}, every entry of \code{params_bounds} is
 \eqn{(-\infty, \infty)} and every link is the identity. The constraint that
-keeps the matrix positive definite lives inside the structure, where a
-scalar link cannot express it. \code{map} is always \code{NULL}.
+keeps the matrix positive definite is part of the structure, where a scalar
+link cannot express it. \code{map} is always \code{NULL}.
 }
+\section{Methods}{
+
+The methods registered on this class, by the page that documents each.
+\itemize{
+\item The value and its coefficient derivatives:
+\link[=penalty_value.StructuredPenalty]{penalty_value()},
+\link[=penalty_gradient.StructuredPenalty]{penalty_gradient()} and
+\link[=penalty_hessian.StructuredPenalty]{penalty_hessian()}.
+\item The hyperparameter derivatives:
+\link[=penalty_grad_theta.StructuredPenalty]{penalty_grad_theta()},
+\link[=penalty_hess_theta.StructuredPenalty]{penalty_hess_theta()} and
+\link[=penalty_cross.StructuredPenalty]{penalty_cross()}.
+\item The predicates: \link[=penalty_kinks.StructuredPenalty]{penalty_kinks()},
+\link[=is_proper.StructuredPenalty]{is_proper()} and
+\link[=is_quadratic.StructuredPenalty]{is_quadratic()}.
+\item The quantities of a marginal criterion:
+\link[=penalty_matrix.StructuredPenalty]{penalty_matrix()},
+\link[=penalty_rank.StructuredPenalty]{penalty_rank()},
+\link[=penalty_null_basis.StructuredPenalty]{penalty_null_basis()} and
+\link[=penalty_logpdet.StructuredPenalty]{penalty_logpdet()}.
+\item The higher derivatives of a marginal criterion:
+\link[=penalty_dhessian.StructuredPenalty]{penalty_dhessian()},
+\link[=penalty_d2hessian.StructuredPenalty]{penalty_d2hessian()},
+\link[=penalty_dcross.StructuredPenalty]{penalty_dcross()} and
+\link[=beta_quadratic.StructuredPenalty]{beta_quadratic()}.
+\item The movement of the Hessian with the coefficients:
+\link[=penalty_dhessian_beta.StructuredPenalty]{penalty_dhessian_beta()},
+\link[=penalty_d2hessian_beta.penalty]{penalty_d2hessian_beta()} and
+\link[=penalty_dhessian_beta_theta.penalty]{penalty_dhessian_beta_theta()}.
+The last two return zero matrices, the Hessian being free of the
+coefficients, and are documented on the page of the base-class methods.
+\item The proximal operator:
+\link[=penalty_prox.StructuredPenalty]{penalty_prox()}, documented on the page
+of the quadratic branch.
+}
+
+The class registers no \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=penalty_draw]{penalty_draw()}} or
+\code{\link[=penalty_readable]{penalty_readable()}} method, so the methods of the base class \code{\link[=penalty]{penalty()}}
+answer those generics; in particular \code{penalty_readable()} returns \code{NULL}.
+}
+
 \examples{
 pen <- structured_penalty(parameters7::ar1(4))
 S7::S7_inherits(pen, StructuredPenalty)
