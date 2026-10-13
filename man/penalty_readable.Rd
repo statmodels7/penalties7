@@ -54,9 +54,9 @@ inside \eqn{(-1, 1)}.
 the result for the quadratic, additive, SCAD and MCP branches and for a
 separable penalty with a univariate parent, whose hyperparameters (a
 smoothing parameter, a rate, a scale, a shape) are interpretable on their
-own scale. A structured penalty also returns \code{NULL}, although its
-hyperparameters are the free values of a \pkg{parameters7} matrix
-parameter.
+own scale. A structured penalty returns \code{NULL} when its structure declares
+no quantities through \code{\link[parameters7:param_readable]{parameters7::param_readable()}}, as
+\code{\link[parameters7:log_cholesky]{parameters7::log_cholesky()}} and \code{\link[parameters7:inverse_of]{parameters7::inverse_of()}} do.
 }
 
 \section{Methods}{
@@ -64,7 +64,11 @@ parameter.
 The method on the base class \code{\link[=penalty]{penalty()}} returns \code{NULL}. A separable
 penalty registers \code{\link[=penalty_readable.DistribPenalty]{penalty_readable.DistribPenalty()}}, which returns the
 result of \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} for a multivariate parent and
-\code{NULL} for a univariate one.
+\code{NULL} for a univariate one. A structured penalty registers
+\code{\link[=penalty_readable.StructuredPenalty]{penalty_readable.StructuredPenalty()}}, which returns the quantities that
+\code{\link[parameters7:param_readable]{parameters7::param_readable()}} declares for its structure, in the same
+shape and under names prefixed with \code{precision_}, and \code{NULL} for a
+structure that declares none.
 }
 
 \examples{

@@ -73,9 +73,13 @@ NULL
 #'   is the log pseudo-determinant of \eqn{P}.
 #' @param DPD The assembled \eqn{D'PD}, an `n_coef` by `n_coef` matrix, cached
 #'   so that the gradient and the Hessian never re-form it.
+#' @param tol The relative eigenvalue tolerance, a single positive number,
+#'   `1e-10` by default. [quadratic_penalty()] counts `p_rank` at this
+#'   tolerance and stores it, and [check_penalty()] counts the eigenvalues of
+#'   the matrix at the same tolerance when it compares them with the rank.
 #'
 #' @return An S7 object of class `QuadraticPenalty`, inheriting from
-#'   [penalty()], with the seven inherited properties and the five above.
+#'   [penalty()], with the seven inherited properties and the six above.
 #'
 #' @seealso [quadratic_penalty()] for the constructor to use,
 #'   [penalty_value.QuadraticPenalty()] for what the branch computes,
@@ -86,7 +90,7 @@ NULL
 #' pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
 #' S7::S7_inherits(pen, QuadraticPenalty)
 #'
-#' # Three of the five properties, computed at construction.
+#' # Three of the six properties, computed at construction.
 #' pen@p_rank
 #' dim(pen@null_basis)
 #' pen@logpdet_DPD
@@ -101,7 +105,8 @@ QuadraticPenalty <- S7::new_class(
     p_rank = S7::class_numeric,
     null_basis = S7::class_any,
     logpdet_DPD = S7::class_numeric,
-    DPD = S7::class_any
+    DPD = S7::class_any,
+    tol = S7::new_property(S7::class_numeric, default = 1e-10)
   )
 )
 
@@ -215,7 +220,8 @@ QuadraticPenalty <- S7::new_class(
 #'   default. An eigenvalue of \eqn{D'PD} at or below `tol` times the largest
 #'   counts as zero, so its direction joins the null space and is not
 #'   penalized. The same tolerance bounds the negative eigenvalues of \eqn{P}
-#'   that are accepted as rounding errors.
+#'   that are accepted as rounding errors. The object stores `tol`, and
+#'   [check_penalty()] counts the rank at the same tolerance.
 #'
 #' @return A [QuadraticPenalty()] object with one hyperparameter, `lambda`,
 #'   bounded on \eqn{(0, \infty)}.
@@ -346,7 +352,8 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
     p_rank = r,
     null_basis = nb,
     logpdet_DPD = logpdet,
-    DPD = DPD
+    DPD = DPD,
+    tol = tol
   )
 }
 
@@ -405,7 +412,8 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
     p_rank = m * sum(keep),
     null_basis = nb,
     logpdet_DPD = m * sum(log(e$values[keep])),
-    DPD = Pb
+    DPD = Pb,
+    tol = tol
   )
 }
 

@@ -55,12 +55,13 @@ Any other parent is solved coordinate by coordinate from
 \eqn{(\beta - v)/t = \ell^{(y)}(\beta)}, whose right-hand side is
 \code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}}. The condition can have more than one
 root when the density is not log-concave, so every change of sign on the
-segment between zero and \eqn{v} is refined and the root of smallest
-objective is returned, as \code{\link[=.prox_root]{.prox_root()}} describes. That root is the
-global minimizer when the penalty is smallest at zero and non-decreasing in
-\eqn{\lvert\beta\rvert}. A parent that declares a kink and is not one of
-the closed-form families is rejected, because the stationary condition does
-not hold at a kink and the minimizer of such a penalty can lie there.
+segment between \eqn{v} and the mode of the parent is refined and the root
+of smallest objective is returned, as \code{\link[=.prox_root]{.prox_root()}} describes. That root
+is the global minimizer when the parent is unimodal, and a stationary point
+that need not be the global minimizer when the parent has more than one
+mode. A parent that declares a kink and is not one of the closed-form
+families is rejected, because the stationary condition does not hold at a
+kink and the minimizer of such a penalty can lie there.
 }
 
 \section{Errors}{

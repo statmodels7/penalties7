@@ -2,13 +2,16 @@
 % Please edit documentation in R/prox.R
 \name{.prox_root}
 \alias{.prox_root}
+\alias{.prox_mode}
 \alias{.prox_root_widened}
 \alias{.prox_uniroot}
 \title{The Proximal Operator of a Separable Penalty, by Its Stationary Points}
 \usage{
 .prox_root(pen, v, step, theta, n_grid = 64L)
 
-.prox_root_widened(pen, h, vi)
+.prox_mode(ly)
+
+.prox_root_widened(pen, h, vi, m = 0)
 
 .prox_uniroot(h, lo, hi, flo, fhi)
 }
@@ -23,9 +26,13 @@
 
 \item{n_grid}{The number of grid points on each segment, ends included.}
 
+\item{ly}{The function \eqn{\ell^{(y)}} of the parent, vectorized.}
+
 \item{h}{The function \eqn{h} of one coordinate.}
 
 \item{vi}{That coordinate's point.}
+
+\item{m}{The parent's mode, as \code{.prox_mode()} returns it.}
 
 \item{lo, hi}{The ends of a bracket, in either order.}
 
@@ -33,15 +40,18 @@
 }
 \value{
 A numeric vector of the same length as \code{v}.
+
+\code{.prox_mode()} returns a single number, the mode of the parent or
+zero.
 }
 \description{
 Returns, for every coordinate, the stationary point of smallest objective
 \eqn{(\beta - v_j)^2/(2t) - \log f(\beta)}, where \eqn{f} is the parent's
-density, among the stationary points found on the segment between zero and
-\eqn{v_j}. When the penalty is smallest at zero and non-decreasing in
-\eqn{\lvert\beta\rvert}, this point is the global minimizer. The function
-serves the separable penalties that have no closed-form operator, such as
-the heavy-tailed Student t prior.
+density, among the stationary points found on the segment between
+\eqn{v_j} and the mode of the parent. When the parent is unimodal, this
+point is the global minimizer. The function serves the separable penalties
+that have no closed-form operator, such as the heavy-tailed Student t
+prior.
 }
 \details{
 The stationary points are the roots of
@@ -51,25 +61,36 @@ The stationary points are the roots of
 them local minima of the objective), and the first root that a bracket
 encloses need not be the global minimizer.
 
-When the penalty is smallest at zero and non-decreasing in
-\eqn{\lvert\beta\rvert}, the global minimizer lies on the segment between
-\eqn{0} and \eqn{v}. Moving a point beyond \eqn{v} to \eqn{v}, or a point
-on the other side of zero to zero, lowers the quadratic term and does not
-raise the penalty. The segment is therefore scanned on \code{n_grid} equally
-spaced points, both ends included, with \eqn{h} evaluated for every
-coordinate in one call. Every interval over which \eqn{h} changes sign is
-refined by \code{uniroot()}, a grid point where \eqn{h} is exactly zero is kept
-as it is, and the candidate of smallest objective is returned, with the
-log-density computed by \code{\link[distributions7:distrib_pdf]{distributions7::distrib_pdf()}}.
+For a unimodal parent with mode \eqn{m}, the penalty is non-increasing up
+to \eqn{m} and non-decreasing after it, so the global minimizer lies on the
+segment between \eqn{v} and \eqn{m}. Moving a point beyond \eqn{v} to
+\eqn{v}, or a point beyond \eqn{m} to \eqn{m}, lowers the quadratic term
+and does not raise the penalty. The mode is the root of
+\eqn{\ell^{(y)}}, found once per call because the parent and \eqn{\theta}
+are the same for every coordinate: when \eqn{\ell^{(y)}(0)} is exactly
+zero the mode is taken as zero, and otherwise the root is bracketed by
+doubling a step from zero in the direction in which \eqn{\ell^{(y)}}
+points, up to \eqn{2^{60}}, and refined by \code{uniroot()} to full relative
+precision. When no change of sign is found, or \eqn{\ell^{(y)}} is not
+finite, the mode is taken as zero and the segment is the one between zero
+and \eqn{v}. The search moves away from zero only while \eqn{\ell^{(y)}}
+keeps its sign, so the root it finds is a local mode, which is the mode
+when the parent is unimodal.
 
-When the segment shows no change of sign, which happens for a parent that
-is not centered at zero, the bracket starts one unit beyond
-\eqn{\min(v, 0)} and \eqn{\max(v, 0)}, each end that does not yet have the
-required sign is moved out by the current width of the bracket up to sixty
-times, and the single root found in the final bracket is returned. For a
-parent whose density is not largest at zero, the result in either case is
-a stationary point that need not be the global minimizer, because the
-scan covers only the segment between zero and \eqn{v}.
+The segment is scanned on \code{n_grid} equally spaced points, both ends
+included, with \eqn{h} evaluated for every coordinate in one call. Every
+interval over which \eqn{h} changes sign is refined by \code{uniroot()}, a grid
+point where \eqn{h} is exactly zero is kept as it is, and the candidate of
+smallest objective is returned, with the log-density computed by
+\code{\link[distributions7:distrib_pdf]{distributions7::distrib_pdf()}}.
+
+When the segment shows no change of sign, the bracket starts one unit
+beyond \eqn{\min(v, m)} and \eqn{\max(v, m)}, each end that does not yet
+have the required sign is moved out by the current width of the bracket up
+to sixty times, and the single root found in the final bracket is
+returned. For a parent with more than one mode, the result in either case
+is a stationary point that need not be the global minimizer, because the
+scan covers only the segment between \eqn{v} and one local mode.
 
 The tolerance passed to \code{uniroot()} is \code{eps^0.75} times the end of the
 bracket nearer to zero, or the smallest positive double when the bracket

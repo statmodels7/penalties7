@@ -31,10 +31,10 @@ test_that("check_penalty() has one passing row per pair of hyperparameters", {
     mcp = list(mcp_penalty(n_coef = 4), 8L),
     elasticnet = list(elasticnet_penalty(n_coef = 4), 8L),
     heavy = list(heavy_penalty(n_coef = 4), 8L),
-    additive2 = list(additive_penalty(list(d1, d2)), 11L),
-    additive3 = list(additive_penalty(list(d1, diag(5), d2)), 13L),
-    structured = list(structured_penalty(parameters7::ar1(4)), 10L),
-    cholesky = list(structured_penalty(parameters7::log_cholesky(3)), 22L)
+    additive2 = list(additive_penalty(list(d1, d2)), 13L),
+    additive3 = list(additive_penalty(list(d1, diag(5), d2)), 15L),
+    structured = list(structured_penalty(parameters7::ar1(4)), 12L),
+    cholesky = list(structured_penalty(parameters7::log_cholesky(3)), 24L)
   )
   for (nm in names(cases)) {
     pen <- cases[[nm]][[1L]]

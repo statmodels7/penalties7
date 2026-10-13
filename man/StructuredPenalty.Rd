@@ -95,11 +95,14 @@ coefficients, and are documented on the page of the base-class methods.
 \item The proximal operator:
 \link[=penalty_prox.StructuredPenalty]{penalty_prox()}, documented on the page
 of the quadratic branch.
+\item The interpretable quantities:
+\link[=penalty_readable.StructuredPenalty]{penalty_readable()}, which returns
+those that the structure declares through
+\code{\link[parameters7:param_readable]{parameters7::param_readable()}}.
 }
 
-The class registers no \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=penalty_draw]{penalty_draw()}} or
-\code{\link[=penalty_readable]{penalty_readable()}} method, so the methods of the base class \code{\link[=penalty]{penalty()}}
-answer those generics; in particular \code{penalty_readable()} returns \code{NULL}.
+The class registers no \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} or \code{\link[=penalty_draw]{penalty_draw()}} method, so
+the methods of the base class \code{\link[=penalty]{penalty()}} answer those generics.
 }
 
 \examples{

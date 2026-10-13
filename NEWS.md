@@ -36,7 +36,8 @@
 
 * `quadratic_penalty()` rejects a `P` that is not positive semidefinite, a map
   that makes \eqn{D'PD} the zero matrix, and entries that are not finite. The
-  rank and the null basis are read from the same eigenvalues.
+  rank and the null basis are read from the same eigenvalues. The object stores
+  its `tol` (a new property).
 
 * `additive_penalty()` rejects a component that the map carries to zero and
   entries that are not finite, stores its `tol` (a new property) and passes it
@@ -45,8 +46,9 @@
   instead of an error.
 
 * The proximal operator of a separable penalty without a closed form returns
-  the global minimizer on the segment from zero to `v` (the Student t prior is
-  not log-concave, and a single root could be a local minimum), and is
+  the global minimizer for a unimodal parent: it scans the segment between `v`
+  and the parent's mode, so that a parent that is not log-concave (the Student
+  t prior) or not centered at zero no longer gives a local minimum, and it is
   accurate relative to a small answer.
 
 * The SCAD and MCP operators are computed in a form that stays accurate as the
@@ -57,7 +59,13 @@
   finite positive step of length one or `n_coef`.
 
 * `check_penalty()` checks the off-diagonal entries of the hyperparameter
-  Hessian.
+  Hessian and, for a quadratic, structured or additive penalty, the stored rank
+  and the width of the null basis. A row whose numerical reference cannot be
+  computed is reported as `FAILED` instead of stopping the check.
+
+* `penalty_readable()` of a structured penalty returns the quantities that
+  `parameters7::param_readable()` defines for its structure, named with the
+  prefix `precision_` because the structure is the precision of the prior.
 
 * `penalty_draw()` of a separable penalty under a diagonal map with a zero
   entry returns `NA` only at that coordinate.

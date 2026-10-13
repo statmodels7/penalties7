@@ -16,7 +16,8 @@ QuadraticPenalty(
   p_rank = integer(0),
   null_basis = NULL,
   logpdet_DPD = integer(0),
-  DPD = NULL
+  DPD = NULL,
+  tol = 1e-10
 )
 }
 \arguments{
@@ -62,10 +63,15 @@ is the log pseudo-determinant of \eqn{P}.}
 
 \item{DPD}{The assembled \eqn{D'PD}, an \code{n_coef} by \code{n_coef} matrix, cached
 so that the gradient and the Hessian never re-form it.}
+
+\item{tol}{The relative eigenvalue tolerance, a single positive number,
+\code{1e-10} by default. \code{\link[=quadratic_penalty]{quadratic_penalty()}} counts \code{p_rank} at this
+tolerance and stores it, and \code{\link[=check_penalty]{check_penalty()}} counts the eigenvalues of
+the matrix at the same tolerance when it compares them with the rank.}
 }
 \value{
 An S7 object of class \code{QuadraticPenalty}, inheriting from
-\code{\link[=penalty]{penalty()}}, with the seven inherited properties and the five above.
+\code{\link[=penalty]{penalty()}}, with the seven inherited properties and the six above.
 }
 \description{
 The class of the objects that \code{\link[=quadratic_penalty]{quadratic_penalty()}} builds. Beyond the
@@ -129,7 +135,7 @@ answer those generics.
 pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
 S7::S7_inherits(pen, QuadraticPenalty)
 
-# Three of the five properties, computed at construction.
+# Three of the six properties, computed at construction.
 pen@p_rank
 dim(pen@null_basis)
 pen@logpdet_DPD

@@ -170,10 +170,10 @@ test_that("the additive branch is quadratic and answers as one", {
     expect_equal(lp$grad[[p]], ref, tolerance = 1e-7)
   }
 
-  # check_penalty() runs the three quadratic rows on the branch, and they
-  # pass: 9 rows for the two hyperparameters and 3 quadratic ones
+  # check_penalty() runs the five quadratic rows on the branch, and they
+  # pass: 9 rows for the two hyperparameters and 5 quadratic ones
   res <- check_penalty(pen, theta = th, verbose = FALSE)
-  expect_identical(nrow(res), 12L)
+  expect_identical(nrow(res), 14L)
   expect_true(all(res$status == "OK"),
               info = paste(res$check[res$status != "OK"], collapse = ", "))
   expect_true(all(c("quadratic three-point identity",

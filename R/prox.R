@@ -43,14 +43,13 @@ NULL
 #' whose right-hand side is [distributions7::distrib_grad_y()]. For a density
 #' that is not log-concave, such as the Student t of [heavy_penalty()], the
 #' condition can have more than one root, and the operator is the root of
-#' smallest objective. The segment between zero and \eqn{v} is scanned for
-#' changes of sign, each change is refined by `uniroot()` to a relative
-#' accuracy of about `eps^0.75`, and the candidate of smallest objective is
-#' returned. When the penalty is smallest at zero and non-decreasing in
-#' \eqn{\lvert\beta\rvert}, the global minimizer lies on that segment and the
-#' value returned is the global minimizer. For a parent whose density is not
-#' largest at zero, the value returned is a stationary point that need not be
-#' the global minimizer; [.prox_root()] gives the details. A parent that
+#' smallest objective. The segment between \eqn{v} and the mode of the parent
+#' is scanned for changes of sign, each change is refined by `uniroot()` to a
+#' relative accuracy of about `eps^0.75`, and the candidate of smallest
+#' objective is returned. For a unimodal parent the global minimizer lies on
+#' that segment, so the value returned is the global minimizer. For a parent
+#' with more than one mode, the value returned is a stationary point that need
+#' not be the global minimizer; [.prox_root()] gives the details. A parent that
 #' declares a kink and is not one of the closed-form families is rejected,
 #' because the stationary condition does not hold at a kink and the minimizer
 #' of such a penalty can lie there.
@@ -79,8 +78,8 @@ NULL
 #' - a Laplace or elastic-net parent that is not centered at zero, because the
 #'   closed form is written for a parent centered at zero;
 #' - a separable parent that declares a kink and has no closed form;
-#' - a stationary condition that changes sign neither on the segment from zero
-#'   to \eqn{v} nor in a widened bracket;
+#' - a stationary condition that changes sign neither on the segment between
+#'   \eqn{v} and the mode of the parent nor in a widened bracket;
 #' - SCAD where \eqn{t c_j \ge a - 1} and MCP where \eqn{t c_j \ge \gamma} in
 #'   some coordinate, with \eqn{c_j} the curvature `curv` of the penalty and
 #'   \eqn{t} multiplied by \eqn{d_j^2} under a diagonal map; the subproblem is
@@ -592,12 +591,13 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' \eqn{(\beta - v)/t = \ell^{(y)}(\beta)}, whose right-hand side is
 #' [distributions7::distrib_grad_y()]. The condition can have more than one
 #' root when the density is not log-concave, so every change of sign on the
-#' segment between zero and \eqn{v} is refined and the root of smallest
-#' objective is returned, as [.prox_root()] describes. That root is the
-#' global minimizer when the penalty is smallest at zero and non-decreasing in
-#' \eqn{\lvert\beta\rvert}. A parent that declares a kink and is not one of
-#' the closed-form families is rejected, because the stationary condition does
-#' not hold at a kink and the minimizer of such a penalty can lie there.
+#' segment between \eqn{v} and the mode of the parent is refined and the root
+#' of smallest objective is returned, as [.prox_root()] describes. That root
+#' is the global minimizer when the parent is unimodal, and a stationary point
+#' that need not be the global minimizer when the parent has more than one
+#' mode. A parent that declares a kink and is not one of the closed-form
+#' families is rejected, because the stationary condition does not hold at a
+#' kink and the minimizer of such a penalty can lie there.
 #'
 #' @param pen A [DistribPenalty()] object.
 #' @param v A numeric vector of length `pen@n_coef`.
@@ -704,11 +704,11 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' @description
 #' Returns, for every coordinate, the stationary point of smallest objective
 #' \eqn{(\beta - v_j)^2/(2t) - \log f(\beta)}, where \eqn{f} is the parent's
-#' density, among the stationary points found on the segment between zero and
-#' \eqn{v_j}. When the penalty is smallest at zero and non-decreasing in
-#' \eqn{\lvert\beta\rvert}, this point is the global minimizer. The function
-#' serves the separable penalties that have no closed-form operator, such as
-#' the heavy-tailed Student t prior.
+#' density, among the stationary points found on the segment between
+#' \eqn{v_j} and the mode of the parent. When the parent is unimodal, this
+#' point is the global minimizer. The function serves the separable penalties
+#' that have no closed-form operator, such as the heavy-tailed Student t
+#' prior.
 #'
 #' @details
 #' The stationary points are the roots of
@@ -718,25 +718,36 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' them local minima of the objective), and the first root that a bracket
 #' encloses need not be the global minimizer.
 #'
-#' When the penalty is smallest at zero and non-decreasing in
-#' \eqn{\lvert\beta\rvert}, the global minimizer lies on the segment between
-#' \eqn{0} and \eqn{v}. Moving a point beyond \eqn{v} to \eqn{v}, or a point
-#' on the other side of zero to zero, lowers the quadratic term and does not
-#' raise the penalty. The segment is therefore scanned on `n_grid` equally
-#' spaced points, both ends included, with \eqn{h} evaluated for every
-#' coordinate in one call. Every interval over which \eqn{h} changes sign is
-#' refined by `uniroot()`, a grid point where \eqn{h} is exactly zero is kept
-#' as it is, and the candidate of smallest objective is returned, with the
-#' log-density computed by [distributions7::distrib_pdf()].
+#' For a unimodal parent with mode \eqn{m}, the penalty is non-increasing up
+#' to \eqn{m} and non-decreasing after it, so the global minimizer lies on the
+#' segment between \eqn{v} and \eqn{m}. Moving a point beyond \eqn{v} to
+#' \eqn{v}, or a point beyond \eqn{m} to \eqn{m}, lowers the quadratic term
+#' and does not raise the penalty. The mode is the root of
+#' \eqn{\ell^{(y)}}, found once per call because the parent and \eqn{\theta}
+#' are the same for every coordinate: when \eqn{\ell^{(y)}(0)} is exactly
+#' zero the mode is taken as zero, and otherwise the root is bracketed by
+#' doubling a step from zero in the direction in which \eqn{\ell^{(y)}}
+#' points, up to \eqn{2^{60}}, and refined by `uniroot()` to full relative
+#' precision. When no change of sign is found, or \eqn{\ell^{(y)}} is not
+#' finite, the mode is taken as zero and the segment is the one between zero
+#' and \eqn{v}. The search moves away from zero only while \eqn{\ell^{(y)}}
+#' keeps its sign, so the root it finds is a local mode, which is the mode
+#' when the parent is unimodal.
 #'
-#' When the segment shows no change of sign, which happens for a parent that
-#' is not centered at zero, the bracket starts one unit beyond
-#' \eqn{\min(v, 0)} and \eqn{\max(v, 0)}, each end that does not yet have the
-#' required sign is moved out by the current width of the bracket up to sixty
-#' times, and the single root found in the final bracket is returned. For a
-#' parent whose density is not largest at zero, the result in either case is
-#' a stationary point that need not be the global minimizer, because the
-#' scan covers only the segment between zero and \eqn{v}.
+#' The segment is scanned on `n_grid` equally spaced points, both ends
+#' included, with \eqn{h} evaluated for every coordinate in one call. Every
+#' interval over which \eqn{h} changes sign is refined by `uniroot()`, a grid
+#' point where \eqn{h} is exactly zero is kept as it is, and the candidate of
+#' smallest objective is returned, with the log-density computed by
+#' [distributions7::distrib_pdf()].
+#'
+#' When the segment shows no change of sign, the bracket starts one unit
+#' beyond \eqn{\min(v, m)} and \eqn{\max(v, m)}, each end that does not yet
+#' have the required sign is moved out by the current width of the bracket up
+#' to sixty times, and the single root found in the final bracket is
+#' returned. For a parent with more than one mode, the result in either case
+#' is a stationary point that need not be the global minimizer, because the
+#' scan covers only the segment between \eqn{v} and one local mode.
 #'
 #' The tolerance passed to `uniroot()` is `eps^0.75` times the end of the
 #' bracket nearer to zero, or the smallest positive double when the bracket
@@ -752,6 +763,9 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #'
 #' @return A numeric vector of the same length as `v`.
 #'
+#' @return `.prox_mode()` returns a single number, the mode of the parent or
+#'   zero.
+#'
 #' @section Errors:
 #' A message naming the penalty where neither the segment nor the widened
 #' bracket shows a change of sign.
@@ -764,8 +778,11 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
     as.numeric(distributions7::distrib_grad_y(pen@parent, b, theta)) + 0 * b
   }
   q <- length(v)
-  # column j of G runs over the segment from 0 to v_j
-  G <- outer(seq(0, 1, length.out = n_grid), v)
+  # the global minimizer lies between v_j and the parent's mode m, the same
+  # for every coordinate; m = 0 for a parent centered at zero
+  m <- .prox_mode(ly)
+  # column j of G runs over the segment from m to v_j
+  G <- outer(seq(0, 1, length.out = n_grid), v - m) + m
   H <- (G - rep(v, each = n_grid)) / step -
     matrix(ly(as.numeric(G)), nrow = n_grid, ncol = q)
   vapply(seq_len(q), function(j) {
@@ -778,7 +795,7 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
       cand <- c(cand, .prox_uniroot(h, g[[k]], g[[k + 1L]],
                                     hj[[k]], hj[[k + 1L]]))
     }
-    if (!length(cand)) return(.prox_root_widened(pen, h, vj))
+    if (!length(cand)) return(.prox_root_widened(pen, h, vj, m))
     if (length(cand) == 1L) return(cand)
     obj <- (cand - vj)^2 / (2 * step) -
       as.numeric(distributions7::distrib_pdf(pen@parent, cand, theta,
@@ -788,12 +805,46 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 }
 
 #' @rdname dot-prox_root
+#' @param ly The function \eqn{\ell^{(y)}} of the parent, vectorized.
+#' @keywords internal
+.prox_mode <- function(ly) {
+  # the root of l_y bracketed by doubling from 0 in the direction in which
+  # l_y points; when l_y does not change sign within 2^60, or is not finite,
+  # the mode is taken as 0 and the scan runs from 0 to v as for a centered
+  # parent
+  f0 <- ly(0)
+  if (!is.finite(f0) || f0 == 0) return(0)
+  a <- 0
+  fa <- f0
+  for (k in 0:60) {
+    b <- sign(f0) * 2^k
+    fb <- ly(b)
+    if (!is.finite(fb)) return(0)
+    if (fb == 0) return(b)
+    if (sign(fb) != sign(f0)) {
+      # to full precision: the root of h next to the mode can lie much
+      # closer to it than one scale, and it has to stay on the segment
+      lo <- min(a, b)
+      hi <- max(a, b)
+      return(stats::uniroot(ly, c(lo, hi),
+                            f.lower = if (lo == a) fa else fb,
+                            f.upper = if (hi == a) fa else fb,
+                            tol = .Machine$double.xmin, maxiter = 2000L)$root)
+    }
+    a <- b
+    fa <- fb
+  }
+  0
+}
+
+#' @rdname dot-prox_root
 #' @param h The function \eqn{h} of one coordinate.
 #' @param vi That coordinate's point.
+#' @param m The parent's mode, as `.prox_mode()` returns it.
 #' @keywords internal
-.prox_root_widened <- function(pen, h, vi) {
-  lo <- min(vi, 0) - 1
-  hi <- max(vi, 0) + 1
+.prox_root_widened <- function(pen, h, vi, m = 0) {
+  lo <- min(vi, m) - 1
+  hi <- max(vi, m) + 1
   for (k in 1:60) {
     if (h(lo) <= 0 && h(hi) >= 0) break
     if (h(lo) > 0) lo <- lo - (hi - lo)
@@ -804,8 +855,9 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
   if (hl > 0 || hh < 0) {
     stop(sprintf(paste0(
       "the proximal operator of '%s' could not be found: the stationary\n",
-      "  condition changes sign neither between 0 and v nor in a bracket\n",
-      "  widened sixty times."), pen@penalty_name), call. = FALSE)
+      "  condition changes sign neither between %s and v nor in a bracket\n",
+      "  widened sixty times."), pen@penalty_name,
+      if (m == 0) "0" else "the mode of the parent"), call. = FALSE)
   }
   if (hl == 0) return(lo)
   if (hh == 0) return(hi)

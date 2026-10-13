@@ -734,9 +734,9 @@ S7::method(penalty_logpdet, penalty) <- function(pen, theta, ...) {
 #' the result for the quadratic, additive, SCAD and MCP branches and for a
 #' separable penalty with a univariate parent, whose hyperparameters (a
 #' smoothing parameter, a rate, a scale, a shape) are interpretable on their
-#' own scale. A structured penalty also returns `NULL`, although its
-#' hyperparameters are the free values of a \pkg{parameters7} matrix
-#' parameter.
+#' own scale. A structured penalty returns `NULL` when its structure declares
+#' no quantities through [parameters7::param_readable()], as
+#' [parameters7::log_cholesky()] and [parameters7::inverse_of()] do.
 #'
 #' @param pen A [penalty()] object of any branch.
 #' @param theta A named list of hyperparameter values, or a named numeric
@@ -773,7 +773,11 @@ S7::method(penalty_logpdet, penalty) <- function(pen, theta, ...) {
 #' The method on the base class [penalty()] returns `NULL`. A separable
 #' penalty registers [penalty_readable.DistribPenalty()], which returns the
 #' result of [distributions7::mv_derived()] for a multivariate parent and
-#' `NULL` for a univariate one.
+#' `NULL` for a univariate one. A structured penalty registers
+#' [penalty_readable.StructuredPenalty()], which returns the quantities that
+#' [parameters7::param_readable()] declares for its structure, in the same
+#' shape and under names prefixed with `precision_`, and `NULL` for a
+#' structure that declares none.
 #'
 #' @aliases penalty_readable.penalty
 #'

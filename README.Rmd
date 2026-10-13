@@ -194,8 +194,8 @@ sign(v) * pmax(abs(v) - 1, 0)                                # by hand
 references computed by numDeriv: the gradient and the Hessian in the
 coefficients, the gradient and every entry of the Hessian in the
 hyperparameters, and the mixed block. For a quadratic penalty it also checks
-the three-point identity of a quadratic form, the log pseudo-determinant and
-the null basis. It does not test the proximal operator. The function is meant
+the three-point identity of a quadratic form, the log pseudo-determinant, the
+rank and the null basis. It does not test the proximal operator. The function is meant
 above all for a penalty written outside the package; the article
 [Defining a penalty](https://statmodels7.github.io/penalties7/articles/defining-a-penalty.html)
 writes one and validates it, and the examples of `check_penalty()` show the

@@ -42,7 +42,8 @@ being positive.}
 default. An eigenvalue of \eqn{D'PD} at or below \code{tol} times the largest
 counts as zero, so its direction joins the null space and is not
 penalized. The same tolerance bounds the negative eigenvalues of \eqn{P}
-that are accepted as rounding errors.}
+that are accepted as rounding errors. The object stores \code{tol}, and
+\code{\link[=check_penalty]{check_penalty()}} counts the rank at the same tolerance.}
 }
 \value{
 A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object with one hyperparameter, \code{lambda},

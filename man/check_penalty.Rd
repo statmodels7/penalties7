@@ -27,7 +27,8 @@ and \code{gamma = 2.2} for MCP.}
 
 \item{tol}{The scaled error at or above which a row is reported as
 \code{FAILED}. A single positive number, \code{1e-6} by default. A row whose error
-is not finite is also reported as \code{FAILED}.}
+is not finite is also reported as \code{FAILED}, and so is a row whose
+numerical reference cannot be computed.}
 
 \item{verbose}{\code{TRUE}, the default, prints the table without row names.
 The result is returned invisibly either way.}
@@ -40,9 +41,12 @@ rows that compare with a numerical reference, \code{max_error} is the worst
 absolute difference divided by \code{max(1, max(abs(reference)))}. For the
 three-point identity it is the absolute value of the combination divided
 by \code{max(1, abs(rho(beta)))}; for the slope of the log pseudo-determinant,
-the absolute difference between the increase and the rank; for the null
-basis, the largest absolute entry of \eqn{S(\theta)N} divided by
-\code{max(1, max(abs(S)))}.
+the absolute difference between the increase and the rank; for the rank
+and for the width of the null basis, the absolute difference between the
+two counts; for the annihilation by the null basis, the largest absolute
+entry of \eqn{S(\theta)N} divided by \code{max(1, max(abs(S)))}. A row whose
+reference signals an error, a numerical derivative or the eigenvalues
+of the rank row, has \code{max_error} equal to \code{NaN}.
 }
 \description{
 Compares the derivatives that a penalty declares with numerical
@@ -55,14 +59,15 @@ the hyperparameter Hessian, diagonal or off-diagonal, with a numerical
 derivative of the analytic hyperparameter gradient, and each mixed block
 with a numerical Jacobian of the analytic coefficient gradient, so that no
 reference is a difference of another difference. A quadratic penalty also has its
-three-point identity, its log pseudo-determinant and its null basis tested.
+three-point identity, its log pseudo-determinant, its rank and its null
+basis tested.
 The function serves to verify the derivatives of a penalty written by the
 user.
 }
 \section{The rows}{
 Two rows are produced for every penalty, three more for each
 hyperparameter, one more for each pair of distinct hyperparameters, and
-two or three more when \code{\link[=is_quadratic]{is_quadratic()}} is \code{TRUE}:\tabular{ll}{
+four or five more when \code{\link[=is_quadratic]{is_quadratic()}} is \code{TRUE}:\tabular{ll}{
    row \tab compares \cr
    \verb{gradient vs numDeriv} \tab \code{\link[=penalty_gradient]{penalty_gradient()}} against a numerical gradient of \code{\link[=penalty_value]{penalty_value()}} \cr
    \verb{hessian vs numDeriv on the gradient} \tab \code{\link[=penalty_hessian]{penalty_hessian()}} against a numerical Jacobian of the analytic gradient, symmetrized \cr
@@ -73,33 +78,54 @@ two or three more when \code{\link[=is_quadratic]{is_quadratic()}} is \code{TRUE
    \verb{quadratic three-point identity} \tab \eqn{\rho(2\beta) - 4\rho(\beta) + 3\rho(0)}, which vanishes when the value is a quadratic form with no linear term \cr
    \verb{logpdet linear in log lambda with slope r} \tab raising \code{lambda} by a factor of \eqn{e} raises the value of \code{\link[=penalty_logpdet]{penalty_logpdet()}} by the rank \cr
    \verb{logpdet gradient vs numDeriv} \tab the \code{grad} element of \code{penalty_logpdet()} against a numerical derivative of its \code{value} \cr
+   \verb{rank vs eigenvalues of the matrix} \tab \code{\link[=penalty_rank]{penalty_rank()}} against the number of eigenvalues of \eqn{S(\theta)}, or of the sum of the normalized components of an additive penalty, that exceed a relative tolerance times the largest \cr
+   \verb{null basis width vs n_coef minus rank} \tab the number of columns of \code{\link[=penalty_null_basis]{penalty_null_basis()}} against \code{pen@n_coef} minus \code{\link[=penalty_rank]{penalty_rank()}} \cr
    \verb{null basis annihilates the matrix} \tab \eqn{S(\theta)N}, where \eqn{S(\theta)} is \code{\link[=penalty_matrix]{penalty_matrix()}} and \eqn{N} is \code{\link[=penalty_null_basis]{penalty_null_basis()}} \cr
 }
 
 
 The two log pseudo-determinant rows are alternatives, as described below.
-The null-basis row appears only when the null basis has columns. With
+The row of the annihilation appears only when the null basis has
+columns. With
 \eqn{p} hyperparameters the count is therefore \eqn{2 + 3p + p(p-1)/2} for
-a penalty that is not quadratic, and two or three more for a quadratic
-one. A lasso gives 5 rows, SCAD 9, a full-rank ridge 7, a quadratic
-penalty over second differences 8, and a structured penalty over a
-\verb{3 x 3} log-Cholesky precision 37.
+a penalty that is not quadratic, and four or five more for a quadratic
+one. A lasso gives 5 rows, SCAD 9, a full-rank ridge 9, a quadratic
+penalty over second differences 10, and a structured penalty over a
+\verb{3 x 3} log-Cholesky precision 39.
 }
 
 \section{Which log pseudo-determinant row a quadratic branch gets}{
 The quadratic rows are produced for every branch for which
 \code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE}: the three-point identity, one of the two
-log pseudo-determinant rows, and the null-basis row when the null basis
-has columns. When \code{"lambda"} is among \code{pen@params}, the matrix is one scale
+log pseudo-determinant rows, the row of the rank, the row of the width of
+the null basis, and the row of the annihilation when the null basis has
+columns. When \code{"lambda"} is among \code{pen@params}, the matrix is one scale
 times a constant, the log pseudo-determinant is linear in
 \eqn{\log\lambda} with slope the rank, and the row tests that identity.
 Otherwise the matrix depends on several hyperparameters, as in a
 structured or an additive penalty, and the row compares the reported
 gradient with a numerical derivative of the value. A two-component
-additive penalty whose sum has a null space therefore produces 12 rows:
+additive penalty whose sum has a null space therefore produces 14 rows:
 the 9 rows of its two hyperparameters, the three-point identity, the
-gradient of the log pseudo-determinant and the null basis. When the sum
-has full rank the null-basis row is absent and the count is 11.
+gradient of the log pseudo-determinant, the rank, the width of the null
+basis and its annihilation. When the sum has full rank the row of the
+annihilation is absent and the count is 13.
+
+The row of the rank counts the eigenvalues that exceed a relative
+tolerance times the largest. For a quadratic or a structured penalty they
+are the eigenvalues of \eqn{S(\theta)} at the \code{theta} of the check. For an
+additive penalty they are the eigenvalues of the sum of the components,
+each divided by its largest absolute entry, so that the row reproduces the
+count of \code{\link[=additive_penalty]{additive_penalty()}}: a count on \eqn{S(\theta)} drops the
+smaller components once their scales differ by more than the tolerance,
+as that function's page describes. The tolerance is the \code{tol} stored in a
+quadratic or an additive penalty, the one given to its constructor, and
+\code{1e-10} for a structured penalty, which stores none. The row's
+\code{max_error} is the absolute difference between that count and
+\code{\link[=penalty_rank]{penalty_rank()}}. A stored rank that differs from the
+count by one or more therefore fails the row of the rank, and a null
+basis whose number of columns differs from \code{pen@n_coef} minus the stored
+rank fails the row of the width.
 }
 
 \section{What is not checked}{
@@ -111,8 +137,7 @@ hyperparameter derivatives, \code{\link[=is_proper]{is_proper()}}, \code{\link[=
 \code{\link[=penalty_dcross]{penalty_dcross()}}, \code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}}, \code{\link[=penalty_d2hessian_beta]{penalty_d2hessian_beta()}},
 \code{\link[=penalty_dhessian_beta_theta]{penalty_dhessian_beta_theta()}}, \code{\link[=penalty_draw]{penalty_draw()}} or \code{\link[=penalty_readable]{penalty_readable()}}.
 It calls \code{\link[=penalty_kinks]{penalty_kinks()}} to place the coefficients but does not test the
-kinks themselves. Every row reads the stored rank, so a wrong rank stored
-in the object passes the check.
+kinks themselves.
 }
 
 \section{Where the coefficients are placed}{
@@ -130,7 +155,14 @@ clears them.
 \pkg{numDeriv} is in \code{Suggests} and the derivative rows need it, so the
 function signals an error when it is not installed. A \code{theta} outside the
 penalty's open bounds or missing a hyperparameter is rejected before any
-check runs.
+check runs. The analytic methods are evaluated at \code{beta} and \code{theta}
+outside the numerical references, so an error in \code{\link[=penalty_value]{penalty_value()}},
+\code{\link[=penalty_gradient]{penalty_gradient()}}, \code{\link[=penalty_hessian]{penalty_hessian()}}, the hyperparameter derivatives
+or the quadratic quantities is signaled as it arises. An error inside a
+numerical reference is not signaled: \pkg{numDeriv} stops when the
+function it differentiates returns a value that is not finite, and the
+row whose reference stopped is then reported with \code{max_error} equal to
+\code{NaN} and status \code{FAILED}, while the other rows are computed as usual.
 }
 
 \examples{

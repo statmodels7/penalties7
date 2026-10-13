@@ -131,7 +131,7 @@ penalty_value(s, bb, z) - penalty_value(ridge_penalty(n_coef = 3), bb,
 \code{\link[=additive_penalty]{additive_penalty()}} for a sum of quadratics,
 \code{\link[=distrib_penalty]{distrib_penalty()}} for a coordinatewise prior,
 \code{\link[parameters7:log_cholesky]{parameters7::log_cholesky()}} and \code{\link[parameters7:ar1]{parameters7::ar1()}} for structures to
-pass in, \code{\link[parameters7:param_readable]{parameters7::param_readable()}} for the interpretable quantities
-(a scale, a correlation) of a structure that defines them
-(\code{\link[=penalty_readable]{penalty_readable()}} returns \code{NULL} for this branch).
+pass in, \code{\link[=penalty_readable]{penalty_readable()}} for the interpretable quantities (a scale,
+a correlation) of a structure that declares them through
+\code{\link[parameters7:param_readable]{parameters7::param_readable()}}.
 }

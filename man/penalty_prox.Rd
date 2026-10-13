@@ -64,14 +64,13 @@ from the stationary condition
 whose right-hand side is \code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}}. For a density
 that is not log-concave, such as the Student t of \code{\link[=heavy_penalty]{heavy_penalty()}}, the
 condition can have more than one root, and the operator is the root of
-smallest objective. The segment between zero and \eqn{v} is scanned for
-changes of sign, each change is refined by \code{uniroot()} to a relative
-accuracy of about \code{eps^0.75}, and the candidate of smallest objective is
-returned. When the penalty is smallest at zero and non-decreasing in
-\eqn{\lvert\beta\rvert}, the global minimizer lies on that segment and the
-value returned is the global minimizer. For a parent whose density is not
-largest at zero, the value returned is a stationary point that need not be
-the global minimizer; \code{\link[=.prox_root]{.prox_root()}} gives the details. A parent that
+smallest objective. The segment between \eqn{v} and the mode of the parent
+is scanned for changes of sign, each change is refined by \code{uniroot()} to a
+relative accuracy of about \code{eps^0.75}, and the candidate of smallest
+objective is returned. For a unimodal parent the global minimizer lies on
+that segment, so the value returned is the global minimizer. For a parent
+with more than one mode, the value returned is a stationary point that need
+not be the global minimizer; \code{\link[=.prox_root]{.prox_root()}} gives the details. A parent that
 declares a kink and is not one of the closed-form families is rejected,
 because the stationary condition does not hold at a kink and the minimizer
 of such a penalty can lie there.
@@ -101,8 +100,8 @@ coordinates of a block do not separate;
 \item a Laplace or elastic-net parent that is not centered at zero, because the
 closed form is written for a parent centered at zero;
 \item a separable parent that declares a kink and has no closed form;
-\item a stationary condition that changes sign neither on the segment from zero
-to \eqn{v} nor in a widened bracket;
+\item a stationary condition that changes sign neither on the segment between
+\eqn{v} and the mode of the parent nor in a widened bracket;
 \item SCAD where \eqn{t c_j \ge a - 1} and MCP where \eqn{t c_j \ge \gamma} in
 some coordinate, with \eqn{c_j} the curvature \code{curv} of the penalty and
 \eqn{t} multiplied by \eqn{d_j^2} under a diagonal map; the subproblem is

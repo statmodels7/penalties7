@@ -49,10 +49,13 @@ NULL
 #' * The proximal operator:
 #'   [penalty_prox()][penalty_prox.StructuredPenalty], documented on the page
 #'   of the quadratic branch.
+#' * The interpretable quantities:
+#'   [penalty_readable()][penalty_readable.StructuredPenalty], which returns
+#'   those that the structure declares through
+#'   [parameters7::param_readable()].
 #'
-#' The class registers no [penalty_prox_spec()], [penalty_draw()] or
-#' [penalty_readable()] method, so the methods of the base class [penalty()]
-#' answer those generics; in particular `penalty_readable()` returns `NULL`.
+#' The class registers no [penalty_prox_spec()] or [penalty_draw()] method, so
+#' the methods of the base class [penalty()] answer those generics.
 #'
 #' @inheritParams penalty
 #' @param structure A \pkg{parameters7} `matrix_parameter`, read as the prior's
@@ -210,9 +213,9 @@ StructuredPenalty <- S7::new_class(
 #'   [additive_penalty()] for a sum of quadratics,
 #'   [distrib_penalty()] for a coordinatewise prior,
 #'   [parameters7::log_cholesky()] and [parameters7::ar1()] for structures to
-#'   pass in, [parameters7::param_readable()] for the interpretable quantities
-#'   (a scale, a correlation) of a structure that defines them
-#'   ([penalty_readable()] returns `NULL` for this branch).
+#'   pass in, [penalty_readable()] for the interpretable quantities (a scale,
+#'   a correlation) of a structure that declares them through
+#'   [parameters7::param_readable()].
 #' @export
 structured_penalty <- function(structure) {
   if (!S7::S7_inherits(structure, parameters7::matrix_parameter)) {
@@ -702,4 +705,91 @@ S7::method(penalty_logpdet, StructuredPenalty) <- function(pen, theta, ...) {
       unname(ld$d2[[paste(nm[ij], collapse = ":")]])
     }), names(prs))
   )
+}
+
+#' @title Interpretable Quantities of a Structured Penalty
+#' @name penalty_readable.StructuredPenalty
+#'
+#' @description
+#' Returns the interpretable quantities that the structure declares through
+#' [parameters7::param_readable()], in the shape that
+#' [penalty_readable.DistribPenalty()] returns, and `NULL` for a structure
+#' that declares none.
+#'
+#' @details
+#' The hyperparameters of a structured penalty are the free values of its
+#' structure, such as the logarithm of a scale and the inverse hyperbolic
+#' tangent of a correlation for [parameters7::ar1()].
+#' [parameters7::param_readable()] maps them to the quantities that the
+#' structure declares. Among the shipped structures, [parameters7::ar1()] and
+#' [parameters7::compound_symmetry()] declare a scale and a correlation,
+#' [parameters7::scaled_matrix()] its multiplier, and
+#' [parameters7::autoregressive()] the scale, the partial autocorrelations
+#' and the autoregressive coefficients. The other structures, among them
+#' [parameters7::log_cholesky()], [parameters7::inverse_of()],
+#' [parameters7::ar1_inv()] and the composition wrappers, declare nothing, and
+#' the method then returns `NULL`.
+#'
+#' The quantities describe the matrix of the structure, and that matrix is
+#' the prior's precision. For `structured_penalty(parameters7::ar1(4))` the
+#' scale is the diagonal entry of the precision and the correlation is the
+#' ratio of an entry next to the diagonal to the diagonal entry; they are not
+#' the variance and the correlation of the coefficients. For this reason the
+#' method prefixes every name that [parameters7::param_readable()] gives with
+#' `precision_`, so that `scale` and `rho` are reported as `precision_scale`
+#' and `precision_rho`. A structure placed on the covariance side through
+#' [parameters7::inverse_of()] declares nothing, so the method returns `NULL`
+#' for it.
+#'
+#' Every link of the branch is the identity, so the hyperparameters are the
+#' free values themselves, and the Jacobian that
+#' [parameters7::param_readable()] computes in closed form is the Jacobian
+#' with respect to the hyperparameters. The method names its rows by the
+#' prefixed names and its columns by `pen@params`, and repeats the
+#' structure's label once per quantity to form `block`.
+#'
+#' @param pen A [StructuredPenalty()] object.
+#' @param theta A named list of the structure's free values.
+#' @param ... Unused, and accepted so that the signature matches the generic's.
+#'
+#' @return `NULL` when the structure declares no quantities. Otherwise a list
+#'   of four: `value`, a numeric vector of the quantities, each name the
+#'   structure's own with the prefix `precision_`; `jacobian`,
+#'   their derivatives, one row per quantity and one column per
+#'   hyperparameter, with row names from `value` and column names from
+#'   `pen@params`; `transform`, a character vector named like `value` that
+#'   names the scale on which each interval is built; and `block`, the
+#'   structure's label for every quantity, named like `value`.
+#'
+#' @examples
+#' # An AR(1) precision on four coefficients: the scale and the correlation
+#' # of the precision, named precision_scale and precision_rho.
+#' pen <- structured_penalty(parameters7::ar1(4))
+#' r <- penalty_readable(pen, list(log_scale = 0.2, z_rho = 0.5))
+#' r$value
+#' r$jacobian
+#'
+#' # The quantities describe the precision: its diagonal entry, and the ratio
+#' # of an entry next to the diagonal to the diagonal entry.
+#' Om <- penalty_matrix(pen, list(log_scale = 0.2, z_rho = 0.5))
+#' c(Om[1, 1], Om[1, 2] / Om[1, 1])
+#'
+#' # A log-Cholesky structure declares nothing.
+#' lc <- structured_penalty(parameters7::log_cholesky(2))
+#' penalty_readable(lc, list(log_L1 = 0, log_L2 = 0, L2.1 = 0.3))
+#'
+#' @seealso [penalty_readable()] for the generic,
+#'   [parameters7::param_readable()] for the quantities that a structure
+#'   declares.
+#' @keywords internal
+S7::method(penalty_readable, StructuredPenalty) <- function(pen, theta, ...) {
+  rd <- parameters7::param_readable(pen@structure, struct_eta(pen, theta))
+  if (is.null(rd)) return(NULL)
+  # the quantities describe the precision, not the coefficients' covariance
+  nm <- paste0("precision_", names(rd$value))
+  jac <- rd$jacobian
+  dimnames(jac) <- list(nm, pen@params)
+  list(value = stats::setNames(rd$value, nm), jacobian = jac,
+       transform = stats::setNames(rd$transform, nm),
+       block = stats::setNames(rep(rd$label, length(nm)), nm))
 }

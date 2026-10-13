@@ -14,7 +14,8 @@ NULL
 #' derivative of the analytic hyperparameter gradient, and each mixed block
 #' with a numerical Jacobian of the analytic coefficient gradient, so that no
 #' reference is a difference of another difference. A quadratic penalty also has its
-#' three-point identity, its log pseudo-determinant and its null basis tested.
+#' three-point identity, its log pseudo-determinant, its rank and its null
+#' basis tested.
 #' The function serves to verify the derivatives of a penalty written by the
 #' user.
 #'
@@ -23,7 +24,7 @@ NULL
 #'
 #' Two rows are produced for every penalty, three more for each
 #' hyperparameter, one more for each pair of distinct hyperparameters, and
-#' two or three more when [is_quadratic()] is `TRUE`:
+#' four or five more when [is_quadratic()] is `TRUE`:
 #'
 #' | row | compares |
 #' |---|---|
@@ -36,31 +37,52 @@ NULL
 #' | `quadratic three-point identity` | \eqn{\rho(2\beta) - 4\rho(\beta) + 3\rho(0)}, which vanishes when the value is a quadratic form with no linear term |
 #' | `logpdet linear in log lambda with slope r` | raising `lambda` by a factor of \eqn{e} raises the value of [penalty_logpdet()] by the rank |
 #' | `logpdet gradient vs numDeriv` | the `grad` element of `penalty_logpdet()` against a numerical derivative of its `value` |
+#' | `rank vs eigenvalues of the matrix` | [penalty_rank()] against the number of eigenvalues of \eqn{S(\theta)}, or of the sum of the normalized components of an additive penalty, that exceed a relative tolerance times the largest |
+#' | `null basis width vs n_coef minus rank` | the number of columns of [penalty_null_basis()] against `pen@n_coef` minus [penalty_rank()] |
 #' | `null basis annihilates the matrix` | \eqn{S(\theta)N}, where \eqn{S(\theta)} is [penalty_matrix()] and \eqn{N} is [penalty_null_basis()] |
 #'
 #' The two log pseudo-determinant rows are alternatives, as described below.
-#' The null-basis row appears only when the null basis has columns. With
+#' The row of the annihilation appears only when the null basis has
+#' columns. With
 #' \eqn{p} hyperparameters the count is therefore \eqn{2 + 3p + p(p-1)/2} for
-#' a penalty that is not quadratic, and two or three more for a quadratic
-#' one. A lasso gives 5 rows, SCAD 9, a full-rank ridge 7, a quadratic
-#' penalty over second differences 8, and a structured penalty over a
-#' `3 x 3` log-Cholesky precision 37.
+#' a penalty that is not quadratic, and four or five more for a quadratic
+#' one. A lasso gives 5 rows, SCAD 9, a full-rank ridge 9, a quadratic
+#' penalty over second differences 10, and a structured penalty over a
+#' `3 x 3` log-Cholesky precision 39.
 #'
 #' # Which log pseudo-determinant row a quadratic branch gets
 #'
 #' The quadratic rows are produced for every branch for which
 #' [is_quadratic()] returns `TRUE`: the three-point identity, one of the two
-#' log pseudo-determinant rows, and the null-basis row when the null basis
-#' has columns. When `"lambda"` is among `pen@params`, the matrix is one scale
+#' log pseudo-determinant rows, the row of the rank, the row of the width of
+#' the null basis, and the row of the annihilation when the null basis has
+#' columns. When `"lambda"` is among `pen@params`, the matrix is one scale
 #' times a constant, the log pseudo-determinant is linear in
 #' \eqn{\log\lambda} with slope the rank, and the row tests that identity.
 #' Otherwise the matrix depends on several hyperparameters, as in a
 #' structured or an additive penalty, and the row compares the reported
 #' gradient with a numerical derivative of the value. A two-component
-#' additive penalty whose sum has a null space therefore produces 12 rows:
+#' additive penalty whose sum has a null space therefore produces 14 rows:
 #' the 9 rows of its two hyperparameters, the three-point identity, the
-#' gradient of the log pseudo-determinant and the null basis. When the sum
-#' has full rank the null-basis row is absent and the count is 11.
+#' gradient of the log pseudo-determinant, the rank, the width of the null
+#' basis and its annihilation. When the sum has full rank the row of the
+#' annihilation is absent and the count is 13.
+#'
+#' The row of the rank counts the eigenvalues that exceed a relative
+#' tolerance times the largest. For a quadratic or a structured penalty they
+#' are the eigenvalues of \eqn{S(\theta)} at the `theta` of the check. For an
+#' additive penalty they are the eigenvalues of the sum of the components,
+#' each divided by its largest absolute entry, so that the row reproduces the
+#' count of [additive_penalty()]: a count on \eqn{S(\theta)} drops the
+#' smaller components once their scales differ by more than the tolerance,
+#' as that function's page describes. The tolerance is the `tol` stored in a
+#' quadratic or an additive penalty, the one given to its constructor, and
+#' `1e-10` for a structured penalty, which stores none. The row's
+#' `max_error` is the absolute difference between that count and
+#' [penalty_rank()]. A stored rank that differs from the
+#' count by one or more therefore fails the row of the rank, and a null
+#' basis whose number of columns differs from `pen@n_coef` minus the stored
+#' rank fails the row of the width.
 #'
 #' # What is not checked
 #'
@@ -72,8 +94,7 @@ NULL
 #' [penalty_dcross()], [penalty_dhessian_beta()], [penalty_d2hessian_beta()],
 #' [penalty_dhessian_beta_theta()], [penalty_draw()] or [penalty_readable()].
 #' It calls [penalty_kinks()] to place the coefficients but does not test the
-#' kinks themselves. Every row reads the stored rank, so a wrong rank stored
-#' in the object passes the check.
+#' kinks themselves.
 #'
 #' # Where the coefficients are placed
 #'
@@ -102,7 +123,8 @@ NULL
 #'   and `gamma = 2.2` for MCP.
 #' @param tol The scaled error at or above which a row is reported as
 #'   `FAILED`. A single positive number, `1e-6` by default. A row whose error
-#'   is not finite is also reported as `FAILED`.
+#'   is not finite is also reported as `FAILED`, and so is a row whose
+#'   numerical reference cannot be computed.
 #' @param verbose `TRUE`, the default, prints the table without row names.
 #'   The result is returned invisibly either way.
 #'
@@ -113,15 +135,25 @@ NULL
 #'   absolute difference divided by `max(1, max(abs(reference)))`. For the
 #'   three-point identity it is the absolute value of the combination divided
 #'   by `max(1, abs(rho(beta)))`; for the slope of the log pseudo-determinant,
-#'   the absolute difference between the increase and the rank; for the null
-#'   basis, the largest absolute entry of \eqn{S(\theta)N} divided by
-#'   `max(1, max(abs(S)))`.
+#'   the absolute difference between the increase and the rank; for the rank
+#'   and for the width of the null basis, the absolute difference between the
+#'   two counts; for the annihilation by the null basis, the largest absolute
+#'   entry of \eqn{S(\theta)N} divided by `max(1, max(abs(S)))`. A row whose
+#'   reference signals an error, a numerical derivative or the eigenvalues
+#'   of the rank row, has `max_error` equal to `NaN`.
 #'
 #' @section Errors:
 #' \pkg{numDeriv} is in `Suggests` and the derivative rows need it, so the
 #' function signals an error when it is not installed. A `theta` outside the
 #' penalty's open bounds or missing a hyperparameter is rejected before any
-#' check runs.
+#' check runs. The analytic methods are evaluated at `beta` and `theta`
+#' outside the numerical references, so an error in [penalty_value()],
+#' [penalty_gradient()], [penalty_hessian()], the hyperparameter derivatives
+#' or the quadratic quantities is signaled as it arises. An error inside a
+#' numerical reference is not signaled: \pkg{numDeriv} stops when the
+#' function it differentiates returns a value that is not finite, and the
+#' row whose reference stopped is then reported with `max_error` equal to
+#' `NaN` and status `FAILED`, while the other rows are computed as usual.
 #'
 #' @examples
 #' # First differences over five coefficients: rank 4, one null direction.
@@ -205,13 +237,19 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
     )
   }
   rel <- function(a, b) max(abs(a - b)) / max(1, max(abs(b)))
+  # a numerical reference that stops (numDeriv does on a non-finite value)
+  # gives NaN, which add() reports as FAILED; the analytic methods are called
+  # outside it at beta and theta, so their own errors are still signaled
+  reference <- function(expr) tryCatch(expr, error = function(e) NaN)
 
+  penalty_value(pen, beta, theta)
   g <- penalty_gradient(pen, beta, theta)
-  gn <- numDeriv::grad(function(b) penalty_value(pen, b, theta), beta)
+  gn <- reference(numDeriv::grad(function(b) penalty_value(pen, b, theta), beta))
   add("gradient vs numDeriv", rel(g, gn))
 
   H <- penalty_hessian(pen, beta, theta)
-  Hn <- numDeriv::jacobian(function(b) penalty_gradient(pen, b, theta), beta)
+  Hn <- reference(numDeriv::jacobian(function(b) penalty_gradient(pen, b, theta),
+                                     beta))
   add("hessian vs numDeriv on the gradient", rel(H, (Hn + t(Hn)) / 2))
 
   gt <- penalty_grad_theta(pen, beta, theta)
@@ -223,19 +261,21 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
       penalty_value(pen, beta, th)
     }
     add(paste0("grad_theta[", p, "] vs numDeriv"),
-        rel(gt[[p]], numDeriv::grad(fn, theta[[p]])))
+        rel(gt[[p]], reference(numDeriv::grad(fn, theta[[p]]))))
     gfn <- function(v) {
       th <- theta; th[[p]] <- v
       penalty_grad_theta(pen, beta, th)[[p]]
     }
     add(paste0("hess_theta[", p, "_", p, "] vs numDeriv"),
-        rel(ht[[paste0(p, "_", p)]], numDeriv::grad(gfn, theta[[p]])))
+        rel(ht[[paste0(p, "_", p)]],
+            reference(numDeriv::grad(gfn, theta[[p]]))))
     cfn <- function(v) {
       th <- theta; th[[p]] <- v
       penalty_gradient(pen, beta, th)
     }
     add(paste0("cross[", p, "] vs Richardson on the gradient"),
-        rel(cr[[p]], as.numeric(numDeriv::jacobian(cfn, theta[[p]]))))
+        rel(cr[[p]],
+            reference(as.numeric(numDeriv::jacobian(cfn, theta[[p]])))))
   }
   # the mixed entries of the hyperparameter Hessian: the analytic gradient in
   # the first hyperparameter of the pair, differentiated in the second
@@ -248,7 +288,7 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
       penalty_grad_theta(pen, beta, th)[[pr[1]]]
     }
     add(paste0("hess_theta[", key, "] vs numDeriv"),
-        rel(ht[[key]], numDeriv::grad(mfn, theta[[pr[2]]])))
+        rel(ht[[key]], reference(numDeriv::grad(mfn, theta[[pr[2]]]))))
   }
 
   if (is_quadratic(pen)) {
@@ -271,16 +311,38 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
       lp <- penalty_logpdet(pen, theta)
       worst <- 0
       for (p2 in pen@params) {
-        ref <- numDeriv::grad(function(v) {
+        ref <- reference(numDeriv::grad(function(v) {
           th <- theta; th[[p2]] <- v
           penalty_logpdet(pen, th)$value
-        }, theta[[p2]])
+        }, theta[[p2]]))
         worst <- max(worst, abs(lp$grad[[p2]] - ref) / max(1, abs(ref)))
       }
       add("logpdet gradient vs numDeriv", worst)
     }
     M <- penalty_matrix(pen, theta)
     nb <- penalty_null_basis(pen)
+    # the stored rank against the eigenvalues of the matrix, counted by the
+    # relative rule of the constructors at the tolerance the penalty stores
+    # (the default one for a branch that stores none), and the width of the
+    # stored null basis against the stored rank. An additive penalty is
+    # counted on its normalized components, as additive_penalty() counts it:
+    # S(theta) loses the smaller components once their scales differ by more
+    # than the tolerance.
+    r_tol <- if (S7::S7_inherits(pen, QuadraticPenalty) ||
+                 S7::S7_inherits(pen, AdditivePenalty)) pen@tol else 1e-10
+    Md <- if (S7::S7_inherits(pen, AdditivePenalty)) {
+      as.matrix(Reduce(`+`, lapply(pen@mats, function(P) P / max(abs(P)))))
+    } else {
+      as.matrix(M)
+    }
+    count <- reference({
+      ev <- eigen((Md + t(Md)) / 2, symmetric = TRUE, only.values = TRUE)$values
+      sum(ev > r_tol * max(ev, 0))
+    })
+    r <- penalty_rank(pen)
+    add("rank vs eigenvalues of the matrix", abs(count - r))
+    add("null basis width vs n_coef minus rank",
+        abs(ncol(nb) - (q - r)))
     if (ncol(nb)) {
       add("null basis annihilates the matrix",
           max(abs(M %*% nb)) / max(1, max(abs(M))))
