@@ -1,7 +1,8 @@
 # A Penalty With Its Map Removed
 
 Returns the same penalty with `map` set to `NULL`, which is the object
-the diagonal-map transport hands to the identity-map formulas.
+that the diagonal-map transport passes to the formulas written for the
+identity map.
 
 ## Usage
 
@@ -24,10 +25,10 @@ The same object with `map` set to `NULL`.
 ## Details
 
 The transport applies the diagonal to the point and to the step before
-calling, and divides the answer back afterwards, so what the formula
-needs is the penalty without its map. Nothing else on the object
-changes, and in particular `n_coef` is unaffected, a diagonal map being
-square.
+the call and divides the result by the diagonal afterwards, so the
+formula needs the penalty without its map. The other properties are
+unchanged; in particular `n_coef` is unaffected, because a diagonal map
+is square.
 
 ## See also
 

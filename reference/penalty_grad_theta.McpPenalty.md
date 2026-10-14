@@ -48,18 +48,20 @@ a list of two numeric vectors of length `pen@n_coef`, named `lambda` and
 
 ## Details
 
-Inside the taper the value is \\\lambda u - u^2/(2\gamma)\\, so
-\\\partial\rho/\partial\lambda = u\\ and \\\partial\rho/\partial\gamma =
-u^2/(2\gamma^2)\\; beyond it the value is \\\gamma\lambda^2/2\\ and the
-two derivatives are \\\gamma\lambda\\ and \\\lambda^2/2\\, neither
-depending on the coefficient. The second derivative in \\\lambda\\ is
-therefore zero inside the taper, the value being linear in \\\lambda\\
-there.
+At unit curvature, inside the taper the value is \\\lambda u -
+u^2/(2\gamma)\\, so \\\partial\rho/\partial\lambda = u\\ and
+\\\partial\rho/\partial\gamma = u^2/(2\gamma^2)\\; beyond it the value
+is \\\gamma\lambda^2/2\\ and the two derivatives are \\\gamma\lambda\\
+and \\\lambda^2/2\\, and neither depends on the coefficient. The second
+derivative in \\\lambda\\ is therefore zero inside the taper, where the
+value is linear in \\\lambda\\. With curvature \\c_j\\ the coordinate
+contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, and each derivative
+follows by the chain rule through \\\lambda/c_j\\.
 
-As for SCAD, these derivatives exist and no marginal criterion can use
-them: the expansion such a criterion rests on needs a mode at which the
+As for SCAD, a marginal criterion cannot use these derivatives: the
+expansion on which such a criterion rests requires a mode at which the
 penalty is twice differentiable, and a mode with a coefficient at zero
-is on the kink.
+lies on the kink.
 
 ## See also
 

@@ -1,19 +1,33 @@
-# Is a Penalty a Quadratic Form With One Scale?
+# Is a Penalty a Quadratic Form?
 
 `TRUE` for
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
+(and
+[`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md),
+which is built on it),
+[`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
 and
-[`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md),
-the two branches whose value is \\\tfrac{1}{2}(D\beta)^\top S(\theta)
-(D\beta)\\ for a matrix that a consumer can ask for. `FALSE` everywhere
-else. A marginal likelihood criterion routes on this: where it is `TRUE`
-the penalty's contribution to the criterion is a log determinant, which
+[`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md),
+the branches whose value is the quadratic form \\\tfrac{1}{2}\beta^\top
+S(\theta)\beta\\ plus a normalizing constant, with a matrix
+\\S(\theta)\\ that
+[`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+returns. `FALSE` for every other branch. The predicate determines how a
+marginal likelihood criterion treats the penalty: where it is `TRUE` the
+penalty's contribution to the criterion is a log pseudo-determinant, and
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 and
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-supply, and where it is `FALSE` those four reject.
+supply the pieces. Where it is `FALSE`,
+[`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+[`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+and
+[`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+signal an error, and
+[`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+answers only for a separable penalty.
 
 ## Usage
 
@@ -31,46 +45,46 @@ is_quadratic(pen, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
 A single logical.
 
-## The quantity behind it
+## The quadratic form
 
-A quadratic penalty carries a fixed matrix \\P\\ and one smoothing
-parameter \\\lambda\\, and is the negative log-density of the Gaussian
-prior with precision \\\lambda P\\ on \\D\beta\\:
+A quadratic penalty carries a fixed matrix \\P\\, a map \\D\\ and one
+smoothing parameter \\\lambda\\, and is the negative log-density of the
+Gaussian prior on \\\beta\\ with precision \\\lambda D^\top P D\\:
 
 \$\$\rho(\beta; \lambda) = \tfrac{\lambda}{2} (D\beta)^\top P (D\beta) -
-\tfrac{1}{2}\log^{+}\lvert \lambda P \rvert + \tfrac{r}{2}\log(2\pi),
-\qquad \log^{+}\lvert \lambda P \rvert = r \log \lambda + \log^{+}\lvert
-P \rvert,\$\$
+\tfrac{1}{2}\log^{+}\lvert \lambda D^\top P D \rvert +
+\tfrac{r}{2}\log(2\pi), \qquad \log^{+}\lvert \lambda D^\top P D \rvert
+= r \log \lambda + \log^{+}\lvert D^\top P D \rvert,\$\$
 
 with \\\log^{+}\\ the log pseudo-determinant and \\r =
-\operatorname{rank}(P)\\. A structured penalty is the same shape with
-\\S(\theta)\\ a parameters7 matrix parameter in place of \\\lambda P\\,
-so its matrix moves with several hyperparameters and its log-determinant
-is not linear in any one of them.
+\operatorname{rank}(D^\top P D)\\. Without a map \\D\\ is the identity.
+A structured penalty has the same form with a parameters7 matrix
+parameter \\S(\theta)\\ in place of \\\lambda D^\top P D\\, so its
+matrix moves with several hyperparameters and its log-determinant is not
+linear in any one of them.
 
-## The three branches it is TRUE for
-
-[`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
-is the third, its matrix being \\\sum_k \lambda_k P_k\\: a sum of
-quadratic forms is a quadratic form, so it has all four quantities. What
-is particular about it is that the matrix moves with one hyperparameter
-per component rather than with a single scale, which is the property
-[`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
-routes on when it decides whether to read a slope or to compare a
-gradient.
+An additive penalty has the matrix \\\sum_k \lambda_k P_k\\. A sum of
+quadratic forms is a quadratic form, so it has all four quantities. Its
+matrix moves with one hyperparameter per component, where the plain
+quadratic branch has a single scale \\\lambda\\.
 
 ## Methods
 
 The method on the base class
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
-returns `FALSE`, so a branch that is quadratic says so by registering a
-method of its own and every other branch is answered without one.
+returns `FALSE`. A quadratic branch registers its own method returning
+`TRUE`, as
+[`is_quadratic.QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.QuadraticPenalty.md),
+[`is_quadratic.StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.StructuredPenalty.md)
+and
+[`is_quadratic.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.AdditivePenalty.md)
+do.
 
 ## See also
 
@@ -89,7 +103,7 @@ for the branches.
 ## Examples
 
 ``` r
-# The two branches this is TRUE for.
+# The quadratic and structured branches.
 is_quadratic(quadratic_penalty(diag(2)))
 #> [1] TRUE
 is_quadratic(ridge_penalty())
@@ -98,13 +112,14 @@ is_quadratic(structured_penalty(
   parameters7::log_cholesky(2)))
 #> [1] TRUE
 
-# The third, whose matrix moves with one hyperparameter per component.
+# The additive branch, whose matrix moves with one hyperparameter per
+# component.
 add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
 c(quadratic = is_quadratic(add), rank = penalty_rank(add))
 #> quadratic      rank 
 #>         1         3 
 
-# A penalty with a kink has none of it.
+# A separable penalty, SCAD and MCP are not quadratic.
 is_quadratic(lasso_penalty())
 #> [1] FALSE
 ```

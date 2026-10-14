@@ -36,19 +36,25 @@ A single number.
 
 ## Details
 
-The closed forms below need the number, not the place it is kept. A
-penalty whose scale is held is the same penalty as one whose scale is
-free, read at that scale:
+The closed forms need the value of the parameter, wherever it is stored.
+A penalty whose scale is held by
+[`distributions7::fixed()`](https://statmodels7.github.io/distributions7/reference/fixed.html)
+is the same penalty as one whose scale is free, evaluated at that scale,
+and
 [`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md),
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 and
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-all already answer identically for the two. Reading only `theta` made
+return the same results for the two.
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
-the one generic that did not, and it stopped with
-`attempt to select less than one element in get1index` rather than
-saying so, because [`which()`](https://rdrr.io/r/base/which.html) of an
-empty comparison is `integer(0)`.
+therefore reads the value from `theta` when it is a free hyperparameter
+and from the parent's `fixed_params` otherwise.
+
+## Errors
+
+A message naming the penalty and the parameter when the parameter is
+neither a free hyperparameter nor held by
+[`distributions7::fixed()`](https://statmodels7.github.io/distributions7/reference/fixed.html).
 
 ## See also
 

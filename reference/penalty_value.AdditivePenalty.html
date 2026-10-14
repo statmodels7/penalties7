@@ -11,7 +11,7 @@ normalizing constant taken over the range of the sum."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,20 +75,26 @@ bound-checked by the generic.</p></dd>
     <p>$$\rho(\beta;\lambda) = \tfrac{1}{2}\beta^\top S(\lambda)\beta
   - \tfrac{1}{2}\log\mathrm{pdet}\,S(\lambda)
   + \tfrac{r}{2}\log 2\pi,$$</p>
-<p>with \(r\) the stored rank. One eigendecomposition of the sum, through
-<code><a href="additive_sum.html">additive_sum()</a></code>, supplies both the quadratic form's matrix and the log
-pseudo-determinant.</p>
-<p>With a single component the value is the plain quadratic penalty's, and the
-two agree to <code>3.6e-15</code>.</p>
-<p>The log pseudo-determinant comes from <code><a href="additive_sum.html">additive_sum()</a></code>, which transforms by
-similarity rather than decomposing the assembled sum, so the value is
-finite and accurate however far the parameters have spread.</p>
+<p>with \(r\) the stored rank. <code><a href="additive_sum.html">additive_sum()</a></code> assembles the matrix
+\(S(\lambda)\) of the quadratic form and evaluates the log
+pseudo-determinant by a similarity transformation, which decomposes the
+assembled sum as a whole only when every component joins the dominant
+group or when the dominant group alone has the rank of the sum. The
+accuracy of the log pseudo-determinant is therefore limited by
+the conditioning of the dominant group of components at each level of the
+transformation, and not by the spread of the parameters.</p>
+<p>With a single component the value equals that of <code><a href="quadratic_penalty.html">quadratic_penalty()</a></code> up
+to rounding error.</p>
+<p>The value is <code>NaN</code>, without an error, at a setting that <code><a href="additive_sum.html">additive_sum()</a></code>
+reports as not resolvable: where the weighted sum or one of its reductions
+overflows, or where the rank identity of <code><a href="additive_check_tol.html">additive_check_tol()</a></code> is violated
+or cannot be evaluated.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="additive_penalty.html">additive_penalty()</a></code> for the construction,
 <code><a href="penalty_gradient.AdditivePenalty.html">penalty_gradient.AdditivePenalty()</a></code> for the coefficient derivatives,
-<code><a href="additive_sum.html">additive_sum()</a></code> for the decomposition it reads.</p></div>
+<code><a href="additive_sum.html">additive_sum()</a></code> for the quantities that it reads.</p></div>
     </div>
 
     <div class="section level2">
@@ -101,7 +107,7 @@ finite and accurate however far the parameters have spread.</p>
 <span class="r-in"><span><span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">b</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">2</span>, lambda2 <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10.94012</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A constant vector lies in the intersected null space, so only the</span></span></span>
+<span class="r-in"><span><span class="co"># A constant vector lies in the null space of both components, so only the</span></span></span>
 <span class="r-in"><span><span class="co"># normalizing constant remains.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">pen</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">2</span>, lambda2 <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9051224</span>

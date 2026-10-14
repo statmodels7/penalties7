@@ -2,9 +2,10 @@
 
 ## The class and the generics
 
-What every penalty answers: its value with the normalizing constant, its
-derivatives in the coefficients and in the hyperparameters, the mixed
-block, and the kink set a non-smooth method needs.
+The base class and the generics of every penalty: the value with its
+normalizing constant, the derivatives in the coefficients and in the
+hyperparameters, the mixed block, the points where the penalty is not
+smooth, and the predicates and quantities that a fitting layer reads.
 
 - [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
   : S7 Base Class for Penalties
@@ -18,27 +19,28 @@ block, and the kink set a non-smooth method needs.
   [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
   : Hyperparameter Derivatives of a Penalty
 - [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-  : Where a Penalty Stops Being Smooth
+  : Points Where a Penalty Is Not Smooth
 - [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
-  : What a Penalty's Hyperparameters Are About
+  : Interpretable Quantities of a Penalty's Hyperparameters
 - [`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
   : Drawing From a Penalty Read as a Prior
 - [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
   : Is a Penalty a Proper Prior?
 - [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-  : Is a Penalty a Quadratic Form With One Scale?
+  : Is a Penalty a Quadratic Form?
 - [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
   [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
   [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
   [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-  : The Pieces a Marginal Criterion Consumes
+  : Quantities of a Quadratic Penalty for a Marginal Criterion
 
-## What a marginal criterion asks
+## Derivatives for a marginal criterion
 
 A Laplace approximation to a marginal likelihood differentiates the
 determinant of the penalized information, so it needs the hyperparameter
-derivatives of the coefficient Hessian and of the mixed block. A penalty
-that answers these is estimable by REML or ML whatever its shape.
+derivatives of the coefficient Hessian and of the mixed block. The
+hyperparameters of a penalty that supplies them can be estimated by REML
+or ML. SCAD, MCP and a separable penalty with a kink do not supply them.
 
 - [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
   : The Derivative of the Coefficient Hessian in the Hyperparameters
@@ -51,16 +53,18 @@ that answers these is estimable by REML or ML whatever its shape.
   : The Derivative of the Coefficient Hessian in the Coefficients
 - [`penalty_d2hessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md)
   [`penalty_dhessian_beta_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md)
-  : How the Movement of the Coefficient Hessian Moves
+  : Second Derivatives of the Coefficient Hessian in the Coefficients
+  and the Hyperparameters
 - [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
   : Is a Penalty Quadratic in the Coefficients?
 
 ## The quadratic branch
 
-A fixed matrix and one smoothing parameter, so the penalty is the
-negative log-density of an improper Gaussian prior. The rank, the null
-basis and the log pseudo-determinant are fixed at one eigendecomposition
-when the object is built.
+A fixed matrix P, an optional map D and one smoothing parameter lambda,
+so the penalty is the negative log-density of a Gaussian prior with
+precision lambda D’PD, improper when D’PD is singular. The rank, the
+null basis and the log pseudo-determinant are computed from D’PD when
+the object is built.
 
 - [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
   : Construct a Quadratic Penalty
@@ -69,10 +73,11 @@ when the object is built.
 
 ## The additive branch
 
-A sum of quadratics with a smoothing parameter on each, which is what an
-anisotropic tensor smooth needs. The rank comes from the components
-stacked and normalized, not from the assembled matrix, whose eigenvalue
-count falls as the parameters spread apart.
+A sum of quadratic penalties with a smoothing parameter on each, which
+is the penalty of an anisotropic tensor-product smooth. The rank is
+computed at construction from the sum of the components, each divided by
+its largest absolute entry, because the null space of the sum does not
+depend on the smoothing parameters.
 
 - [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
   : Construct a Sum of Quadratic Penalties
@@ -81,9 +86,13 @@ count falls as the parameters spread apart.
 
 ## The separable branch
 
-A univariate distributions7 log-density applied coordinatewise. Ridge is
-a Gaussian at zero, the lasso a Laplace, the elastic net the product of
-the two, and the heavy-tailed prior a Student t.
+The negative log-density of a continuous distributions7 family at the
+coordinates of the mapped coefficients, one coordinate at a time for a
+univariate family and one block at a time for a multivariate one. The
+lasso is a Laplace at zero, the elastic net the product of a Laplace and
+a Gaussian, and the heavy-tailed prior a Student t. The ridge,
+documented with them, is the Gaussian at zero written by its precision
+and is built on the quadratic branch.
 
 - [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
   : Construct a Separable Penalty From a Distribution
@@ -100,8 +109,8 @@ the two, and the heavy-tailed prior a Student t.
 ## The structured branch
 
 A parameters7 matrix parameter used as the precision, so the
-hyperparameters are that structure’s free values and every derivative
-comes from its derivative arrays.
+hyperparameters are the free values of that structure and every
+derivative comes from its derivative arrays.
 
 - [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
   : Construct a Structured Quadratic Penalty
@@ -110,21 +119,24 @@ comes from its derivative arrays.
 
 ## SCAD and MCP
 
-Defined by their derivative rather than by a density, hence improper by
-construction: they have no normalizing constant and cannot come from a
-distribution.
+Defined by their derivative rather than by a density. Their value is
+bounded, so exp(-value) is not integrable: they are improper, carry no
+normalizing constant and cannot come from a distribution.
 
 - [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
   [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
   : Construct the SCAD and MCP Penalties
 - [`ScadPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
   [`McpPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
-  : S7 Classes for the Derivative-Defined Penalties
+  : S7 Classes for the SCAD and MCP Penalties
 
 ## The proximal operator
 
-One step of a proximal gradient method, in closed form where one exists
-and as a linear solve or a coordinatewise root otherwise.
+The operator that a proximal gradient method applies after each gradient
+step: a linear solve for the quadratic and structured branches, a closed
+form for the Gaussian, Laplace, elastic-net, SCAD and MCP penalties, and
+a coordinatewise root for any other separable parent with a smooth
+log-density.
 
 - [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
   : Proximal Operator of a Penalty
@@ -137,8 +149,8 @@ and as a linear solve or a coordinatewise root otherwise.
 
 ## Validation
 
-The numerical checks a penalty must pass, meant above all for one
-written outside the package.
+Numerical checks of the derivatives of a penalty, meant above all for a
+penalty written outside the package.
 
 - [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
   : Check a Penalty Numerically

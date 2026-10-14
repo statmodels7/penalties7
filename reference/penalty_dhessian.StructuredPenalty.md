@@ -1,12 +1,12 @@
 # Marginal Derivatives of a Structured Penalty
 
-One page for the branch's answers to the four generics a marginal
-criterion asks beyond the second order. \\S = \Omega(\theta)\\ is the
-matrix parameter itself, so
+The methods of the structured branch for the four generics that a
+marginal criterion requires beyond the second order. \\S =
+\Omega(\theta)\\ is the matrix parameter itself, so
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
 and
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
-are the structure's own `param_d1` and `param_d2`,
+are the derivatives `param_d1` and `param_d2` of the structure,
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
 is the second of those applied to the coefficients, and
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
@@ -24,11 +24,11 @@ is `TRUE`.
 
   A numeric vector of length `pen@n_coef`. Read by
   [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md);
-  the other three ignore it.
+  the other three methods ignore it.
 
 - theta:
 
-  A named list of the structure's free values.
+  A named list of the free values of the structure.
 
 - ...:
 
@@ -49,9 +49,11 @@ the single logical `TRUE`.
 
 ## Details
 
-Nothing is differentiated here: parameters7 supplies both derivative
-arrays exactly for every structure it ships, and this branch unwraps and
-re-keys them.
+Nothing is differentiated here. parameters7 supplies both derivative
+arrays in closed form for the structures that it ships, and through its
+numerical fallback for a structure that does not implement them; this
+branch unwraps and re-keys the arrays. The free values in `theta` are
+passed to the structure as they are, in `pen@params` order.
 
 Since the value is quadratic in the coefficients, the mixed third
 derivative is
@@ -66,10 +68,9 @@ and multiplies.
 `param_d2` is a **flat** list whose keys join the free names with a
 separator of its own, so an entry is located through
 [`parameters7::param_tuple_indices()`](https://statmodels7.github.io/parameters7/reference/param_tuple_indices.html),
-which enumerates the tuples in exactly the order the components are in.
-Nothing here depends on the spelling of a key, which matters because a
-free name may itself contain the separator. A pair with no component
-raises rather than returning something of the wrong shape.
+which enumerates the tuples in the same order as the components. The
+method does not parse the keys, because a free name may itself contain
+the separator. If a pair has no component, the method signals an error.
 
 ## See also
 
@@ -78,7 +79,11 @@ and its siblings for the generics,
 [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
 for the branch,
 [`parameters7::param_d1()`](https://statmodels7.github.io/parameters7/reference/param_d1.html)
-for the arrays it reads.
+for the arrays that these methods read,
+[`penalty_dhessian_beta.StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.penalty.md)
+and
+[`penalty_d2hessian_beta.StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md)
+for the derivatives of the Hessian in the coefficients.
 
 ## Examples
 

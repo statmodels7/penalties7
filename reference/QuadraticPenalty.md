@@ -1,13 +1,13 @@
 # S7 Class for the Quadratic Penalty
 
-The class
+The class of the objects that
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
-builds. Beyond the seven properties every penalty carries it stores the
-matrix \\P\\, its rank, an orthonormal basis of the null space of
-\\D'PD\\, the log pseudo-determinant of \\P\\ and the assembled
-\\D'PD\\. All five are fixed by one eigendecomposition at construction
-and none of them moves with the hyperparameter, so every quantity the
-branch supplies is closed form in \\\lambda\\.
+builds. Beyond the seven properties that every penalty carries, it
+stores the matrix \\P\\, the rank of \\D'PD\\, an orthonormal basis of
+the null space of \\D'PD\\, the log pseudo-determinant of \\D'PD\\ and
+the assembled \\D'PD\\. All five are computed once at construction and
+none of them depends on the hyperparameter, so every quantity of the
+branch is closed form in \\\lambda\\.
 
 ## Usage
 
@@ -24,7 +24,8 @@ QuadraticPenalty(
   p_rank = integer(0),
   null_basis = NULL,
   logpdet_DPD = integer(0),
-  DPD = NULL
+  DPD = NULL,
+  tol = 1e-10
 )
 ```
 
@@ -33,14 +34,15 @@ QuadraticPenalty(
 - penalty_name:
 
   A single string naming the penalty, used by
-  [`print()`](https://rdrr.io/r/base/print.html) and by consumers that
-  report which penalty a block carries.
+  [`print()`](https://rdrr.io/r/base/print.html) and by any code that
+  reports which penalty a block carries.
 
 - map:
 
   The matrix \\D\\, of \\m\\ rows and \\q\\ columns, or `NULL` for the
-  identity. A Matrix object is kept in its own storage; a diagonal map
-  is what standardization comes to and is recognized by its class.
+  identity. A Matrix object is kept in its own storage, so a diagonal
+  map, which is what standardization produces, is recognized as diagonal
+  by its class.
 
 - n_coef:
 
@@ -95,21 +97,95 @@ QuadraticPenalty(
   The assembled \\D'PD\\, an `n_coef` by `n_coef` matrix, cached so that
   the gradient and the Hessian never re-form it.
 
+- tol:
+
+  The relative eigenvalue tolerance, a single positive number, `1e-10`
+  by default.
+  [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
+  counts `p_rank` at this tolerance and stores it, and
+  [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+  counts the eigenvalues of the matrix at the same tolerance when it
+  compares them with the rank.
+
 ## Value
 
 An S7 object of class `QuadraticPenalty`, inheriting from
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md),
-with the seven inherited properties and the five above.
+with the seven inherited properties and the six above.
 
 ## Details
 
 Construct through
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md),
-which computes the five derived properties and checks that \\P\\ is
-symmetric. This raw constructor takes them as given and checks nothing,
-so a wrong rank here would be reported by
+which computes the five properties and checks that \\P\\ is symmetric
+and positive semidefinite. This raw constructor takes them as given and
+checks none of them. A wrong rank passed here enters the value, the
+hyperparameter derivatives,
+[`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-and by nothing else.
+and
+[`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md),
+and
+[`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+does not detect it, because every one of its rows reads the same stored
+rank.
+
+## Methods
+
+The methods registered on this class, by the page that documents each.
+
+- The value and its coefficient derivatives:
+  [penalty_value()](https://statmodels7.github.io/penalties7/reference/penalty_value.QuadraticPenalty.md),
+  [penalty_gradient()](https://statmodels7.github.io/penalties7/reference/penalty_gradient.QuadraticPenalty.md)
+  and
+  [penalty_hessian()](https://statmodels7.github.io/penalties7/reference/penalty_gradient.QuadraticPenalty.md).
+
+- The hyperparameter derivatives:
+  [penalty_grad_theta()](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.QuadraticPenalty.md),
+  [penalty_hess_theta()](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.QuadraticPenalty.md)
+  and
+  [penalty_cross()](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.QuadraticPenalty.md).
+
+- The predicates:
+  [penalty_kinks()](https://statmodels7.github.io/penalties7/reference/penalty_kinks.QuadraticPenalty.md),
+  [is_proper()](https://statmodels7.github.io/penalties7/reference/penalty_kinks.QuadraticPenalty.md)
+  and
+  [is_quadratic()](https://statmodels7.github.io/penalties7/reference/penalty_kinks.QuadraticPenalty.md).
+
+- The quantities of a marginal criterion:
+  [penalty_matrix()](https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.md),
+  [penalty_rank()](https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.md),
+  [penalty_null_basis()](https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.md)
+  and
+  [penalty_logpdet()](https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.md).
+
+- The higher derivatives of a marginal criterion:
+  [penalty_dhessian()](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.QuadraticPenalty.md),
+  [penalty_d2hessian()](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.QuadraticPenalty.md),
+  [penalty_dcross()](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.QuadraticPenalty.md)
+  and
+  [beta_quadratic()](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.QuadraticPenalty.md).
+
+- The movement of the Hessian with the coefficients:
+  [penalty_dhessian_beta()](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.penalty.md),
+  [penalty_d2hessian_beta()](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md)
+  and
+  [penalty_dhessian_beta_theta()](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md).
+  The last two return zero matrices, the Hessian being free of the
+  coefficients, and are documented on the page of the base-class
+  methods.
+
+- The proximal operator:
+  [penalty_prox()](https://statmodels7.github.io/penalties7/reference/penalty_prox.QuadraticPenalty.md).
+
+The class registers no
+[`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md),
+[`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
+or
+[`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+method, so the methods of the base class
+[`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
+answer those generics.
 
 ## See also
 
@@ -118,9 +194,11 @@ for the constructor to use,
 [`penalty_value.QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_value.QuadraticPenalty.md)
 for what the branch computes,
 [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
-for the other branch that answers
+and
+[`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
+for the other branches for which
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-with `TRUE`.
+returns `TRUE`.
 
 ## Examples
 
@@ -129,7 +207,7 @@ pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
 S7::S7_inherits(pen, QuadraticPenalty)
 #> [1] TRUE
 
-# The five derived properties, fixed at construction.
+# Three of the six properties, computed at construction.
 pen@p_rank
 #> [1] 3
 dim(pen@null_basis)

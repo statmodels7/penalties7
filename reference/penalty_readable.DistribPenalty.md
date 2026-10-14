@@ -1,7 +1,7 @@
-# What a Separable Penalty's Hyperparameters Are About
+# Interpretable Quantities of a Separable Penalty
 
 Returns `NULL` for a univariate parent, whose hyperparameters are
-already the quantities a reader reads, and
+already interpretable quantities, and the result of
 [`distributions7::mv_derived()`](https://statmodels7.github.io/distributions7/reference/mv_derived.html)
 for a multivariate one, whose hyperparameters are the free values of a
 matrix parameter.
@@ -24,25 +24,27 @@ matrix parameter.
 
 ## Value
 
-`NULL` when `pen@block` is `1L`. Otherwise the list
+`NULL` when `pen@block` is `1L`. Otherwise the list that
 [`distributions7::mv_derived()`](https://statmodels7.github.io/distributions7/reference/mv_derived.html)
-returns: `value`, `jacobian`, `transform` and `block`.
+returns, with the elements `value`, `jacobian`, `transform` and `block`.
 
 ## Details
 
-A univariate parent's hyperparameters are a scale, a rate, a shape, each
-read on its own scale already, so there is nothing to derive and `NULL`
-says so. A multivariate parent's are log-Cholesky coordinates or the
-like, which nobody interprets; what the prior is about is the standard
-deviations and the correlations of the effects within a block, and the
-parent declares them.
+The hyperparameters of a univariate parent are quantities such as a
+scale, a rate or a shape, each on its own scale, so there is nothing to
+derive and the method returns `NULL`. Those of a multivariate parent are
+coordinates such as log-Cholesky entries, which are not directly
+interpretable; the interpretable quantities are the standard deviations
+and the correlations of the effects within a block, and the parent
+declares them through
+[`distributions7::mv_derived()`](https://statmodels7.github.io/distributions7/reference/mv_derived.html).
 
 ## See also
 
 [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
 for the generic,
 [`distributions7::mv_derived()`](https://statmodels7.github.io/distributions7/reference/mv_derived.html)
-for the declaration this passes through.
+for the quantities that a multivariate family declares.
 
 ## Examples
 

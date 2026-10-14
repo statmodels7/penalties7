@@ -1,13 +1,18 @@
-# What Each Branch Answers to penalty_dhessian_beta()
+# Methods of penalty_dhessian_beta()
 
-The base class rejects, naming the penalty. The quadratic, additive and
-structured branches return a zero matrix, their Hessian being free of
-the coefficients. The separable branch returns zero where its parent is
-quadratic in the argument and
-\\-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot Dv)D\\ otherwise, with a
-block-diagonal middle matrix for a multivariate parent, and rejects for
-a kinked parent and for a multivariate parent that supplies no third
-response derivative.
+The method of the base class signals an error that names the penalty; it
+is the method that
+[`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+and
+[`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+reach. The quadratic, additive and structured branches return a zero
+matrix, because their Hessian is free of the coefficients. The separable
+branch returns zero when
+[`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
+is `TRUE` for it, and \\-D'\mathrm{diag}(\ell^{(yyy)}(D\beta)\odot
+Dv)D\\ otherwise, with a block-diagonal middle matrix for a multivariate
+parent. It signals an error for a kinked parent and for a multivariate
+parent that cannot supply its third response derivative.
 
 ## Arguments
 

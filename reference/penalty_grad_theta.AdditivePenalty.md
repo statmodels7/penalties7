@@ -55,15 +55,21 @@ P_k\beta - \tfrac{1}{2}\operatorname{tr}(S^{+}P_k), \qquad
 \tfrac{1}{2}\operatorname{tr}(S^{+}P_kS^{+}P_l), \qquad
 \frac{\partial^2\rho}{\partial\beta\\\partial\lambda_k} = P_k\beta.\$\$
 
-The second derivative has no quadratic-form term, the value being linear
-in each parameter there, and the mixed block has no determinant term.
+The second derivative has no term from the quadratic form, which is
+linear in each parameter, and the mixed block has no term from the
+determinant.
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-therefore needs no eigendecomposition at all.
+therefore takes no eigendecomposition. The first two blocks read the
+traces from
+[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md),
+and their entries are `NaN` at a setting that it reports as not
+resolvable.
 
 The Hessian is keyed by pairs as
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-keys them, diagonals first and then the upper off-diagonal pairs joined
-by an underscore.
+keys them: each key joins two parameter names by an underscore
+(`lambda1_lambda2`), the diagonal pairs come first and the upper
+off-diagonal pairs follow.
 
 ## See also
 
@@ -72,7 +78,7 @@ for the quantity differentiated,
 [`penalty_logpdet.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.AdditivePenalty.md)
 for the determinant's own derivatives,
 [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
-for the pseudo-inverse these read.
+for the traces that these read.
 
 ## Examples
 

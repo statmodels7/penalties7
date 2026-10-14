@@ -1,10 +1,10 @@
 # The Quadratic Form of a Quadratic Penalty
 
 Computes \\(D\beta)'P(D\beta)\\, the part of the value that depends on
-the coefficients. Shared by
+the coefficients. It is shared by
 [`penalty_value.QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_value.QuadraticPenalty.md)
-and the hyperparameter derivatives, both of which need it and neither of
-which needs anything else from \\\beta\\.
+and the hyperparameter derivatives, which use \\\beta\\ only through
+this quantity.
 
 ## Usage
 

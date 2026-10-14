@@ -1,13 +1,17 @@
 # Value of a Penalty
 
-Returns the scalar \\\rho(D\beta; \theta)\\, the amount a set of
-coefficients is penalized by. The normalizing constant is included
+Returns the scalar \\\rho(D\beta; \theta)\\, the amount by which a set
+of coefficients is penalized. The normalizing constant is included
 whenever the penalty is proper, so the value is exactly the negative
 log-density of the prior and can be added to a negative log-likelihood
-without a further term. An improper penalty returns the bare \\\rho\\;
-ask
+without a further term.
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
-which you have.
+reports whether this is the case. An improper penalty keeps whatever
+constant its branch defines: a rank-deficient quadratic, additive or
+structured penalty keeps the constant taken over the range of its matrix
+(a log pseudo-determinant), a separable penalty under a map that is not
+square, or is singular, returns \\-\sum_i \log f(t_i; \theta)\\ without
+a Jacobian term, and SCAD and MCP return the bare \\\rho\\.
 
 ## Usage
 
@@ -25,9 +29,10 @@ penalty_value(pen, beta, theta, ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`. Coerced with
+  A finite numeric vector of length `pen@n_coef`. Coerced with
   [`as.numeric()`](https://rdrr.io/r/base/numeric.html) in the generic,
-  so an integer vector or a one-column matrix is accepted.
+  so an integer vector or a one-column matrix is accepted. A vector of
+  another length signals an error.
 
 - theta:
 
@@ -39,32 +44,33 @@ penalty_value(pen, beta, theta, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
-A single number. Never `NA` for an argument inside the bounds; a penalty
-whose value is infinite at some \\\beta\\ returns `Inf`.
+A single number, which is not `NA` when `beta` is finite and `theta`
+lies inside the bounds. The value is defined for a finite `beta` only:
+at an infinite coefficient a quadratic penalty returns `NaN`.
 
-## Why the constant is kept
+## The normalizing constant
 
 Dropping the normalizing constant makes no difference to a fit at a
-fixed hyperparameter, since it does not depend on \\\beta\\. It makes
-the hyperparameter itself unestimable: with the constant dropped,
+fixed hyperparameter, since it does not depend on \\\beta\\. It does
+make the hyperparameter itself unestimable: with the constant dropped,
 driving \\\lambda\\ to zero drives the penalty to zero and the joint
-maximum runs away. With it kept, a proper penalty is a density in
-\\\beta\\ for every \\\lambda\\, so the joint objective has an interior
-maximum and a marginal criterion has something to expand around.
-Estimating the degrees of freedom of a heavy-tailed prior needs the
-constant for the same reason.
+maximum runs away. With the constant kept, a proper penalty is a density
+in \\\beta\\ for every \\\lambda\\, so the joint objective has an
+interior maximum and a marginal criterion has a mode to expand around.
+The degrees of freedom of a heavy-tailed prior are estimable for the
+same reason.
 
 ## The map
 
 \\\rho\\ is evaluated at \\t = D\beta\\, not at \\\beta\\. With the map
-`NULL`, the default of every constructor, \\t = \beta\\ and no
-arithmetic is done. A map of \\m\\ rows means \\\rho\\ sees \\m\\
-numbers, so a second-difference map penalizes curvature and leaves the
-level and the slope alone.
+`NULL`, which is the default of every constructor that takes a map, \\t
+= \beta\\ and no arithmetic is done. A map of \\m\\ rows gives \\\rho\\
+an argument of length \\m\\, so a second-difference map penalizes
+curvature and leaves the level and the slope unpenalized.
 
 ## See also
 
@@ -96,9 +102,9 @@ sapply(c(0.5, 1, 2, 8),
        function(l) penalty_value(pen, c(0, 0, 0), list(lambda = l)))
 #> [1]  3.7965364  2.7568156  1.7170948 -0.3623467
 
-# A map sends rho the second differences, so only curvature is charged for.
-# A straight line contributes nothing to the quadratic part and the value
-# falls to the constant, the same value the zero vector gives.
+# Under a second-difference map rho is evaluated at the second differences,
+# so a straight line contributes nothing to the quadratic part and the
+# value equals the constant, the same value that the zero vector gives.
 curve <- quadratic_penalty(diag(2), map = diff(diag(4), differences = 2))
 penalty_value(curve, c(1, 2, 3, 4), list(lambda = 5))
 #> [1] -1.269427

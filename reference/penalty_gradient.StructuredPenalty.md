@@ -4,7 +4,7 @@
 returns \\\Omega(\theta)\beta\\ and
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 returns \\\Omega(\theta)\\ itself. The value is a quadratic form in
-\\\beta\\, so the Hessian does not move with the coefficients and the
+\\\beta\\, so the Hessian does not depend on the coefficients and the
 gradient is the Hessian applied to them.
 
 ## Arguments
@@ -32,16 +32,18 @@ gradient is the Hessian applied to them.
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 an unnamed numeric vector of length `pen@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-the symmetric precision matrix of that side, **carrying the structure's
-own dimnames** (`v1`, `v2`, ... for the parameters7 primitives). The
-other branches return matrices with no dimnames, so a comparison across
-branches wants [`unname()`](https://rdrr.io/r/base/unname.html).
+the symmetric precision matrix \\\Omega(\theta)\\, **carrying the
+structure's own dimnames** (`v1`, `v2`, ... for the parameters7
+primitives). The quadratic and additive branches return matrices with no
+dimnames, so a comparison across branches requires
+[`unname()`](https://rdrr.io/r/base/unname.html).
 
 ## Details
 
-Where the structure is a covariance, both read the inverse it implies,
-so each call costs one solve. A caller taking several derivatives at one
-\\\theta\\ pays for that inversion once per generic.
+Both methods evaluate \\\Omega(\theta)\\ through the structure's
+`param_value()`. When the structure is `parameters7::inverse_of(s)`,
+that evaluation includes the inversion of the matrix of `s`, and each
+generic repeats it.
 
 ## See also
 

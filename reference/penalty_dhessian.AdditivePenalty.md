@@ -1,10 +1,11 @@
 # Marginal Derivatives of an Additive Penalty
 
-One page for the branch's answers to the four generics a marginal
-criterion asks beyond the second order. \\S = \sum_k \lambda_k P_k\\ is
-linear in the smoothing parameters and free of the coefficients, so
+The methods of the additive branch for the four generics that a marginal
+criterion requires beyond the second order. With \\S_k = D'P_kD\\, the
+Hessian \\S = \sum_k \lambda_k S_k\\ is linear in the smoothing
+parameters and free of the coefficients, so
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-returns the components themselves,
+returns the components \\S_k\\ themselves,
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
 and
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
@@ -35,7 +36,7 @@ returns `TRUE`.
 ## Value
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-a list of one matrix per component, named by `pen@params`.
+a list of one base matrix per component, named by `pen@params`.
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
 a list of zero matrices, one per unordered pair.
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
@@ -45,25 +46,25 @@ the single logical `TRUE`.
 
 ## Details
 
-Every entry is exact and none is computed at call time: the components
-were fixed at construction, already carried through the map, so the
-first derivative is a lookup and the higher ones are zeros of the right
-shape.
+Every entry is exact, and none is computed at call time. The components
+were fixed at construction and are stored already carried through the
+map, so the first derivative is a lookup of `pen@mats` and the higher
+ones are zeros of the right shape. Under the identity map \\S_k = P_k\\.
 
-This is the one branch whose marginal derivatives are reachable while
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-answers `FALSE` for it. A consumer routing on that predicate rather than
-on these methods will not find them; see
-[`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md).
+returns `TRUE` for this branch, as it does for the quadratic and
+structured branches.
 
 ## See also
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
 and its siblings for the generics,
 [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
-for the branch and for what
-[`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-costs it.
+for the branch,
+[`penalty_dhessian_beta.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.penalty.md)
+and
+[`penalty_d2hessian_beta.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md)
+for the derivatives of the Hessian in the coefficients.
 
 ## Examples
 

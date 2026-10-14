@@ -1,12 +1,12 @@
 # Coefficient Derivatives of a Separable Penalty
 
-The parent's response derivatives, negated and carried back through the
-map.
+The response derivatives of the parent, negated and carried back through
+the map.
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 returns \\-D'\ell^{(y)}\\ and
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-returns \\-D'\\\mathrm{diag}(\ell^{(yy)})\\D\\, with the middle matrix
-block diagonal instead of diagonal when the parent is multivariate.
+returns \\-D'\\\mathrm{diag}(\ell^{(yy)})\\D\\, where the middle matrix
+is block diagonal instead of diagonal when the parent is multivariate.
 
 ## Arguments
 
@@ -38,23 +38,23 @@ with a univariate parent and block diagonal with a multivariate one.
 
 ## Details
 
-Everything comes from
+The derivatives come from
 [`distributions7::distrib_grad_y()`](https://statmodels7.github.io/distributions7/reference/distrib_grad_y.html)
 and
 [`distributions7::distrib_hess_y()`](https://statmodels7.github.io/distributions7/reference/distrib_hess_y.html),
-which are closed form for every continuous family, so no derivative is
-taken here.
+which are in closed form for the continuous families that distributions7
+ships; for a family that supplies only its density, distributions7
+differentiates numerically. No derivative is taken in these methods.
 
-The `+ 0 * a` in both bodies is a recycling guard. A family whose
-derivative does not depend on the argument, a Gaussian's second one for
-instance, returns a single number where a vector is wanted, and adding
-zero times the argument widens it without changing a value.
+The `+ 0 * a` in both bodies is a recycling guard: if a family returns a
+single number where a vector is expected, adding zero times the argument
+widens it to the length of the argument without changing a value.
 
 At a kink the gradient is one element of the subdifferential, chosen by
-the parent. For the lasso at \\\beta_j = 0\\ that is `0`, where the true
-subdifferential is \\\[-\lambda, \lambda\]\\;
-[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
-is what produces the exact zero.
+the parent. For the lasso at \\\beta_j = 0\\ that element is `0`, while
+the subdifferential is \\\[-\lambda, \lambda\]\\; the exact zero of a
+fit is produced by
+[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md).
 
 ## See also
 

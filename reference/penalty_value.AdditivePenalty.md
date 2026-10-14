@@ -35,19 +35,26 @@ A single number.
 \$\$\rho(\beta;\lambda) = \tfrac{1}{2}\beta^\top S(\lambda)\beta -
 \tfrac{1}{2}\log\mathrm{pdet}\\S(\lambda) + \tfrac{r}{2}\log 2\pi,\$\$
 
-with \\r\\ the stored rank. One eigendecomposition of the sum, through
-[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md),
-supplies both the quadratic form's matrix and the log
-pseudo-determinant.
+with \\r\\ the stored rank.
+[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+assembles the matrix \\S(\lambda)\\ of the quadratic form and evaluates
+the log pseudo-determinant by a similarity transformation, which
+decomposes the assembled sum as a whole only when every component joins
+the dominant group or when the dominant group alone has the rank of the
+sum. The accuracy of the log pseudo-determinant is therefore limited by
+the conditioning of the dominant group of components at each level of
+the transformation, and not by the spread of the parameters.
 
-With a single component the value is the plain quadratic penalty's, and
-the two agree to `3.6e-15`.
+With a single component the value equals that of
+[`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
+up to rounding error.
 
-The log pseudo-determinant comes from
-[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md),
-which transforms by similarity rather than decomposing the assembled
-sum, so the value is finite and accurate however far the parameters have
-spread.
+The value is `NaN`, without an error, at a setting that
+[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+reports as not resolvable: where the weighted sum or one of its
+reductions overflows, or where the rank identity of
+[`additive_check_tol()`](https://statmodels7.github.io/penalties7/reference/additive_check_tol.md)
+is violated or cannot be evaluated.
 
 ## See also
 
@@ -56,7 +63,7 @@ for the construction,
 [`penalty_gradient.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.AdditivePenalty.md)
 for the coefficient derivatives,
 [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
-for the decomposition it reads.
+for the quantities that it reads.
 
 ## Examples
 
@@ -69,7 +76,7 @@ b <- c(0.4, -1.1, 0.7, 0.2, -0.3)
 penalty_value(pen, b, list(lambda1 = 2, lambda2 = 0.5))
 #> [1] 10.94012
 
-# A constant vector lies in the intersected null space, so only the
+# A constant vector lies in the null space of both components, so only the
 # normalizing constant remains.
 penalty_value(pen, rep(1, 5), list(lambda1 = 2, lambda2 = 0.5))
 #> [1] 0.9051224

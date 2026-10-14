@@ -1,16 +1,18 @@
 # Defining a penalty
 
 A penalty is $`\rho(D\beta;\theta)`$: a linear map, a scalar function of
-the mapped coefficients, and hyperparameters of its own. Almost every R
-package that fits a penalized model writes one inside the function that
-fits it, so the penalty is a term in an objective rather than an object,
-and nothing can ask it whether it has a kink, what its rank is, or how
-its value moves with its hyperparameter. Those are the questions a
-fitting layer has to answer before it can choose a scheme.
+the mapped coefficients, and hyperparameters of its own. In many R
+packages that fit a penalized model, the penalty is written inside the
+fitting function as a term of the objective, and its kinks, its rank and
+the dependence of its value on the hyperparameters are not available
+outside that function. In penalties7 the penalty is an object, and a
+fitting layer reads these quantities from it to choose a fitting scheme.
 
-This vignette builds a penalty the package does not ship and shows what
-it has to supply and what it gets in return. The example is the Berhu,
-the reverse Huber of Owen (2007):
+This vignette builds a penalty that the package does not ship, writes
+the methods that it has to supply, and shows what the base class and
+[`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+provide in return. The example is the Berhu, the reverse Huber penalty
+of Owen (2007):
 
 ``` math
 \rho(\beta) = \begin{cases}
@@ -19,9 +21,11 @@ the reverse Huber of Owen (2007):
 \end{cases}
 ```
 
-the lasso near the origin and the ridge away from it. It has a kink at
-zero, so it selects; it grows quadratically in the tails, so a large
-coefficient is not shrunk proportionally.
+which is the lasso near the origin and a ridge away from it. The kink at
+zero sets small coefficients exactly to zero. In the tails the penalty
+grows quadratically, so a large coefficient is shrunk in proportion to
+its size, as under a ridge penalty, while the lasso shrinks every
+nonzero coefficient by the same amount.
 
 ## The class and its constructor
 
@@ -43,20 +47,25 @@ berhu_penalty <- function(n_coef, map = NULL) {
 }
 ```
 
-`params_bounds` are open intervals and `link_params` says how each
-hyperparameter reaches the unconstrained scale an outer search steps on.
-`params_smooth` records which of them the value is differentiable in, so
-a numerical guard can switch itself off where it would be measuring a
-kink.
+`params_bounds` holds open intervals, and `link_params` holds, for each
+hyperparameter, the link that maps its interval onto the unconstrained
+scale on which an outer search moves. `params_smooth` records the
+hyperparameters in which the value is differentiable. It is stored with
+the object, and
+[`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+does not read it: the validator places its grid from
+[`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md).
 
 ## The methods
 
-Every generic aligns `theta` before it dispatches, reordering it to
-`pen@params`, stripping stray names off the values and checking it
-against `params_bounds`. A method therefore receives a list already in
-the family’s own order and does not align it again. One helper reads it
-and works out the branch each coefficient falls in, so the eight methods
-share it:
+Each of the generics below that takes `theta` aligns it before it
+dispatches. The generic reorders the list to `pen@params`, strips stray
+names off the values, checks that each value is a single number inside
+`params_bounds`, and, where it also takes `beta`, checks that `beta` has
+length `pen@n_coef`. A method therefore receives a list in the penalty’s
+own order and does not align it again. One helper reads the list and
+records which branch each coefficient falls in, and the six methods for
+the value and the derivatives share it:
 
 ``` r
 
@@ -86,10 +95,14 @@ S7::method(penalty_hessian, BerhuPenalty) <- function(pen, beta, theta, ...) {
 }
 ```
 
-Then the three blocks in the hyperparameters, which are what a marginal
-criterion needs in order to estimate them. Note the `scale` argument: an
-S7 method’s formals have to include the generic’s named arguments, and
-these three generics carry one.
+Then the three blocks in the hyperparameters: the gradient, the Hessian
+and the mixed block $`\partial^2\rho/\partial\beta\,\partial\theta`$,
+which an outer search uses to estimate the hyperparameters. Each of the
+three methods includes the `scale` argument in its formals, because an
+S7 method must include the named arguments of its generic and these
+three generics have one. The methods return the derivatives on the
+parameter scale, and with `scale = "link"` the generic carries them to
+the link scale through the links in `link_params`.
 
 ``` r
 
@@ -118,20 +131,38 @@ S7::method(penalty_cross, BerhuPenalty) <- function(
 }
 ```
 
-Finally the two structural questions.
+Finally
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-returns the **positions** of the kinks, not their number; the Berhu’s
-only kink is the origin, where SCAD has five.
+and
+[`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md).
+[`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
+returns the **positions** of the points at which some derivative of the
+value is discontinuous, in the units of $`D\beta`$, and not their
+number. The Berhu has three such points. At the origin the first
+derivative jumps from $`-\lambda`$ to $`\lambda`$, and at $`\pm\delta`$
+the first derivative is continuous while the second jumps from $`0`$ to
+$`\lambda/\delta`$. SCAD has five, for the same two reasons. The points
+at $`\pm\delta`$ move with the hyperparameter, so the method reads
+`delta` from `theta`.
+[`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
+returns `FALSE`, because the value defined above carries no normalizing
+constant and is therefore not the negative log-density of a prior.
 
 ``` r
 
-S7::method(penalty_kinks, BerhuPenalty) <- function(pen, theta, ...) 0
-S7::method(is_proper, BerhuPenalty) <- function(pen) TRUE
+S7::method(penalty_kinks, BerhuPenalty) <- function(pen, theta, ...) {
+  c(0, -theta$delta, theta$delta)
+}
+S7::method(is_proper, BerhuPenalty) <- function(pen, ...) FALSE
 
 pen <- berhu_penalty(5)
 b <- c(-2.5, -0.4, 0, 0.7, 3.1)
 th <- list(lambda = 1.3, delta = 1)
 
+penalty_kinks(pen, th)
+#> [1]  0 -1  1
+is_proper(pen)
+#> [1] FALSE
 penalty_value(pen, b, th)
 #> [1] 13.039
 penalty_gradient(pen, b, th)
@@ -140,17 +171,21 @@ diag(penalty_hessian(pen, b, th))
 #> [1] 1.3 0.0 0.0 0.0 1.3
 ```
 
-### The shapes are part of the contract
+### The shapes of the hyperparameter blocks
 
 Every hyperparameter block is a **named list**, not a matrix or a data
-frame:
+frame.
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-one scalar per hyperparameter,
+returns one number per hyperparameter, keyed by `pen@params`.
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-keyed `"lambda_lambda"`, `"delta_delta"`, `"lambda_delta"`, and
+returns one number per pair of hyperparameters, keyed by the two names
+joined by an underscore, with the diagonal pairs first and then each
+remaining pair in the order of `pen@params` (here `"lambda_lambda"`,
+`"delta_delta"` and `"lambda_delta"`).
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-one vector of length `n_coef` per hyperparameter. Compare a shipped
-penalty and the shapes are the same:
+returns one vector of length `n_coef` per hyperparameter. The generics
+read these names when they carry the blocks to the link scale. A shipped
+penalty returns the same shapes:
 
 ``` r
 
@@ -165,7 +200,8 @@ str(penalty_hess_theta(scad_penalty(n_coef = 3), c(-2, 0.3, 1.5),
 ## Validating it
 
 [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
-differentiates the value numerically and compares, one block at a time:
+compares each closed form with a numerical reference and reports one row
+per comparison:
 
 ``` r
 
@@ -179,16 +215,21 @@ print(check_penalty(pen, theta = th, verbose = FALSE))
 #> 6               grad_theta[delta] vs numDeriv 4.268279e-13     OK
 #> 7         hess_theta[delta_delta] vs numDeriv 9.007713e-12     OK
 #> 8  cross[delta] vs Richardson on the gradient 7.601645e-12     OK
+#> 9        hess_theta[lambda_delta] vs numDeriv 8.851854e-12     OK
 ```
 
-The reference is `numDeriv`, which shares no arithmetic with the
-formulas, and the cross block is checked by Richardson extrapolation on
-the analytic gradient, never by differencing the value twice.
+The rows for the gradient in $`\beta`$ and in each hyperparameter
+differentiate the value with `numDeriv`. The rows for the Hessian in
+$`\beta`$, for every entry of the Hessian in the hyperparameters (the
+off-diagonal entry `lambda_delta` included) and for the mixed block
+differentiate the analytic first derivatives instead, with the
+Richardson extrapolation of `numDeriv`, so that the value is never
+differenced twice.
 
 ### A numerical reference is invalid at a kink
 
-Hand the validator a $`\beta`$ with a coordinate sitting exactly on the
-kink and the second-derivative check fails on correct code:
+If a coordinate of $`\beta`$ sits exactly on a kink, the check of the
+Hessian fails on correct code:
 
 ``` r
 
@@ -198,12 +239,15 @@ check_penalty(pen, beta = b, theta = th, verbose = FALSE)[1:2, ]
 #> 2 hessian vs numDeriv on the gradient 1.000000e+00 FAILED
 ```
 
-`b` contains an exact zero, the gradient jumps from $`-\lambda`$ to
-$`+\lambda`$ there, and a central difference across the jump measures
-the kink, not the formula. When `beta` is left `NULL` the validator
-draws it and nudges each draw off any position
+The vector `b` contains an exact zero. The gradient jumps from
+$`-\lambda`$ to $`\lambda`$ there, so a central difference of the
+gradient across zero measures the jump and not the formula. When `beta`
+is left `NULL`,
+[`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+draws it from a fixed seed and shifts the draw until every coordinate of
+$`D\beta`$ lies more than `0.05` from every point that
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-declares, which is why the run above passed. Moving the zero is enough:
+returns, which is why the first run passed. Moving the zero is enough:
 
 ``` r
 
@@ -214,59 +258,101 @@ check_penalty(pen, beta = c(-2.5, -0.4, 0.05, 0.7, 3.1),
 #> 2 hessian vs numDeriv on the gradient 9.635369e-12     OK
 ```
 
-This is the reason
+For this reason
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-returns positions. A count would say a kink exists; the positions say
-where a reference must not be taken.
+returns the positions of the kinks and not their number:
+[`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+needs the positions to keep its grid away from them.
 
-## What the base class supplies, and what it refuses
+## Methods supplied by the base class
 
 ``` r
 
 c(is_quadratic   = is_quadratic(pen),
-  beta_quadratic = beta_quadratic(pen),
+  beta_quadratic = beta_quadratic(pen, th),
   has_prox       = has_prox(pen))
 #>   is_quadratic beta_quadratic       has_prox 
 #>          FALSE          FALSE          FALSE
+penalty_draw(pen, th)
+#> [1] NA NA NA NA NA
 try(penalty_rank(pen))
 #> Error : Only a quadratic penalty has a rank; see is_quadratic().
 ```
 
-[`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+The base class `penalty` has methods for the generics that a branch may
+leave out.
+[`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
 and
-[`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-are refused because there is no matrix: a rank is a property of a
-quadratic form, and returning one for a penalty that is not quadratic
-would be a different object under the same name.
+[`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
+return `FALSE`,
+[`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+and
+[`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
+return `NULL`, and
+[`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
+returns `NA` for every coordinate of a penalty that is not quadratic.
+[`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+[`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+[`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+and
+[`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+signal an error, because a rank, a null basis and a log
+pseudo-determinant are properties of a quadratic form and the Berhu has
+no matrix.
+[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+signals an error, and so do
+[`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md),
+[`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
+and
+[`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md),
+the derivatives that a Laplace approximation to a marginal likelihood
+needs, and the three generics for the derivatives of the Hessian in
+$`\beta`$
+([`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md),
+[`penalty_d2hessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md)
+and
+[`penalty_dhessian_beta_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md)).
+The hyperparameters of the Berhu as written here therefore cannot be
+estimated by a marginal criterion.
 
 [`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
-is `FALSE` because no proximal operator has been registered, and that is
-the answer with consequences. A fitting layer routes a block by whether
-its penalty is twice differentiable: a smooth one joins the system
-solved by `iwls()` or an ordinary optimizer, and a kinked one needs a
-proximal step or a coordinate descent, both of which need the operator.
-A kinked penalty with no
+returns `FALSE` because the Berhu has no method for
+[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md).
+statmodels7 routes a block by whether
+[`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
+returns a point. A smooth penalty joins the Newton-type system of the
+other coefficients, and a penalty with a kink is fitted by a proximal
+gradient iteration, which calls
+[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md),
+or by a coordinate descent, which reads
+[`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md).
+A penalty with a kink and without a method for
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
-can be evaluated and differentiated away from its kinks, and cannot be
-fitted by the scheme its kink calls for.
+can be evaluated and differentiated away from its kinks, but it cannot
+be fitted by either scheme.
 
-The Berhu’s operator is closed, so registering one is a further
-exercise, not an obstruction;
+The proximal operator of the Berhu has a closed form, piecewise linear
+in $`v`$, so a method for
+[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+can be registered in the same way as the methods above.
 [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
-is the piecewise-linear table a compiled coordinate descent reads, and
-supplying it is what puts a penalty on that path.
+returns the same operator as a piecewise-linear table, which the
+compiled coordinate descent reads. The method of the base class returns
+`NULL`, and statmodels7 then fits the block by the proximal gradient
+iteration.
 
 ## The normalizing constant is kept
 
 A separable penalty built from a distributions7 family is the negative
 log-density of that family, and the shipped ones keep the constant. The
-lasso is a fixed Laplace in its rate chart, so its value carries
-$`-\log(\lambda/2)`$ per coefficient:
+lasso is a Laplace at zero in its rate parametrization, so its value
+carries $`-\log(\lambda/2)`$ per coefficient:
 
 ``` r
 
+pen2 <- berhu_penalty(2)
 small <- c(-0.3, 0.2)
-c(berhu = penalty_value(pen, small, th),
+c(berhu = penalty_value(pen2, small, th),
   lasso = penalty_value(lasso_penalty(n_coef = 2), small,
                         list(lambda = 1.3)),
   constant = -2 * log(1.3 / 2))
@@ -274,13 +360,14 @@ c(berhu = penalty_value(pen, small, th),
 #> 0.6500000 1.5115658 0.8615658
 ```
 
-Dropping the constant makes hyperparameter estimation degenerate:
-without it the objective falls monotonically as $`\lambda \to 0`$, and a
-$`t`$ prior’s degrees of freedom cannot be estimated at all. The Berhu
-above has no constant because it is not a normalized density; a penalty
-of that kind states its hyperparameters as what they are, quantities the
-caller sets or an outer criterion chooses on a prediction error instead
-of a marginal likelihood.
+Without the constant the hyperparameters cannot be estimated: the
+objective falls monotonically as $`\lambda \to 0`$, and the degrees of
+freedom of a $`t`$ prior cannot be estimated at all. The Berhu above has
+no constant, because its value is not a normalized density, and for that
+reason its
+[`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
+method returns `FALSE`. Its hyperparameters are set by the caller or
+chosen by a criterion on prediction error, not by a marginal likelihood.
 
 ## Summary
 
@@ -296,21 +383,31 @@ of a marginal likelihood.
   and
   [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md).
 - The three hyperparameter blocks take a `scale` argument, because their
-  generics declare one, and every one returns a **named list**.
+  generics declare one. Each returns a **named list** on the parameter
+  scale, and the generic carries it to the link scale.
 - [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-  returns positions, so a numerical reference can be kept off them; a
-  count would not be enough.
+  returns positions, so that a numerical reference can be kept away from
+  them.
 - [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
-  compares against `numDeriv` and Richardson, and draws a $`\beta`$
-  nudged off every declared kink when it is given none.
+  compares the gradients with `numDeriv` on the value and the second
+  derivatives with `numDeriv` on the analytic gradients, every entry of
+  the hyperparameter Hessian included. When it is given no $`\beta`$ it
+  draws one away from every declared kink.
 - [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md),
-  [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+  [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md),
+  [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md),
+  [`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md),
+  [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md),
   [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+  [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+  [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
   [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
-  [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
-  and
-  [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
-  come from the base class, and the first three refuse where the penalty
-  is not quadratic.
+  [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md),
+  [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
+  and its siblings have methods on the base class. The first five return
+  `FALSE`, `NULL` or `NA`; the others signal an error for a penalty that
+  is not quadratic or has no such method.
 - [`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
-  decides which fitting scheme a kinked block can reach.
+  is `FALSE` until a method for
+  [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+  is registered, and a fit of a penalty with a kink needs that method.

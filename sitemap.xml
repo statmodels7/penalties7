@@ -26,11 +26,14 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/dot-kron_quadratic.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/dot-prox_family.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/dot-prox_param.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/dot-prox_root.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/dot-prox_scaling.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/dot-undiag.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/dp_arg.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/dp_blockdiag.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/dp_contract.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/dp_diag_entries.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/dp_params_smooth.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/has_jump.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/has_prox.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/index.html</loc></url>
@@ -81,6 +84,7 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_matrix.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/penalty_null_basis.DistribPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox.DistribPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox.McpPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox.QuadraticPenalty.html</loc></url>
@@ -88,6 +92,7 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_readable.DistribPenalty.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/penalty_readable.StructuredPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_readable.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.AdditivePenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_value.DistribPenalty.html</loc></url>

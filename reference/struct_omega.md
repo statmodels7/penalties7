@@ -3,7 +3,7 @@
 The four helpers that read the prior's precision and its derivatives off
 the structure. `struct_omega()` returns \\\Omega\\, `struct_d1()` its
 first derivatives, `struct_d2()` its second, and `struct_logdet()` the
-log-determinant with as many orders as asked for.
+log-determinant with its derivatives up to the requested order.
 
 ## Usage
 
@@ -33,12 +33,13 @@ struct_logdet(pen, eta, order = 2L)
 
 - omega:
 
-  Accepted and unused, kept so the call sites that pass a precision they
-  already hold need no branch. `struct_d1()` and `struct_d2()` only.
+  Accepted and unused; no call in the package passes it. `struct_d1()`
+  and `struct_d2()` only.
 
 - order:
 
-  The highest derivative wanted, 0, 1 or 2.
+  The highest log-determinant derivative wanted: `0`, `1` or `2`.
+  `struct_logdet()` only, `2L` by default.
 
 ## Value
 
@@ -52,12 +53,12 @@ and `d2` (a named list, one number per pair, keyed as `struct_d2()` is).
 
 ## Details
 
-The structure is the precision, so each helper unwraps the structure's
-own answer and returns it, and no transport happens here. A caller who
-wants a structure read as a covariance passes
-[`parameters7::inverse_of()`](https://statmodels7.github.io/parameters7/reference/inverse_of.html)
-of it, which carries \\\partial_k\Omega = -\Omega A_k \Omega\\ and its
-higher orders inside the structure, where the log-determinant stays
+The structure is the precision, so each helper returns the structure's
+own result with its class removed, and no conversion between covariance
+and precision happens here. To read a structure `s` as a covariance,
+pass `parameters7::inverse_of(s)`, which carries \\\partial_k\Omega =
+-\Omega B_k \Omega\\, with \\B_k\\ the derivative of the covariance, and
+its higher orders inside the structure, where the log-determinant stays
 exact.
 
 Second-order components are keyed as parameters7 keys them: the two free
@@ -72,4 +73,4 @@ for the prior these serve,
 [`parameters7::param_d1()`](https://statmodels7.github.io/parameters7/reference/param_d1.html)
 and
 [`parameters7::param_dlogdet()`](https://statmodels7.github.io/parameters7/reference/param_dlogdet.html)
-for the contract they read.
+for the generics that they call.

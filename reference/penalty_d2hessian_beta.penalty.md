@@ -1,12 +1,27 @@
-# What Each Branch Answers to the Second Movement of the Hessian
+# Methods of penalty_d2hessian_beta() and penalty_dhessian_beta_theta()
 
-The base class rejects both, naming the penalty. The quadratic, additive
-and structured branches return zero matrices, their Hessian being free
-of the coefficients. The separable branch returns zero where its parent
-is quadratic in the argument, the closed forms of
+The methods of the base class for both generics signal an error that
+names the penalty; they are the methods that
+[`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+and
+[`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+reach. The quadratic, additive and structured branches
+([`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md),
+[`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
+and
+[`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md))
+share one method per generic, which returns a zero matrix of side
+`pen@n_coef` from
 [`penalty_d2hessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md)
-otherwise, contracted per block for a multivariate parent, and rejects
-for a kinked parent and for a multivariate parent that supplies no
+and a list of such zero matrices, one per hyperparameter, from
+[`penalty_dhessian_beta_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md),
+because their Hessian is free of the coefficients. The separable branch
+returns the same zeros when
+[`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
+is `TRUE` for it, and otherwise the closed forms given on the page of
+[`penalty_d2hessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md),
+contracted per block for a multivariate parent. It signals an error for
+a kinked parent and for a multivariate parent that cannot supply its
 fourth or mixed third response derivative.
 
 ## Arguments
@@ -41,4 +56,6 @@ A square base matrix of side `pen@n_coef`, a list of them keyed by
 ## See also
 
 [`penalty_d2hessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md)
-for the generics.
+for the generics,
+[`penalty_dhessian_beta.penalty()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.penalty.md)
+for the methods of the derivative of first order.

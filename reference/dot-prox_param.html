@@ -13,7 +13,7 @@ at a value."><meta property="og:image" content="https://statmodels7.github.io/pe
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,13 +73,20 @@ at a value.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The closed forms below need the number, not the place it is kept. A penalty
-whose scale is held is the same penalty as one whose scale is free, read at
-that scale: <code><a href="penalty_value.html">penalty_value()</a></code>, <code><a href="penalty_gradient.html">penalty_gradient()</a></code> and <code><a href="penalty_gradient.html">penalty_hessian()</a></code>
-all already answer identically for the two. Reading only <code>theta</code> made
-<code><a href="penalty_prox.html">penalty_prox()</a></code> the one generic that did not, and it stopped with
-<code>attempt to select less than one element in get1index</code> rather than saying so,
-because <code><a href="https://rdrr.io/r/base/which.html" class="external-link">which()</a></code> of an empty comparison is <code>integer(0)</code>.</p>
+    <p>The closed forms need the value of the parameter, wherever it is stored. A
+penalty whose scale is held by <code><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">distributions7::fixed()</a></code> is the same penalty
+as one whose scale is free, evaluated at that scale, and
+<code><a href="penalty_value.html">penalty_value()</a></code>, <code><a href="penalty_gradient.html">penalty_gradient()</a></code> and <code><a href="penalty_gradient.html">penalty_hessian()</a></code> return the
+same results for the two. <code><a href="penalty_prox.html">penalty_prox()</a></code> therefore reads the value from
+<code>theta</code> when it is a free hyperparameter and from the parent's
+<code>fixed_params</code> otherwise.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="errors">Errors<a class="anchor" aria-label="anchor" href="#errors"></a></h2>
+
+
+<p>A message naming the penalty and the parameter when the parameter is
+neither a free hyperparameter nor held by <code><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">distributions7::fixed()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

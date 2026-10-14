@@ -1,14 +1,18 @@
-# What the Base Class Answers to the Marginal Generics
+# Base Class Methods of the Marginal Generics
 
-One page for the base class's answers to the four generics a marginal
-criterion asks beyond the second order.
+The methods of the base class for the four generics that a marginal
+criterion requires beyond the second order.
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md),
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
 and
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
-each reject, naming the penalty and the generic;
+each signal an error that names the penalty and the generic;
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
-answers `FALSE`.
+returns `FALSE`.
+[`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+and
+[`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+register none of the four and reach these methods.
 
 ## Arguments
 
@@ -16,7 +20,7 @@ answers `FALSE`.
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
-  object of a class registering none of these.
+  object of a class that registers none of these methods.
 
 - beta:
 
@@ -42,21 +46,26 @@ returns the single logical `FALSE`.
 
 ## Details
 
-A marginal criterion is a Laplace approximation and asks for derivatives
-beyond the second. A penalty that does not supply them cannot be
-estimated by one, and reporting that is better than a criterion
-assembled from a quantity nobody wrote.
-[`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)'s
-message says so in full; the other two name the generic alone, a caller
-who has reached the second having already read the first.
+A marginal criterion based on a Laplace approximation requires
+derivatives of the penalty beyond the second order. For a penalty that
+does not supply them, these methods signal an error, so the
+hyperparameters of such a penalty cannot be estimated by a marginal
+criterion. The message of
+[`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
+states that consequence; the messages of
+[`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
+and
+[`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
+name only the penalty and the generic.
 
-[`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)'s
-`FALSE` is the conservative default: a penalty that says nothing about
-its third \\\beta\\-derivative is treated as having one.
+The `FALSE` of
+[`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
+is the conservative default: a penalty class without a method of its own
+is treated as having a third \\\beta\\-derivative.
 
 ## See also
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
 and its siblings for the generics,
 [`penalty_dhessian.QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.QuadraticPenalty.md)
-for a branch that answers.
+for a branch that supplies them.

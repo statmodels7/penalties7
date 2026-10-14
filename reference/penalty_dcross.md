@@ -2,10 +2,11 @@
 
 Returns
 \\\partial^3\rho/\partial\beta\\\partial\theta_m\partial\theta_l\\, one
-coefficient vector per unordered pair. Where
+coefficient vector per unordered pair.
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-says how the coefficient gradient moves with one hyperparameter, this
-says how that movement itself moves with a second.
+gives the derivative of the coefficient gradient in one hyperparameter,
+and this generic gives the derivative of that quantity in a second
+hyperparameter.
 
 ## Usage
 
@@ -23,14 +24,15 @@ penalty_dcross(pen, beta, theta, ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`. Read by the structured and
-  separable branches; the quadratic and additive ones answer zero
-  whatever it is.
+  A numeric vector of length `pen@n_coef`; the generic signals an error
+  for any other length. The structured and separable branches read its
+  values; the quadratic and additive branches return zero for any value.
 
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same.
+  carrying the same, checked by the generic as in
+  [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md).
 
 - ...:
 
@@ -44,21 +46,24 @@ pair, keyed diagonals first.
 ## Details
 
 A marginal criterion is evaluated at the penalized mode, and the mode
-moves with the hyperparameters. Differentiating the criterion twice
-therefore needs the derivative of the mode's own derivative, and this is
-the penalty's contribution to it.
+moves with the hyperparameters. The second derivative of the criterion
+therefore contains the second derivative of the mode, and this quantity
+is the contribution of the penalty to it.
 
 It is **exactly zero** wherever the penalty is quadratic in the
 coefficients with a Hessian linear in the hyperparameters, which covers
-the quadratic and additive branches. The structured branch answers
-\\(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta\\, reusing
+the quadratic and additive branches. The structured branch returns
+\\(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta\\, computed
+from
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md),
-and the separable branch reads the parent's
-[`distributions7::distrib_grad_y_hess()`](https://statmodels7.github.io/distributions7/reference/distrib_grad_y_hess.html).
+and the separable branch returns \\-D'(\partial^3\ell/\partial
+y\\\partial\theta_m\partial\theta_l)\\, from
+[`distributions7::distrib_grad_y_hess()`](https://statmodels7.github.io/distributions7/reference/distrib_grad_y_hess.html)
+of the parent evaluated at \\D\beta\\.
 
-The keys are
-[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)'s,
-diagonals first.
+The keys are those of
+[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md),
+diagonal pairs first.
 
 ## See also
 
@@ -67,7 +72,7 @@ for the first order,
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
 and
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
-for the other two quantities a marginal criterion asks for.
+for the other two quantities that a marginal criterion requires.
 
 ## Examples
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
     <div class="section level2">
       <h2 id="the-class-and-the-generics">The class and the generics<a class="anchor" aria-label="anchor" href="#the-class-and-the-generics"></a></h2>
 
-      <div class="section-desc"><p>What every penalty answers: its value with the normalizing constant, its derivatives in the coefficients and in the hyperparameters, the mixed block, and the kink set a non-smooth method needs.</p></div>
+      <div class="section-desc"><p>The base class and the generics of every penalty: the value with its normalizing constant, the derivatives in the coefficients and in the hyperparameters, the mixed block, the points where the penalty is not smooth, and the predicates and quantities that a fitting layer reads.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -74,14 +74,14 @@
           <code><a href="penalty_kinks.html">penalty_kinks()</a></code>
 
         </dt>
-        <dd>Where a Penalty Stops Being Smooth</dd>
+        <dd>Points Where a Penalty Is Not Smooth</dd>
 
         <dt>
 
           <code><a href="penalty_readable.html">penalty_readable()</a></code>
 
         </dt>
-        <dd>What a Penalty's Hyperparameters Are About</dd>
+        <dd>Interpretable Quantities of a Penalty's Hyperparameters</dd>
 
         <dt>
 
@@ -102,18 +102,18 @@
           <code><a href="is_quadratic.html">is_quadratic()</a></code>
 
         </dt>
-        <dd>Is a Penalty a Quadratic Form With One Scale?</dd>
+        <dd>Is a Penalty a Quadratic Form?</dd>
 
         <dt>
 
           <code><a href="penalty_matrix.html">penalty_matrix()</a></code> <code><a href="penalty_matrix.html">penalty_rank()</a></code> <code><a href="penalty_matrix.html">penalty_null_basis()</a></code> <code><a href="penalty_matrix.html">penalty_logpdet()</a></code>
 
         </dt>
-        <dd>The Pieces a Marginal Criterion Consumes</dd>
+        <dd>Quantities of a Quadratic Penalty for a Marginal Criterion</dd>
       </dl></div><div class="section level2">
-      <h2 id="what-a-marginal-criterion-asks">What a marginal criterion asks<a class="anchor" aria-label="anchor" href="#what-a-marginal-criterion-asks"></a></h2>
+      <h2 id="derivatives-for-a-marginal-criterion">Derivatives for a marginal criterion<a class="anchor" aria-label="anchor" href="#derivatives-for-a-marginal-criterion"></a></h2>
 
-      <div class="section-desc"><p>A Laplace approximation to a marginal likelihood differentiates the determinant of the penalized information, so it needs the hyperparameter derivatives of the coefficient Hessian and of the mixed block. A penalty that answers these is estimable by REML or ML whatever its shape.</p></div>
+      <div class="section-desc"><p>A Laplace approximation to a marginal likelihood differentiates the determinant of the penalized information, so it needs the hyperparameter derivatives of the coefficient Hessian and of the mixed block. The hyperparameters of a penalty that supplies them can be estimated by REML or ML. SCAD, MCP and a separable penalty with a kink do not supply them.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -153,7 +153,7 @@
           <code><a href="penalty_d2hessian_beta.html">penalty_d2hessian_beta()</a></code> <code><a href="penalty_d2hessian_beta.html">penalty_dhessian_beta_theta()</a></code>
 
         </dt>
-        <dd>How the Movement of the Coefficient Hessian Moves</dd>
+        <dd>Second Derivatives of the Coefficient Hessian in the Coefficients and the Hyperparameters</dd>
 
         <dt>
 
@@ -164,7 +164,7 @@
       </dl></div><div class="section level2">
       <h2 id="the-quadratic-branch">The quadratic branch<a class="anchor" aria-label="anchor" href="#the-quadratic-branch"></a></h2>
 
-      <div class="section-desc"><p>A fixed matrix and one smoothing parameter, so the penalty is the negative log-density of an improper Gaussian prior. The rank, the null basis and the log pseudo-determinant are fixed at one eigendecomposition when the object is built.</p></div>
+      <div class="section-desc"><p>A fixed matrix P, an optional map D and one smoothing parameter lambda, so the penalty is the negative log-density of a Gaussian prior with precision lambda D’PD, improper when D’PD is singular. The rank, the null basis and the log pseudo-determinant are computed from D’PD when the object is built.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -187,7 +187,7 @@
       </dl></div><div class="section level2">
       <h2 id="the-additive-branch">The additive branch<a class="anchor" aria-label="anchor" href="#the-additive-branch"></a></h2>
 
-      <div class="section-desc"><p>A sum of quadratics with a smoothing parameter on each, which is what an anisotropic tensor smooth needs. The rank comes from the components stacked and normalized, not from the assembled matrix, whose eigenvalue count falls as the parameters spread apart.</p></div>
+      <div class="section-desc"><p>A sum of quadratic penalties with a smoothing parameter on each, which is the penalty of an anisotropic tensor-product smooth. The rank is computed at construction from the sum of the components, each divided by its largest absolute entry, because the null space of the sum does not depend on the smoothing parameters.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -210,7 +210,7 @@
       </dl></div><div class="section level2">
       <h2 id="the-separable-branch">The separable branch<a class="anchor" aria-label="anchor" href="#the-separable-branch"></a></h2>
 
-      <div class="section-desc"><p>A univariate distributions7 log-density applied coordinatewise. Ridge is a Gaussian at zero, the lasso a Laplace, the elastic net the product of the two, and the heavy-tailed prior a Student t.</p></div>
+      <div class="section-desc"><p>The negative log-density of a continuous distributions7 family at the coordinates of the mapped coefficients, one coordinate at a time for a univariate family and one block at a time for a multivariate one. The lasso is a Laplace at zero, the elastic net the product of a Laplace and a Gaussian, and the heavy-tailed prior a Student t. The ridge, documented with them, is the Gaussian at zero written by its precision and is built on the quadratic branch.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -247,7 +247,7 @@
       </dl></div><div class="section level2">
       <h2 id="the-structured-branch">The structured branch<a class="anchor" aria-label="anchor" href="#the-structured-branch"></a></h2>
 
-      <div class="section-desc"><p>A parameters7 matrix parameter used as the precision, so the hyperparameters are that structure’s free values and every derivative comes from its derivative arrays.</p></div>
+      <div class="section-desc"><p>A parameters7 matrix parameter used as the precision, so the hyperparameters are the free values of that structure and every derivative comes from its derivative arrays.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -270,7 +270,7 @@
       </dl></div><div class="section level2">
       <h2 id="scad-and-mcp">SCAD and MCP<a class="anchor" aria-label="anchor" href="#scad-and-mcp"></a></h2>
 
-      <div class="section-desc"><p>Defined by their derivative rather than by a density, hence improper by construction: they have no normalizing constant and cannot come from a distribution.</p></div>
+      <div class="section-desc"><p>Defined by their derivative rather than by a density. Their value is bounded, so exp(-value) is not integrable: they are improper, carry no normalizing constant and cannot come from a distribution.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -289,11 +289,11 @@
           <code><a href="ScadPenalty.html">ScadPenalty()</a></code> <code><a href="ScadPenalty.html">McpPenalty()</a></code>
 
         </dt>
-        <dd>S7 Classes for the Derivative-Defined Penalties</dd>
+        <dd>S7 Classes for the SCAD and MCP Penalties</dd>
       </dl></div><div class="section level2">
       <h2 id="the-proximal-operator">The proximal operator<a class="anchor" aria-label="anchor" href="#the-proximal-operator"></a></h2>
 
-      <div class="section-desc"><p>One step of a proximal gradient method, in closed form where one exists and as a linear solve or a coordinatewise root otherwise.</p></div>
+      <div class="section-desc"><p>The operator that a proximal gradient method applies after each gradient step: a linear solve for the quadratic and structured branches, a closed form for the Gaussian, Laplace, elastic-net, SCAD and MCP penalties, and a coordinatewise root for any other separable parent with a smooth log-density.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -330,7 +330,7 @@
       </dl></div><div class="section level2">
       <h2 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a></h2>
 
-      <div class="section-desc"><p>The numerical checks a penalty must pass, meant above all for one written outside the package.</p></div>
+      <div class="section-desc"><p>Numerical checks of the derivatives of a penalty, meant above all for a penalty written outside the package.</p></div>
 
       <dl></dl></div><div class="section level2">
 

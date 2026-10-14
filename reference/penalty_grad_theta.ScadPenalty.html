@@ -15,7 +15,7 @@ hyperparameter."><meta property="og:image" content="https://statmodels7.github.i
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,18 +86,23 @@ named <code>lambda</code> and <code>a</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Each region contributes its own expression and the sums run over the
-coordinates that fall in it. In \(u \le \lambda\) the value is
-\(\lambda u\), so \(\partial\rho/\partial\lambda = u\) and the shape
-does not enter; beyond \(a\lambda\) the value is
-\((a+1)\lambda^2/2\), so \(\partial\rho/\partial\lambda =
-(a+1)\lambda\) and \(\partial\rho/\partial a = \lambda^2/2\), neither
-depending on the coefficient at all.</p>
-<p>These derivatives exist, and no marginal criterion can use them: a Laplace
-expansion needs the penalty to be twice differentiable at the mode, and a
-mode with a coefficient held at zero sits on the kink. What they serve is a
-joint step in which the hyperparameters are estimated alongside the
-coefficients, and <code><a href="check_penalty.html">check_penalty()</a></code>, which compares them against
+    <p>Each region contributes its own expression, and the sums run over the
+coordinates that fall in it. At unit curvature, in \(u \le \lambda\) the
+value is \(\lambda u\), so \(\partial\rho/\partial\lambda = u\) and the
+shape does not enter; over the taper
+\(\partial\rho/\partial\lambda = (au - \lambda)/(a-1)\) and
+\(\partial\rho/\partial a = (u - \lambda)^2/(2(a-1)^2)\); beyond
+\(a\lambda\) the value is \((a+1)\lambda^2/2\), so
+\(\partial\rho/\partial\lambda = (a+1)\lambda\) and
+\(\partial\rho/\partial a = \lambda^2/2\), and neither depends on the
+coefficient. With curvature \(c_j\) the coordinate contributes
+\(c_j\,\rho(u_j;\ \lambda/c_j)\), and each derivative follows by the
+chain rule through \(\lambda/c_j\).</p>
+<p>A marginal criterion cannot use these derivatives: a Laplace expansion
+requires the penalty to be twice differentiable at the mode, and a mode
+with a coefficient held at zero lies on the kink. The derivatives are used
+in a joint step that estimates the hyperparameters together with the
+coefficients, and by <code><a href="check_penalty.html">check_penalty()</a></code>, which compares them with
 <span class="pkg">numDeriv</span>.</p>
     </div>
     <div class="section level2">
@@ -131,8 +136,8 @@ coefficients, and <code><a href="check_penalty.html">check_penalty()</a></code>,
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8628258</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A coordinate past a * lambda contributes lambda^2 / 2 to the shape</span></span></span>
-<span class="r-in"><span><span class="co"># derivative and nothing to the mixed block.</span></span></span>
+<span class="r-in"><span><span class="co"># The coordinate at 5, past a * lambda, contributes lambda^2 / 2 to the</span></span></span>
+<span class="r-in"><span><span class="co"># derivative in a above and zero to the cross derivative in a.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="penalty_grad_theta.html">penalty_cross</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">b</span>, <span class="va">th</span><span class="op">)</span><span class="op">$</span><span class="va">a</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0000000 0.1371742 0.0000000</span>
 <span class="r-in"><span></span></span>

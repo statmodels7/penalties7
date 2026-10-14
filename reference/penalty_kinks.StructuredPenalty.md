@@ -18,9 +18,9 @@ returns `TRUE` when the structure has full rank.
 
 - theta:
 
-  A named list of the structure's free values. Read by
+  A named list of the structure's free values. Accepted by
   [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md),
-  whose answer does not depend on it.
+  whose result does not depend on it.
 
 - ...:
 
@@ -37,10 +37,11 @@ a single logical, `TRUE` when the structure's rank equals its dimension.
 
 ## Details
 
-Properness is the structure's rank against its dimension and nothing
-else. A full-rank structure is a proper Gaussian prior; a rank-deficient
-one, which is admitted only as a precision, is improper and its constant
-is the log pseudo-determinant over the range.
+Properness is a comparison of the structure's rank with its dimension
+and nothing else. A full-rank structure is a proper Gaussian prior. A
+rank-deficient structure, which can be used only as a precision, gives
+an improper prior, and its constant is the log pseudo-determinant over
+the range.
 
 ## See also
 

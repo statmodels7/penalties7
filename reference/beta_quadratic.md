@@ -1,9 +1,9 @@
 # Is a Penalty Quadratic in the Coefficients?
 
-`TRUE` when \\\partial^3\rho/\partial\beta^3\\ is exactly zero, so a
-consumer can skip that third derivative altogether. Asked of the penalty
-rather than measured by a consumer, which would be guessing at a
-property the penalty knows.
+`TRUE` when \\\partial^3\rho/\partial\beta^3\\ is exactly zero, so that
+a consumer can skip that third derivative. The value comes from a method
+of the class of the penalty, so a consumer does not have to test the
+property numerically.
 
 ## Usage
 
@@ -22,8 +22,13 @@ beta_quadratic(pen, theta, ...)
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same. Read by the separable branch, to evaluate the
-  parent; the other branches answer a constant.
+  carrying the same, holding every name in `pen@params`. The generic
+  checks it as
+  [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
+  does, so a missing hyperparameter or a value outside its open bounds
+  is an error on every branch. The separable branch evaluates the parent
+  at it, and the other branches return a constant without reading its
+  values.
 
 - ...:
 
@@ -31,59 +36,64 @@ beta_quadratic(pen, theta, ...)
 
 ## Value
 
-A single logical. `FALSE` from the base class, so a penalty that says
-nothing is treated as needing the third derivative.
+A single logical. The base class returns `FALSE`, so a penalty class
+without a method of its own is treated as needing the third derivative.
 
 ## Three independent properties
 
-This is not
+This predicate differs from
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md),
-which is about the whole construction. The three questions a consumer
-may ask are independent:
+which reports whether the penalty is a quadratic form whose matrix, rank
+and log pseudo-determinant are available through
+[`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+and its siblings. The two predicates and the linearity of \\S\\ in
+\\\theta\\ are independent properties:
 
 |  |  |  |  |
 |----|----|----|----|
 | penalty | [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md) | `beta_quadratic()` | \\S\\ linear in \\\theta\\ |
 | [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md) | `TRUE` | `TRUE` | yes |
 | [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md) | `TRUE` | `TRUE` | no |
-| [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md) | `FALSE` | `TRUE` | yes |
+| [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md) | `TRUE` | `TRUE` | yes |
 | a Gaussian [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md) | `FALSE` | `TRUE` | no |
 | [`heavy_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md) | `FALSE` | `FALSE` | no |
 
-## How the separable branch answers
+## The method of the separable branch
 
-By probing, not by differentiating three times. The log-density is
-quadratic in the response exactly when its second derivative there does
-not depend on it, so
+The log-density is quadratic in the response exactly when its second
+derivative in the response does not depend on the response. The method
+therefore evaluates
 [`distributions7::distrib_hess_y()`](https://statmodels7.github.io/distributions7/reference/distrib_hess_y.html)
-is read at four points and compared for constancy at a tolerance of
-`1e-12`. The question is put to the second derivative because that one
-is analytic for almost every family, where the third is often a finite
-difference whose noise no threshold separates from a true zero.
+of the parent at four points and tests whether the values agree across
+the points with [`all.equal()`](https://rdrr.io/r/base/all.equal.html)
+at a tolerance of `1e-12`, which is a relative tolerance. No third
+derivative is computed. The page
+[`beta_quadratic.DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.DistribPenalty.md)
+describes the points and the multivariate case.
 
-## What `TRUE` does not promise
+## The meaning of `TRUE`
 
-It does not say the marginal derivatives are available. A lasso answers
-`TRUE`, its log-density being linear in the response away from the kink,
-and
+`TRUE` does not imply that the marginal derivatives are available. A
+lasso gives `TRUE`, because its log-density is linear in the response
+away from the kink, and
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-still rejects for it: the third derivative is zero where it exists and
-undefined at the kink, which is where a selecting fit puts its
-coefficients.
+still signals an error for it: the third derivative is zero where it
+exists and undefined at the kink, which is where a selecting fit places
+its coefficients.
 
 ## See also
 
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-for the different question about the construction,
-[`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-for what a consumer skips when this is `TRUE`,
+for the property of the construction,
+[`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md)
+for the derivative that is zero when this is `TRUE`,
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-for the derivative that is then constant.
+for the Hessian that is then constant in the coefficients.
 
 ## Examples
 
 ``` r
-# The two branches that answer TRUE to both predicates.
+# Two of the three branches that give TRUE for both predicates.
 beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
 #> [1] TRUE
 beta_quadratic(structured_penalty(

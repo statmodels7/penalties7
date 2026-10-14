@@ -3,8 +3,8 @@
 `penalty_gradient()` returns \\\partial\rho/\partial\beta\\ and
 `penalty_hessian()` returns \\\partial^2\rho/\partial\beta^2\\, both in
 closed form for every shipped branch and both already carried back
-through the map. These are the two quantities a penalized fit adds to
-the score and to the information at each iteration.
+through the map. These are the two quantities that a penalized fit adds
+to the score and to the information at each iteration.
 
 ## Usage
 
@@ -24,8 +24,9 @@ penalty_hessian(pen, beta, theta, ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`, coerced with
+  A finite numeric vector of length `pen@n_coef`, coerced with
   [`as.numeric()`](https://rdrr.io/r/base/numeric.html) in the generic.
+  A vector of another length signals an error.
 
 - theta:
 
@@ -34,17 +35,18 @@ penalty_hessian(pen, beta, theta, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
 `penalty_gradient()` a numeric vector of length `pen@n_coef`;
 `penalty_hessian()` a symmetric matrix of that side. It is a base matrix
-even where the map is a Matrix, and a `dgCMatrix` for a penalty built by
+even where the map is a Matrix, except for a penalty built by
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
-with `blocks > 1`, which keeps its sparse storage deliberately.
+with `blocks > 1`, whose Hessian is a `dgCMatrix` so that the sparse
+storage is kept.
 
-## Through the map
+## Derivatives through the map
 
 \\\rho\\ is a function of \\t = D\beta\\, so the chain rule gives
 
@@ -53,22 +55,24 @@ with `blocks > 1`, which keeps its sparse storage deliberately.
 \frac{\partial^2\rho}{\partial\beta^2} = D^\top
 \frac{\partial^2\rho}{\partial t^2} D,\$\$
 
-and the map is applied here, once, so a caller adds the result straight
-into a system in \\\beta\\. For a separable penalty the middle matrix is
-diagonal and the product is formed without building it.
+and the map is applied here, once, so the result can be added directly
+to a system in \\\beta\\. For a separable penalty with a univariate
+parent the middle matrix is diagonal and the product is formed without
+building it; with a multivariate parent the middle matrix is block
+diagonal.
 
-## At a kink
+## Derivatives at a kink
 
 Where \\\rho\\ is not differentiable the returned gradient is one
 element of the subdifferential, chosen by the branch, and the Hessian is
-whatever the branch's own formula gives there. A lasso at \\\beta_j =
-0\\ is the case that matters: the subdifferential is the whole interval
-\\\[-\lambda, \lambda\]\\ and a single number cannot stand for it. Route
-the block to
+the value of the branch's own formula at that point. The important case
+is a lasso at \\\beta_j = 0\\, where the subdifferential is the whole
+interval \\\[-\lambda, \lambda\]\\ and a single number cannot represent
+it. A block with such a coordinate is handled by
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
-instead of to a gradient method, and use
+rather than by a gradient method, and
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-to find out where the difficulty is.
+returns the points where this happens.
 
 ## See also
 

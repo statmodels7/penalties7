@@ -3,9 +3,9 @@
 Builds the penalty \\\tfrac{\lambda}{2}(D\beta)'P(D\beta)\\ together
 with the constant that makes it a density, so the value returned is
 exactly the negative log-density of the Gaussian prior with precision
-\\\lambda D'PD\\. This is the penalty behind a spline smooth, a ridge
-and a Gaussian random effect: one fixed matrix saying which directions
-are expensive, and one smoothing parameter saying how expensive.
+\\\lambda D'PD\\. This is the penalty of a spline smooth, a ridge and a
+Gaussian random effect: one fixed matrix that weights the directions of
+the coefficients, and one smoothing parameter that scales the weights.
 
 ## Usage
 
@@ -24,15 +24,22 @@ quadratic_penalty(
 - P:
 
   A symmetric positive semidefinite matrix, for instance a basis7 Gram
-  matrix or a difference penalty \\D_k'D_k\\. Symmetry is checked to a
-  relative tolerance of `1e-8` and the matrix is symmetrized before use;
-  a zero matrix is rejected.
+  matrix or a difference penalty \\D_k'D_k\\. A matrix with an entry
+  that is not finite (`NA`, `NaN` or infinite) is rejected. Symmetry is
+  checked to a tolerance of `1e-8` times the larger of 1 and the largest
+  absolute entry of `P`, and the matrix is symmetrized before use. A
+  matrix whose largest eigenvalue is not positive (a zero or negative
+  semidefinite matrix) is rejected, and so is one with an eigenvalue
+  below `-tol` times the largest.
 
 - map:
 
   The matrix \\D\\, with as many rows as \\P\\ and one column per
   coefficient, or `NULL` (the default) for the identity, and then
-  `n_coef` is `nrow(P)`. A Matrix object keeps its own storage.
+  `n_coef` is `nrow(P)`. A Matrix object keeps its own storage. A map
+  with an entry that is not finite is rejected, and so is a map for
+  which \\D'PD\\ has no positive eigenvalue; a map that annihilates
+  \\P\\ only up to rounding is not detected (see the details).
 
 - blocks:
 
@@ -49,8 +56,12 @@ quadratic_penalty(
 - tol:
 
   The relative eigenvalue tolerance of the rank rule, `1e-10` by
-  default. An eigenvalue at or below `tol` times the largest counts as
-  zero, so its direction joins the null space and is not penalized.
+  default. An eigenvalue of \\D'PD\\ at or below `tol` times the largest
+  counts as zero, so its direction joins the null space and is not
+  penalized. The same tolerance bounds the negative eigenvalues of \\P\\
+  that are accepted as rounding errors. The object stores `tol`, and
+  [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+  counts the rank at the same tolerance.
 
 ## Value
 
@@ -67,66 +78,74 @@ With \\r\\ the rank of \\D'PD\\,
 \tfrac{1}{2}\log\mathrm{pdet}(D'PD).\$\$
 
 The last three terms are the normalizing constant of the prior, taken
-over the range of \\D'PD\\ alone when that matrix is deficient. The
+over the range of \\D'PD\\ alone when that matrix is rank deficient. The
 constant is the one of the matrix applied to \\\beta\\, so it carries
-the map: for a diagonal map and a full-rank \\P\\,
-\\\log\mathrm{pdet}(D'PD) = \log\det P + 2\sum_j\log\lvert d_j\rvert\\,
-which is the Jacobian of \\\beta \mapsto D\beta\\. The value is then the
-negative log-density of a proper prior on \\\beta\\, and a marginal
-criterion built on it does not move when a covariate is rescaled.
-Penalized-likelihood software usually drops them, and dropping them
-makes \\\lambda\\ unestimable: with no \\-\tfrac{r}{2}\log\lambda\\ the
-penalty falls to zero as \\\lambda\\ does and the joint maximum runs
-away.
+the map. For a diagonal map with non-zero entries \\d_j\\ and a
+full-rank \\P\\, \\\log\mathrm{pdet}(D'PD) = \log\det P +
+2\sum_j\log\lvert d_j\rvert\\, and \\\sum_j\log\lvert d_j\rvert\\ is the
+log Jacobian of \\\beta \mapsto D\beta\\. The value is then the negative
+log-density of a proper Gaussian prior on \\\beta\\, and a marginal
+criterion built on it does not change when a covariate is multiplied by
+a factor and the map multiplies the coefficient of that covariate by the
+same factor. The constant also makes \\\lambda\\ estimable from a joint
+objective: without the term \\-\tfrac{r}{2}\log\lambda\\ the penalty
+decreases to zero with \\\lambda\\, and the joint maximum moves to the
+boundary \\\lambda \to 0\\.
 
-## The rank, and why it is fixed at construction
+## The rank and the null basis
 
-One eigendecomposition fixes the rank by the relative rule \\\mathrm{ev}
-\> \mathtt{tol} \cdot \max(\mathrm{ev})\\, and stores the exact null
-basis of \\D'PD\\. That is a statement about the matrix, not about
-whichever arithmetic is later performed on it, and it is what keeps the
-answer stable: a rank recounted from an assembled sum of several
+The rank is counted at construction by the relative rule \\\mathrm{ev}
+\> \mathtt{tol} \cdot \max(\mathrm{ev})\\ on the eigenvalues of
+\\D'PD\\, and the same mask selects the orthonormal null basis among the
+eigenvectors, so the null basis always has \\q - r\\ columns, with \\q\\
+the number of coefficients. Without a map the eigenvalues come from a
+values-only decomposition of \\P\\ and the eigenvectors from a second
+decomposition of the same matrix; both are sorted in decreasing order,
+so the mask selects the matching columns. With a map the rank, the log
+pseudo-determinant and the null basis all come from the decomposition of
+\\D'PD\\.
+
+Fixing the rank on each matrix keeps it stable when quadratic penalties
+are combined. A rank recounted from an assembled sum of several
 penalties falls as their smoothing parameters spread apart, while the
-true null space is the intersection of the components' and does not
-move.
+true null space is the intersection of the null spaces of the components
+and does not depend on the smoothing parameters.
+
+The rule is relative to the largest eigenvalue of \\D'PD\\ itself. A map
+that annihilates \\P\\ only up to rounding, so that every entry of
+\\D'PD\\ is a rounding error relative to \\P\\, is therefore not
+detected: the largest of those rounding errors passes the rule, and the
+penalty is built with a positive rank and a log pseudo-determinant made
+of rounding errors. The constructor rejects the map only when no
+eigenvalue of \\D'PD\\ is positive, as when \\D'PD\\ is exactly the zero
+matrix.
 
 ## Blockwise repetition
 
 `blocks = m` builds the penalty of \\I_m \otimes P\\ from \\P\\ alone,
-the shape one copy of a smooth per level of a factor takes. The
-eigenvalues of \\I_m \otimes P\\ are \\P\\'s repeated \\m\\ times, so
-the rank is \\mr\\, the log pseudo-determinant is
-\\m\log\mathrm{pdet}(P)\\ and the null space is \\I_m \otimes N\\: the
-large matrix is never decomposed. Measured on second differences over
-ten coefficients at \\m = 200\\, so an assembled matrix of \\2000 \times
-2000\\:
-
-|                    |               |                |
-|--------------------|---------------|----------------|
-|                    | assembled     | `blocks = 200` |
-| eigendecomposition | 4.79 s        | 2.9e-05 s      |
-| whole construction | 5.82 s        | 0.001 s        |
-| stored matrix      | 30.5 MB dense | 0.11 MB sparse |
-
-at a density of 0.0022. The two penalties agree exactly: the value to
-1.4e-14, the gradient and the Hessian to 0, and the same rank, null
-basis and log pseudo-determinant.
+which is the form that one copy of a smooth per level of a factor takes.
+The eigenvalues of \\I_m \otimes P\\ are those of \\P\\ repeated \\m\\
+times, so the rank is \\mr\\, the log pseudo-determinant is
+\\m\log\mathrm{pdet}(P)\\ and the null space is \\I_m \otimes N\\, with
+\\N\\ the null basis of \\P\\. Only \\P\\ is decomposed, and the large
+matrix is stored in sparse form. The result has the same value,
+gradient, Hessian, rank, null basis and log pseudo-determinant as the
+penalty built from the assembled \\I_m \otimes P\\, up to rounding.
 
 **Under `blocks > 1` the matrix-valued returns are `dgCMatrix`**, not
 base matrices:
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md),
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-and
+and the matrices of
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-all keep the sparse storage. A branch built to avoid the assembled form
-would defeat itself by densifying at its own boundary. Consumers that
-write these into a block of their own information need to accept both
-classes.
+all keep the sparse storage, so the assembled matrix is never densified.
+A consumer that writes these results into a block of its own information
+matrix has to accept both classes.
 
 `blocks` does not combine with `map`, and the constructor rejects the
-pair: a map mixes the blocks, so \\D'(I_m \otimes P)D\\ is not block
-diagonal with the structure `blocks` names.
+pair: a map mixes the blocks, so \\D'(I_m \otimes P)D\\ is in general
+not block diagonal and does not have the structure that `blocks` builds.
 
 ## See also
 
@@ -137,7 +156,7 @@ for a matrix that moves with several hyperparameters,
 [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
 for the separable branch,
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-for the constant a marginal criterion reads,
+for the constant that a marginal criterion reads,
 [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
 to verify the result.
 
@@ -165,8 +184,8 @@ all.equal(penalty_value(ridge, b, list(lambda = 2)),
           -sum(stats::dnorm(b, sd = 1 / sqrt(2), log = TRUE)))
 #> [1] TRUE
 
-# A map penalizes what it selects. Here only the second differences of a
-# six-vector are charged for, through a 4 x 6 map.
+# A map penalizes its image. Here only the second differences of a
+# six-vector are penalized, through a 4 x 6 map.
 D <- diff(diag(6), differences = 2)
 curved <- quadratic_penalty(diag(4), map = D)
 curved@n_coef

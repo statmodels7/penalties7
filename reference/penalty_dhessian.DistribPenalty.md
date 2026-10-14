@@ -1,10 +1,10 @@
 # Marginal Derivatives of a Separable Penalty
 
-One page for the branch's answers to the four generics a marginal
-criterion asks beyond the second order. With \\\rho = -\sum_j \log
-f((D\beta)\_j;\theta)\\ the Hessian is
+The methods of the separable branch for the four generics that a
+marginal criterion requires beyond the second order. With \\\rho =
+-\sum_j \log f((D\beta)\_j;\theta)\\ the Hessian is
 \\-D'\mathrm{diag}(\ell^{(yy)})D\\, so its \\\theta\\-derivatives are
-the parent's own higher components carried through the same map.
+the higher components of the parent carried through the same map.
 
 ## Arguments
 
@@ -17,11 +17,11 @@ the parent's own higher components carried through the same map.
 - beta:
 
   A numeric vector of length `pen@n_coef`. Read by all three derivative
-  methods, the parent's components depending on the argument.
+  methods, because the components of the parent depend on it.
 
 - theta:
 
-  A named list of the parent's free parameters.
+  A named list of the free parameters of the parent.
 
 - ...:
 
@@ -30,7 +30,7 @@ the parent's own higher components carried through the same map.
 ## Value
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-a list of one matrix of side `pen@n_coef` per hyperparameter.
+a list of one base matrix of side `pen@n_coef` per hyperparameter.
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
 a list of one such matrix per unordered pair, keyed diagonals first.
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
@@ -38,54 +38,68 @@ a list of one numeric vector of length `pen@n_coef` per unordered pair.
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
 a single logical.
 
-## Where each comes from
+## The component of the parent behind each method
 
-|  |  |
-|----|----|
-| generic | parent's component |
-| [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md) | [`distributions7::distrib_cross2_y()`](https://statmodels7.github.io/distributions7/reference/distrib_cross2_y.html) |
-| [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md) | [`distributions7::distrib_hess_y_hess()`](https://statmodels7.github.io/distributions7/reference/distrib_hess_y_hess.html) |
-| [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md) | [`distributions7::distrib_grad_y_hess()`](https://statmodels7.github.io/distributions7/reference/distrib_grad_y_hess.html) |
+|  |  |  |
+|----|----|----|
+| generic | component of the parent | result |
+| [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md) | [`distributions7::distrib_cross2_y()`](https://statmodels7.github.io/distributions7/reference/distrib_cross2_y.html) | \\-D'\mathrm{diag}(\partial^3\ell/\partial y^2\partial\theta_m)D\\ |
+| [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md) | [`distributions7::distrib_hess_y_hess()`](https://statmodels7.github.io/distributions7/reference/distrib_hess_y_hess.html) | \\-D'\mathrm{diag}(\partial^4\ell/\partial y^2\partial\theta_m\partial\theta_l)D\\ |
+| [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md) | [`distributions7::distrib_grad_y_hess()`](https://statmodels7.github.io/distributions7/reference/distrib_grad_y_hess.html) | \\-D'(\partial^3\ell/\partial y\\\partial\theta_m\partial\theta_l)\\ |
 
-Nothing is differentiated here. A parent with closed forms for those,
-the gaussian among them and so every Gaussian random effect, makes this
-branch exact; a parent without them inherits that package's documented
-fallback, one central difference of its analytic first-order component.
+Each component is evaluated at \\D\beta\\ and at `theta` on the
+parameter scale of the parent, so the derivatives are in \\\theta\\
+itself and no link is applied.
+
+Nothing is differentiated here. A parent with closed forms for these
+components, such as the Gaussian and therefore every Gaussian random
+effect, makes this branch exact. A parent without them takes the
+fallback of distributions7, which applies one stencil to the
+highest-order quantity that the family implements itself, usually its
+analytic response Hessian.
 
 A multivariate parent is read blockwise: each component is assembled
 into a block-diagonal matrix by
 [`dp_blockdiag()`](https://statmodels7.github.io/penalties7/reference/dp_blockdiag.md)
 and carried through the map by
 [`map_quad_full()`](https://statmodels7.github.io/penalties7/reference/map_quad.md),
-where a univariate one goes through
+and a univariate one goes through
 [`map_quad()`](https://statmodels7.github.io/penalties7/reference/map_quad.md).
 
-## What rejects
+## Kinked parents
 
 A penalty whose parent declares a kink, which is the lasso and the
-elastic net. The third derivative does not exist at the kink, and the
-mode a marginal criterion expands around is exactly where a kinked
-penalty puts coefficients, so all three derivative generics reject with
-the penalty named.
+elastic net, signals an error in
+[`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md),
+[`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
+and
+[`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md),
+with the penalty named (see
+[`reject_kinked()`](https://statmodels7.github.io/penalties7/reference/reject_kinked.md)).
+The third derivative does not exist at the kink, and the mode at which a
+marginal criterion is expanded is where a kinked penalty places
+coefficients.
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
-does not: it answers `TRUE` for the lasso, whose log-density is linear
-in the response away from the kink.
+signals no error and returns `TRUE` for the lasso, whose log-density is
+linear in the response away from the kink.
 
-## How [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md) decides
+## The test of [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
 
-By probing the parent's
+The log-density is quadratic in the response exactly when its second
+derivative in the response does not depend on the response. The generic
+has already checked `theta` (an invalid value is an error), and the
+method evaluates
 [`distributions7::distrib_hess_y()`](https://statmodels7.github.io/distributions7/reference/distrib_hess_y.html)
-at four points and asking whether it is constant to `1e-12` BETWEEN
-THEM. A point is `pen@block` numbers, so a multivariate parent answers
-with one \\p \times p\\ matrix per point, or with a single one where
-that matrix does not move, and the comparison is between the readings
-rather than between the entries of one of them – asking whether every
-entry equals the first compares an off-diagonal with a diagonal and is
-false for any prior over more than one coordinate. The log-density is
-quadratic in the response exactly when its second derivative there does
-not depend on it, and that second derivative is analytic for almost
-every family, where the third is often a difference whose noise no
-threshold separates from a true zero.
+of the parent at four points of `pen@block` coordinates each, and tests
+with [`all.equal()`](https://rdrr.io/r/base/all.equal.html) at a
+relative tolerance of `1e-12` whether the values agree across the
+points. A multivariate parent returns one \\p \times p\\ matrix per
+point, or a single matrix when that matrix does not depend on the
+response, and the comparison is made between the matrices of different
+points, not between the entries of one matrix. A single value or a
+single matrix, which carries no dimension for the points, gives `TRUE`.
+If the parent signals an error, or returns a number of values that is
+not a multiple of `pen@block^2`, the method returns `FALSE`.
 
 ## See also
 
@@ -94,9 +108,13 @@ and its siblings for the generics,
 [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
 for the branch,
 [`reject_kinked()`](https://statmodels7.github.io/penalties7/reference/reject_kinked.md)
-for the refusal,
+for the error on a kinked parent,
 [`carry_pairs()`](https://statmodels7.github.io/penalties7/reference/carry_pairs.md)
-for the re-keying.
+for the re-keying,
+[`penalty_dhessian_beta.DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.penalty.md)
+and
+[`penalty_d2hessian_beta.DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md)
+for the derivatives of the Hessian in the coefficients.
 
 ## Examples
 
@@ -114,14 +132,14 @@ rep(-2 / 1.2^3, 3)
 #> [1] -1.157407 -1.157407 -1.157407
 
 # A Student t prior is not quadratic in the coefficients, so its
-# derivative moves with them.
+# derivative changes with them.
 h <- heavy_penalty(n_coef = 3)
 beta_quadratic(h, list(sigma = 1, nu = 4))
 #> [1] FALSE
 diag(penalty_dhessian(h, b, list(sigma = 1, nu = 4))$nu)
 #> [1]  0.080000000 -0.004070832 -0.038850928
 
-# A kinked parent has no third derivative and says so.
+# A kinked parent has no third derivative, and the call is an error.
 try(penalty_dhessian(lasso_penalty(n_coef = 3), b, list(lambda = 1)))
 #> Error : 'separable [fixed laplace2 [mu=0]]' has a kink, so penalty_dhessian() does not exist there and
 #>   its hyperparameters cannot be estimated by a marginal criterion.

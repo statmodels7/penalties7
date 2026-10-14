@@ -2,7 +2,7 @@
 
 Returns the closed antiderivative of MCP's defining \\\rho'\\, summed
 over the coordinates of \\D\beta\\ and anchored at \\\rho(0) = 0\\. No
-constant is added, MCP being improper.
+constant is added, since MCP is improper.
 
 ## Arguments
 
@@ -28,20 +28,26 @@ constant is added, MCP being improper.
 
 ## Value
 
-A single number, the sum over coordinates. Bounded above by
-`pen@n_coef * gamma * lambda^2 / 2`.
+A single number, the sum over coordinates. It is bounded above by
+\\\sum_j \gamma\lambda^2/(2c_j)\\, the sum running over the coordinates
+of \\D\beta\\, which is `pen@n_coef * gamma * lambda^2 / 2` under the
+identity map at unit curvature.
 
 ## Details
 
-With \\u = \lvert t\rvert\\ on each coordinate,
+With unit curvature and \\u = \lvert t\rvert\\ on each coordinate,
 
 \$\$\rho(u) = \lambda u - \frac{u^2}{2\gamma} \\\\ (u \le
 \gamma\lambda), \qquad \rho(u) = \frac{\gamma\lambda^2}{2} \\\\ (u \>
 \gamma\lambda),\$\$
 
-the two pieces meeting continuously at \\\gamma\lambda\\. Where SCAD
-holds the lasso's slope over an interval before tapering, MCP starts
-tapering at once, so its value is a downward parabola from the origin.
+the two pieces meeting continuously at \\\gamma\lambda\\. SCAD keeps the
+slope of the lasso over an interval before it tapers, while MCP tapers
+from the origin, so its value is a downward parabola up to
+\\\gamma\lambda\\. With curvature \\c_j\\ (the `curv` property),
+coordinate \\j\\ contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, the same
+formula with \\\lambda/c_j\\ in place of \\\lambda\\ and multiplied by
+\\c_j\\.
 
 ## See also
 

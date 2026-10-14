@@ -5,15 +5,17 @@ tensor against one direction each: given an array of dimension \\p
 \times \dots \times p \times n\\ and \\m\\ matrices of \\n\\ rows and
 \\p\\ columns, it returns the \\p \times p \times n\\ array whose slice
 \\i\\ is \\\sum\_{c_1 \dots c_m} A\_{ab c_1 \dots c_m
-i}\\v\_{1,ic_1}\cdots v\_{m,ic_m}\\. That is the movement of a block's
-response Hessian along the block's coordinates of the directions, which
+i}\\v\_{1,ic_1}\cdots v\_{m,ic_m}\\. That is the derivative of the
+response Hessian of block \\i\\ along the coordinates of the block in
+the directions, which
 [`dp_blockdiag()`](https://statmodels7.github.io/penalties7/reference/dp_blockdiag.md)
-then places on the diagonal.
+then places on the diagonal. Arrays of four and five dimensions are
+handled, that is one or two directions.
 
-`dp_parent_or_reject()` asks the parent for a response tensor and, where
-the parent does not supply one, rejects with the penalty named, so that
-a criterion is left without an exact gradient rather than given one
-missing a piece.
+`dp_parent_or_reject()` calls the generic `fun` of the parent. If that
+call signals an error of any kind, it signals in its place an error that
+names the penalty and the derivative, so that a criterion receives
+either the complete tensor or an error.
 
 ## Usage
 
@@ -31,8 +33,9 @@ dp_parent_or_reject(pen, what, fun, a, theta)
 
 - dirs:
 
-  A list of \\n \times p\\ matrices, one per contracted index, the last
-  index first contracted against the last direction.
+  A list of \\n \times p\\ matrices, one per contracted index; the last
+  remaining index of the array is contracted first, against the last
+  direction.
 
 - pen:
 
@@ -50,17 +53,17 @@ dp_parent_or_reject(pen, what, fun, a, theta)
 
 - a:
 
-  The parent's argument, from
+  The argument of the parent, from
   [`dp_arg()`](https://statmodels7.github.io/penalties7/reference/dp_arg.md).
 
 - theta:
 
-  A named list of the parent's free parameters.
+  A named list of the free parameters of the parent.
 
 ## Value
 
 `dp_contract()` a \\p \times p \times n\\ numeric array.
-`dp_parent_or_reject()` the parent's answer, or an error.
+`dp_parent_or_reject()` the value returned by `fun`, or an error.
 
 ## See also
 

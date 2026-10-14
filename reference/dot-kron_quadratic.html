@@ -11,7 +11,7 @@ quadratic_penalty() when blocks is above one."><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,25 +71,24 @@ quadratic_penalty() when blocks is above one."><meta property="og:image" content
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code><a href="QuadraticPenalty.html">QuadraticPenalty()</a></code> with <code>n_coef</code> equal to <code>m * nrow(P)</code>, whose
-<code>P</code>, <code>DPD</code> and <code>null_basis</code> are <code>dgCMatrix</code> objects. Rejects a <code>P</code> whose
-eigenvalues are all below the tolerance.</p>
+<code>P</code>, <code>DPD</code> and <code>null_basis</code> are <code>dgCMatrix</code> objects. <code>P</code> is checked to be
+positive semidefinite and not zero by <code><a href="quadratic_penalty.html">quadratic_penalty()</a></code> before the
+call.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>A quadratic penalty needs three things from its matrix: the rank, the log
-pseudo-determinant and a basis of the null space. All three follow from
-\(P\), because the eigenvalues of \(I_m \otimes P\) are \(P\)'s
-repeated \(m\) times: the rank is \(mr\), the log pseudo-determinant is
-\(m\log\mathrm{pdet}(P)\), and the null space is \(I_m \otimes N\). The
-large matrix is assembled with <code><a href="https://rdrr.io/pkg/Matrix/man/kronecker-methods.html" class="external-link">Matrix::kronecker()</a></code> and stored, never
-decomposed.</p>
-<p>The saving is the whole of the construction. On second differences over ten
-coefficients at \(m = 200\), the assembled route spends 4.79 s in
-<code><a href="https://rdrr.io/r/base/eigen.html" class="external-link">eigen()</a></code> against 2.9e-05 s here, and 5.82 s in all against 0.001 s. The
-stored matrix is 0.11 MB against 30.5 MB, at a density of 0.0022, which
-follows from the sparse storage.</p>
-<p>The same identity carries <code><a href="https://statmodels7.github.io/parameters7/reference/kron_identity.html" class="external-link">parameters7::kron_identity()</a></code> on the other side
-of the toolkit, for the covariance of grouped random effects.</p>
+    <p>Three quantities of a quadratic penalty come from its matrix: the rank, the
+log pseudo-determinant and a basis of the null space. All three follow from
+\(P\), because the eigenvalues of \(I_m \otimes P\) are those of
+\(P\) repeated \(m\) times: the rank is \(mr\), the log
+pseudo-determinant is \(m\log\mathrm{pdet}(P)\), and the null space is
+\(I_m \otimes N\). One eigendecomposition of \(P\) supplies the
+eigenvalues and the eigenvectors, and one mask selects both the rank and
+the null basis. The large matrix is assembled in sparse form with
+<code><a href="https://rdrr.io/pkg/Matrix/man/kronecker-methods.html" class="external-link">Matrix::kronecker()</a></code> and stored, and it is never decomposed, so the cost
+of the construction is that of decomposing \(P\).</p>
+<p>The same identity underlies <code><a href="https://statmodels7.github.io/parameters7/reference/kron_identity.html" class="external-link">parameters7::kron_identity()</a></code>, for the
+covariance of grouped random effects.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

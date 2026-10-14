@@ -1,12 +1,13 @@
 # Marginal Quantities of an Additive Penalty
 
-The four pieces a marginal criterion reads.
+The four quantities that a marginal criterion reads.
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns the weighted sum \\S(\lambda) = \sum_k \lambda_k P_k\\,
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 the rank and
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-the components' shared null space, both fixed at construction, and
+an orthonormal basis of the null space shared by the components, both
+fixed at construction, and
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 the log pseudo-determinant with its first two derivatives.
 
@@ -37,16 +38,16 @@ a symmetric base matrix of side `pen@n_coef`.
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 a single integer, and
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-an orthonormal basis of the components' shared null space, `pen@n_coef`
-by `pen@n_coef - penalty_rank(pen)`.
+an orthonormal basis of the null space shared by the components, a
+matrix with `pen@n_coef` rows and `pen@n_coef - penalty_rank(pen)`
+columns.
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 a list of `value` (a single number), `grad` (a list keyed by
-`pen@params`) and `hess` (a list keyed by the pairs
+`pen@params`) and `hess` (a list keyed by the pairs that
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-uses), which is the shape the quadratic and structured branches answer
-in. Every entry of it is `NaN` at a setting
+uses). Every entry of it is `NaN` at a setting that
 [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
-reports as unresolvable.
+reports as not resolvable.
 
 ## Details
 
@@ -55,25 +56,31 @@ With \\S^{+}\\ the pseudo-inverse over the stored rank,
 \$\$\frac{\partial}{\partial\lambda_k}\log\mathrm{pdet}\\S =
 \operatorname{tr}(S^{+}P_k), \qquad
 \frac{\partial^{2}}{\partial\lambda_k\partial\lambda_l}
-\log\mathrm{pdet}\\S = -\operatorname{tr}(S^{+}P_kS^{+}P_l),\$\$
+\log\mathrm{pdet}\\S = -\operatorname{tr}(S^{+}P_kS^{+}P_l).\$\$
 
-both exact and both agreeing with the traces computed apart to 0.
-
-All three come from
-[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)'s
-similarity transformation, which takes them in the transformed
-coordinates rather than from a materialized \\S^{+}\\, and all three are
-`NaN` at a setting it reports as unresolvable.
+Both formulas are exact. The value, the gradient and the Hessian of the
+log pseudo-determinant come from the similarity transformation of
+[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md),
+which takes the traces in the transformed coordinates and not from a
+materialized \\S^{+}\\. All three are `NaN` at a setting that
+[`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+reports as not resolvable.
+[`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+assembles the sum directly, and
+[`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+and
+[`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+return the stored values.
 
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-answers in the shape
+returns the same shape as
 [`penalty_logpdet.QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.md)
 and
-[`penalty_logpdet.StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.md)
-answer in: `grad` a list keyed by `pen@params` and `hess` a list keyed
-by the pairs
+[`penalty_logpdet.StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.md):
+`grad` is a list keyed by `pen@params` and `hess` a list keyed by the
+pairs that
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-uses, so a consumer written against those reads `grad$lambda1` here.
+uses, so code written for those branches reads `grad$lambda1` here.
 
 ## See also
 

@@ -1,12 +1,12 @@
 # S7 Class for the Structured Quadratic Penalty
 
-The class
+The class of the objects that
 [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
 builds: the Gaussian prior whose precision is a parameters7 matrix
 parameter. It adds one property to
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md),
-the structure itself, and every quantity the branch supplies is read off
-that structure's own contract.
+the structure itself, and every quantity of the branch is computed from
+the methods of the structure.
 
 ## Usage
 
@@ -28,14 +28,15 @@ StructuredPenalty(
 - penalty_name:
 
   A single string naming the penalty, used by
-  [`print()`](https://rdrr.io/r/base/print.html) and by consumers that
-  report which penalty a block carries.
+  [`print()`](https://rdrr.io/r/base/print.html) and by any code that
+  reports which penalty a block carries.
 
 - map:
 
   The matrix \\D\\, of \\m\\ rows and \\q\\ columns, or `NULL` for the
-  identity. A Matrix object is kept in its own storage; a diagonal map
-  is what standardization comes to and is recognized by its class.
+  identity. A Matrix object is kept in its own storage, so a diagonal
+  map, which is what standardization produces, is recognized as diagonal
+  by its class.
 
 - n_coef:
 
@@ -79,8 +80,70 @@ with the seven inherited properties and `structure`.
 The hyperparameters are the structure's free vector, so `params` is its
 `free_names`, every entry of `params_bounds` is \\(-\infty, \infty)\\
 and every link is the identity. The constraint that keeps the matrix
-positive definite lives inside the structure, where a scalar link cannot
+positive definite is part of the structure, where a scalar link cannot
 express it. `map` is always `NULL`.
+
+## Methods
+
+The methods registered on this class, by the page that documents each.
+
+- The value and its coefficient derivatives:
+  [penalty_value()](https://statmodels7.github.io/penalties7/reference/penalty_value.StructuredPenalty.md),
+  [penalty_gradient()](https://statmodels7.github.io/penalties7/reference/penalty_gradient.StructuredPenalty.md)
+  and
+  [penalty_hessian()](https://statmodels7.github.io/penalties7/reference/penalty_gradient.StructuredPenalty.md).
+
+- The hyperparameter derivatives:
+  [penalty_grad_theta()](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.StructuredPenalty.md),
+  [penalty_hess_theta()](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.StructuredPenalty.md)
+  and
+  [penalty_cross()](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.StructuredPenalty.md).
+
+- The predicates:
+  [penalty_kinks()](https://statmodels7.github.io/penalties7/reference/penalty_kinks.StructuredPenalty.md),
+  [is_proper()](https://statmodels7.github.io/penalties7/reference/penalty_kinks.StructuredPenalty.md)
+  and
+  [is_quadratic()](https://statmodels7.github.io/penalties7/reference/penalty_kinks.StructuredPenalty.md).
+
+- The quantities of a marginal criterion:
+  [penalty_matrix()](https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.md),
+  [penalty_rank()](https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.md),
+  [penalty_null_basis()](https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.md)
+  and
+  [penalty_logpdet()](https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.md).
+
+- The higher derivatives of a marginal criterion:
+  [penalty_dhessian()](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.StructuredPenalty.md),
+  [penalty_d2hessian()](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.StructuredPenalty.md),
+  [penalty_dcross()](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.StructuredPenalty.md)
+  and
+  [beta_quadratic()](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.StructuredPenalty.md).
+
+- The movement of the Hessian with the coefficients:
+  [penalty_dhessian_beta()](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.penalty.md),
+  [penalty_d2hessian_beta()](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md)
+  and
+  [penalty_dhessian_beta_theta()](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md).
+  The last two return zero matrices, the Hessian being free of the
+  coefficients, and are documented on the page of the base-class
+  methods.
+
+- The proximal operator:
+  [penalty_prox()](https://statmodels7.github.io/penalties7/reference/penalty_prox.QuadraticPenalty.md),
+  documented on the page of the quadratic branch.
+
+- The interpretable quantities:
+  [penalty_readable()](https://statmodels7.github.io/penalties7/reference/penalty_readable.StructuredPenalty.md),
+  which returns those that the structure declares through
+  [`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html).
+
+The class registers no
+[`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
+or
+[`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
+method, so the methods of the base class
+[`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
+answer those generics.
 
 ## See also
 

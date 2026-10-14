@@ -1,9 +1,10 @@
-# How Far the Rank Identity May Be Violated
+# The Tolerance of the Rank Identity
 
-The relative departure from \\\sum_k\lambda_k\operatorname{tr}(S^{+}P_k)
-= r\\ past which
+Returns `1e-3`, the relative departure from
+\\\sum_k\lambda_k\operatorname{tr}(S^{+}P_k) = r\\ beyond which
 [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
-reports `NaN` rather than a number.
+reports `NaN` instead of a number. The departure is taken relative to
+the rank \\r\\.
 
 ## Usage
 
@@ -17,17 +18,15 @@ A single number.
 
 ## Details
 
-It is a threshold on an exact identity and not an accuracy claim.
-Measured over 200 random parameter vectors per shape on nine shapes –
-anisotropic `te()` at two and three margins and with margins of
-different dimension, and `basis7::adaptive_smooth()` at three, five,
-eight and twelve components – with each parameter drawn log-uniformly
-over the range a fit visits, the worst violation at
-[`additive_tol()`](https://statmodels7.github.io/penalties7/reference/additive_tol.md)
-is `5.3e-05` and the median is at machine precision. The threshold is
-two orders above that worst case, so it fires where the transformation
-has genuinely run out of precision and not where it has merely lost its
-last digits.
+The identity is exact, so a departure from it is accumulated rounding in
+the similarity transformation of
+[`additive_stable()`](https://statmodels7.github.io/penalties7/reference/additive_stable.md).
+The threshold is chosen above the departures that rounding produces at
+points that the transformation resolves, so that a departure beyond it
+signals that the smaller eigenvalues have been lost. The threshold is
+not a bound on the error of the returned quantities: at a point that
+passes the check, the error of the log pseudo-determinant can exceed the
+departure from the identity.
 
 ## See also
 

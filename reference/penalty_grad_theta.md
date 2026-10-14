@@ -1,13 +1,13 @@
 # Hyperparameter Derivatives of a Penalty
 
-The three blocks a consumer needs to move the hyperparameters rather
-than the coefficients. `penalty_grad_theta()` returns
-\\\partial\rho/\partial\theta_k\\, `penalty_hess_theta()` returns
+The three blocks of derivatives in the hyperparameters.
+`penalty_grad_theta()` returns \\\partial\rho/\partial\theta_k\\,
+`penalty_hess_theta()` returns
 \\\partial^2\rho/\partial\theta_k\partial\theta_l\\, and
 `penalty_cross()` returns the mixed block
 \\\partial^2\rho/\partial\beta\\\partial\theta_k\\, one coefficient
-vector per hyperparameter. Each answers on the parameter scale or on the
-unconstrained scale, chosen by `scale`.
+vector per hyperparameter. Each is returned on the parameter scale or on
+the unconstrained scale, as selected by `scale`.
 
 ## Usage
 
@@ -29,8 +29,9 @@ penalty_cross(pen, beta, theta, scale = c("parameter", "link"), ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`, coerced with
+  A finite numeric vector of length `pen@n_coef`, coerced with
   [`as.numeric()`](https://rdrr.io/r/base/numeric.html) in the generic.
+  A vector of another length signals an error.
 
 - theta:
 
@@ -41,12 +42,12 @@ penalty_cross(pen, beta, theta, scale = c("parameter", "link"), ...)
 
   `"parameter"`, the default, gives derivatives in \\\theta\\. `"link"`
   gives them in the unconstrained values \\\eta = g(\theta)\\, which is
-  the scale an optimizer works on and the scale a hyperparameter's
-  standard error is built on.
+  the scale on which an optimizer works and on which a hyperparameter's
+  standard error is built.
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
@@ -56,25 +57,25 @@ per hyperparameter, each a single number, named by `pen@params`.
 keyed by pairs as described above. `penalty_cross()` has one element per
 hyperparameter, each a numeric vector of length `pen@n_coef`.
 
-## What each is for
+## Uses of the three blocks
 
-The gradient and the Hessian in \\\theta\\ are what a joint maximization
-of coefficients and hyperparameters steps with, and what the Laplace
-term of a marginal criterion differentiates. The mixed block is the
-off-diagonal corner of that joint system, and it is also what the
-implicit function theorem needs: the penalized mode moves with a
+The gradient and the Hessian in \\\theta\\ are the steps of a joint
+maximization over coefficients and hyperparameters, and the quantities
+that are differentiated in the Laplace term of a marginal criterion. The
+mixed block is the off-diagonal corner of that joint system, and it also
+enters the implicit function theorem: the penalized mode moves with a
 hyperparameter as \\\partial\hat\beta/\partial\theta_k = -(H + S)^{-1}
-\partial^2\rho/\partial\beta\\\partial\theta_k\\, so a criterion
-computed at the mode cannot be differentiated without it.
+\partial^2\rho/\partial\beta\\\partial\theta_k\\, so the derivative of a
+criterion computed at the mode requires it.
 
 ## The two scales
 
-Each hyperparameter carries a link \\g\\ mapping its open interval onto
-the whole line. With `scale = "link"` the derivatives are taken in
-\\\eta = g(\theta)\\, the coordinates an unconstrained optimizer moves.
-The chain rule is applied in the generic body, so a method always
-returns the parameter scale and a branch written by a user gets both
-scales for free. Writing \\h = g^{-1}\\,
+Each hyperparameter carries a link \\g\\ that maps its open interval
+onto the whole line. With `scale = "link"` the derivatives are taken in
+\\\eta = g(\theta)\\, the coordinates that an unconstrained optimizer
+moves. The chain rule is applied in the generic body, so a method always
+returns the parameter scale and a branch written by a user obtains both
+scales without further code. Writing \\h = g^{-1}\\,
 
 \$\$\frac{\partial\rho}{\partial\eta_k} =
 \frac{\partial\rho}{\partial\theta_k} h_k'(\eta_k), \qquad
@@ -83,17 +84,17 @@ scales for free. Writing \\h = g^{-1}\\,
 h_l'(\eta_l) + \delta\_{kl} \frac{\partial\rho}{\partial\theta_k}
 h_k''(\eta_k),\$\$
 
-with the mixed block picking up one factor of \\h_k'\\ and no
-second-order term, a reparametrization of the hyperparameters leaving
-the coefficient direction alone.
+and the mixed block picks up one factor of \\h_k'\\ and no second-order
+term, because a reparametrization of the hyperparameters does not change
+the coefficient direction.
 
-## The keying
+## Names of the elements
 
 The gradient and the mixed block are keyed by `pen@params`. The Hessian
 is keyed by pairs, **diagonals first** in `params` order and then the
 upper off-diagonal pairs, each joined by an underscore: for an elastic
 net the keys are `lambda_lambda`, `alpha_alpha`, `lambda_alpha`. Only
-the upper triangle is returned, the matrix being symmetric.
+the upper triangle is returned, since the matrix is symmetric.
 
 ## See also
 
@@ -102,7 +103,7 @@ for the quantity differentiated,
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 for the coefficient derivatives,
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-for the third-order blocks a marginal criterion reads,
+for the third-order blocks that a marginal criterion reads,
 [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
 to verify all three against numerical routes.
 

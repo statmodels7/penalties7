@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,22 +67,25 @@
 <p>A penalty is
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mi>β</mi><mo>;</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\rho(D\beta;\theta)</annotation></semantics></math>:
 a linear map, a scalar function of the mapped coefficients, and
-hyperparameters of its own. Almost every R package that fits a penalized
-model writes one inside the function that fits it, so the penalty is a
-term in an objective rather than an object, and nothing can ask it
-whether it has a kink, what its rank is, or how its value moves with its
-hyperparameter. Those are the questions a fitting layer has to answer
-before it can choose a scheme.</p>
-<p>This vignette builds a penalty the package does not ship and shows
-what it has to supply and what it gets in return. The example is the
-Berhu, the reverse Huber of Owen (2007):</p>
+hyperparameters of its own. In many R packages that fit a penalized
+model, the penalty is written inside the fitting function as a term of
+the objective, and its kinks, its rank and the dependence of its value
+on the hyperparameters are not available outside that function. In
+penalties7 the penalty is an object, and a fitting layer reads these
+quantities from it to choose a fitting scheme.</p>
+<p>This vignette builds a penalty that the package does not ship, writes
+the methods that it has to supply, and shows what the base class and
+<code><a href="../reference/check_penalty.html">check_penalty()</a></code> provide in return. The example is the
+Berhu, the reverse Huber penalty of Owen (2007):</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo stretchy="false" form="prefix">(</mo><mi>β</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>λ</mi><mo stretchy="false" form="prefix">|</mo><mi>β</mi><mo stretchy="false" form="postfix">|</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mo stretchy="false" form="prefix">|</mo><mi>β</mi><mo stretchy="false" form="postfix">|</mo><mo>≤</mo><mi>δ</mi><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>λ</mi><mstyle displaystyle="true"><mfrac><mrow><msup><mi>β</mi><mn>2</mn></msup><mo>+</mo><msup><mi>δ</mi><mn>2</mn></msup></mrow><mrow><mn>2</mn><mi>δ</mi></mrow></mfrac></mstyle><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mo stretchy="false" form="prefix">|</mo><mi>β</mi><mo stretchy="false" form="postfix">|</mo><mo>&gt;</mo><mi>δ</mi><mo>,</mo></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\rho(\beta) = \begin{cases}
   \lambda\lvert\beta\rvert, &amp; \lvert\beta\rvert \le \delta,\\[2pt]
   \lambda\dfrac{\beta^2 + \delta^2}{2\delta}, &amp; \lvert\beta\rvert &gt; \delta,
 \end{cases}</annotation></semantics></math></p>
-<p>the lasso near the origin and the ridge away from it. It has a kink
-at zero, so it selects; it grows quadratically in the tails, so a large
-coefficient is not shrunk proportionally.</p>
+<p>which is the lasso near the origin and a ridge away from it. The kink
+at zero sets small coefficients exactly to zero. In the tails the
+penalty grows quadratically, so a large coefficient is shrunk in
+proportion to its size, as under a ridge penalty, while the lasso
+shrinks every nonzero coefficient by the same amount.</p>
 <div class="section level2">
 <h2 id="the-class-and-its-constructor">The class and its constructor<a class="anchor" aria-label="anchor" href="#the-class-and-its-constructor"></a>
 </h2>
@@ -101,21 +104,26 @@ coefficient is not shrunk proportionally.</p>
 <span>    params_smooth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="cn">TRUE</span>, delta <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><code>params_bounds</code> are open intervals and
-<code>link_params</code> says how each hyperparameter reaches the
-unconstrained scale an outer search steps on. <code>params_smooth</code>
-records which of them the value is differentiable in, so a numerical
-guard can switch itself off where it would be measuring a kink.</p>
+<p><code>params_bounds</code> holds open intervals, and
+<code>link_params</code> holds, for each hyperparameter, the link that
+maps its interval onto the unconstrained scale on which an outer search
+moves. <code>params_smooth</code> records the hyperparameters in which
+the value is differentiable. It is stored with the object, and
+<code><a href="../reference/check_penalty.html">check_penalty()</a></code> does not read it: the validator places its
+grid from <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="the-methods">The methods<a class="anchor" aria-label="anchor" href="#the-methods"></a>
 </h2>
-<p>Every generic aligns <code>theta</code> before it dispatches,
-reordering it to <code>pen@params</code>, stripping stray names off the
-values and checking it against <code>params_bounds</code>. A method
-therefore receives a list already in the family’s own order and does not
-align it again. One helper reads it and works out the branch each
-coefficient falls in, so the eight methods share it:</p>
+<p>Each of the generics below that takes <code>theta</code> aligns it
+before it dispatches. The generic reorders the list to
+<code>pen@params</code>, strips stray names off the values, checks that
+each value is a single number inside <code>params_bounds</code>, and,
+where it also takes <code>beta</code>, checks that <code>beta</code> has
+length <code>pen@n_coef</code>. A method therefore receives a list in
+the penalty’s own order and does not align it again. One helper reads
+the list and records which branch each coefficient falls in, and the six
+methods for the value and the derivatives share it:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.berhu</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pen</span>, <span class="va">beta</span>, <span class="va">theta</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lam <span class="op">=</span> <span class="va">theta</span><span class="op">$</span><span class="va">lambda</span>, del <span class="op">=</span> <span class="va">theta</span><span class="op">$</span><span class="va">delta</span>,</span>
@@ -140,10 +148,16 @@ and the Hessian in
 <span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">.berhu</span><span class="op">(</span><span class="va">pen</span>, <span class="va">beta</span>, <span class="va">theta</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">big</span>, <span class="va">p</span><span class="op">$</span><span class="va">lam</span> <span class="op">/</span> <span class="va">p</span><span class="op">$</span><span class="va">del</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Then the three blocks in the hyperparameters, which are what a
-marginal criterion needs in order to estimate them. Note the
-<code>scale</code> argument: an S7 method’s formals have to include the
-generic’s named arguments, and these three generics carry one.</p>
+<p>Then the three blocks in the hyperparameters: the gradient, the
+Hessian and the mixed block
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>ρ</mi><mi>/</mi><mi>∂</mi><mi>β</mi><mspace width="0.167em"></mspace><mi>∂</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">\partial^2\rho/\partial\beta\,\partial\theta</annotation></semantics></math>,
+which an outer search uses to estimate the hyperparameters. Each of the
+three methods includes the <code>scale</code> argument in its formals,
+because an S7 method must include the named arguments of its generic and
+these three generics have one. The methods return the derivatives on the
+parameter scale, and with <code>scale = "link"</code> the generic
+carries them to the link scale through the links in
+<code>link_params</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/method.html" class="external-link">method</a></span><span class="op">(</span><span class="va">penalty_grad_theta</span>, <span class="va">BerhuPenalty</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
 <span>    <span class="va">pen</span>, <span class="va">beta</span>, <span class="va">theta</span>, <span class="va">scale</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"parameter"</span>, <span class="st">"link"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
@@ -168,17 +182,43 @@ generic’s named arguments, and these three generics carry one.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">big</span>, <span class="va">beta</span> <span class="op">/</span> <span class="va">p</span><span class="op">$</span><span class="va">del</span>, <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>       delta  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">big</span>, <span class="op">-</span><span class="va">p</span><span class="op">$</span><span class="va">lam</span> <span class="op">*</span> <span class="va">beta</span> <span class="op">/</span> <span class="va">p</span><span class="op">$</span><span class="va">del</span><span class="op">^</span><span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Finally the two structural questions. <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code>
-returns the <strong>positions</strong> of the kinks, not their number;
-the Berhu’s only kink is the origin, where SCAD has five.</p>
+<p>Finally <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> and <code><a href="../reference/is_proper.html">is_proper()</a></code>.
+<code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns the <strong>positions</strong> of
+the points at which some derivative of the value is discontinuous, in
+the units of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mi>β</mi></mrow><annotation encoding="application/x-tex">D\beta</annotation></semantics></math>,
+and not their number. The Berhu has three such points. At the origin the
+first derivative jumps from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>λ</mi></mrow><annotation encoding="application/x-tex">-\lambda</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>,
+and at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>±</mi><mi>δ</mi></mrow><annotation encoding="application/x-tex">\pm\delta</annotation></semantics></math>
+the first derivative is continuous while the second jumps from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mi>/</mi><mi>δ</mi></mrow><annotation encoding="application/x-tex">\lambda/\delta</annotation></semantics></math>.
+SCAD has five, for the same two reasons. The points at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>±</mi><mi>δ</mi></mrow><annotation encoding="application/x-tex">\pm\delta</annotation></semantics></math>
+move with the hyperparameter, so the method reads <code>delta</code>
+from <code>theta</code>. <code><a href="../reference/is_proper.html">is_proper()</a></code> returns
+<code>FALSE</code>, because the value defined above carries no
+normalizing constant and is therefore not the negative log-density of a
+prior.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/method.html" class="external-link">method</a></span><span class="op">(</span><span class="va">penalty_kinks</span>, <span class="va">BerhuPenalty</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pen</span>, <span class="va">theta</span>, <span class="va">...</span><span class="op">)</span> <span class="fl">0</span></span>
-<span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/method.html" class="external-link">method</a></span><span class="op">(</span><span class="va">is_proper</span>, <span class="va">BerhuPenalty</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pen</span><span class="op">)</span> <span class="cn">TRUE</span></span>
+<code class="sourceCode R"><span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/method.html" class="external-link">method</a></span><span class="op">(</span><span class="va">penalty_kinks</span>, <span class="va">BerhuPenalty</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pen</span>, <span class="va">theta</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">-</span><span class="va">theta</span><span class="op">$</span><span class="va">delta</span>, <span class="va">theta</span><span class="op">$</span><span class="va">delta</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/method.html" class="external-link">method</a></span><span class="op">(</span><span class="va">is_proper</span>, <span class="va">BerhuPenalty</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pen</span>, <span class="va">...</span><span class="op">)</span> <span class="cn">FALSE</span></span>
 <span></span>
 <span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu">berhu_penalty</span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.5</span>, <span class="op">-</span><span class="fl">0.4</span>, <span class="fl">0</span>, <span class="fl">0.7</span>, <span class="fl">3.1</span><span class="op">)</span></span>
 <span><span class="va">th</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1.3</span>, delta <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu"><a href="../reference/penalty_kinks.html">penalty_kinks</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">th</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]  0 -1  1</span></span>
+<span><span class="fu"><a href="../reference/is_proper.html">is_proper</a></span><span class="op">(</span><span class="va">pen</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] FALSE</span></span>
 <span><span class="fu"><a href="../reference/penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">b</span>, <span class="va">th</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 13.039</span></span>
 <span><span class="fu"><a href="../reference/penalty_gradient.html">penalty_gradient</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">b</span>, <span class="va">th</span><span class="op">)</span></span>
@@ -186,15 +226,20 @@ the Berhu’s only kink is the origin, where SCAD has five.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="../reference/penalty_gradient.html">penalty_hessian</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">b</span>, <span class="va">th</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1.3 0.0 0.0 0.0 1.3</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="the-shapes-are-part-of-the-contract">The shapes are part of the contract<a class="anchor" aria-label="anchor" href="#the-shapes-are-part-of-the-contract"></a>
+<h3 id="the-shapes-of-the-hyperparameter-blocks">The shapes of the hyperparameter blocks<a class="anchor" aria-label="anchor" href="#the-shapes-of-the-hyperparameter-blocks"></a>
 </h3>
 <p>Every hyperparameter block is a <strong>named list</strong>, not a
-matrix or a data frame: <code><a href="../reference/penalty_grad_theta.html">penalty_grad_theta()</a></code> one scalar per
-hyperparameter, <code><a href="../reference/penalty_grad_theta.html">penalty_hess_theta()</a></code> keyed
-<code>"lambda_lambda"</code>, <code>"delta_delta"</code>,
-<code>"lambda_delta"</code>, and <code><a href="../reference/penalty_grad_theta.html">penalty_cross()</a></code> one vector
-of length <code>n_coef</code> per hyperparameter. Compare a shipped
-penalty and the shapes are the same:</p>
+matrix or a data frame. <code><a href="../reference/penalty_grad_theta.html">penalty_grad_theta()</a></code> returns one
+number per hyperparameter, keyed by <code>pen@params</code>.
+<code><a href="../reference/penalty_grad_theta.html">penalty_hess_theta()</a></code> returns one number per pair of
+hyperparameters, keyed by the two names joined by an underscore, with
+the diagonal pairs first and then each remaining pair in the order of
+<code>pen@params</code> (here <code>"lambda_lambda"</code>,
+<code>"delta_delta"</code> and <code>"lambda_delta"</code>).
+<code><a href="../reference/penalty_grad_theta.html">penalty_cross()</a></code> returns one vector of length
+<code>n_coef</code> per hyperparameter. The generics read these names
+when they carry the blocks to the link scale. A shipped penalty returns
+the same shapes:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu"><a href="../reference/penalty_grad_theta.html">penalty_hess_theta</a></span><span class="op">(</span><span class="fu"><a href="../reference/scad_penalty.html">scad_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">0.3</span>, <span class="fl">1.5</span><span class="op">)</span>,</span>
 <span>                       <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span>, a <span class="op">=</span> <span class="fl">3.7</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -207,8 +252,8 @@ penalty and the shapes are the same:</p>
 <div class="section level2">
 <h2 id="validating-it">Validating it<a class="anchor" aria-label="anchor" href="#validating-it"></a>
 </h2>
-<p><code><a href="../reference/check_penalty.html">check_penalty()</a></code> differentiates the value numerically and
-compares, one block at a time:</p>
+<p><code><a href="../reference/check_penalty.html">check_penalty()</a></code> compares each closed form with a
+numerical reference and reports one row per comparison:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/check_penalty.html">check_penalty</a></span><span class="op">(</span><span class="va">pen</span>, theta <span class="op">=</span> <span class="va">th</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                                         check    max_error status</span></span>
@@ -219,99 +264,136 @@ compares, one block at a time:</p>
 <span><span class="co">#&gt; 5 cross[lambda] vs Richardson on the gradient 2.740665e-12     OK</span></span>
 <span><span class="co">#&gt; 6               grad_theta[delta] vs numDeriv 4.268279e-13     OK</span></span>
 <span><span class="co">#&gt; 7         hess_theta[delta_delta] vs numDeriv 9.007713e-12     OK</span></span>
-<span><span class="co">#&gt; 8  cross[delta] vs Richardson on the gradient 7.601645e-12     OK</span></span></code></pre></div>
-<p>The reference is <code>numDeriv</code>, which shares no arithmetic
-with the formulas, and the cross block is checked by Richardson
-extrapolation on the analytic gradient, never by differencing the value
-twice.</p>
+<span><span class="co">#&gt; 8  cross[delta] vs Richardson on the gradient 7.601645e-12     OK</span></span>
+<span><span class="co">#&gt; 9        hess_theta[lambda_delta] vs numDeriv 8.851854e-12     OK</span></span></code></pre></div>
+<p>The rows for the gradient in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+and in each hyperparameter differentiate the value with
+<code>numDeriv</code>. The rows for the Hessian in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>,
+for every entry of the Hessian in the hyperparameters (the off-diagonal
+entry <code>lambda_delta</code> included) and for the mixed block
+differentiate the analytic first derivatives instead, with the
+Richardson extrapolation of <code>numDeriv</code>, so that the value is
+never differenced twice.</p>
 <div class="section level3">
 <h3 id="a-numerical-reference-is-invalid-at-a-kink">A numerical reference is invalid at a kink<a class="anchor" aria-label="anchor" href="#a-numerical-reference-is-invalid-at-a-kink"></a>
 </h3>
-<p>Hand the validator a
+<p>If a coordinate of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-with a coordinate sitting exactly on the kink and the second-derivative
-check fails on correct code:</p>
+sits exactly on a kink, the check of the Hessian fails on correct
+code:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/check_penalty.html">check_penalty</a></span><span class="op">(</span><span class="va">pen</span>, beta <span class="op">=</span> <span class="va">b</span>, theta <span class="op">=</span> <span class="va">th</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;                                 check    max_error status</span></span>
 <span><span class="co">#&gt; 1                gradient vs numDeriv 3.083081e-11     OK</span></span>
 <span><span class="co">#&gt; 2 hessian vs numDeriv on the gradient 1.000000e+00 FAILED</span></span></code></pre></div>
-<p><code>b</code> contains an exact zero, the gradient jumps from
+<p>The vector <code>b</code> contains an exact zero. The gradient jumps
+from
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>λ</mi></mrow><annotation encoding="application/x-tex">-\lambda</annotation></semantics></math>
 to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>λ</mi></mrow><annotation encoding="application/x-tex">+\lambda</annotation></semantics></math>
-there, and a central difference across the jump measures the kink, not
-the formula. When <code>beta</code> is left <code>NULL</code> the
-validator draws it and nudges each draw off any position
-<code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> declares, which is why the run above
-passed. Moving the zero is enough:</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
+there, so a central difference of the gradient across zero measures the
+jump and not the formula. When <code>beta</code> is left
+<code>NULL</code>, <code><a href="../reference/check_penalty.html">check_penalty()</a></code> draws it from a fixed
+seed and shifts the draw until every coordinate of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mi>β</mi></mrow><annotation encoding="application/x-tex">D\beta</annotation></semantics></math>
+lies more than <code>0.05</code> from every point that
+<code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns, which is why the first run passed.
+Moving the zero is enough:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/check_penalty.html">check_penalty</a></span><span class="op">(</span><span class="va">pen</span>, beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.5</span>, <span class="op">-</span><span class="fl">0.4</span>, <span class="fl">0.05</span>, <span class="fl">0.7</span>, <span class="fl">3.1</span><span class="op">)</span>,</span>
 <span>              theta <span class="op">=</span> <span class="va">th</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;                                 check    max_error status</span></span>
 <span><span class="co">#&gt; 1                gradient vs numDeriv 3.192694e-10     OK</span></span>
 <span><span class="co">#&gt; 2 hessian vs numDeriv on the gradient 9.635369e-12     OK</span></span></code></pre></div>
-<p>This is the reason <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns positions. A
-count would say a kink exists; the positions say where a reference must
-not be taken.</p>
+<p>For this reason <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns the positions of
+the kinks and not their number: <code><a href="../reference/check_penalty.html">check_penalty()</a></code> needs the
+positions to keep its grid away from them.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="what-the-base-class-supplies-and-what-it-refuses">What the base class supplies, and what it refuses<a class="anchor" aria-label="anchor" href="#what-the-base-class-supplies-and-what-it-refuses"></a>
+<h2 id="methods-supplied-by-the-base-class">Methods supplied by the base class<a class="anchor" aria-label="anchor" href="#methods-supplied-by-the-base-class"></a>
 </h2>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>is_quadratic   <span class="op">=</span> <span class="fu"><a href="../reference/is_quadratic.html">is_quadratic</a></span><span class="op">(</span><span class="va">pen</span><span class="op">)</span>,</span>
-<span>  beta_quadratic <span class="op">=</span> <span class="fu"><a href="../reference/beta_quadratic.html">beta_quadratic</a></span><span class="op">(</span><span class="va">pen</span><span class="op">)</span>,</span>
+<span>  beta_quadratic <span class="op">=</span> <span class="fu"><a href="../reference/beta_quadratic.html">beta_quadratic</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">th</span><span class="op">)</span>,</span>
 <span>  has_prox       <span class="op">=</span> <span class="fu"><a href="../reference/has_prox.html">has_prox</a></span><span class="op">(</span><span class="va">pen</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   is_quadratic beta_quadratic       has_prox </span></span>
 <span><span class="co">#&gt;          FALSE          FALSE          FALSE</span></span>
+<span><span class="fu"><a href="../reference/penalty_draw.html">penalty_draw</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">th</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] NA NA NA NA NA</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="../reference/penalty_matrix.html">penalty_rank</a></span><span class="op">(</span><span class="va">pen</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error : Only a quadratic penalty has a rank; see is_quadratic().</span></span></code></pre></div>
-<p><code><a href="../reference/penalty_matrix.html">penalty_rank()</a></code> and <code><a href="../reference/penalty_matrix.html">penalty_matrix()</a></code> are
-refused because there is no matrix: a rank is a property of a quadratic
-form, and returning one for a penalty that is not quadratic would be a
-different object under the same name.</p>
-<p><code><a href="../reference/has_prox.html">has_prox()</a></code> is <code>FALSE</code> because no proximal
-operator has been registered, and that is the answer with consequences.
-A fitting layer routes a block by whether its penalty is twice
-differentiable: a smooth one joins the system solved by
-<code>iwls()</code> or an ordinary optimizer, and a kinked one needs a
-proximal step or a coordinate descent, both of which need the operator.
-A kinked penalty with no <code><a href="../reference/penalty_prox.html">penalty_prox()</a></code> can be evaluated
-and differentiated away from its kinks, and cannot be fitted by the
-scheme its kink calls for.</p>
-<p>The Berhu’s operator is closed, so registering one is a further
-exercise, not an obstruction; <code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code> is the
-piecewise-linear table a compiled coordinate descent reads, and
-supplying it is what puts a penalty on that path.</p>
+<p>The base class <code>penalty</code> has methods for the generics that
+a branch may leave out. <code><a href="../reference/is_quadratic.html">is_quadratic()</a></code> and
+<code><a href="../reference/beta_quadratic.html">beta_quadratic()</a></code> return <code>FALSE</code>,
+<code><a href="../reference/penalty_readable.html">penalty_readable()</a></code> and <code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code>
+return <code>NULL</code>, and <code><a href="../reference/penalty_draw.html">penalty_draw()</a></code> returns
+<code>NA</code> for every coordinate of a penalty that is not quadratic.
+<code><a href="../reference/penalty_matrix.html">penalty_matrix()</a></code>, <code><a href="../reference/penalty_matrix.html">penalty_rank()</a></code>,
+<code><a href="../reference/penalty_matrix.html">penalty_null_basis()</a></code> and <code><a href="../reference/penalty_matrix.html">penalty_logpdet()</a></code>
+signal an error, because a rank, a null basis and a log
+pseudo-determinant are properties of a quadratic form and the Berhu has
+no matrix. <code><a href="../reference/penalty_prox.html">penalty_prox()</a></code> signals an error, and so do
+<code><a href="../reference/penalty_dhessian.html">penalty_dhessian()</a></code>, <code><a href="../reference/penalty_d2hessian.html">penalty_d2hessian()</a></code> and
+<code><a href="../reference/penalty_dcross.html">penalty_dcross()</a></code>, the derivatives that a Laplace
+approximation to a marginal likelihood needs, and the three generics for
+the derivatives of the Hessian in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+(<code><a href="../reference/penalty_dhessian_beta.html">penalty_dhessian_beta()</a></code>,
+<code><a href="../reference/penalty_d2hessian_beta.html">penalty_d2hessian_beta()</a></code> and
+<code><a href="../reference/penalty_d2hessian_beta.html">penalty_dhessian_beta_theta()</a></code>). The hyperparameters of the
+Berhu as written here therefore cannot be estimated by a marginal
+criterion.</p>
+<p><code><a href="../reference/has_prox.html">has_prox()</a></code> returns <code>FALSE</code> because the Berhu
+has no method for <code><a href="../reference/penalty_prox.html">penalty_prox()</a></code>. statmodels7 routes a
+block by whether <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns a point. A smooth
+penalty joins the Newton-type system of the other coefficients, and a
+penalty with a kink is fitted by a proximal gradient iteration, which
+calls <code><a href="../reference/penalty_prox.html">penalty_prox()</a></code>, or by a coordinate descent, which
+reads <code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code>. A penalty with a kink and
+without a method for <code><a href="../reference/penalty_prox.html">penalty_prox()</a></code> can be evaluated and
+differentiated away from its kinks, but it cannot be fitted by either
+scheme.</p>
+<p>The proximal operator of the Berhu has a closed form, piecewise
+linear in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>,
+so a method for <code><a href="../reference/penalty_prox.html">penalty_prox()</a></code> can be registered in the
+same way as the methods above. <code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code> returns
+the same operator as a piecewise-linear table, which the compiled
+coordinate descent reads. The method of the base class returns
+<code>NULL</code>, and statmodels7 then fits the block by the proximal
+gradient iteration.</p>
 </div>
 <div class="section level2">
 <h2 id="the-normalizing-constant-is-kept">The normalizing constant is kept<a class="anchor" aria-label="anchor" href="#the-normalizing-constant-is-kept"></a>
 </h2>
 <p>A separable penalty built from a distributions7 family is the
 negative log-density of that family, and the shipped ones keep the
-constant. The lasso is a fixed Laplace in its rate chart, so its value
-carries
+constant. The lasso is a Laplace at zero in its rate parametrization, so
+its value carries
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>λ</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">-\log(\lambda/2)</annotation></semantics></math>
 per coefficient:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">small</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>berhu <span class="op">=</span> <span class="fu"><a href="../reference/penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">small</span>, <span class="va">th</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">pen2</span> <span class="op">&lt;-</span> <span class="fu">berhu_penalty</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">small</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>berhu <span class="op">=</span> <span class="fu"><a href="../reference/penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">pen2</span>, <span class="va">small</span>, <span class="va">th</span><span class="op">)</span>,</span>
 <span>  lasso <span class="op">=</span> <span class="fu"><a href="../reference/penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="fu"><a href="../reference/ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, <span class="va">small</span>,</span>
 <span>                        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1.3</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  constant <span class="op">=</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1.3</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     berhu     lasso  constant </span></span>
 <span><span class="co">#&gt; 0.6500000 1.5115658 0.8615658</span></span></code></pre></div>
-<p>Dropping the constant makes hyperparameter estimation degenerate:
-without it the objective falls monotonically as
+<p>Without the constant the hyperparameters cannot be estimated: the
+objective falls monotonically as
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\lambda \to 0</annotation></semantics></math>,
-and a
+and the degrees of freedom of a
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-prior’s degrees of freedom cannot be estimated at all. The Berhu above
-has no constant because it is not a normalized density; a penalty of
-that kind states its hyperparameters as what they are, quantities the
-caller sets or an outer criterion chooses on a prediction error instead
-of a marginal likelihood.</p>
+prior cannot be estimated at all. The Berhu above has no constant,
+because its value is not a normalized density, and for that reason its
+<code><a href="../reference/is_proper.html">is_proper()</a></code> method returns <code>FALSE</code>. Its
+hyperparameters are set by the caller or chosen by a criterion on
+prediction error, not by a marginal likelihood.</p>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
@@ -325,25 +407,33 @@ of a marginal likelihood.</p>
 <code><a href="../reference/penalty_grad_theta.html">penalty_cross()</a></code>, <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> and
 <code><a href="../reference/is_proper.html">is_proper()</a></code>.</li>
 <li>The three hyperparameter blocks take a <code>scale</code> argument,
-because their generics declare one, and every one returns a
-<strong>named list</strong>.</li>
+because their generics declare one. Each returns a <strong>named
+list</strong> on the parameter scale, and the generic carries it to the
+link scale.</li>
 <li>
-<code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns positions, so a numerical
-reference can be kept off them; a count would not be enough.</li>
+<code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns positions, so that a numerical
+reference can be kept away from them.</li>
 <li>
-<code><a href="../reference/check_penalty.html">check_penalty()</a></code> compares against <code>numDeriv</code>
-and Richardson, and draws a
+<code><a href="../reference/check_penalty.html">check_penalty()</a></code> compares the gradients with
+<code>numDeriv</code> on the value and the second derivatives with
+<code>numDeriv</code> on the analytic gradients, every entry of the
+hyperparameter Hessian included. When it is given no
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
-nudged off every declared kink when it is given none.</li>
+it draws one away from every declared kink.</li>
 <li>
-<code><a href="../reference/is_quadratic.html">is_quadratic()</a></code>, <code><a href="../reference/penalty_matrix.html">penalty_rank()</a></code>,
-<code><a href="../reference/penalty_matrix.html">penalty_matrix()</a></code>, <code><a href="../reference/penalty_matrix.html">penalty_logpdet()</a></code>,
-<code><a href="../reference/penalty_prox.html">penalty_prox()</a></code> and <code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code> come
-from the base class, and the first three refuse where the penalty is not
-quadratic.</li>
+<code><a href="../reference/is_quadratic.html">is_quadratic()</a></code>, <code><a href="../reference/beta_quadratic.html">beta_quadratic()</a></code>,
+<code><a href="../reference/penalty_readable.html">penalty_readable()</a></code>, <code><a href="../reference/penalty_draw.html">penalty_draw()</a></code>,
+<code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code>, <code><a href="../reference/penalty_matrix.html">penalty_matrix()</a></code>,
+<code><a href="../reference/penalty_matrix.html">penalty_rank()</a></code>, <code><a href="../reference/penalty_matrix.html">penalty_null_basis()</a></code>,
+<code><a href="../reference/penalty_matrix.html">penalty_logpdet()</a></code>, <code><a href="../reference/penalty_prox.html">penalty_prox()</a></code>,
+<code><a href="../reference/penalty_dhessian.html">penalty_dhessian()</a></code> and its siblings have methods on the
+base class. The first five return <code>FALSE</code>, <code>NULL</code>
+or <code>NA</code>; the others signal an error for a penalty that is not
+quadratic or has no such method.</li>
 <li>
-<code><a href="../reference/has_prox.html">has_prox()</a></code> decides which fitting scheme a kinked block
-can reach.</li>
+<code><a href="../reference/has_prox.html">has_prox()</a></code> is <code>FALSE</code> until a method for
+<code><a href="../reference/penalty_prox.html">penalty_prox()</a></code> is registered, and a fit of a penalty with a
+kink needs that method.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -1,9 +1,9 @@
 # The Parent's Argument, Shaped and Unshaped
 
-`dp_arg()` reshapes \\D\beta\\ into the argument the parent reads: the
+`dp_arg()` reshapes \\D\beta\\ into the argument of the parent: the
 vector itself for a univariate parent, and a matrix of one row per block
 for a multivariate one. `dp_flat()` undoes the reshaping, carrying the
-parent's answer back to a vector in coefficient order.
+result of the parent back to a vector in coefficient order.
 
 ## Usage
 
@@ -28,8 +28,8 @@ dp_flat(pen, g)
 
 - g:
 
-  The parent's answer: a vector for a univariate parent, a matrix of one
-  row per block for a multivariate one. `dp_flat()` only.
+  The result of the parent: a vector for a univariate parent, a matrix
+  of one row per block for a multivariate one. `dp_flat()` only.
 
 ## Value
 
@@ -41,12 +41,12 @@ vector, in coefficient order.
 
 The blocks are the **successive** stretches of \\D\beta\\, so the
 reshaping fills by row: block \\i\\ occupies positions \\(i-1)p+1,
-\dots, ip\\. That is the order a grouped design assembles its
-coefficients in, and the order \\I_m \otimes \Sigma\\ assumes, so the
-two agree without either being told about the other.
+\dots, ip\\. This is the order in which a grouped design assembles its
+coefficients and the order that \\I_m \otimes \Sigma\\ assumes, so the
+two agree.
 
-Both are the identity when the block width is one, which is every
-univariate parent, and the pair costs nothing there.
+Both functions return their argument unchanged when the block width is
+one, which is the case of every univariate parent.
 
 ## See also
 

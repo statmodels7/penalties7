@@ -28,9 +28,9 @@ hyperparameter.
 
 - scale:
 
-  Read by the generic, which applies the chain rule onto the
-  unconstrained scale after dispatch, using the parent's own links.
-  These methods always return the parameter scale.
+  Read by the generic, which applies the chain rule to the unconstrained
+  scale after dispatch, with the links copied from the parent. These
+  methods always return derivatives on the parameter scale.
 
 - ...:
 
@@ -51,20 +51,21 @@ The first two are
 [`distributions7::distrib_gradient()`](https://statmodels7.github.io/distributions7/reference/distrib_gradient.html)
 and
 [`distributions7::distrib_hessian()`](https://statmodels7.github.io/distributions7/reference/distrib_hessian.html)
-read at the blocks and summed, the map not entering: a hyperparameter of
-the prior does not act through \\D\\. The third is
+evaluated at the blocks and summed. The map does not enter them, because
+a hyperparameter of the prior does not act through \\D\\. The third is
 [`distributions7::distrib_cross_y()`](https://statmodels7.github.io/distributions7/reference/distrib_cross_y.html),
-which exists for this, carried back through the map like the coefficient
-gradient.
+carried back through the map like the coefficient gradient.
 
-## The reordering
+## Keys of the second derivatives
 
-distributions7 keys its Hessian components lexicographically and this
-package keys them diagonals first, so the second derivatives are looked
-up under both spellings of each pair, `a_b` and `b_a`, and returned
-under this package's. The key is composed from the pair rather than
-parsed out of a name, a parameter name being free to contain an
-underscore.
+The second derivatives are returned under the keys of
+[`ptheta_pairs()`](https://statmodels7.github.io/penalties7/reference/ptheta_pairs.md):
+the diagonal pairs first, then the off-diagonal pairs, in the order of
+`pen@params`. The shipped continuous families of distributions7 use the
+same order, but a family may spell a pair the other way, so each pair is
+looked up under both spellings, `a_b` and `b_a`. The key is composed
+from the pair and not parsed out of a name, because a parameter name may
+contain an underscore.
 
 ## See also
 

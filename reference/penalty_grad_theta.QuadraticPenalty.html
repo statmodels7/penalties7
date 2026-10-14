@@ -15,7 +15,7 @@ out."><meta property="og:image" content="https://statmodels7.github.io/penalties
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,15 +85,16 @@ named <code>lambda</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The value is affine in \(\lambda\) apart from the
+    <p>The value is affine in \(\lambda\) apart from the term
 \(-\tfrac{r}{2}\log\lambda\) of the normalizing constant, so the second
-derivative comes from that term alone and is positive: the value is convex
-in the smoothing parameter, with its minimum at
+derivative comes from that term alone and is positive. The value is
+therefore convex in the smoothing parameter, with its minimum at
 \(\lambda = r / (D\beta)'P(D\beta)\). That is the joint-mode estimate of
-\(\lambda\) at fixed coefficients, and it is finite only because the
-constant was kept.</p>
-<p>The mixed block carries no \(\lambda\) at all, the value being linear in
-it in every coefficient direction.</p>
+\(\lambda\) at fixed coefficients, and it is finite because the constant
+is kept.</p>
+<p>The mixed block does not contain \(\lambda\), because the coefficient
+gradient \(\lambda D'PD\beta\) is linear in \(\lambda\) and its slope
+\(D'PD\beta\) does not depend on \(\lambda\).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

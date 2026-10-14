@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,32 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.31.0" id="penalties7-0310">penalties7 0.31.0<a class="anchor" aria-label="anchor" href="#penalties7-0310"></a></h2>
+<div class="section level3">
+<h3 id="changes-in-behavior-0-31-0">Changes in behavior<a class="anchor" aria-label="anchor" href="#changes-in-behavior-0-31-0"></a></h3>
+<ul><li><p>Every generic that takes <code>beta</code> signals an error when its length differs from <code>n_coef</code>; the separable, SCAD and MCP branches used to recycle or truncate it.</p></li>
+<li><p>Every hyperparameter must be a single number. A vector, <code>NULL</code> or <code>numeric(0)</code> signals an error naming the parameter.</p></li>
+<li><p><code><a href="../reference/beta_quadratic.html">beta_quadratic()</a></code> validates <code>theta</code> in its generic, on every branch.</p></li>
+<li><p>A separable penalty under a square nonsingular map subtracts  from its value, whether the map is diagonal or not, so that it is the negative log-density of . <code><a href="../reference/is_proper.html">is_proper()</a></code> is <code>TRUE</code> only without a map or with a square nonsingular one; under a tall or singular map the value carries no normalizing constant. The class has a new property, <code>log_jacobian</code>.</p></li>
+<li><p><code><a href="../reference/penalty_matrix.html">penalty_null_basis()</a></code> has a method for a separable penalty: the null space of its map.</p></li>
+<li><p><code><a href="../reference/distrib_penalty.html">distrib_penalty()</a></code>, <code><a href="../reference/scad_penalty.html">scad_penalty()</a></code> and <code><a href="../reference/scad_penalty.html">mcp_penalty()</a></code> store a square map whose off-diagonal entries are all zero as a <code><a href="https://rdrr.io/pkg/Matrix/man/Diagonal.html" class="external-link">Matrix::Diagonal()</a></code> object, so a diagonal base matrix gives the same value, proximal operator, table and draws as the same map built with <code><a href="https://rdrr.io/pkg/Matrix/man/Diagonal.html" class="external-link">Matrix::Diagonal()</a></code>.</p></li>
+<li><p><code><a href="../reference/distrib_penalty.html">distrib_penalty()</a></code> rejects a parent that is not continuous, and the multinomial. A separable penalty copies its parent’s <code>params_smooth</code>.</p></li>
+<li><p><code><a href="../reference/distrib_kinks.html">distrib_kinks()</a></code> finds a kink under wrappers nested around <code>fixed()</code>, and drops a candidate at the edge of the outer support (a folded parent has no kink at zero). <code><a href="../reference/has_jump.html">has_jump()</a></code> compares the jump of the slope at two widths and no longer reads a smooth point as a kink.</p></li>
+<li><p><code><a href="../reference/quadratic_penalty.html">quadratic_penalty()</a></code> rejects a <code>P</code> that is not positive semidefinite, a map that makes  the zero matrix, and entries that are not finite. The rank and the null basis are read from the same eigenvalues. The object stores its <code>tol</code> (a new property).</p></li>
+<li><p><code><a href="../reference/additive_penalty.html">additive_penalty()</a></code> rejects a component that the map carries to zero and entries that are not finite, stores its <code>tol</code> (a new property) and passes it to the rank count of the similarity transformation. A setting where the rank identity cannot be evaluated, or where a weighted sum overflows, gives <code>NaN</code> instead of an error.</p></li>
+<li><p>The proximal operator of a separable penalty without a closed form returns the global minimizer for a unimodal parent: it scans the segment between <code>v</code> and the parent’s mode, so that a parent that is not log-concave (the Student t prior) or not centered at zero no longer gives a local minimum, and it is accurate relative to a small answer.</p></li>
+<li><p>The SCAD and MCP operators are computed in a form that stays accurate as the step approaches  or . Their error message prints the scaled step that violates the condition.</p></li>
+<li><p><code><a href="../reference/penalty_prox.html">penalty_prox()</a></code> requires a finite step. <code><a href="../reference/penalty_prox_spec.html">penalty_prox_spec()</a></code> requires a finite positive step of length one or <code>n_coef</code>.</p></li>
+<li><p><code><a href="../reference/check_penalty.html">check_penalty()</a></code> checks the off-diagonal entries of the hyperparameter Hessian and, for a quadratic, structured or additive penalty, the stored rank and the width of the null basis. A row whose numerical reference cannot be computed is reported as <code>FAILED</code> instead of stopping the check.</p></li>
+<li><p><code><a href="../reference/penalty_readable.html">penalty_readable()</a></code> of a structured penalty returns the quantities that <code><a href="https://statmodels7.github.io/parameters7/reference/param_readable.html" class="external-link">parameters7::param_readable()</a></code> defines for its structure, named with the prefix <code>precision_</code> because the structure is the precision of the prior.</p></li>
+<li><p><code><a href="../reference/penalty_draw.html">penalty_draw()</a></code> of a separable penalty under a diagonal map with a zero entry returns <code>NA</code> only at that coordinate.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-0-31-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-31-0"></a></h3>
+<ul><li>Every page was checked against the code and rewritten in a uniform register; the README, the vignette and the descriptions of the reference index were revised in the same way. Class pages list their methods.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.30.0" id="penalties7-0300">penalties7 0.30.0<a class="anchor" aria-label="anchor" href="#penalties7-0300"></a></h2>
 <ul><li>A separable penalty whose parent is a multivariate family that is not quadratic in its argument (a multivariate Student t prior) answers <code><a href="../reference/penalty_dhessian_beta.html">penalty_dhessian_beta()</a></code>, <code><a href="../reference/penalty_d2hessian_beta.html">penalty_d2hessian_beta()</a></code> and <code><a href="../reference/penalty_d2hessian_beta.html">penalty_dhessian_beta_theta()</a></code>, where it rejected. Each block’s response tensor from  is contracted against the block’s coordinates of the directions (<code><a href="../reference/dp_contract.html">dp_contract()</a></code>) and placed on a block diagonal. Against a central difference of the order below the three agree to 5e-10 on matrices of order one. A parent that supplies no such tensor is still rejected with the penalty named. Requires distributions7 0.67.0.</li>

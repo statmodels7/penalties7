@@ -4,8 +4,8 @@
 returns \\\lambda D'PD\beta\\ and
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 returns \\\lambda D'PD\\. Both read the cached \\D'PD\\, so neither
-touches the map at call time, and the Hessian does not depend on
-\\\beta\\ at all, the value being a quadratic form.
+applies the map at call time, and the Hessian does not depend on
+\\\beta\\, the value being a quadratic form.
 
 ## Arguments
 
@@ -32,14 +32,17 @@ touches the map at call time, and the Hessian does not depend on
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 a numeric vector of length `pen@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-a symmetric matrix of that side, a base matrix for an ordinary penalty
+a symmetric matrix of that order, a base matrix for an ordinary penalty
 and a `dgCMatrix` when the penalty was built with `blocks > 1`.
 
 ## Details
 
 Because the Hessian is constant, the gradient is exactly the Hessian
-applied to the coefficients, and a Newton step on this penalty alone
-reaches the minimum in one iteration from anywhere.
+applied to the coefficients. When \\D'PD\\ has full rank, a Newton step
+on this penalty alone reaches its minimum, at the origin, in one
+iteration from any starting point. When \\D'PD\\ is rank deficient, the
+Hessian is singular and the minimum is attained on the whole null space
+of \\D'PD\\.
 
 ## See also
 

@@ -1,11 +1,11 @@
-# Where a Penalty Stops Being Smooth
+# Points Where a Penalty Is Not Smooth
 
 Returns the values of \\t = D\beta\\ at which some derivative of
 \\\rho\\ is discontinuous, so that a numerical reference straddling one
-of them measures the break instead of the formula.
+of them would measure the break instead of the formula.
 [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
-places its grids clear of these points, and a solver consults them to
-decide whether a block can go to a gradient method at all.
+places its grids clear of these points, and a fitting routine can read
+them to decide whether a block can be passed to a gradient method.
 
 ## Usage
 
@@ -25,11 +25,11 @@ penalty_kinks(pen, theta, ...)
 
   A named list of hyperparameter values, or a named numeric vector
   carrying the same, holding every name in `pen@params`. Required even
-  for a smooth penalty, whose answer does not depend on it.
+  for a smooth penalty, whose result does not depend on it.
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
@@ -37,36 +37,42 @@ A numeric vector of the points, unsorted and possibly empty, in the
 units of \\t = D\beta\\. `numeric(0)` for a penalty that is smooth
 everywhere.
 
-## The set is wider than the kinks alone
+## Kinks and the other breaks
 
-A kink proper is a point where the value is continuous and the first
-derivative jumps: \\t = 0\\ for the lasso, the elastic net, SCAD and
-MCP, where the subdifferential opens into an interval and a coefficient
-can be held exactly at zero. What is returned is the larger set of
-points where any derivative breaks, because that is what a consumer of
-the second derivative needs as well. Measured at \\\lambda = 1, a = 3.7,
-\gamma = 3\\:
+A kink in the strict sense is a point where the value is continuous and
+the first derivative jumps: \\t = 0\\ for the lasso, the elastic net,
+SCAD and MCP, where the subdifferential opens into an interval and a
+coefficient can be held exactly at zero. The function returns the larger
+set of points where any derivative breaks, because a method that uses
+the second derivative needs those points as well. At \\\lambda = 1\\,
+\\a = 3.7\\ and \\\gamma = 3\\, with unit curvature, the points are:
 
 |  |  |  |
 |----|----|----|
 | penalty | returned | what breaks there |
 | quadratic, ridge, structured, additive | `numeric(0)` | nothing, the value is smooth |
+| separable with a smooth parent (Gaussian, Student t) | `numeric(0)` | nothing |
 | lasso, elastic net | `0` | the first derivative |
 | SCAD | `0, -1, 1, -3.7, 3.7` | the first at 0, the second at \\\pm\lambda\\ and \\\pm a\lambda\\ |
 | MCP | `0, -3, 3` | the first at 0, the second at \\\pm\gamma\lambda\\ |
 
-At \\\pm\lambda\\ SCAD's derivative is continuous, both branches giving
-\\\lambda\\, while its second derivative jumps from \\0\\ to
-\\-1/(a-1)\\. The same holds for MCP at \\\pm\gamma\lambda\\.
+SCAD's first derivative is continuous at \\\pm\lambda\\, where both
+pieces give \\\lambda\\, while its second derivative jumps from \\0\\ to
+\\-1/(a-1)\\; at \\\pm a\lambda\\ the second derivative returns to
+\\0\\. MCP's first derivative is continuous at \\\pm\gamma\lambda\\, and
+its second derivative jumps there from \\-1/\gamma\\ to \\0\\.
 
-## The set moves with the hyperparameters
+## Dependence on the hyperparameters
 
-Only \\0\\ is fixed. SCAD's outer points are at \\\pm\lambda\\ and \\\pm
-a\lambda\\ and MCP's at \\\pm\gamma\lambda\\, so the answer depends on
-`theta` and the argument is not optional. This is also what a
-hyperparameter path is walked over: the size of the kink, rather than
-the hyperparameter itself, is the quantity that scales the same way
-across branches.
+For a separable penalty the points are fixed when the penalty is built,
+from the parameters of the parent that
+[`distributions7::fixed()`](https://statmodels7.github.io/distributions7/reference/fixed.html)
+holds at a value: the lasso has its kink at \\0\\, and a Laplace parent
+with its location fixed at \\2\\ has its kink at \\2\\. For SCAD and MCP
+only \\0\\ is fixed. Their other points are at \\\pm\lambda/c_j\\ and
+\\\pm a\lambda/c_j\\ for SCAD and at \\\pm\gamma\lambda/c_j\\ for MCP,
+where \\c_j\\ is the curvature of coordinate \\j\\ (one by default), so
+the result depends on `theta` and the argument is required.
 
 ## See also
 
@@ -95,7 +101,7 @@ penalty_kinks(lasso_penalty(), list(lambda = 1))
 penalty_kinks(scad_penalty(), list(lambda = 1, a = 3.7))
 #> [1]  0.0 -1.0  1.0 -3.7  3.7
 
-# Which move with the hyperparameters.
+# The points other than zero move with the hyperparameters.
 penalty_kinks(scad_penalty(), list(lambda = 2, a = 3.7))
 #> [1]  0.0 -2.0  2.0 -7.4  7.4
 ```

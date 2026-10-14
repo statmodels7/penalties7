@@ -34,7 +34,7 @@ ptheta_to_link(pen, theta, g = NULL, H = NULL, cross = NULL)
 
   The parameter-scale Hessian list, keyed as
   [`ptheta_pairs()`](https://statmodels7.github.io/penalties7/reference/ptheta_pairs.md)
-  keys it. Supply it with `g` to get the second order.
+  names the pairs. Supplied with `g` for the second order.
 
 - cross:
 
@@ -61,10 +61,11 @@ h_i'(\eta_i)\\ h_j'(\eta_j) + \delta\_{ij}\\
 \frac{\partial\rho}{\partial\theta_i}\\ h_i''(\eta_i).\$\$
 
 The second-derivative term appears on the diagonal alone, which is why
-the Hessian branch needs the gradient as well. The mixed block
+the Hessian branch requires the gradient as well. The mixed block
 \\\partial^2\rho / \partial\beta\\\partial\theta_i\\ is first order in
-\\\theta\\ and picks up one factor of \\h_i'\\, the coefficient
-direction being untouched by a reparametrization of the hyperparameters.
+\\\theta\\ and picks up one factor of \\h_i'\\, because a
+reparametrization of the hyperparameters does not change the coefficient
+direction.
 
-This is distributions7's interception, restricted to the two orders a
-penalty consumer needs.
+This is the chain rule that distributions7 applies to the link scale of
+a distribution's parameters, restricted to the first two orders.

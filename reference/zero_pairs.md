@@ -1,8 +1,12 @@
 # A Zero Entry for Every Hyperparameter Pair
 
 Returns a list holding the same zero object under every
-hyperparameter-pair key, which is the answer of a penalty whose Hessian
-is linear in its hyperparameters.
+hyperparameter-pair key, which is the value of
+[`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
+and
+[`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
+for a penalty whose Hessian is linear in its hyperparameters and free of
+the coefficients.
 
 ## Usage
 

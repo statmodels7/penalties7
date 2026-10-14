@@ -46,15 +46,17 @@ a list of one numeric vector of length `pen@n_coef`, named `lambda`.
 
 ## Details
 
-The value is affine in \\\lambda\\ apart from the
+The value is affine in \\\lambda\\ apart from the term
 \\-\tfrac{r}{2}\log\lambda\\ of the normalizing constant, so the second
-derivative comes from that term alone and is positive: the value is
-convex in the smoothing parameter, with its minimum at \\\lambda = r /
-(D\beta)'P(D\beta)\\. That is the joint-mode estimate of \\\lambda\\ at
-fixed coefficients, and it is finite only because the constant was kept.
+derivative comes from that term alone and is positive. The value is
+therefore convex in the smoothing parameter, with its minimum at
+\\\lambda = r / (D\beta)'P(D\beta)\\. That is the joint-mode estimate of
+\\\lambda\\ at fixed coefficients, and it is finite because the constant
+is kept.
 
-The mixed block carries no \\\lambda\\ at all, the value being linear in
-it in every coefficient direction.
+The mixed block does not contain \\\lambda\\, because the coefficient
+gradient \\\lambda D'PD\beta\\ is linear in \\\lambda\\ and its slope
+\\D'PD\beta\\ does not depend on \\\lambda\\.
 
 ## See also
 

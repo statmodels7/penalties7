@@ -2,9 +2,9 @@
 
 Returns the map unchanged when it is already a Matrix object, and
 [`as.matrix()`](https://rdrr.io/r/base/matrix.html) of it otherwise.
-Called once, by each branch's constructor, so that a map given as a data
-frame or a vector becomes a matrix while a sparse or diagonal one keeps
-its own storage.
+Called once, by each constructor that takes a map, so that a map given
+as a data frame or a vector becomes a matrix while a sparse or diagonal
+one keeps its own storage.
 
 ## Usage
 
@@ -25,9 +25,9 @@ The same object when it is a Matrix, and a base matrix otherwise.
 
 ## Details
 
-Densifying a diagonal map would cost \\q^2\\ numbers where it holds
-\\q\\, and a diagonal map is exactly what standardization is: a
-rescaling of each coordinate, under which a separable penalty stays
-separable and its proximal operator stays closed. Every arithmetic the
-map takes part in, the product and the crossproduct, is defined for both
-kinds.
+A dense copy of a diagonal map would hold \\q^2\\ numbers instead of
+\\q\\. A diagonal map is what standardization produces, a rescaling of
+each coordinate under which a separable penalty stays separable and its
+proximal operator stays in closed form. The product and the
+crossproduct, which are the only operations applied to the map, are
+defined for both kinds of storage.

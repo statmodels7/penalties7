@@ -3,8 +3,9 @@
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 returns MCP's defining derivative carried back through the map, and
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-its second derivative, which is \\-1/\gamma\\ inside the taper and zero
-beyond it.
+its second derivative carried back through the map. At unit curvature
+the second derivative is \\-1/\gamma\\ inside the taper and zero beyond
+it.
 
 ## Arguments
 
@@ -36,22 +37,28 @@ identity map and negative semidefinite always.
 
 ## Details
 
-On each coordinate, with \\u = \lvert t\rvert\\ and \\s\\ its sign,
+With unit curvature, on each coordinate, with \\u = \lvert t\rvert\\ and
+\\s\\ its sign,
 
 \$\$\frac{\partial\rho}{\partial t} = s\\(\lambda - u/\gamma)\_{+},
 \qquad \frac{\partial^2\rho}{\partial t^2} = \begin{cases} -1/\gamma & u
 \le \gamma\lambda \\ 0 & u \> \gamma\lambda. \end{cases}\$\$
 
-The Hessian is **negative** wherever the penalty is doing anything,
-which is the non-convexity MCP is named for, and it is constant there:
-MCP is the penalty with the least curvature among those that threshold
-at rate \\\lambda\\ and reach zero bias by \\\gamma\lambda\\. A
-penalized objective stays convex only while the likelihood's own
-curvature exceeds \\1/\gamma\\.
+With curvature \\c_j\\ the taper ends at \\\gamma\lambda/c_j\\, the
+first derivative is \\s\\(\lambda - c_j u/\gamma)\_{+}\\, and the second
+derivative inside the taper is \\-c_j/\gamma\\.
 
-At \\t = 0\\ the sign is zero, so the gradient returned is `0`: one
-element of the subdifferential \\\[-\lambda, \lambda\]\\. Selection
-happens through
+The Hessian is **negative** wherever the penalty is not constant, which
+is the non-convexity in the name of MCP, and it is constant there. Among
+the penalties whose derivative is \\\lambda\\ at the origin and zero
+beyond \\\gamma\lambda\\, MCP has the smallest maximum concavity, the
+supremum of \\-\rho''\\ (Zhang 2010). A penalized objective stays convex
+only while the curvature of the likelihood in each coordinate exceeds
+\\1/\gamma\\ (\\c_j/\gamma\\ with `curv`).
+
+At \\t = 0\\ the sign is zero, so the gradient returned is `0`, one
+element of the subdifferential \\\[-\lambda, \lambda\]\\. Exact zeros
+are produced by
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md).
 
 ## See also

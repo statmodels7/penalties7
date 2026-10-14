@@ -17,7 +17,7 @@ vector per hyperparameter."><meta property="og:image" content="https://statmodel
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,9 +70,9 @@ vector per hyperparameter.</p>
 
 
 <dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
-<dd><p>Read by the generic, which applies the chain rule onto the
-unconstrained scale after dispatch, using the parent's own links. These
-methods always return the parameter scale.</p></dd>
+<dd><p>Read by the generic, which applies the chain rule to the
+unconstrained scale after dispatch, with the links copied from the
+parent. These methods always return derivatives on the parameter scale.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -91,18 +91,20 @@ hyperparameter.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The first two are <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_gradient.html" class="external-link">distributions7::distrib_gradient()</a></code> and
-<code><a href="https://statmodels7.github.io/distributions7/reference/distrib_hessian.html" class="external-link">distributions7::distrib_hessian()</a></code> read at the blocks and summed, the map
-not entering: a hyperparameter of the prior does not act through \(D\).
-The third is <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_cross_y.html" class="external-link">distributions7::distrib_cross_y()</a></code>, which exists for this,
-carried back through the map like the coefficient gradient.</p>
+<code><a href="https://statmodels7.github.io/distributions7/reference/distrib_hessian.html" class="external-link">distributions7::distrib_hessian()</a></code> evaluated at the blocks and summed. The
+map does not enter them, because a hyperparameter of the prior does not act
+through \(D\). The third is <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_cross_y.html" class="external-link">distributions7::distrib_cross_y()</a></code>, carried
+back through the map like the coefficient gradient.</p>
     </div>
     <div class="section level2">
-    <h2 id="the-reordering">The reordering<a class="anchor" aria-label="anchor" href="#the-reordering"></a></h2>
-    <p><span class="pkg">distributions7</span> keys its Hessian components lexicographically and this
-package keys them diagonals first, so the second derivatives are looked up
-under both spellings of each pair, <code>a_b</code> and <code>b_a</code>, and returned under this
-package's. The key is composed from the pair rather than parsed out of a
-name, a parameter name being free to contain an underscore.</p>
+    <h2 id="keys-of-the-second-derivatives">Keys of the second derivatives<a class="anchor" aria-label="anchor" href="#keys-of-the-second-derivatives"></a></h2>
+    <p>The second derivatives are returned under the keys of <code><a href="ptheta_pairs.html">ptheta_pairs()</a></code>:
+the diagonal pairs first, then the off-diagonal pairs, in the order of
+<code>pen@params</code>. The shipped continuous families of <span class="pkg">distributions7</span> use
+the same order, but a family may spell a pair the other way, so each pair
+is looked up under both spellings, <code>a_b</code> and <code>b_a</code>. The key is composed
+from the pair and not parsed out of a name, because a parameter name may
+contain an underscore.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

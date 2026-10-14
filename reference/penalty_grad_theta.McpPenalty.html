@@ -15,7 +15,7 @@ hyperparameter."><meta property="og:image" content="https://statmodels7.github.i
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,16 +86,19 @@ named <code>lambda</code> and <code>gamma</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Inside the taper the value is \(\lambda u - u^2/(2\gamma)\), so
-\(\partial\rho/\partial\lambda = u\) and
-\(\partial\rho/\partial\gamma = u^2/(2\gamma^2)\); beyond it the value is
-\(\gamma\lambda^2/2\) and the two derivatives are \(\gamma\lambda\) and
-\(\lambda^2/2\), neither depending on the coefficient. The second
-derivative in \(\lambda\) is therefore zero inside the taper, the value
-being linear in \(\lambda\) there.</p>
-<p>As for SCAD, these derivatives exist and no marginal criterion can use them:
-the expansion such a criterion rests on needs a mode at which the penalty is
-twice differentiable, and a mode with a coefficient at zero is on the kink.</p>
+    <p>At unit curvature, inside the taper the value is
+\(\lambda u - u^2/(2\gamma)\), so \(\partial\rho/\partial\lambda = u\)
+and \(\partial\rho/\partial\gamma = u^2/(2\gamma^2)\); beyond it the value
+is \(\gamma\lambda^2/2\) and the two derivatives are \(\gamma\lambda\)
+and \(\lambda^2/2\), and neither depends on the coefficient. The second
+derivative in \(\lambda\) is therefore zero inside the taper, where the
+value is linear in \(\lambda\). With curvature \(c_j\) the coordinate
+contributes \(c_j\,\rho(u_j;\ \lambda/c_j)\), and each derivative follows
+by the chain rule through \(\lambda/c_j\).</p>
+<p>As for SCAD, a marginal criterion cannot use these derivatives: the
+expansion on which such a criterion rests requires a mode at which the
+penalty is twice differentiable, and a mode with a coefficient at zero lies
+on the kink.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

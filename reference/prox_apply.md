@@ -1,9 +1,10 @@
 # Apply a Piecewise Linear Table
 
-Evaluates the map
+Evaluates in R the map that
 [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
-describes, in R. This is what a compiled coordinate descent does to each
-coordinate, and what the tests compare the table against.
+describes. A compiled coordinate descent applies the same map to each
+coordinate, and the tests compare the result with
+[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md).
 
 ## Usage
 
@@ -30,17 +31,23 @@ A numeric vector as long as `u`.
 
 ## Details
 
-For coordinate \\j\\ it finds the first cut that \\\lvert u_j\rvert\\
-does not exceed and returns \\\mathrm{sign}(u_j)(a\_{jk}\lvert
-u_j\rvert + b\_{jk})\\ for that piece. The last cut is `Inf`, so a piece
-is always found; the `NA` guard covers a table whose cuts are not
-increasing, which no shipped branch produces.
+For coordinate \\j\\ the function finds the first cut that \\\lvert
+u_j\rvert\\ does not exceed and returns
+\\\mathrm{sign}(u_j)(a\_{jk}\lvert u_j\rvert + b\_{jk})\\ for that
+piece. The last cut of every shipped table is `Inf`, so a piece is
+always found. If \\\lvert u_j\rvert\\ exceeds every cut of its row,
+which can happen only in a table whose last cut is finite, the last
+piece is used.
 
-Comparing this against
+A table is verified by comparing this function with
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
-is how a table is verified. Over the five families that have one, probed
-at every cut, on both sides of every cut and across the whole range, the
-worst disagreement is `8.9e-16`.
+at every cut, on both sides of every cut and over a grid of points. For
+SCAD and MCP at a step close to its limit the table is less accurate
+than
+[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md),
+as the page of
+[`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
+explains.
 
 ## See also
 

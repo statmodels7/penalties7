@@ -11,7 +11,7 @@ penalty_cross() one coefficient vector per component."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,17 +90,20 @@ pseudo-inverse of the sum,</p>
   \frac{\partial^2\rho}{\partial\lambda_k\partial\lambda_l}
     = \tfrac{1}{2}\operatorname{tr}(S^{+}P_kS^{+}P_l), \qquad
   \frac{\partial^2\rho}{\partial\beta\,\partial\lambda_k} = P_k\beta.$$</p>
-<p>The second derivative has no quadratic-form term, the value being linear in
-each parameter there, and the mixed block has no determinant term.
-<code><a href="penalty_grad_theta.html">penalty_cross()</a></code> therefore needs no eigendecomposition at all.</p>
-<p>The Hessian is keyed by pairs as <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code> keys them, diagonals
-first and then the upper off-diagonal pairs joined by an underscore.</p>
+<p>The second derivative has no term from the quadratic form, which is linear
+in each parameter, and the mixed block has no term from the determinant.
+<code><a href="penalty_grad_theta.html">penalty_cross()</a></code> therefore takes no eigendecomposition. The first two
+blocks read the traces from <code><a href="additive_sum.html">additive_sum()</a></code>, and their entries are <code>NaN</code>
+at a setting that it reports as not resolvable.</p>
+<p>The Hessian is keyed by pairs as <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code> keys them: each key
+joins two parameter names by an underscore (<code>lambda1_lambda2</code>), the
+diagonal pairs come first and the upper off-diagonal pairs follow.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="penalty_value.AdditivePenalty.html">penalty_value.AdditivePenalty()</a></code> for the quantity differentiated,
 <code><a href="penalty_matrix.AdditivePenalty.html">penalty_logpdet.AdditivePenalty()</a></code> for the determinant's own
-derivatives, <code><a href="additive_sum.html">additive_sum()</a></code> for the pseudo-inverse these read.</p></div>
+derivatives, <code><a href="additive_sum.html">additive_sum()</a></code> for the traces that these read.</p></div>
     </div>
 
     <div class="section level2">

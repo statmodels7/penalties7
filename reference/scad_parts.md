@@ -1,10 +1,11 @@
 # The Piecewise Regions of SCAD and MCP
 
-Split the mapped coefficients into the regions each family's formulas
-are written over, and return the sign and the absolute value alongside.
-Shared by every method of the two branches, so a formula reads as one
-[`ifelse()`](https://rdrr.io/r/base/ifelse.html) over indicators instead
-of recomputing the comparisons.
+Split the mapped coefficients into the regions over which the formulas
+of each family are written, and return the sign and the absolute value
+with them. The value, the coefficient derivatives and the hyperparameter
+derivatives of the two classes use these helpers, so each formula is one
+[`ifelse()`](https://rdrr.io/r/base/ifelse.html) over indicators and the
+comparisons are made once.
 
 ## Usage
 
@@ -22,7 +23,9 @@ mcp_parts(t, lam, gam)
 
 - lam:
 
-  The hyperparameter \\\lambda\\, a single positive number.
+  The rate of each coordinate, \\\lambda/c_j\\ with \\c_j\\ the
+  curvature of the coordinate: a positive numeric vector as long as `t`,
+  or a single positive number when every curvature is one.
 
 - a:
 
@@ -35,23 +38,22 @@ mcp_parts(t, lam, gam)
 ## Value
 
 `scad_parts()` a list of five vectors as long as `t`: `s` the sign, `u`
-the absolute value, and the logical indicators `r1` (\\u \le \lambda\\),
-`r2` (the taper) and `r3` (\\u \> a\lambda\\). `mcp_parts()` a list of
-three: `s`, `u`, and `r1` for \\u \le \gamma\lambda\\, the complement
-needing no name.
+the absolute value, and the logical indicators `r1` (\\u \le\\ `lam`),
+`r2` (the taper, `lam` \\\< u \le a\\ `lam`) and `r3` (\\u \> a\\
+`lam`). `mcp_parts()` a list of three vectors: `s`, `u`, and `r1` for
+\\u \le \gamma\\ `lam`, whose complement is the flat region.
 
 ## Details
 
-SCAD has three regions and MCP has two, which is the whole difference
+SCAD has three regions and MCP has two, and this is the only difference
 between the two helpers. Every derivative of either family is even in
-\\t\\ up to the sign carried out front, so the formulas are written in
+\\t\\ up to the sign in front, so the formulas are written in
 `u = abs(t)` and multiplied by `s = sign(t)` where an odd order needs
 it.
 
-At `t = 0` the sign is `0`, so a coefficient sitting exactly at the kink
-gets a gradient of zero: one element of the subdifferential
-\\\[-\lambda, \lambda\]\\, chosen for being the one a smooth method can
-use.
+At `t = 0` the sign is `0`, so a coefficient exactly at the kink gets a
+gradient of zero. This is one element of the subdifferential
+\\\[-\lambda, \lambda\]\\, and the one that a smooth method can use.
 
 ## See also
 

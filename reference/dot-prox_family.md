@@ -1,9 +1,9 @@
 # The Family Name Under a Separable Penalty's Wrappers
 
-Returns the bare name of the distribution a separable penalty is built
-on, with a `fixed()` wrapper and any bracketed parameter list stripped
-off, so that the closed-form branches can be recognized by the family
-underneath.
+Returns the bare name of the distribution on which a separable penalty
+is built, with a `fixed()` wrapper and any bracketed parameter list
+removed, so that the closed-form branches can be recognized by the
+family underneath.
 
 ## Usage
 
@@ -21,22 +21,23 @@ underneath.
 
 ## Value
 
-A single string: `"gaussian1"`, `"laplace2"`, `"laplace"`, `"enet"` for
-the four closed-form families, and whatever the parent is called
-otherwise.
+A single string: `"gaussian1"`, `"laplace2"`, `"laplace"` or `"enet"`
+for the families with a closed form (the Laplace in two
+parametrizations), and the name of the parent's family otherwise.
 
 ## Details
 
-A separable penalty's parent is typically wrapped: the lasso is
-`fixed laplace2 [mu=0]` and the ridge's separable twin is
-`fixed gaussian1 [mu=0]`. Matching on the raw `distrib_name` would miss
-both. Stripping the leading `fixed ` and everything from the first
+The parent of a separable penalty is usually wrapped: the lasso's parent
+is `fixed laplace2 [mu=0]`, and a separable Gaussian prior built as
+`distrib_penalty(fixed(gaussian1_distrib(), mu = 0), ...)` has the
+parent `fixed gaussian1 [mu=0]`. A match on the raw `distrib_name` would
+miss both. Removing the leading `fixed ` and everything from the first
 bracket leaves `laplace2` and `gaussian1`.
 
 The name is used only to reach a closed form. Whether the parent is
-centered where the quadratic pull is is asked separately, by evaluating
-the gradient at the origin, since a family name does not say where a
-location sits.
+centered at zero is tested separately, by evaluating the penalty's
+gradient at the origin, because the family name does not carry the
+location.
 
 ## See also
 

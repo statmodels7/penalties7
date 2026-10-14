@@ -47,21 +47,25 @@ a list of two numeric vectors of length `pen@n_coef`, named `lambda` and
 
 ## Details
 
-Each region contributes its own expression and the sums run over the
-coordinates that fall in it. In \\u \le \lambda\\ the value is \\\lambda
-u\\, so \\\partial\rho/\partial\lambda = u\\ and the shape does not
-enter; beyond \\a\lambda\\ the value is \\(a+1)\lambda^2/2\\, so
-\\\partial\rho/\partial\lambda = (a+1)\lambda\\ and
-\\\partial\rho/\partial a = \lambda^2/2\\, neither depending on the
-coefficient at all.
+Each region contributes its own expression, and the sums run over the
+coordinates that fall in it. At unit curvature, in \\u \le \lambda\\ the
+value is \\\lambda u\\, so \\\partial\rho/\partial\lambda = u\\ and the
+shape does not enter; over the taper \\\partial\rho/\partial\lambda =
+(au - \lambda)/(a-1)\\ and \\\partial\rho/\partial a = (u -
+\lambda)^2/(2(a-1)^2)\\; beyond \\a\lambda\\ the value is
+\\(a+1)\lambda^2/2\\, so \\\partial\rho/\partial\lambda = (a+1)\lambda\\
+and \\\partial\rho/\partial a = \lambda^2/2\\, and neither depends on
+the coefficient. With curvature \\c_j\\ the coordinate contributes
+\\c_j\\\rho(u_j;\\ \lambda/c_j)\\, and each derivative follows by the
+chain rule through \\\lambda/c_j\\.
 
-These derivatives exist, and no marginal criterion can use them: a
-Laplace expansion needs the penalty to be twice differentiable at the
-mode, and a mode with a coefficient held at zero sits on the kink. What
-they serve is a joint step in which the hyperparameters are estimated
-alongside the coefficients, and
+A marginal criterion cannot use these derivatives: a Laplace expansion
+requires the penalty to be twice differentiable at the mode, and a mode
+with a coefficient held at zero lies on the kink. The derivatives are
+used in a joint step that estimates the hyperparameters together with
+the coefficients, and by
 [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md),
-which compares them against numDeriv.
+which compares them with numDeriv.
 
 ## See also
 
@@ -97,8 +101,8 @@ penalty_hess_theta(pen, b, th)
 #> [1] 0.8628258
 #> 
 
-# A coordinate past a * lambda contributes lambda^2 / 2 to the shape
-# derivative and nothing to the mixed block.
+# The coordinate at 5, past a * lambda, contributes lambda^2 / 2 to the
+# derivative in a above and zero to the cross derivative in a.
 penalty_cross(pen, b, th)$a
 #> [1] 0.0000000 0.1371742 0.0000000
 ```

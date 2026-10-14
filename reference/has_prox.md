@@ -2,10 +2,9 @@
 
 `TRUE` when
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
-can be evaluated for this penalty, so that a caller may route a block to
-a proximal method without provoking an error. `FALSE` when the penalty
-has none, and then the block belongs to a smooth method or to a scheme
-of its own.
+has an operator for this penalty, so that a caller can route a block to
+a proximal method. `FALSE` when the penalty has none, and the block then
+goes to a smooth method or to a scheme of its own.
 
 ## Usage
 
@@ -19,7 +18,7 @@ has_prox(pen)
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
-  object of any branch. Anything else is rejected.
+  object of any branch. Any other object signals an error.
 
 ## Value
 
@@ -27,36 +26,43 @@ A single logical.
 
 ## What it tests
 
-The predicate asks four things in turn: whether the class registers a
+The predicate tests four conditions in turn: whether the class registers
+a
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
-method of its own rather than inheriting the base class's refusal;
-whether the penalty is quadratic or structured, in which case the
+method of its own instead of inheriting the error method of the base
+class; whether the penalty is quadratic or structured, in which case the
 operator is a linear solve at any map; whether a separable parent is
-read in blocks, whose coordinates do not separate; and otherwise whether
-the map is absent or diagonal.
+read in blocks, in which case the coordinates do not separate and the
+result is `FALSE`; and otherwise whether the map is absent or a Matrix
+diagonal object with nonzero entries, as
+[`map_diagonal()`](https://statmodels7.github.io/penalties7/reference/map_diagonal.md)
+reads it.
 
-Measured over the shipped branches:
+The value for each shipped branch is:
 
-|                                         |              |
-|-----------------------------------------|--------------|
-| penalty                                 | `has_prox()` |
-| quadratic, at any map                   | `TRUE`       |
-| structured                              | `TRUE`       |
-| ridge, lasso, elastic net, heavy-tailed | `TRUE`       |
-| lasso under a **diagonal** map          | `TRUE`       |
-| SCAD, MCP                               | `TRUE`       |
-| **additive**                            | `FALSE`      |
-| lasso under a **general** map           | `FALSE`      |
-| a separable penalty read in blocks      | `FALSE`      |
+|  |  |
+|----|----|
+| penalty | `has_prox()` |
+| quadratic, at any map | `TRUE` |
+| structured | `TRUE` |
+| ridge, lasso, elastic net, heavy-tailed, with no map | `TRUE` |
+| a separable penalty under a **diagonal** map with nonzero entries | `TRUE` |
+| SCAD, MCP, with no map or a **diagonal** map with nonzero entries | `TRUE` |
+| **additive** | `FALSE` |
+| a separable, SCAD or MCP penalty under a **general** map | `FALSE` |
+| a separable penalty read in blocks | `FALSE` |
 
-## What `TRUE` does not promise
+## Conditions on the step and on the parent
 
-It says the penalty has an operator, not that every step reaches it.
-SCAD and MCP answer `TRUE` and still reject a step at or beyond \\a -
-1\\ and \\\gamma\\, where the subproblem is not convex and the operator
-is set-valued. A Laplace or elastic-net parent that is not centered at
-zero answers `TRUE` and rejects at the call. The predicate is about the
-penalty; those two conditions are about the step and the parent.
+A `TRUE` value means that the penalty has an operator; a call can still
+signal an error for some steps and some parents. SCAD and MCP return
+`TRUE` and reject a step for which \\t c_j\\ reaches \\a - 1\\ or
+\\\gamma\\ in some coordinate (with \\c_j\\ the curvature and \\t\\
+multiplied by \\d_j^2\\ under a diagonal map), because the subproblem is
+then not convex and the operator is set-valued. A Laplace or elastic-net
+parent that is not centered at zero, and a separable parent that
+declares a kink and has no closed form, return `TRUE`, and the call
+signals an error.
 
 ## See also
 
@@ -67,7 +73,7 @@ for it as a table,
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
 and
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
-for the other two predicates a consumer routes on.
+for the other two predicates that a fitting layer uses to route a block.
 
 ## Examples
 
@@ -78,20 +84,23 @@ c(lasso = has_prox(lasso_penalty()),
 #> lasso  scad ridge 
 #>  TRUE  TRUE  TRUE 
 
-# The additive branch is the one that ships without an operator.
+# The additive branch has no operator.
 has_prox(additive_penalty(list(diag(3), diag(c(1, 1, 0)))))
 #> [1] FALSE
 
-# A map decides it for a separable penalty: diagonal yes, general no.
+# For a separable penalty the value depends on the map: TRUE under a
+# diagonal map, FALSE under a general one.
 c(diagonal = has_prox(lasso_penalty(map = Matrix::Diagonal(x = c(1, 2, 3)))),
   general  = has_prox(lasso_penalty(map = rbind(c(1, -1, 0), c(0, 1, -1)))))
 #> diagonal  general 
 #>     TRUE    FALSE 
 
-# TRUE does not mean every step works: SCAD needs step < a - 1.
+# SCAD has an operator, and a step at a - 1 signals an error.
 has_prox(scad_penalty(n_coef = 1))
 #> [1] TRUE
 try(penalty_prox(scad_penalty(n_coef = 1), 2, 2.7, list(lambda = 1, a = 3.7)))
-#> Error : the SCAD proximal operator needs step < a - 1 (2.7 here): beyond that the
+#> Error : the SCAD proximal operator needs step < a - 1 (2.7 here), with the step
+#>   multiplied by the curvature and, under a diagonal map, by the squared
+#>   diagonal entry; the largest scaled step is 2.7. Beyond that bound the
 #>   subproblem is not convex and the operator is set-valued.
 ```

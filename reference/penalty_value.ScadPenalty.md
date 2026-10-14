@@ -2,7 +2,7 @@
 
 Returns the closed antiderivative of SCAD's defining \\\rho'\\, summed
 over the coordinates of \\D\beta\\ and anchored at \\\rho(0) = 0\\. No
-constant is added, SCAD being improper.
+constant is added, since SCAD is improper.
 
 ## Arguments
 
@@ -28,12 +28,14 @@ constant is added, SCAD being improper.
 
 ## Value
 
-A single number, the sum over coordinates. Bounded above by
-`pen@n_coef * (a + 1) * lambda^2 / 2`.
+A single number, the sum over coordinates. It is bounded above by
+\\\sum_j (a+1)\lambda^2/(2c_j)\\, the sum running over the coordinates
+of \\D\beta\\, which is `pen@n_coef * (a + 1) * lambda^2 / 2` under the
+identity map at unit curvature.
 
 ## Details
 
-With \\u = \lvert t\rvert\\ on each coordinate,
+With unit curvature and \\u = \lvert t\rvert\\ on each coordinate,
 
 \$\$\rho(u) = \lambda u \\\\ (u \le \lambda), \qquad \rho(u) =
 \frac{2a\lambda u - u^2 - \lambda^2}{2(a-1)} \\\\ (\lambda \< u \le
@@ -41,7 +43,10 @@ a\lambda), \qquad \rho(u) = \frac{(a+1)\lambda^2}{2} \\\\ (u \>
 a\lambda),\$\$
 
 the three pieces meeting continuously at \\\lambda\\ and \\a\lambda\\.
-The value saturates, leaving a large coefficient unshrunk and making the
+With curvature \\c_j\\ (the `curv` property), coordinate \\j\\
+contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, the same formula with
+\\\lambda/c_j\\ in place of \\\lambda\\ and multiplied by \\c_j\\. The
+value saturates, which leaves a large coefficient unshrunk and makes the
 penalty improper.
 
 ## See also

@@ -4,18 +4,18 @@
 $$\mathrm{prox}_{t\rho}(v) = \arg\min_{\beta}
   \left\{ \tfrac{1}{2t}\lVert \beta - v \rVert^{2} +
   \rho(\beta;\theta) \right\},$$
-A proximal gradient method applies it after each gradient step. It is the
-operation that lets a penalty with a kink be minimized without
-differencing it, and the one that sets a coefficient exactly to zero where a
-gradient method only makes it small."><meta property="og:description" content="Returns the point that minimizes the penalty plus a quadratic pull towards
+A proximal gradient method applies the operator after each gradient step.
+With it, a penalty with a kink is minimized without differentiating it at
+the kink, and a coefficient can be set exactly to zero, where a gradient
+method only brings it close to zero."><meta property="og:description" content="Returns the point that minimizes the penalty plus a quadratic pull towards
 \(v\),
 $$\mathrm{prox}_{t\rho}(v) = \arg\min_{\beta}
   \left\{ \tfrac{1}{2t}\lVert \beta - v \rVert^{2} +
   \rho(\beta;\theta) \right\},$$
-A proximal gradient method applies it after each gradient step. It is the
-operation that lets a penalty with a kink be minimized without
-differencing it, and the one that sets a coefficient exactly to zero where a
-gradient method only makes it small."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
+A proximal gradient method applies the operator after each gradient step.
+With it, a penalty with a kink is minimized without differentiating it at
+the kink, and a coefficient can be set exactly to zero, where a gradient
+method only brings it close to zero."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +23,7 @@ gradient method only makes it small."><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,10 +55,10 @@ gradient method only makes it small."><meta property="og:image" content="https:/
 <p>$$\mathrm{prox}_{t\rho}(v) = \arg\min_{\beta}
   \left\{ \tfrac{1}{2t}\lVert \beta - v \rVert^{2} +
   \rho(\beta;\theta) \right\},$$</p>
-<p>A proximal gradient method applies it after each gradient step. It is the
-operation that lets a penalty with a kink be minimized without
-differencing it, and the one that sets a coefficient exactly to zero where a
-gradient method only makes it small.</p>
+<p>A proximal gradient method applies the operator after each gradient step.
+With it, a penalty with a kink is minimized without differentiating it at
+the kink, and a coefficient can be set exactly to zero, where a gradient
+method only brings it close to zero.</p>
     </div>
 
     <div class="section level2">
@@ -71,28 +71,27 @@ gradient method only makes it small.</p>
 
 
 <dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
-<dd><p>A <code><a href="penalty.html">penalty()</a></code> object. Ask <code><a href="has_prox.html">has_prox()</a></code> first if you do not know
-the branch.</p></dd>
+<dd><p>A <code><a href="penalty.html">penalty()</a></code> object. <code><a href="has_prox.html">has_prox()</a></code> tests whether it has an
+operator.</p></dd>
 
 
 <dt id="arg-v">v<a class="anchor" aria-label="anchor" href="#arg-v"></a></dt>
-<dd><p>A numeric vector of length <code>pen@n_coef</code>, the point pulled towards.
-Coerced with <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric()</a></code>.</p></dd>
+<dd><p>A numeric vector of length <code>pen@n_coef</code>, the point of the quadratic
+pull. Coerced with <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric()</a></code>.</p></dd>
 
 
 <dt id="arg-step">step<a class="anchor" aria-label="anchor" href="#arg-step"></a></dt>
-<dd><p>The step length \(t\), a single positive number. A vector is
-rejected; <code><a href="penalty_prox_spec.html">penalty_prox_spec()</a></code> is the interface that takes one per
-coefficient.</p></dd>
+<dd><p>The step length \(t\), a single positive finite number. A
+vector is rejected; <code><a href="penalty_prox_spec.html">penalty_prox_spec()</a></code> takes one step per coefficient.</p></dd>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
 <dd><p>A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in <code>pen@params</code>.</p></dd>
+vector, holding every name in <code>pen@params</code>, each a single number.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Passed to methods. No shipped method reads it.</p></dd>
+<dd><p>Passed to methods. The shipped methods do not use it.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -100,67 +99,96 @@ vector carrying the same, holding every name in <code>pen@params</code>.</p></dd
     <p>A numeric vector of the same length as <code>v</code>.</p>
     </div>
     <div class="section level2">
-    <h2 id="the-four-routes">The four routes<a class="anchor" aria-label="anchor" href="#the-four-routes"></a></h2>
+    <h2 id="the-operator-of-each-branch">The operator of each branch<a class="anchor" aria-label="anchor" href="#the-operator-of-each-branch"></a></h2>
 
-<table class="table table"><tr><td>branch</td><td>operator</td></tr><tr><td>quadratic, structured</td><td>one linear solve, \((I + tS)^{-1}v\)</td></tr><tr><td>Gaussian prior</td><td>the shrinkage \(v/(1 + t/\sigma^2)\)</td></tr><tr><td>Laplace prior</td><td>the soft threshold \(\mathrm{sign}(v)(\lvert v\rvert - t\lambda)_{+}\)</td></tr><tr><td>elastic net</td><td>the soft threshold followed by the shrinkage</td></tr><tr><td>SCAD, MCP</td><td>the closed piecewise operators of their papers</td></tr><tr><td>any other separable parent</td><td>a coordinatewise root, found by bisection</td></tr></table><p>Checked against a direct minimization of the defining objective,
-coordinate by coordinate on a three-vector at a step of 1, all eight shipped
-penalties agree to <code>2.7e-08</code> or better, which is the reference minimizer's
-own accuracy.</p>
+<table class="table table"><tr><td>branch</td><td>operator</td></tr><tr><td>quadratic, structured</td><td>one linear solve, \((I + tS)^{-1}v\), with \(S\) the penalty's Hessian</td></tr><tr><td>Gaussian prior centered at zero</td><td>the shrinkage \(v/(1 + t/\sigma^2)\)</td></tr><tr><td>Laplace prior</td><td>the soft threshold \(\mathrm{sign}(v)(\lvert v\rvert - t\lambda)_{+}\)</td></tr><tr><td>elastic net</td><td>the soft threshold at \(t\lambda\alpha\), followed by division by \(1 + t\lambda(1-\alpha)\)</td></tr><tr><td>SCAD, MCP</td><td>the piecewise operators of Fan and Li (2001) and Zhang (2010)</td></tr><tr><td>any other separable parent</td><td>the stationary point of smallest objective, coordinate by coordinate</td></tr></table><p>Each closed form is the minimizer of the defining objective, and the page of
+each method gives its formula.</p>
     </div>
     <div class="section level2">
-    <h2 id="the-root-where-there-is-no-formula">The root, where there is no formula<a class="anchor" aria-label="anchor" href="#the-root-where-there-is-no-formula"></a></h2>
-    <p>Any separable penalty whose parent has a differentiable log-density is
-solved from the stationary condition</p>
+    <h2 id="the-stationary-condition-where-there-is-no-closed-form">The stationary condition, where there is no closed form<a class="anchor" aria-label="anchor" href="#the-stationary-condition-where-there-is-no-closed-form"></a></h2>
+    <p>A separable penalty whose parent has a differentiable log-density, and which
+is not one of the closed-form families, is solved coordinate by coordinate
+from the stationary condition</p>
 <p>$$\frac{\beta - v}{t} = \ell^{(y)}(\beta),$$</p>
-<p>with the right-hand side <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_grad_y.html" class="external-link">distributions7::distrib_grad_y()</a></code>, closed form for
-every continuous family. Log-concavity of the density makes the left side
-minus the right side strictly increasing, so the root is unique; the
-bracket is widened up to sixty times and then <code><a href="https://rdrr.io/r/stats/uniroot.html" class="external-link">uniroot()</a></code> finds it to
-<code>eps^0.75</code>. A parent that declares a kink and is not one of the closed-form
-families is rejected instead, a smooth root being the wrong instrument
-there.</p>
+<p>whose right-hand side is <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_grad_y.html" class="external-link">distributions7::distrib_grad_y()</a></code>. For a density
+that is not log-concave, such as the Student t of <code><a href="ridge_penalty.html">heavy_penalty()</a></code>, the
+condition can have more than one root, and the operator is the root of
+smallest objective. The segment between \(v\) and the mode of the parent
+is scanned for changes of sign, each change is refined by <code><a href="https://rdrr.io/r/stats/uniroot.html" class="external-link">uniroot()</a></code> to a
+relative accuracy of about <code>eps^0.75</code>, and the candidate of smallest
+objective is returned. For a unimodal parent the global minimizer lies on
+that segment, so the value returned is the global minimizer. For a parent
+with more than one mode, the value returned is a stationary point that need
+not be the global minimizer; <code><a href="dot-prox_root.html">.prox_root()</a></code> gives the details. A parent that
+declares a kink and is not one of the closed-form families is rejected,
+because the stationary condition does not hold at a kink and the minimizer
+of such a penalty can lie there.</p>
     </div>
     <div class="section level2">
     <h2 id="under-a-map">Under a map<a class="anchor" aria-label="anchor" href="#under-a-map"></a></h2>
-    <p>The quadratic and structured branches take <strong>any</strong> map, the objective
-staying quadratic. The separable branches need the identity map or a
-diagonal one, under which the operator is the unmapped one read at
-\(dv\) with the step \(td^2\), divided back by \(d\): that is what
-standardization comes to. A general \(D\) mixes coordinates and makes this
-the generalized-lasso problem, which needs an algorithm of its own, so it is
-rejected by name.</p>
+    <p>The quadratic branch takes <strong>any</strong> map, because the objective stays
+quadratic, and a structured penalty has no map. The separable, SCAD and MCP
+branches need the identity map or a diagonal one. Under a diagonal map with
+entries \(d_j\), the operator is the operator without the map evaluated at
+\(d_j v_j\) with the step \(t d_j^2\), and then divided by \(d_j\);
+this is how the standardization of a column is carried into the operator.
+A general \(D\) mixes the coordinates and turns the problem into the
+generalized-lasso problem, which requires an algorithm of its own, so such
+a penalty is rejected with a message naming it. A diagonal map is recognized
+by its <span class="pkg">Matrix</span> class, as <code><a href="map_diagonal.html">map_diagonal()</a></code> describes.</p>
     </div>
     <div class="section level2">
-    <h2 id="what-rejects">What rejects<a class="anchor" aria-label="anchor" href="#what-rejects"></a></h2>
+    <h2 id="calls-that-signal-an-error">Calls that signal an error<a class="anchor" aria-label="anchor" href="#calls-that-signal-an-error"></a></h2>
 
-<ul><li><p>a penalty with no operator at all, <code><a href="additive_penalty.html">additive_penalty()</a></code> being the one that
-ships, with a message naming <code><a href="has_prox.html">has_prox()</a></code>;</p></li>
-<li><p>a separable penalty under a map that is not diagonal;</p></li>
-<li><p>a separable penalty whose parent is read in blocks, whose coordinates do
-not separate;</p></li>
-<li><p>a Laplace or elastic-net parent not centered at zero, the closed form
-being written for one that is;</p></li>
-<li><p>SCAD at <code>step &gt;= a - 1</code> and MCP at <code>step &gt;= gamma</code>, where the subproblem
-is not convex and the operator is set-valued;</p></li>
-<li><p>a <code>step</code> that is not a single positive number, or a <code>v</code> whose length is
-not <code>pen@n_coef</code>.</p></li>
+<ul><li><p>a penalty with no operator, such as an <code><a href="additive_penalty.html">additive_penalty()</a></code>, with a
+message naming <code><a href="has_prox.html">has_prox()</a></code>;</p></li>
+<li><p>a separable, SCAD or MCP penalty under a map that is not a <span class="pkg">Matrix</span>
+diagonal object with nonzero entries;</p></li>
+<li><p>a separable penalty whose parent is read in blocks, because the
+coordinates of a block do not separate;</p></li>
+<li><p>a Laplace or elastic-net parent that is not centered at zero, because the
+closed form is written for a parent centered at zero;</p></li>
+<li><p>a separable parent that declares a kink and has no closed form;</p></li>
+<li><p>a stationary condition that changes sign neither on the segment between
+\(v\) and the mode of the parent nor in a widened bracket;</p></li>
+<li><p>SCAD where \(t c_j \ge a - 1\) and MCP where \(t c_j \ge \gamma\) in
+some coordinate, with \(c_j\) the curvature <code>curv</code> of the penalty and
+\(t\) multiplied by \(d_j^2\) under a diagonal map; the subproblem is
+then not convex and the operator is set-valued;</p></li>
+<li><p>a <code>step</code> that is not a single positive finite number, or a <code>v</code> whose
+length is not <code>pen@n_coef</code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 
 <p>The method on the base class <code><a href="penalty.html">penalty()</a></code> signals an error naming the penalty
-and pointing at <code><a href="has_prox.html">has_prox()</a></code>. A penalty supplies the operator when it is
-quadratic, or separable under a map that is the identity or diagonal;
-a separable penalty under a general map is the generalized-lasso problem and
-has no closed operator, so it is rejected rather than approximated.</p>
+and pointing to <code><a href="has_prox.html">has_prox()</a></code>; <code><a href="AdditivePenalty.html">AdditivePenalty()</a></code> inherits it. The classes
+with an operator of their own are:</p><ul><li><p>one linear solve;</p></li>
+<li><p><code><a href="StructuredPenalty.html">StructuredPenalty()</a></code>:
+<code><a href="penalty_prox.QuadraticPenalty.html">penalty_prox()</a></code>, the same linear
+solve;</p></li>
+<li><p>a closed form for the Gaussian, Laplace and elastic-net parents and the
+stationary point of smallest objective for any other parent;</p></li>
+<li><p><code><a href="ScadPenalty.html">ScadPenalty()</a></code>: <code><a href="penalty_prox.ScadPenalty.html">penalty_prox()</a></code>, the
+piecewise operator of Fan and Li (2001);</p></li>
+<li><p><code><a href="ScadPenalty.html">McpPenalty()</a></code>: <code><a href="penalty_prox.McpPenalty.html">penalty_prox()</a></code>, the
+piecewise operator of Zhang (2010).</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Fan, J. and Li, R. (2001). Variable selection via nonconcave penalized
+likelihood and its oracle properties. <em>Journal of the American Statistical
+Association</em> <strong>96</strong>, 1348-1360.</p>
+<p>Zhang, C.-H. (2010). Nearly unbiased variable selection under minimax
+concave penalty. <em>Annals of Statistics</em> <strong>38</strong>, 894-942.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="has_prox.html">has_prox()</a></code> to ask before calling, <code><a href="penalty_prox_spec.html">penalty_prox_spec()</a></code> for the
-same operator as a table a compiled loop can read, <code><a href="penalty_kinks.html">penalty_kinks()</a></code> for
-where a gradient method would fail, <code><a href="penalty_gradient.html">penalty_gradient()</a></code> for what to use
-where the penalty is smooth.</p></div>
+    <div class="dont-index"><p><code><a href="has_prox.html">has_prox()</a></code> to test whether a penalty has an operator,
+<code><a href="penalty_prox_spec.html">penalty_prox_spec()</a></code> for the same operator as a table that a compiled
+loop can read, <code><a href="penalty_kinks.html">penalty_kinks()</a></code> for the points where a gradient method
+fails, <code><a href="penalty_gradient.html">penalty_gradient()</a></code> for the gradient where the penalty is smooth.</p></div>
     </div>
 
     <div class="section level2">
@@ -171,24 +199,29 @@ where the penalty is smooth.</p></div>
 <span class="r-in"><span><span class="fu">penalty_prox</span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="va">v</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.0  0.0 -0.4</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A ridge: a shrinkage towards zero, and nothing reaches it.</span></span></span>
+<span class="r-in"><span><span class="co"># A ridge: a shrinkage towards zero, which sets no coordinate to zero.</span></span></span>
 <span class="r-in"><span><span class="fu">penalty_prox</span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">ridge_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="va">v</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  0.80  0.12 -0.56</span>
 <span class="r-in"><span><span class="va">v</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fl">1</span> <span class="op">*</span> <span class="fl">1.5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  0.80  0.12 -0.56</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># The elastic net is the one followed by the other.</span></span></span>
+<span class="r-in"><span><span class="co"># The elastic net: the soft threshold followed by the shrinkage.</span></span></span>
 <span class="r-in"><span><span class="fu">penalty_prox</span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">elasticnet_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="va">v</span>, <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>             <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span>, alpha <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.0000000  0.0000000 -0.5714286</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A heavy-tailed prior has no closed form, so this is a bracketed root.</span></span></span>
-<span class="r-in"><span><span class="co"># It leaves the large coordinate nearly alone, which is the point of it.</span></span></span>
-<span class="r-in"><span><span class="fu">penalty_prox</span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">heavy_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="va">v</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">1</span>, nu <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.0000000  0.1336635 -0.6579124</span>
+<span class="r-in"><span><span class="co"># A heavy-tailed prior has no closed form, so the operator is found from</span></span></span>
+<span class="r-in"><span><span class="co"># the stationary condition. With sigma = 1, nu = 4 and step 1 it maps 2 to</span></span></span>
+<span class="r-in"><span><span class="co"># 1, as the ridge with lambda = 1 does, and it moves the coordinate 10 much</span></span></span>
+<span class="r-in"><span><span class="co"># less than that ridge does.</span></span></span>
+<span class="r-in"><span><span class="va">v2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0.3</span>, <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">penalty_prox</span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">heavy_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="va">v2</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">1</span>, nu <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.0000000 0.1336635 9.4958181</span>
+<span class="r-in"><span><span class="fu">penalty_prox</span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">ridge_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="va">v2</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.00 0.15 5.00</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Every one of them minimizes the defining objective. Checking the lasso's</span></span></span>
-<span class="r-in"><span><span class="co"># first coordinate directly:</span></span></span>
+<span class="r-in"><span><span class="co"># Each operator minimizes the defining objective. For the first coordinate</span></span></span>
+<span class="r-in"><span><span class="co"># of the lasso:</span></span></span>
 <span class="r-in"><span><span class="va">rho</span> <span class="op">&lt;-</span> <span class="fu"><a href="ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">b1</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">x</span> <span class="op">&lt;-</span> <span class="va">v</span>; <span class="va">x</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">b1</span></span></span>
@@ -197,12 +230,13 @@ where the penalty is smooth.</p></div>
 <span class="r-in"><span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/optimize.html" class="external-link">optimize</a></span><span class="op">(</span><span class="va">obj</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span>, tol <span class="op">=</span> <span class="fl">1e-12</span><span class="op">)</span><span class="op">$</span><span class="va">minimum</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A branch with no operator says so rather than approximating.</span></span></span>
+<span class="r-in"><span><span class="co"># An additive penalty has no operator, and the call signals an error.</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">penalty_prox</span><span class="op">(</span><span class="fu"><a href="additive_penalty.html">additive_penalty</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                 <span class="va">v</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">1</span>, lambda2 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Error : 'additive [2 components]' has no proximal operator.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   A penalty supplies one when it is quadratic, or separable under the</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   identity map. Use has_prox() to ask before calling.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   A penalty has one when it is a quadratic or structured penalty, a SCAD</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   or MCP penalty, or a separable penalty under the identity map or a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   diagonal map. has_prox() tests this before a call.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

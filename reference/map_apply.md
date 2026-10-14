@@ -1,9 +1,9 @@
 # Apply the Linear Map and Its Transpose
 
 `map_apply()` computes \\t = D\beta\\, carrying a coefficient vector to
-the argument \\\rho\\ is evaluated at. `map_back()` computes \\D'g\\,
-carrying a gradient in \\t\\ back to a gradient in \\\beta\\. A `NULL`
-map is the identity and both return their argument untouched.
+the argument at which \\\rho\\ is evaluated. `map_back()` computes
+\\D'g\\, carrying a gradient in \\t\\ back to a gradient in \\\beta\\. A
+`NULL` map is the identity and both return their argument untouched.
 
 ## Usage
 
@@ -33,6 +33,5 @@ map_back(pen, g)
 ## Value
 
 `map_apply()` a numeric vector of length \\m\\; `map_back()` a numeric
-vector of length \\q\\. Both are plain numeric even when the map is a
-Matrix, so a consumer never meets a one-column `Matrix` where it
-expected a vector.
+vector of length \\q\\. Both are plain numeric vectors even when the map
+is a Matrix object, rather than one-column Matrix objects.

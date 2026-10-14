@@ -1,12 +1,12 @@
 # Marginal Quantities of a Quadratic Penalty
 
-The four pieces a REML or marginal likelihood criterion reads.
+The four quantities that a REML or marginal likelihood criterion reads.
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns \\\lambda D'PD\\,
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-the rank fixed at construction,
+the rank of \\D'PD\\ fixed at construction,
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-the stored orthonormal basis of the null space, and
+the stored orthonormal basis of its null space, and
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 the log pseudo-determinant with its first two derivatives in
 \\\lambda\\.
@@ -50,13 +50,13 @@ and `hess` (a list of one number, `lambda_lambda`).
 Since \\S(\lambda) = \lambda D'PD\\ and only the range contributes,
 
 \$\$\log^{+}\lvert S(\lambda) \rvert = r\log\lambda +
-\log\mathrm{pdet}(P), \qquad \frac{\partial}{\partial\lambda} =
+\log\mathrm{pdet}(D'PD), \qquad \frac{\partial}{\partial\lambda} =
 \frac{r}{\lambda}, \qquad \frac{\partial^2}{\partial\lambda^2} =
 -\frac{r}{\lambda^2},\$\$
 
-all three exact and none of them needing a decomposition at call time.
-The rank and the null basis do not depend on \\\lambda\\ and their
-generics take no `theta`.
+all three exact and computed without a decomposition at call time. The
+rank and the null basis do not depend on \\\lambda\\ and their generics
+take no `theta`.
 
 ## See also
 
@@ -74,12 +74,12 @@ pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
 penalty_rank(pen)
 #> [1] 3
 
-# The null basis spans the straight lines, and the matrix kills it.
+# The null basis spans the straight lines, and the matrix annihilates it.
 N <- penalty_null_basis(pen)
 dim(N)
 #> [1] 5 2
 max(abs(penalty_matrix(pen, list(lambda = 3)) %*% N))
-#> [1] 2.664535e-15
+#> [1] 8.382184e-15
 
 # The log pseudo-determinant is r log(lambda) plus a constant.
 lp <- penalty_logpdet(pen, list(lambda = 3))

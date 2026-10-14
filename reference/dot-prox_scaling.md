@@ -1,9 +1,10 @@
 # The Diagonal a Proximal Operator Rescales By
 
-Returns the map's diagonal where there is one, `NULL` where there is no
-map, and an error naming the penalty where the map is not diagonal. The
-three answers are the three things a proximal method must do: rescale,
-proceed, or decline.
+Returns the diagonal of the map when the map is a Matrix diagonal object
+with nonzero entries, `NULL` when there is no map, and signals an error
+naming the penalty for any other map. The three outcomes correspond to
+the three cases of a proximal method: the point is rescaled, the
+operator is applied as it is, or the call stops.
 
 ## Usage
 
@@ -30,20 +31,22 @@ The identity behind the rescaling is
 \$\$\mathrm{prox}\_{t\rho(d\\\cdot)}(v) = \mathrm{prox}\_{t d^2 \rho}(d
 v)/d,\$\$
 
-so a caller with a diagonal map applies \\d\\ to the point, squares it
-into the step, calls the identity-map formula and divides back.
+so a caller with a diagonal map multiplies the point by \\d\\ and the
+step by \\d^2\\, calls the formula written for the identity map, and
+divides the result by \\d\\.
 
-The error is raised here, at the call, rather than left to a formula
-that would silently ignore the map.
+The error is signaled here because the formulas written for the identity
+map would otherwise ignore the map.
 [`has_prox()`](https://statmodels7.github.io/penalties7/reference/has_prox.md)
-answers `FALSE` for the same penalty, so a caller that asks first never
-reaches it.
+returns `FALSE` for the same penalty, so a caller that tests it first
+does not reach the error.
 
 ## Errors
 
-A message naming the penalty and saying that a non-diagonal map makes
-this the generalized-lasso problem, where the operator does not split by
-coordinate.
+A message naming the penalty and stating that its map is not a Matrix
+diagonal object with nonzero entries, and that the operator is available
+only under the identity map and such a diagonal map, because under a
+general map it does not split by coordinate.
 
 ## See also
 

@@ -11,7 +11,7 @@ the number of coefficients."><meta property="og:image" content="https://statmode
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,8 +53,8 @@ the number of coefficients.</p>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
-<dd><p>A named list of <code>lambda1</code>, <code>lambda2</code>, ... Read by
-<code><a href="penalty_kinks.html">penalty_kinks()</a></code>, whose answer does not depend on it.</p></dd>
+<dd><p>A named list of <code>lambda1</code>, <code>lambda2</code>, ... Accepted by
+<code><a href="penalty_kinks.html">penalty_kinks()</a></code>, whose result does not depend on it.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -68,20 +68,20 @@ the number of coefficients.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The value is a quadratic form, so <code><a href="is_quadratic.html">is_quadratic()</a></code> answers <code>TRUE</code> as well.
-The two statements are not the same: a penalty may be smooth without being
-quadratic, as a Student t prior is.</p>
-<p>Properness is the rank of the sum against the number of coefficients, and
-the rank is fixed at construction. The two components of an anisotropic
-tensor smooth intersect in a null space of their own, so such a penalty is
-improper: a 4 by 4 grid penalized by curvature along each margin has rank 12
-out of 16.</p>
+    <p>The value is a quadratic form, so <code><a href="is_quadratic.html">is_quadratic()</a></code> returns <code>TRUE</code> as well.
+Smoothness does not imply a quadratic form: a Student t prior is smooth and
+not quadratic.</p>
+<p>Properness compares the rank of the sum with the number of coefficients,
+and the rank is fixed at construction. The null spaces of the two
+components of an anisotropic tensor smooth have a nonzero intersection, so
+such a penalty is improper: on a 4 by 4 grid penalized by second
+differences along each margin, the rank is 12 out of 16.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="penalty_kinks.html">penalty_kinks()</a></code> and <code><a href="is_proper.html">is_proper()</a></code> for the generics,
-<code><a href="is_quadratic.AdditivePenalty.html">is_quadratic.AdditivePenalty()</a></code> for the other predicate this branch
-answers.</p></div>
+<code><a href="is_quadratic.AdditivePenalty.html">is_quadratic.AdditivePenalty()</a></code> for the other predicate with a method
+on this class.</p></div>
     </div>
 
     <div class="section level2">

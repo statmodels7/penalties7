@@ -5,25 +5,27 @@ tensor against one direction each: given an array of dimension
 rows and \(p\) columns, it returns the \(p \times p \times n\) array
 whose slice \(i\) is
 \(\sum_{c_1 \dots c_m} A_{ab c_1 \dots c_m i}\,v_{1,ic_1}\cdots
-v_{m,ic_m}\). That is the movement of a block's response Hessian along the
-block's coordinates of the directions, which dp_blockdiag() then places
-on the diagonal.
-dp_parent_or_reject() asks the parent for a response tensor and, where
-the parent does not supply one, rejects with the penalty named, so that a
-criterion is left without an exact gradient rather than given one missing
-a piece."><meta property="og:description" content="dp_contract() contracts the trailing response indices of a per-block
+v_{m,ic_m}\). That is the derivative of the response Hessian of block
+\(i\) along the coordinates of the block in the directions, which
+dp_blockdiag() then places on the diagonal. Arrays of four and five
+dimensions are handled, that is one or two directions.
+dp_parent_or_reject() calls the generic fun of the parent. If that call
+signals an error of any kind, it signals in its place an error that names
+the penalty and the derivative, so that a criterion receives either the
+complete tensor or an error."><meta property="og:description" content="dp_contract() contracts the trailing response indices of a per-block
 tensor against one direction each: given an array of dimension
 \(p \times \dots \times p \times n\) and \(m\) matrices of \(n\)
 rows and \(p\) columns, it returns the \(p \times p \times n\) array
 whose slice \(i\) is
 \(\sum_{c_1 \dots c_m} A_{ab c_1 \dots c_m i}\,v_{1,ic_1}\cdots
-v_{m,ic_m}\). That is the movement of a block's response Hessian along the
-block's coordinates of the directions, which dp_blockdiag() then places
-on the diagonal.
-dp_parent_or_reject() asks the parent for a response tensor and, where
-the parent does not supply one, rejects with the penalty named, so that a
-criterion is left without an exact gradient rather than given one missing
-a piece."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
+v_{m,ic_m}\). That is the derivative of the response Hessian of block
+\(i\) along the coordinates of the block in the directions, which
+dp_blockdiag() then places on the diagonal. Arrays of four and five
+dimensions are handled, that is one or two directions.
+dp_parent_or_reject() calls the generic fun of the parent. If that call
+signals an error of any kind, it signals in its place an error that names
+the penalty and the derivative, so that a criterion receives either the
+complete tensor or an error."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -31,7 +33,7 @@ a piece."><meta property="og:image" content="https://statmodels7.github.io/penal
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,13 +66,14 @@ tensor against one direction each: given an array of dimension
 rows and \(p\) columns, it returns the \(p \times p \times n\) array
 whose slice \(i\) is
 \(\sum_{c_1 \dots c_m} A_{ab c_1 \dots c_m i}\,v_{1,ic_1}\cdots
-v_{m,ic_m}\). That is the movement of a block's response Hessian along the
-block's coordinates of the directions, which <code><a href="dp_blockdiag.html">dp_blockdiag()</a></code> then places
-on the diagonal.</p>
-<p><code>dp_parent_or_reject()</code> asks the parent for a response tensor and, where
-the parent does not supply one, rejects with the penalty named, so that a
-criterion is left without an exact gradient rather than given one missing
-a piece.</p>
+v_{m,ic_m}\). That is the derivative of the response Hessian of block
+\(i\) along the coordinates of the block in the directions, which
+<code><a href="dp_blockdiag.html">dp_blockdiag()</a></code> then places on the diagonal. Arrays of four and five
+dimensions are handled, that is one or two directions.</p>
+<p><code>dp_parent_or_reject()</code> calls the generic <code>fun</code> of the parent. If that call
+signals an error of any kind, it signals in its place an error that names
+the penalty and the derivative, so that a criterion receives either the
+complete tensor or an error.</p>
     </div>
 
     <div class="section level2">
@@ -89,8 +92,9 @@ a piece.</p>
 
 
 <dt id="arg-dirs">dirs<a class="anchor" aria-label="anchor" href="#arg-dirs"></a></dt>
-<dd><p>A list of \(n \times p\) matrices, one per contracted index,
-the last index first contracted against the last direction.</p></dd>
+<dd><p>A list of \(n \times p\) matrices, one per contracted index;
+the last remaining index of the array is contracted first, against the
+last direction.</p></dd>
 
 
 <dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
@@ -106,17 +110,17 @@ the last index first contracted against the last direction.</p></dd>
 
 
 <dt id="arg-a">a<a class="anchor" aria-label="anchor" href="#arg-a"></a></dt>
-<dd><p>The parent's argument, from <code><a href="dp_arg.html">dp_arg()</a></code>.</p></dd>
+<dd><p>The argument of the parent, from <code><a href="dp_arg.html">dp_arg()</a></code>.</p></dd>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
-<dd><p>A named list of the parent's free parameters.</p></dd>
+<dd><p>A named list of the free parameters of the parent.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>dp_contract()</code> a \(p \times p \times n\) numeric array.
-<code>dp_parent_or_reject()</code> the parent's answer, or an error.</p>
+<code>dp_parent_or_reject()</code> the value returned by <code>fun</code>, or an error.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

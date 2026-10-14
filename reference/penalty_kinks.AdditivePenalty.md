@@ -16,9 +16,9 @@ returns `TRUE` when the stored rank equals the number of coefficients.
 
 - theta:
 
-  A named list of `lambda1`, `lambda2`, ... Read by
+  A named list of `lambda1`, `lambda2`, ... Accepted by
   [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md),
-  whose answer does not depend on it.
+  whose result does not depend on it.
 
 - ...:
 
@@ -35,14 +35,14 @@ a single logical.
 
 The value is a quadratic form, so
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-answers `TRUE` as well. The two statements are not the same: a penalty
-may be smooth without being quadratic, as a Student t prior is.
+returns `TRUE` as well. Smoothness does not imply a quadratic form: a
+Student t prior is smooth and not quadratic.
 
-Properness is the rank of the sum against the number of coefficients,
-and the rank is fixed at construction. The two components of an
-anisotropic tensor smooth intersect in a null space of their own, so
-such a penalty is improper: a 4 by 4 grid penalized by curvature along
-each margin has rank 12 out of 16.
+Properness compares the rank of the sum with the number of coefficients,
+and the rank is fixed at construction. The null spaces of the two
+components of an anisotropic tensor smooth have a nonzero intersection,
+so such a penalty is improper: on a 4 by 4 grid penalized by second
+differences along each margin, the rank is 12 out of 16.
 
 ## See also
 
@@ -51,7 +51,7 @@ and
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
 for the generics,
 [`is_quadratic.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.AdditivePenalty.md)
-for the other predicate this branch answers.
+for the other predicate with a method on this class.
 
 ## Examples
 

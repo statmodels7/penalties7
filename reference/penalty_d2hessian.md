@@ -2,8 +2,8 @@
 
 Returns \\\partial^2 S/\partial\theta_m\partial\theta_l =
 \partial^4\rho/\partial\beta^2\partial\theta_m\partial\theta_l\\, one
-matrix per unordered pair. A marginal criterion differentiated twice in
-the hyperparameters needs it, and so does an exact outer Hessian.
+matrix per unordered pair. The second derivative of a marginal criterion
+in the hyperparameters contains it, and so does an exact outer Hessian.
 
 ## Usage
 
@@ -21,13 +21,14 @@ penalty_d2hessian(pen, beta, theta, ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`. Read only by the separable
-  branch.
+  A numeric vector of length `pen@n_coef`; the generic signals an error
+  for any other length. Only the separable branch reads its values.
 
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same.
+  carrying the same, checked by the generic as in
+  [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md).
 
 - ...:
 
@@ -43,19 +44,24 @@ hyperparameters gives \\p(p+1)/2\\ entries.
 
 It is **exactly zero** for every penalty whose Hessian is linear in its
 hyperparameters, which is the quadratic branch, where \\S = \lambda
-D'PD\\, and the additive branch, where \\S = \sum_k \lambda_k P_k\\. The
-structured branch reads the matrix parameter's `param_d2`, and the
-separable branch the second \\\theta\\-derivative of the parent's
-response curvature, through
-[`distributions7::distrib_hess_y_hess()`](https://statmodels7.github.io/distributions7/reference/distrib_hess_y_hess.html).
+D'PD\\, and the additive branch, where \\S = \sum_k \lambda_k D'P_kD\\.
+The structured branch reads the second derivative `param_d2` of the
+matrix parameter, and the separable branch the second
+\\\theta\\-derivative of the response curvature of the parent, through
+[`distributions7::distrib_hess_y_hess()`](https://statmodels7.github.io/distributions7/reference/distrib_hess_y_hess.html),
+carried through the map as in
+[`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md).
+The derivatives are taken in \\\theta\\ on its own scale.
 
-The keys are
-[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)'s:
-diagonals first in `pen@params` order, then the upper off-diagonal
-pairs, each joined by an underscore. A consumer looking a pair up
-therefore need not know which order it was written in.
+The keys are those of
+[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md):
+the diagonal pairs first in `pen@params` order, then the upper
+off-diagonal pairs, each pair joined by an underscore. Each unordered
+pair has one key, written in `pen@params` order (`sigma_nu` and not
+`nu_sigma` when `sigma` comes first), and the reversed name is not an
+element of the list.
 
-A penalty with a kink rejects, and so does the base class.
+A penalty with a kink signals an error, and so does the base class.
 
 ## See also
 
@@ -81,13 +87,13 @@ penalty_d2hessian(pen, b, list(lambda = 2))
 #> [3,]    0    0    0
 #> 
 
-# And for an additive one, keyed diagonals first over three pairs.
+# Zero for an additive one as well, keyed diagonals first over three pairs.
 add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
 names(penalty_d2hessian(add, b, list(lambda1 = 2, lambda2 = 0.5)))
 #> [1] "lambda1_lambda1" "lambda2_lambda2" "lambda1_lambda2"
 
-# Not zero for a structured penalty, whose matrix is not linear in any
-# one free value.
+# Not zero for a structured penalty, whose matrix is not linear in its
+# free values.
 s <- structured_penalty(parameters7::log_cholesky(2))
 th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
 penalty_d2hessian(s, c(1, -0.5), th)$log_L1_log_L1

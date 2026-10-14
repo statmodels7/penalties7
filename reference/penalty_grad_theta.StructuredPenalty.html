@@ -13,7 +13,7 @@ penalty_cross() one coefficient vector per free value."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,8 +85,7 @@ free value, named by <code>pen@params</code>.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>With \(A_k = \partial_k\Omega\) and \(A_{kl} = \partial_{kl}\Omega\) the
-precision's derivative arrays, transported from the covariance where the
-structure describes one,</p>
+derivative arrays of the precision, as the structure supplies them,</p>
 <p>$$\frac{\partial\rho}{\partial\theta_k}
     = \tfrac{1}{2}\beta'A_k\beta
       - \tfrac{1}{2}\partial_k \log\mathrm{pdet}\,\Omega, \qquad
@@ -94,13 +93,13 @@ structure describes one,</p>
     = \tfrac{1}{2}\beta'A_{kl}\beta
       - \tfrac{1}{2}\partial_{kl} \log\mathrm{pdet}\,\Omega, \qquad
   \frac{\partial^2\rho}{\partial\beta\,\partial\theta_k} = A_k\beta.$$</p>
-<p>The mixed block carries no log-determinant term, that term not depending on
-the coefficients.</p>
+<p>The mixed block has no log-determinant term, because that term does not
+depend on the coefficients.</p>
 <p>The second-order components are keyed by pairs as <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code>
 keys them, diagonals first and then the upper off-diagonal pairs joined by
-an underscore. Internally they are looked up in the structure's own keying,
-the two free names joined by a colon and sorted by position, and the key is
-constructed from the pair rather than parsed out of a name.</p>
+an underscore. Internally they are looked up in the keying of the
+structure, the two free names joined by a colon and sorted by position, and
+the key is constructed from the pair, not parsed out of a name.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -131,10 +130,13 @@ derivatives.</p></div>
 <span class="r-in"><span>          <span class="fu"><a href="penalty_grad_theta.html">penalty_grad_theta</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">b</span>, <span class="va">th</span>, scale <span class="op">=</span> <span class="st">"link"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># The mixed block is A_k beta, so summing it against beta gives twice the</span></span></span>
-<span class="r-in"><span><span class="co"># quadratic part of the gradient in that direction.</span></span></span>
+<span class="r-in"><span><span class="co"># The mixed block is A_k beta, so half its inner product with beta is the</span></span></span>
+<span class="r-in"><span><span class="co"># quadratic part of the gradient in z_rho, b' A_k b / 2.</span></span></span>
 <span class="r-in"><span><span class="va">cr</span> <span class="op">&lt;-</span> <span class="fu"><a href="penalty_grad_theta.html">penalty_cross</a></span><span class="op">(</span><span class="va">pen</span>, <span class="va">b</span>, <span class="va">th</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">b</span> <span class="op">*</span> <span class="va">cr</span><span class="op">$</span><span class="va">z_rho</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1353085</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">b</span> <span class="op">*</span> <span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/param_d1.html" class="external-link">param_d1</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">ar1</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">z_rho</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span></span></span>
+<span class="r-in"><span>           <span class="va">b</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1353085</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -1,7 +1,7 @@
 # Smoothness and Kind of a Quadratic Penalty
 
-The three questions a consumer asks before choosing how to fit a
-quadratic block.
+The three predicates that a consumer evaluates before choosing how to
+fit a quadratic block.
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
 returns `numeric(0)`, the value being a polynomial and smooth
 everywhere.
@@ -20,9 +20,9 @@ returns `TRUE` only when the penalty has full rank.
 
 - theta:
 
-  A list holding `lambda`. Read by
+  A list holding `lambda`. Accepted by
   [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md),
-  whose answer does not depend on it.
+  whose result does not depend on it.
 
 - ...:
 
@@ -40,17 +40,18 @@ and the null basis has no columns.
 
 ## Details
 
-Properness is a rank test and nothing else: \\\exp(-\rho)\\ is flat
-along every null direction of \\D'PD\\, so it integrates only when there
-are none. A ridge over \\q\\ coefficients is proper; second differences
-over \\q\\ leave the level and the slope free, have rank \\q - 2\\, and
-are not. Both are usable, and the difference shows in the normalizing
-constant, which is taken over the range alone.
+Properness is a rank test and nothing else: \\\exp(-\rho)\\ is constant
+along every null direction of \\D'PD\\, so it is integrable only when
+there is no null direction. A ridge over \\q\\ coefficients is proper;
+second differences over \\q\\ coefficients leave the level and the slope
+unpenalized, have rank \\q - 2\\, and give an improper prior. Both can
+be used, and the difference appears in the normalizing constant, which
+is taken over the range alone.
 
-Because there are no kinks, a quadratic block goes to whatever smooth
-method the fit uses, and
+Because there are no kinks, a fit can treat a quadratic block with any
+method for smooth objectives, and
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
-is a linear solve rather than a threshold.
+is a linear solve and not a threshold.
 
 ## See also
 

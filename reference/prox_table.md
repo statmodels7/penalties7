@@ -1,9 +1,13 @@
 # Assemble a Piecewise Linear Table
 
-Builds the three matrices
+Builds the three matrices that
 [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
-returns from a function that gives one column per piece at a single
-step, recycling a step that is the same for every coefficient.
+returns from a function that gives one column per piece for a single
+coefficient. `prox_table()` takes a function of the step alone, for a
+family whose pieces are the same in every coordinate; `prox_table_j()`
+takes a function of the step and the coordinate index, for a family
+whose rate can differ by coordinate, as the rate \\\lambda/c_j\\ of SCAD
+and MCP does.
 
 ## Usage
 
@@ -25,8 +29,10 @@ prox_table_j(step, n_coef, pieces)
 
 - pieces:
 
-  A function of one step returning a matrix of three rows, `cut`,
-  `slope` and `icept`, and one column per piece.
+  A function returning a matrix of three rows, `cut`, `slope` and
+  `icept`, and one column per piece. For `prox_table()` it takes one
+  argument, the step; for `prox_table_j()` it takes two, the step and
+  the coordinate index \\j\\.
 
 ## Value
 
@@ -35,11 +41,13 @@ the piece count.
 
 ## Details
 
-Every branch's builder differs only in that per-step function, so this
-holds the recycling and the transposition once. The number of pieces is
-read from the first coefficient's answer and every other is required to
-match, which is automatic: the piece count depends on the family and on
-the hyperparameters, never on the step.
+The step vector is recycled to `n_coef`, and the function is called once
+per coefficient with that coefficient's own step. The builders of the
+branches differ only in that function, so the recycling and the
+transposition are written here once. The number of pieces is read from
+the first coefficient's columns, and the others must have the same
+number, which holds for every shipped builder because the piece count
+depends on the family and not on the step or the coordinate.
 
 ## See also
 

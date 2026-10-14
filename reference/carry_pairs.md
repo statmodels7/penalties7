@@ -19,19 +19,23 @@ carry_pairs(pen, comp, carry)
 
 - comp:
 
-  The parent's components, keyed by parameter pair.
+  The components of the parent, keyed by parameter pair.
 
 - carry:
 
-  A function placing one component into coefficient space.
+  A function that places one component into coefficient space.
 
 ## Value
 
-A named list keyed by hyperparameter pair.
+A named list keyed by hyperparameter pair, in the order of
+[`ptheta_pairs()`](https://statmodels7.github.io/penalties7/reference/ptheta_pairs.md).
 
 ## Details
 
 The two enumerations of pairs are built the same way from the same
-names, so a key from one is a key of the other; it is looked up by name
-in both orders rather than by position, since a hyperparameter whose own
-name contains the separator would not survive being taken apart.
+names, so a key of one is a key of the other. Each pair is looked up by
+name, first in `pen@params` order and then in the reversed order, and
+not by position or by splitting a key, since a hyperparameter whose own
+name contains the separator could not be split back into its two names.
+If neither name is present, the function signals an error that names the
+pair.

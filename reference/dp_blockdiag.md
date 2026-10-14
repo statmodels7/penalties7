@@ -1,9 +1,9 @@
 # The Block-Diagonal Middle Matrix of a Blockwise Parent
 
 Assembles the parent's \\\partial^2\ell/\partial b\partial b'\\ into the
-block-diagonal matrix a multivariate separable penalty's Hessian is
-sandwiched with: one \\p \times p\\ block per block of coefficients, and
-zeros between them.
+block-diagonal middle matrix of the Hessian of a multivariate separable
+penalty: one \\p \times p\\ block per block of coefficients, and zeros
+between them.
 
 ## Usage
 
@@ -36,17 +36,17 @@ A symmetric base matrix of side `nblk * pen@block`, block diagonal with
 
 ## Details
 
-The zeros between the blocks are the separability. Coordinates in
+The zeros between the blocks express the separability. Coordinates in
 different blocks are independent under the prior, so the Hessian has no
 entry linking them, however dependent the coordinates within a block
 are.
 
 Two input shapes are accepted because distributions7 returns two. A
-family whose response Hessian does not depend on the observation, as the
-multivariate gaussian's does not, returns one \\p \times p\\ matrix and
-it is placed in every block; a family whose does returns a \\p \times p
-\times n\\ array and each slice goes to its own block. The two are told
-apart with [`is.matrix()`](https://rdrr.io/r/base/matrix.html).
+family whose response Hessian does not depend on the observation, such
+as the multivariate Gaussian, returns one \\p \times p\\ matrix, which
+is placed in every block; any other family returns a \\p \times p \times
+n\\ array, and each slice goes to its own block. The two shapes are
+distinguished with [`is.matrix()`](https://rdrr.io/r/base/matrix.html).
 
 ## See also
 

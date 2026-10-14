@@ -1,9 +1,9 @@
 # Print a Penalty
 
-Writes one line naming the penalty, the number of coefficients it takes,
-the number of rows its map returns, and its hyperparameters. The row
-count is `nrow(map)`, or `n_coef` when the map is `NULL`, so an unmapped
-penalty shows the same number twice.
+Writes one line giving the name of the penalty, the number of
+coefficients, the number of rows of its map, and its hyperparameters.
+The row count is `nrow(map)`, or `n_coef` when the map is `NULL`, so an
+unmapped penalty shows the same number twice.
 
 ## Arguments
 
@@ -28,11 +28,11 @@ penalty shows the same number twice.
 quadratic_penalty(diag(3))
 #> quadratic penalty on 3 coefficient(s) through 3 row(s); theta: lambda
 
-# A map narrows what the penalty sees: three coefficients, two differences.
+# A first-difference map: three coefficients, two differences.
 quadratic_penalty(diag(2), map = diff(diag(3)))
 #> quadratic penalty on 3 coefficient(s) through 2 row(s); theta: lambda
 
-# A penalty with no hyperparameters says so.
+# A penalty with no hyperparameters prints "(none)".
 distrib_penalty(
   distributions7::fixed(distributions7::gaussian1_distrib(),
                         mu = 0, sigma = 1),

@@ -1,11 +1,12 @@
-# The Pieces a Marginal Criterion Consumes
+# Quantities of a Quadratic Penalty for a Marginal Criterion
 
-The four quantities a REML or marginal likelihood criterion needs from a
-quadratic penalty. `penalty_matrix()` returns the matrix \\S(\theta)\\
-of the quadratic form, `penalty_rank()` its rank, `penalty_null_basis()`
-an orthonormal basis of the directions it does not penalize, and
-`penalty_logpdet()` the log pseudo-determinant with its first two
-derivatives in the hyperparameters.
+The four quantities that a REML or marginal likelihood criterion
+requires from a quadratic penalty. `penalty_matrix()` returns the matrix
+\\S(\theta)\\ of the quadratic form, `penalty_rank()` its rank,
+`penalty_null_basis()` an orthonormal basis of the directions that the
+penalty leaves unpenalized, and `penalty_logpdet()` the log
+pseudo-determinant with its first two derivatives in the
+hyperparameters.
 
 ## Usage
 
@@ -25,7 +26,9 @@ penalty_logpdet(pen, theta, ...)
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
-  object. Must be quadratic, or additive for the three it supplies.
+  object for which
+  [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
+  is `TRUE`, or a separable penalty for `penalty_null_basis()`.
 
 - theta:
 
@@ -34,16 +37,16 @@ penalty_logpdet(pen, theta, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
 `penalty_matrix()` a symmetric `q x q` matrix, where `q` is
 `pen@n_coef`. `penalty_rank()` a single integer, fixed at construction.
 `penalty_null_basis()` a `q x (q - r)` matrix with orthonormal columns
-spanning the null space, and a `q x 0` matrix when the penalty is full
-rank. The two matrices are base matrices ordinarily, and `dgCMatrix`
-objects for a penalty built by
+spanning the null space, and a `q x 0` matrix when there is none. The
+two matrices are base matrices ordinarily, and `dgCMatrix` objects for a
+penalty built by
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
 with `blocks > 1`. `penalty_logpdet()` a list of three: `value`, a
 single number; `grad`, a named list of one number per hyperparameter;
@@ -52,69 +55,78 @@ diagonals first as
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 is.
 
-## Why the criterion needs them
+## Role in a marginal criterion
 
-A marginal criterion integrates the coefficients out under the prior the
-penalty describes, and a Laplace expansion at the penalized mode leaves
-\\\tfrac{1}{2}\log^{+}\lvert S(\theta)\rvert - \tfrac{1}{2}\log\lvert
-H + S(\theta)\rvert\\. The first term is what these generics supply. It
-is a **pseudo**-determinant, taken over the range of \\S\\ alone,
-because a smoothing penalty is rank deficient by design and the ordinary
-determinant is zero.
+A marginal criterion integrates the coefficients out under the prior
+that the penalty defines, and a Laplace expansion at the penalized mode
+leaves \\\tfrac{1}{2}\log^{+}\lvert S(\theta)\rvert -
+\tfrac{1}{2}\log\lvert H + S(\theta)\rvert\\. These generics supply the
+first term. It is a **pseudo**-determinant, taken over the range of
+\\S\\ alone, because a smoothing penalty is rank deficient by design and
+its ordinary determinant is zero.
 
 The rank and the null basis are fixed at construction and do not move
-with `theta`, which is why neither takes it. That is deliberate and it
-matters: counting eigenvalues of the assembled \\S(\theta)\\ above a
-tolerance gives a count that falls as several smoothing parameters
-spread apart, while the null space of a sum of positive semidefinite
-matrices is the intersection of theirs and does not move at all.
+with `theta`, which is why neither function takes it. A count of the
+eigenvalues of the assembled \\S(\theta)\\ above a tolerance would fall
+as several smoothing parameters spread apart, whereas the null space of
+a sum of positive semidefinite matrices is the intersection of their
+null spaces and does not depend on the weights.
 
 ## The log pseudo-determinant
 
-For the plain quadratic branch \\S = \lambda D'PD\\ and
+For the plain quadratic branch \\S = \lambda D^\top P D\\ and
 
-\$\$\log^{+}\lvert S \rvert = r\log\lambda + \log^{+}\lvert P
+\$\$\log^{+}\lvert S \rvert = r\log\lambda + \log^{+}\lvert D^\top P D
 \rvert,\$\$
 
-so the gradient is \\r/\lambda\\ and the second derivative
-\\-r/\lambda^2\\, both exact and both returned. For the structured
-branch the derivatives come from the parameters7 parametrization's own
-log-determinant contract. Both are on the parameter scale; there is no
-`scale` argument here.
+with \\r = \operatorname{rank}(D^\top P D)\\, so the gradient is
+\\r/\lambda\\ and the second derivative \\-r/\lambda^2\\, both exact and
+both returned. For the structured branch the value and the derivatives
+are those of the log-determinant of the parameters7 matrix parameter
+([`parameters7::param_logdet()`](https://statmodels7.github.io/parameters7/reference/param_logdet.html)
+and its derivatives). All are on the parameter scale, and there is no
+`scale` argument.
 
-## What rejects
+## Branches that supply them
 
-All four reject for a penalty that is not quadratic, with a message
-naming
-[`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md).
-The exception is
-[`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md),
-which answers
+The quadratic, structured and additive branches, for which
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-as `FALSE` and supplies the first, second and fourth of these anyway;
-`penalty_null_basis()` is the one it rejects.
+is `TRUE`, supply all four. For a separable penalty
+([`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)),
+`penalty_null_basis()` returns an orthonormal basis of the null space of
+the map, the directions of \\\beta\\ on which the penalty does not
+depend, and the other three signal an error. For SCAD, MCP and any other
+branch without a method of its own, all four signal an error with a
+message that names
+[`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md).
 
 ## Methods
 
-All four methods on the base class
+The four methods on the base class
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
-signal an error naming
+signal an error with a message that names
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md),
-which is the predicate to ask first: a penalty that is not quadratic has
-no matrix, no rank, no null basis and no log pseudo-determinant to
-report, and an error is the answer to a question that does not apply.
+because a penalty that is not quadratic has no matrix, rank, null basis
+or log pseudo-determinant. The quadratic branches register their own
+methods, documented at
+[`penalty_matrix.QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.md),
+[`penalty_matrix.StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.md)
+and
+[`penalty_matrix.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.AdditivePenalty.md),
+and a separable penalty registers
+[`penalty_null_basis.DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_null_basis.DistribPenalty.md).
 
 ## See also
 
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-for the predicate that gates these,
+for the predicate that determines which branches supply these,
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md),
 [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
 and
 [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
-for the branches that supply them,
+for those branches,
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-for the keying of `penalty_logpdet()`'s `hess`.
+for the names of `penalty_logpdet()`'s `hess`.
 
 ## Examples
 
@@ -143,4 +155,12 @@ c(lp$grad$lambda, lp$hess$lambda_lambda)
 #> [1]  1.0 -0.5
 c(penalty_rank(pen) / 2, -penalty_rank(pen) / 4)
 #> [1]  1.0 -0.5
+
+# A separable penalty under a second-difference map has a null basis,
+# and no matrix.
+lsep <- lasso_penalty(map = diff(diag(4), differences = 2))
+dim(penalty_null_basis(lsep))
+#> [1] 4 2
+try(penalty_matrix(lsep, list(lambda = 1)))
+#> Error : Only a quadratic penalty exposes its matrix; see is_quadratic().
 ```

@@ -17,7 +17,7 @@ on each other while the blocks stay independent."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,72 +64,95 @@ on each other while the blocks stay independent.</p>
 <dl><dt id="arg-d">d<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
 <dd><p>A continuous <span class="pkg">distributions7</span> object, univariate or
 multivariate; typically a <code><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">distributions7::fixed()</a></code> wrapper holding the
-location at zero. A discrete or otherwise non-continuous object is
-rejected, naming its <code>dimension</code>.</p></dd>
+location at zero. A univariate object must inherit from
+<a href="https://statmodels7.github.io/distributions7/reference/continuous_distrib.html" class="external-link">distributions7::continuous_distrib</a>; otherwise the constructor signals
+an error that names the distribution. A multivariate object is rejected
+in the same way when it is, or wraps, the <span class="pkg">distributions7</span>
+multinomial; a multivariate family written outside <span class="pkg">distributions7</span>
+is not checked. An object whose <code>dimension</code> is neither <code>"univariate"</code>
+nor <code>"multivariate"</code> is rejected.</p></dd>
 
 
 <dt id="arg-map">map<a class="anchor" aria-label="anchor" href="#arg-map"></a></dt>
 <dd><p>The matrix \(D\), with one column per coefficient, or <code>NULL</code>
-(the default) for the identity. A <span class="pkg">Matrix</span> object keeps its own
-storage, a diagonal map being what standardization is.</p></dd>
+(the default) for the identity. A <span class="pkg">Matrix</span> object keeps its storage,
+so a diagonal or sparse map is not densified, and a square map whose
+off-diagonal entries are all zero is stored as a <code><a href="https://rdrr.io/pkg/Matrix/man/Diagonal.html" class="external-link">Matrix::Diagonal()</a></code>.</p></dd>
 
 
 <dt id="arg-n-coef">n_coef<a class="anchor" aria-label="anchor" href="#arg-n-coef"></a></dt>
-<dd><p>The number of coefficients. Required when <code>map</code> is <code>NULL</code> and
-ignored otherwise, <code>ncol(map)</code> being the count then.</p></dd>
+<dd><p>The number of coefficients. It is required when <code>map</code> is
+<code>NULL</code> and ignored otherwise, the count being <code>ncol(map)</code>.</p></dd>
 
 
 <dt id="arg-kinks">kinks<a class="anchor" aria-label="anchor" href="#arg-kinks"></a></dt>
 <dd><p>The points where the parent's log-density is not
-differentiable in its argument. <code>NULL</code>, the default, derives them with
-<code><a href="distrib_kinks.html">distrib_kinks()</a></code>; pass a numeric vector to say so directly, or
-<code>numeric(0)</code> to declare there are none. A multivariate parent is given
-<code>numeric(0)</code> without asking, a kink being a point of a scalar argument.</p></dd>
+differentiable in its argument. With <code>NULL</code>, the default, they are
+derived by <code><a href="distrib_kinks.html">distrib_kinks()</a></code> for a univariate parent and set to
+<code>numeric(0)</code> for a multivariate one, a kink being a point of a scalar
+argument. A numeric vector is used as given, and <code>numeric(0)</code> declares
+that there are none.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code><a href="DistribPenalty.html">DistribPenalty()</a></code> object whose hyperparameters, bounds and links
-are the parent distribution's.</p>
+    <p>A <code><a href="DistribPenalty.html">DistribPenalty()</a></code> object whose hyperparameters, bounds, links
+and <code>params_smooth</code> are those of the parent distribution.</p>
     </div>
     <div class="section level2">
-    <h2 id="the-hyperparameters-are-the-distribution-s">The hyperparameters are the distribution's<a class="anchor" aria-label="anchor" href="#the-hyperparameters-are-the-distribution-s"></a></h2>
-    <p><code>params</code>, <code>params_bounds</code> and <code>link_params</code> are read off the distribution
-rather than restated, and every derivative is the distribution's own,
-reassembled through the map:</p>
+    <h2 id="hyperparameters-and-derivatives">Hyperparameters and derivatives<a class="anchor" aria-label="anchor" href="#hyperparameters-and-derivatives"></a></h2>
+    <p>The properties <code>params</code>, <code>params_bounds</code>, <code>link_params</code> and
+<code>params_smooth</code> are copied from the distribution, and every derivative is
+the distribution's own, carried through the map:</p>
 <p>$$\frac{\partial\rho}{\partial\beta} = -D'\ell^{(y)}, \qquad
   \frac{\partial^2\rho}{\partial\beta^2}
     = -D'\,\mathrm{diag}(\ell^{(yy)})\,D, \qquad
   \frac{\partial^2\rho}{\partial\beta\,\partial\theta_k}
     = -D'\ell^{(y\theta_k)},$$</p>
-<p>with the middle matrix block diagonal instead of diagonal when the parent is
-multivariate. The hyperparameter blocks are the parent's score and Hessian
-summed over the blocks, and the mixed block is
-<code><a href="https://statmodels7.github.io/distributions7/reference/distrib_cross_y.html" class="external-link">distributions7::distrib_cross_y()</a></code>, which exists for this.</p>
+<p>where the middle matrix is block diagonal instead of diagonal when the
+parent is multivariate. The hyperparameter derivatives are the parent's
+score and Hessian summed over the blocks, and the mixed derivative comes
+from <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_cross_y.html" class="external-link">distributions7::distrib_cross_y()</a></code>.</p>
     </div>
     <div class="section level2">
-    <h2 id="the-constant-is-kept">The constant is kept<a class="anchor" aria-label="anchor" href="#the-constant-is-kept"></a></h2>
-    <p>The normalizing constant comes with the density and is not dropped, so the
-value is exactly the negative log prior density. A free scale or a free
-\(\nu\) is then estimable: with the constant dropped, a prior scale could
-be sent to infinity for nothing.</p>
-<p>Under a diagonal map, which is what standardization builds, the value also
-carries the Jacobian of \(\beta \mapsto D\beta\): it is
-\(-\sum_i \log f(b_i;\theta) - \sum_j \log\lvert d_j\rvert\), the
-negative log-density of \(\beta\) rather than of \(D\beta\). The term
-is constant in \(\beta\) and in \(\theta\), so no derivative moves;
-it is what makes a marginal criterion invariant to the units of a
-covariate. Under any other map the value is the density of \(D\beta\).</p>
+    <h2 id="normalizing-constant-and-jacobian">Normalizing constant and Jacobian<a class="anchor" aria-label="anchor" href="#normalizing-constant-and-jacobian"></a></h2>
+    <p>The normalizing constant of the density is kept, so the value is the
+negative log prior density. This makes a free scale or a free \(\nu\)
+estimable by a marginal criterion. With the constant dropped, the value of
+a Gaussian prior would decrease toward zero as its scale grows, and a
+criterion would send the scale to infinity.</p>
+<p>Under a square nonsingular map the value also carries the Jacobian of
+\(\beta \mapsto D\beta\): it is
+\(-\sum_i \log f(b_i;\theta) - \log\lvert\det D\rvert\), the negative
+log-density of \(\beta\) instead of that of \(D\beta\). Under a
+diagonal map, which is the map that standardization builds, the term is
+\(\sum_j \log\lvert d_j\rvert\). The term is constant in \(\beta\) and
+in \(\theta\), so it changes no derivative, and it makes a marginal
+criterion invariant to the units of a covariate. The determinant is
+computed once, when the penalty is built, and stored in the <code>log_jacobian</code>
+property; for a diagonal map it is recomputed from the entries each time
+the value is computed.
+Under a map that is not square, or is singular,
+\(\exp(-\rho)\) does not integrate to one over \(\beta\),
+<code><a href="is_proper.html">is_proper()</a></code> returns <code>FALSE</code>, and the value is
+\(-\sum_i \log f(b_i;\theta)\) with no further constant.</p>
+<p>A square base matrix or <span class="pkg">Matrix</span> object whose off-diagonal entries are
+all exactly zero is stored as a <code><a href="https://rdrr.io/pkg/Matrix/man/Diagonal.html" class="external-link">Matrix::Diagonal()</a></code> map. The proximal
+operator, the draws and the Jacobian recognize a diagonal map by its class,
+so this conversion makes their result depend on the entries of the map and
+not on the class in which it was supplied.</p>
     </div>
     <div class="section level2">
     <h2 id="a-multivariate-parent">A multivariate parent<a class="anchor" aria-label="anchor" href="#a-multivariate-parent"></a></h2>
-    <p>Centering is the caller's, typically through <code><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">distributions7::fixed()</a></code> at a
-zero mean, and the matrix parameter carries the dependence within a block.
-The number of values the penalty is read at must divide into whole blocks,
-and the constructor rejects a count that does not, naming both numbers.</p>
-<p>A blockwise penalty has <strong>no proximal operator</strong>: that operator acts one
-coordinate at a time and the coordinates of a block do not separate.
-<code><a href="has_prox.html">has_prox()</a></code> answers <code>FALSE</code> and <code><a href="penalty_prox.html">penalty_prox()</a></code> rejects.</p>
+    <p>The caller centers the parent, typically through
+<code><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">distributions7::fixed()</a></code> at a zero mean, and the matrix parameter carries
+the dependence within a block. The number of values at which the penalty
+is read must divide into whole blocks; otherwise the constructor signals an
+error that names the block width and the count.</p>
+<p>A blockwise penalty has <strong>no proximal operator</strong>, because that operator
+acts one coordinate at a time and the coordinates of a block do not
+separate. <code><a href="has_prox.html">has_prox()</a></code> returns <code>FALSE</code> and <code><a href="penalty_prox.html">penalty_prox()</a></code> signals an
+error.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -142,8 +165,8 @@ branches, <code><a href="distrib_kinks.html">distrib_kinks()</a></code> for how 
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A Gaussian prior at zero: the separable twin of the ridge, written by</span></span></span>
-<span class="r-in"><span><span class="co"># its standard deviation rather than by a precision.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A Gaussian prior at zero: the separable form of the ridge, written by</span></span></span>
+<span class="r-in"><span><span class="co"># its standard deviation instead of a precision.</span></span></span>
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">fixed</a></span><span class="op">(</span><span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/gaussian1_distrib.html" class="external-link">gaussian1_distrib</a></span><span class="op">(</span><span class="op">)</span>, mu <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu">distrib_penalty</span><span class="op">(</span><span class="va">d</span>, n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pen</span><span class="op">@</span><span class="va">params</span></span></span>
@@ -151,7 +174,7 @@ branches, <code><a href="distrib_kinks.html">distrib_kinks()</a></code> for how 
 <span class="r-in"><span><span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">pen</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5.086257</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Which is exactly the negative log-density of that prior.</span></span></span>
+<span class="r-in"><span><span class="co"># The same number from stats::dnorm().</span></span></span>
 <span class="r-in"><span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fl">2</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5.086257</span>
 <span class="r-in"><span></span></span>
@@ -168,7 +191,7 @@ branches, <code><a href="distrib_kinks.html">distrib_kinks()</a></code> for how 
 <span class="r-in"><span>              <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma_log_L1 <span class="op">=</span> <span class="fl">0</span>, sigma_log_L2 <span class="op">=</span> <span class="fl">0</span>, sigma_L2.1 <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.090831</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># And it has no proximal operator, the coordinates of a block being tied.</span></span></span>
+<span class="r-in"><span><span class="co"># The blockwise penalty has no proximal operator.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="has_prox.html">has_prox</a></span><span class="op">(</span><span class="va">pen2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-in"><span></span></span>
@@ -176,6 +199,17 @@ branches, <code><a href="distrib_kinks.html">distrib_kinks()</a></code> for how 
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">distrib_penalty</span><span class="op">(</span><span class="va">mv</span>, n_coef <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Error : 'fixed multivariate gaussian [2d, sigma=log_cholesky] [mu1=0,mu2=0]' is 2-variate, so the 5 values it is read at must divide into</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   whole blocks; 5 does not.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A square nonsingular map adds -log|det D| to the value, and a diagonal</span></span></span>
+<span class="r-in"><span><span class="co"># base matrix is stored as a Matrix::Diagonal.</span></span></span>
+<span class="r-in"><span><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pen3</span> <span class="op">&lt;-</span> <span class="fu">distrib_penalty</span><span class="op">(</span><span class="va">d</span>, map <span class="op">=</span> <span class="va">D</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">pen3</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="op">-</span><span class="fl">0.7</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.811118</span>
+<span class="r-in"><span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">D</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="op">-</span><span class="fl">0.7</span><span class="op">)</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/det.html" class="external-link">det</a></span><span class="op">(</span><span class="va">D</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.811118</span>
+<span class="r-in"><span><span class="fu">methods</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/methods/is.html" class="external-link">is</a></span><span class="op">(</span><span class="fu">distrib_penalty</span><span class="op">(</span><span class="va">d</span>, map <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">map</span>, <span class="st">"diagonalMatrix"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

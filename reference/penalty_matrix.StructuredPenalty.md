@@ -1,6 +1,6 @@
 # Marginal Quantities of a Structured Penalty
 
-The four pieces a REML or marginal likelihood criterion reads.
+The four quantities that a REML or marginal likelihood criterion reads.
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns the precision \\\Omega(\theta)\\,
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
@@ -48,11 +48,10 @@ diagonals first).
 
 ## Details
 
-Where a plain quadratic penalty has \\\log^{+}\lvert S\rvert\\ linear in
-\\\log\lambda\\, here the log-determinant moves with every free value
-and its derivatives come from the structure's own log-determinant
-contract, negated at every order when the structure describes a
-covariance.
+For a plain quadratic penalty \\\log^{+}\lvert S\rvert\\ is linear in
+\\\log\lambda\\. Here the log-determinant depends on every free value,
+and its value and derivatives are those of the structure's
+`param_logdet()`, `param_dlogdet()` and `param_d2logdet()`.
 
 The rank and the null basis are properties of the structure and do not
 depend on \\\theta\\: a `matrix_parameter` records them at construction,
@@ -69,7 +68,8 @@ and its three siblings for the generics,
 [`struct_omega()`](https://statmodels7.github.io/penalties7/reference/struct_omega.md)
 for where the derivatives come from,
 [`penalty_matrix.QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.md)
-for the branch whose determinant is linear in one parameter.
+for the branch whose log pseudo-determinant is linear in
+\\\log\lambda\\.
 
 ## Examples
 
@@ -91,7 +91,7 @@ all.equal(penalty_matrix(pen, th), penalty_hessian(pen, c(0, 0, 0, 0), th))
 lp <- penalty_logpdet(pen, th)
 lp$value - as.numeric(
   determinant(penalty_matrix(pen, th), logarithm = TRUE)$modulus)
-#> [1] 0
+#> [1] -3.330669e-16
 names(lp$hess)
 #> [1] "log_scale_log_scale" "z_rho_z_rho"         "log_scale_z_rho"    
 ```

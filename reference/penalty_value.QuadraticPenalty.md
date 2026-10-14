@@ -2,8 +2,8 @@
 
 Returns the negative log-density of the Gaussian prior with precision
 \\\lambda D'PD\\, evaluated by adding the constant to the quadratic
-form. Every term is closed in \\\lambda\\, the rank and the log
-pseudo-determinant of \\P\\ having been fixed at construction.
+form. Every term is closed form in \\\lambda\\, the rank and the log
+pseudo-determinant of \\D'PD\\ having been fixed at construction.
 
 ## Arguments
 
@@ -35,11 +35,11 @@ A single number.
 
 \$\$\rho(\beta; \lambda) = \frac{\lambda}{2}\\(D\beta)'P(D\beta) -
 \frac{r}{2}\log\lambda + \frac{r}{2}\log 2\pi -
-\frac{1}{2}\log\mathrm{pdet}(P),\$\$
+\frac{1}{2}\log\mathrm{pdet}(D'PD),\$\$
 
-with \\r\\ the stored rank. At \\\beta = 0\\ the value is the constant
-alone and still moves with \\\lambda\\, so the smoothing parameter stays
-estimable from a joint objective.
+with \\r\\ the stored rank of \\D'PD\\. At \\\beta = 0\\ the value is
+the constant alone and still depends on \\\lambda\\, so the smoothing
+parameter remains estimable from a joint objective.
 
 ## See also
 
@@ -60,7 +60,7 @@ all.equal(penalty_value(pen, b, list(lambda = 2)),
           -sum(stats::dnorm(b, sd = 1 / sqrt(2), log = TRUE)))
 #> [1] TRUE
 
-# The constant alone, at the origin, and how it moves with lambda.
+# The constant alone, at the origin, at three values of lambda.
 sapply(c(0.5, 2, 8),
        function(l) penalty_value(pen, c(0, 0, 0), list(lambda = l)))
 #> [1]  3.7965364  1.7170948 -0.3623467

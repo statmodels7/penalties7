@@ -1,11 +1,10 @@
-# What a Penalty's Hyperparameters Are About
+# Interpretable Quantities of a Penalty's Hyperparameters
 
-Returns the quantities a reader reads, for a penalty whose
-hyperparameters are coordinates of a chart and not the quantities
-themselves, together with the Jacobian from those coordinates and the
-scale each one's interval belongs on. Returns `NULL` where the
-hyperparameters already are the quantities, which is every branch but
-one.
+For a penalty whose hyperparameters are coordinates of a chart rather
+than interpretable quantities, returns the quantities to be reported,
+together with the Jacobian from those coordinates and the scale on which
+each quantity's interval is built. Returns `NULL` where the
+hyperparameters are reported as they stand.
 
 ## Usage
 
@@ -28,7 +27,7 @@ penalty_readable(pen, theta, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
@@ -41,46 +40,61 @@ hyperparameters, one row per quantity and one column per hyperparameter;
 on (`"log"`, `"atanh"`, `"identity"`); and `block`, a character vector
 grouping the quantities for printing.
 
-## The case this exists for
+## Multivariate priors
 
-A penalty whose prior is a multivariate family carries the free values
-of a matrix parameter as its hyperparameters: the logarithms of the
-diagonal of a Cholesky factor and the entries below it. Nobody reads
-those. What the prior is about is the standard deviations and the
-correlations of the effects it describes, so
+A separable penalty whose parent is a multivariate family carries the
+free values of a matrix parameter as its hyperparameters: the logarithms
+of the diagonal of a Cholesky factor and the entries below it, which are
+not interpretable directly. The interpretable quantities are the
+standard deviations and the correlations of the effects, which
 [`distributions7::mv_derived()`](https://statmodels7.github.io/distributions7/reference/mv_derived.html)
-declares them and this generic passes them through. It is the same
-distinction
+computes and this generic returns. The same distinction is made by
 [`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html)
-makes for a matrix parameter.
+for a matrix parameter.
 
-The Jacobian is what a delta-method standard error needs: with \\V\\ the
+The Jacobian gives a delta-method standard error: with \\V\\ the
 variance matrix of the hyperparameters, the reported quantities have
-variance \\JVJ^\top\\. The `transform` element says which scale each
-quantity's confidence interval should be built on and mapped back from,
-so that a standard deviation stays positive and a correlation stays
-inside \\(-1, 1)\\.
+variance \\JVJ^\top\\. The `transform` element names the scale on which
+each quantity's confidence interval is built and from which it is mapped
+back, so that a standard deviation stays positive and a correlation
+stays inside \\(-1, 1)\\.
 
 ## The base method
 
-`NULL` says that the hyperparameters are the quantities and a consumer
-should report them as they stand. That is the answer for every other
-branch: a smoothing parameter, a rate and a shape are each read on their
-own scale already.
+`NULL` means that the hyperparameters are reported as they stand. This
+is the result for the quadratic, additive, SCAD and MCP branches and for
+a separable penalty with a univariate parent, whose hyperparameters (a
+smoothing parameter, a rate, a scale, a shape) are interpretable on
+their own scale. A structured penalty returns `NULL` when its structure
+declares no quantities through
+[`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html),
+as
+[`parameters7::log_cholesky()`](https://statmodels7.github.io/parameters7/reference/log_cholesky.html)
+and
+[`parameters7::inverse_of()`](https://statmodels7.github.io/parameters7/reference/inverse_of.html)
+do.
 
 ## Methods
 
 The method on the base class
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
-returns `NULL`, which is the answer for every branch whose
-hyperparameters already are the quantities a reader reads. Only a branch
-that carries them on a chart registers a method.
+returns `NULL`. A separable penalty registers
+[`penalty_readable.DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.DistribPenalty.md),
+which returns the result of
+[`distributions7::mv_derived()`](https://statmodels7.github.io/distributions7/reference/mv_derived.html)
+for a multivariate parent and `NULL` for a univariate one. A structured
+penalty registers
+[`penalty_readable.StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.StructuredPenalty.md),
+which returns the quantities that
+[`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html)
+declares for its structure, in the same shape and under names prefixed
+with `precision_`, and `NULL` for a structure that declares none.
 
 ## See also
 
 [`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md),
 [`distributions7::mv_derived()`](https://statmodels7.github.io/distributions7/reference/mv_derived.html)
-for the declaration this passes through,
+for the quantities returned for a multivariate prior,
 [`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html)
 for the same distinction on a matrix parameter.
 
@@ -88,14 +102,14 @@ for the same distinction on a matrix parameter.
 
 ``` r
 # A bivariate Gaussian prior on three pairs of effects. Its hyperparameters
-# are log-Cholesky coordinates, which nobody interprets.
+# are log-Cholesky coordinates.
 pen <- distrib_penalty(
   distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                         mu1 = 0, mu2 = 0), n_coef = 6)
 pen@params
 #> [1] "sigma_log_L1" "sigma_log_L2" "sigma_L2.1"  
 
-# What the prior is about is two standard deviations and a correlation.
+# The reported quantities are two standard deviations and a correlation.
 r <- penalty_readable(pen, list(sigma_log_L1 = 0.2, sigma_log_L2 = -0.1,
                                 sigma_L2.1 = 0.5))
 r$value
@@ -107,8 +121,7 @@ r$transform
 dim(r$jacobian)
 #> [1] 3 3
 
-# A smoothing parameter is already the quantity it names, so there is
-# nothing to derive.
+# A smoothing parameter is reported as it stands.
 penalty_readable(quadratic_penalty(diag(2)), list(lambda = 1))
 #> NULL
 ```

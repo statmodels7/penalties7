@@ -5,9 +5,9 @@ scalar function of the coefficients, written \\\rho(D\beta; \theta)\\: a
 linear map \\D\\ that selects or combines coefficients, a scalar
 function \\\rho\\ applied to what the map returns, and hyperparameters
 \\\theta\\ that scale or shape it. The class holds no mathematics of its
-own; it records the pieces every branch needs, so that a consumer can
-read a penalty's size, its hyperparameter names and their bounds without
-knowing which branch it holds.
+own. It records the pieces that every branch needs, so that a penalty's
+size, its hyperparameter names and their bounds can be read without
+knowing which branch it is.
 
 ## Usage
 
@@ -28,14 +28,15 @@ penalty(
 - penalty_name:
 
   A single string naming the penalty, used by
-  [`print()`](https://rdrr.io/r/base/print.html) and by consumers that
-  report which penalty a block carries.
+  [`print()`](https://rdrr.io/r/base/print.html) and by any code that
+  reports which penalty a block carries.
 
 - map:
 
   The matrix \\D\\, of \\m\\ rows and \\q\\ columns, or `NULL` for the
-  identity. A Matrix object is kept in its own storage; a diagonal map
-  is what standardization comes to and is recognized by its class.
+  identity. A Matrix object is kept in its own storage, so a diagonal
+  map, which is what standardization produces, is recognized as diagonal
+  by its class.
 
 - n_coef:
 
@@ -65,67 +66,132 @@ penalty(
 ## Value
 
 An S7 object of class `penalty` carrying the seven properties above. The
-class is abstract: an object of exactly this class answers
-[`print()`](https://rdrr.io/r/base/print.html), and every generic that
-computes something rejects it.
+class is abstract: an object of exactly this class can be printed, it
+receives the defaults listed under Methods, and
+[`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md)
+and the other generics without a base method signal an error for it.
 
-## What the properties mean
+## The properties
 
 With \\q\\ coefficients and a map of \\m\\ rows, `beta` is a vector of
 length \\q\\, \\D\beta\\ has length \\m\\, and every derivative in the
-coefficients comes back at length \\q\\ or shape \\q \times q\\. A
+coefficients is returned with length \\q\\ or shape \\q \times q\\. A
 `NULL` map is the identity, and then \\m = q\\ and no arithmetic is
 done.
 
 Each hyperparameter carries a linkfunctions7 link in `link_params`,
-mapping its own open interval onto the whole real line. A penalty is
-therefore optimizable on the unconstrained scale: a caller works in
-\\\eta = g(\theta)\\, never has to police the bounds, and
-[`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-and its second-order siblings answer on either scale through their
-`scale` argument.
+which maps its own open interval onto the whole real line. A penalty can
+therefore be optimized on the unconstrained scale: a caller works in
+\\\eta = g(\theta)\\, without bound constraints, and
+[`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md),
+[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+and
+[`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+return either scale through their `scale` argument.
 
-`params_smooth` records which hyperparameters the value is
-differentiable in. It is `TRUE` for every hyperparameter of every
-shipped branch; the slot exists so that a branch with a
-non-differentiable hyperparameter can say so, as distributions7 does for
-a Laplace location.
+`params_smooth` records in which hyperparameters the value is
+differentiable. It is `TRUE` for every hyperparameter of the quadratic,
+structured, additive, SCAD and MCP branches. A separable penalty copies
+the entries of its parent distribution, so a penalty built by
+[`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
+on a Laplace distribution with a free location has `FALSE` for that
+location.
 
-## What a subclass owes
+## Writing a branch
 
-Construct this class directly only to write a branch of your own. The
-generics registered on `penalty` itself are the refusals and the
-defaults:
-[`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md)
-has no method here at all and a bare `penalty` object rejects it, while
-[`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md),
+This class is constructed directly only to write a new branch. A
+subclass supplies
+[`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md),
+[`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md),
+[`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md),
+[`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md),
+[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md),
+[`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md),
+[`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
+and
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md),
-[`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-and the three quantities beside it answer `FALSE` or reject. A subclass
-supplies the value, the gradient, the Hessian, the three hyperparameter
-blocks and
-[`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md),
-and
+which have no method on the base class, and
 [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
-then says whether they agree with each other.
+then compares the derivatives with numerical derivatives of the value.
+The methods registered on the base class, listed below, supply defaults
+for everything else.
 
-The four branches that ship are
-[`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md),
-[`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md),
-[`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
-with
-[`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md),
+The shipped branches are
+[`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
+(with
+[`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)),
+[`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
+(with
+[`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
 and
-[`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md),
-with
-[`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
-a fifth built on a parameters7 matrix parameter.
+[`elasticnet_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)),
+[`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md),
+[`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md),
+[`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
+and
+[`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md),
+the last built on a parameters7 matrix parameter.
+
+## Methods
+
+The methods registered on `penalty` itself are inherited by every branch
+that does not register its own.
+
+Predicates and readable quantities:
+
+- [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
+  returns `FALSE`.
+
+- [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+  returns `NULL`.
+
+- [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.penalty.md)
+  returns `FALSE`.
+
+Quantities of a quadratic penalty, which signal an error:
+
+- [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+  [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
+  [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  and
+  [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md).
+
+Derivatives for a marginal criterion, which signal an error:
+
+- [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.penalty.md),
+  [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.penalty.md)
+  and
+  [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.penalty.md);
+
+- [`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.penalty.md);
+
+- [`penalty_d2hessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md)
+  and
+  [`penalty_dhessian_beta_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md).
+
+Proximal operator:
+
+- [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+  signals an error.
+
+- [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
+  returns `NULL`.
+
+Draws and printing:
+
+- [`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
+  draws from a quadratic penalty read as a Gaussian prior and returns
+  `NA` otherwise.
+
+- [`print()`](https://statmodels7.github.io/penalties7/reference/print.penalty.md)
+  writes one line describing the penalty.
 
 ## See also
 
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md),
 [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md),
 [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md),
+[`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md),
 [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
 and
 [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md)
@@ -140,12 +206,12 @@ to verify one.
 ## Examples
 
 ``` r
-# Every branch inherits from this class, so a consumer can test for it.
+# Every branch inherits from this class.
 pen <- quadratic_penalty(crossprod(diff(diag(4))), map = NULL)
 S7::S7_inherits(pen, penalty)
 #> [1] TRUE
 
-# The properties a consumer reads without knowing the branch.
+# The properties that can be read without knowing the branch.
 pen@penalty_name
 #> [1] "quadratic"
 pen@n_coef
@@ -157,8 +223,8 @@ pen@params_bounds
 #> [1]   0 Inf
 #> 
 
-# A second-difference penalty over four coefficients, restricted to the
-# first three by a map: three coefficients in, two rows out.
+# A first-difference map over three coefficients: three coefficients in,
+# two rows out.
 D <- diff(diag(3))
 mapped <- quadratic_penalty(diag(2), map = D)
 mapped

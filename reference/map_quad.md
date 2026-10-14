@@ -38,11 +38,10 @@ A \\q \times q\\ symmetric base matrix, from both.
 
 ## Details
 
-Both return a base matrix even when the map is a Matrix. A Matrix map
-carries its class through the crossproduct, and the result would then be
-the one thing in the contract that is not a base matrix: the
-identity-map branch is already dense at any width,
+Both return a base matrix even when the map is a Matrix object. The
+crossproduct of a Matrix map would otherwise be a Matrix object, whereas
+the result for a `NULL` map is a base matrix and
 [`map_back()`](https://statmodels7.github.io/penalties7/reference/map_apply.md)
-coerces its vector for the same reason, and a consumer writing this into
-a block of its own information fails on the class before it fails on the
-arithmetic. The coercion is done here, where the contract is stated.
+returns a plain vector. The conversion is made here so that the caller
+receives a base matrix from every branch and can write it into a block
+of a base information matrix.

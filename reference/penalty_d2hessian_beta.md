@@ -1,13 +1,13 @@
-# How the Movement of the Coefficient Hessian Moves
+# Second Derivatives of the Coefficient Hessian in the Coefficients and the Hyperparameters
 
 The two derivatives of
 [`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md)
-that the second derivative of a marginal criterion reads.
+that the second derivative of a marginal criterion contains.
 `penalty_d2hessian_beta()` is \\\partial^2 S/\partial\beta^2\\\[v,
-w\]\\, the Hessian's second derivative in the coefficients contracted
-along two directions. `penalty_dhessian_beta_theta()` is \\\partial^2
-S/\partial\beta\\\partial\theta_m\\\[v\]\\, the derivative of \\\partial
-S/\partial\beta\\\[v\]\\ in each hyperparameter.
+w\]\\, the second derivative of the Hessian in the coefficients
+contracted along two directions. `penalty_dhessian_beta_theta()` is
+\\\partial^2 S/\partial\beta\\\partial\theta_m\\\[v\]\\, the derivative
+of \\\partial S/\partial\beta\\\[v\]\\ in each hyperparameter.
 
 ## Usage
 
@@ -27,16 +27,19 @@ penalty_dhessian_beta_theta(pen, beta, theta, v, ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `pen@n_coef`; the generics signal an error
+  for any other length.
 
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same.
+  carrying the same, checked by the generics as in
+  [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md).
 
 - v, w:
 
-  Numeric vectors of length `pen@n_coef`, the directions.
+  Numeric vectors of length `pen@n_coef`, the directions; the generics
+  signal an error for any other length.
 
 - ...:
 
@@ -50,18 +53,25 @@ hyperparameter, keyed by `pen@params`.
 
 ## Details
 
-Differentiating the criterion's gradient once more in the
-hyperparameters, the determinant's matrix \\K_m = S_m + T\[b_m\]\\ moves
-in three ways that a penalty whose Hessian depends on the coefficients
-adds to: through \\T\[b\_{ml}\]\\, which
-[`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md)
-supplies; through the second derivative in the coefficients along the
-two directions the mode moves in; and through \\\partial
+Write \\S_m = \partial S/\partial\theta_m\\, \\T\[v\] = \partial
+S/\partial\beta\\\[v\]\\, and \\b_m\\ and \\b\_{ml}\\ for the first and
+second derivatives of the mode in the hyperparameters. The matrix \\K_m
+= S_m + T\[b_m\]\\ enters the gradient of the criterion, and its
+derivative in \\\theta_l\\ has three parts that are present only for a
+penalty whose Hessian depends on the coefficients: \\T\[b\_{ml}\]\\,
+from
+[`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md);
+the second derivative in the coefficients along \\b_m\\ and \\b_l\\,
+from `penalty_d2hessian_beta()`; and the two matrices \\\partial
 S_m/\partial\beta\\\[b_l\]\\ and \\\partial
-S_l/\partial\beta\\\[b_m\]\\, which are one quantity by the symmetry of
-mixed partials.
+S_l/\partial\beta\\\[b_m\]\\. Both of these come from
+`penalty_dhessian_beta_theta()`, the first as its component \\m\\ along
+\\b_l\\ and the second as its component \\l\\ along \\b_m\\, because by
+the symmetry of mixed partials in \\\beta\\ and \\\theta\\ the
+derivative of \\T\[b_m\]\\ in \\\theta_l\\ equals \\\partial
+S_l/\partial\beta\\\[b_m\]\\. The two matrices are in general different.
 
-## What each branch answers
+## The value on each branch
 
 |  |  |  |
 |----|----|----|
@@ -70,21 +80,27 @@ mixed partials.
 | separable, parent quadratic in its argument | zero | zero for every hyperparameter |
 | separable, univariate parent otherwise | \\-D'\mathrm{diag}(\ell^{(yyyy)} \odot Dv \odot Dw)D\\ | \\-D'\mathrm{diag}(\partial\_{\theta_m}\ell^{(yyy)} \odot Dv)D\\ |
 | separable, multivariate parent otherwise | the same per block, contracted by [`dp_contract()`](https://statmodels7.github.io/penalties7/reference/dp_contract.md) | the same per block |
-| a kinked parent, [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md), [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md) | rejects | rejects |
+| a kinked parent, [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md), [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md) | an error | an error |
 
 The univariate rows follow from \\\partial S/\partial\beta\[v\] =
 -D'\mathrm{diag}(\ell^{(yyy)}(D\beta) \odot Dv)D\\ by differentiating
 \\\ell^{(yyy)}((D\beta)\_j)\\ once more, in \\\beta\\ along \\w\\ or in
 \\\theta_m\\. The fourth response derivative is
-[`distributions7::distrib_deriv4_y()`](https://statmodels7.github.io/distributions7/reference/distrib_deriv3_y.html)
-and the mixed one
+[`distributions7::distrib_deriv4_y()`](https://statmodels7.github.io/distributions7/reference/distrib_deriv3_y.html),
+closed form for every family that distributions7 ships and one stencil
+for a family defined by its density alone. The mixed one is
 [`distributions7::distrib_cross3_y()`](https://statmodels7.github.io/distributions7/reference/distrib_cross3_y.html),
-both closed for every location family and so for a Student t prior. A
-multivariate parent supplies the two as arrays per block, of \\p^4\\ and
-\\p^3\\ entries, which
+closed form for the location families listed on its page, the Student t
+among them, and one central difference of the third response derivative
+for the other families. A multivariate parent supplies the two as arrays
+per block, of \\p^4\\ and \\p^3\\ entries, which
 [`dp_contract()`](https://statmodels7.github.io/penalties7/reference/dp_contract.md)
-contracts against the block's coordinates of the directions; the
-multivariate Student t does.
+contracts against the coordinates of the block in the directions; the
+multivariate Student t supplies both. The derivatives are taken in
+\\\theta\\ on its own scale.
+
+The methods of the base class and of each branch are described on
+[`penalty_d2hessian_beta.penalty()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md).
 
 ## See also
 
@@ -93,7 +109,7 @@ for the quantity differentiated,
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
 for the derivative of the Hessian in the hyperparameters,
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
-for the predicate that says both are zero.
+for the predicate under which both are zero.
 
 ## Examples
 

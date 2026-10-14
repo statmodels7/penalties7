@@ -20,32 +20,28 @@ ptheta_pairs(params)
 
 - params:
 
-  A character vector of hyperparameter names, in the order the penalty
-  holds them. May be empty.
+  A character vector of hyperparameter names, in the order in which the
+  penalty holds them. May be empty.
 
 ## Value
 
 A named list of length \\p(p+1)/2\\, empty when `params` is. Each
-element is a character pair naming the two hyperparameters
-differentiated in, and each name is those two joined by an underscore.
+element is a character pair naming the two hyperparameters of the
+derivative, and each name is those two joined by an underscore.
 
 ## Details
 
-Diagonals first rather than lexicographically, because a consumer
-reading only the variances can take the first \\p\\ entries. The same
-convention names distributions7's Hessian components.
+The diagonals come first, rather than in lexicographic order, so that
+the first \\p\\ entries are the diagonal of the Hessian. The same
+convention names the Hessian components of distributions7.
 
-`character(0)` gives the empty **named** list. A penalty with no free
-hyperparameters has no pair to differentiate in, and the named form
-keeps
-[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-the same shape as its two siblings
+`character(0)` gives an empty **named** list. A penalty with no free
+hyperparameters has no pair in which to differentiate, and the named
+empty list is the shape that
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 and
-[`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md),
-both of which already answered for that case. The guard is needed rather
-than incidental: `paste0(character(0), "_", character(0))` recycles the
-zero-length argument against the length-one literal and gives the single
-string `"_"`, so without it the names are one element long while the
-list of pairs is empty and
-[`stats::setNames()`](https://rdrr.io/r/stats/setNames.html) raises.
+[`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
+return in that case. The function treats this case separately, because
+`paste0(character(0), "_", character(0))` returns the single string
+`"_"` and [`stats::setNames()`](https://rdrr.io/r/stats/setNames.html)
+would then signal an error on the empty list of pairs.

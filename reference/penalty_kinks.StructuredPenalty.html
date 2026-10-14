@@ -13,7 +13,7 @@ has full rank."><meta property="og:image" content="https://statmodels7.github.io
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.30.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,8 +56,8 @@ has full rank.</p>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
-<dd><p>A named list of the structure's free values. Read by
-<code><a href="penalty_kinks.html">penalty_kinks()</a></code>, whose answer does not depend on it.</p></dd>
+<dd><p>A named list of the structure's free values. Accepted by
+<code><a href="penalty_kinks.html">penalty_kinks()</a></code>, whose result does not depend on it.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -73,10 +73,11 @@ its dimension.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Properness is the structure's rank against its dimension and nothing else. A
-full-rank structure is a proper Gaussian prior; a rank-deficient one, which
-is admitted only as a precision, is improper and its constant is the log
-pseudo-determinant over the range.</p>
+    <p>Properness is a comparison of the structure's rank with its dimension and
+nothing else. A full-rank structure is a proper Gaussian prior. A
+rank-deficient structure, which can be used only as a precision, gives an
+improper prior, and its constant is the log pseudo-determinant over the
+range.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -1,5 +1,104 @@
 # Changelog
 
+## penalties7 0.31.0
+
+### Changes in behavior
+
+- Every generic that takes `beta` signals an error when its length
+  differs from `n_coef`; the separable, SCAD and MCP branches used to
+  recycle or truncate it.
+
+- Every hyperparameter must be a single number. A vector, `NULL` or
+  `numeric(0)` signals an error naming the parameter.
+
+- [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
+  validates `theta` in its generic, on every branch.
+
+- A separable penalty under a square nonsingular map subtracts from its
+  value, whether the map is diagonal or not, so that it is the negative
+  log-density of .
+  [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
+  is `TRUE` only without a map or with a square nonsingular one; under a
+  tall or singular map the value carries no normalizing constant. The
+  class has a new property, `log_jacobian`.
+
+- [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+  has a method for a separable penalty: the null space of its map.
+
+- [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md),
+  [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+  and
+  [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
+  store a square map whose off-diagonal entries are all zero as a
+  [`Matrix::Diagonal()`](https://rdrr.io/pkg/Matrix/man/Diagonal.html)
+  object, so a diagonal base matrix gives the same value, proximal
+  operator, table and draws as the same map built with
+  [`Matrix::Diagonal()`](https://rdrr.io/pkg/Matrix/man/Diagonal.html).
+
+- [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
+  rejects a parent that is not continuous, and the multinomial. A
+  separable penalty copies its parent’s `params_smooth`.
+
+- [`distrib_kinks()`](https://statmodels7.github.io/penalties7/reference/distrib_kinks.md)
+  finds a kink under wrappers nested around `fixed()`, and drops a
+  candidate at the edge of the outer support (a folded parent has no
+  kink at zero).
+  [`has_jump()`](https://statmodels7.github.io/penalties7/reference/has_jump.md)
+  compares the jump of the slope at two widths and no longer reads a
+  smooth point as a kink.
+
+- [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
+  rejects a `P` that is not positive semidefinite, a map that makes the
+  zero matrix, and entries that are not finite. The rank and the null
+  basis are read from the same eigenvalues. The object stores its `tol`
+  (a new property).
+
+- [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
+  rejects a component that the map carries to zero and entries that are
+  not finite, stores its `tol` (a new property) and passes it to the
+  rank count of the similarity transformation. A setting where the rank
+  identity cannot be evaluated, or where a weighted sum overflows, gives
+  `NaN` instead of an error.
+
+- The proximal operator of a separable penalty without a closed form
+  returns the global minimizer for a unimodal parent: it scans the
+  segment between `v` and the parent’s mode, so that a parent that is
+  not log-concave (the Student t prior) or not centered at zero no
+  longer gives a local minimum, and it is accurate relative to a small
+  answer.
+
+- The SCAD and MCP operators are computed in a form that stays accurate
+  as the step approaches or . Their error message prints the scaled step
+  that violates the condition.
+
+- [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
+  requires a finite step.
+  [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
+  requires a finite positive step of length one or `n_coef`.
+
+- [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
+  checks the off-diagonal entries of the hyperparameter Hessian and, for
+  a quadratic, structured or additive penalty, the stored rank and the
+  width of the null basis. A row whose numerical reference cannot be
+  computed is reported as `FAILED` instead of stopping the check.
+
+- [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+  of a structured penalty returns the quantities that
+  [`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html)
+  defines for its structure, named with the prefix `precision_` because
+  the structure is the precision of the prior.
+
+- [`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
+  of a separable penalty under a diagonal map with a zero entry returns
+  `NA` only at that coordinate.
+
+### Documentation
+
+- Every page was checked against the code and rewritten in a uniform
+  register; the README, the vignette and the descriptions of the
+  reference index were revised in the same way. Class pages list their
+  methods.
+
 ## penalties7 0.30.0
 
 - A separable penalty whose parent is a multivariate family that is not

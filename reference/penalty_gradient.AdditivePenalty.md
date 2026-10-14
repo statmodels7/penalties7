@@ -38,8 +38,8 @@ a symmetric base matrix of that side.
 
 The value is a quadratic form, so the Hessian does not move with the
 coefficients and the gradient is the Hessian applied to them. A
-coefficient vector lying in the intersected null space of the components
-has zero gradient at every setting of the parameters.
+coefficient vector in the intersection of the null spaces of the
+components has zero gradient at every setting of the parameters.
 
 ## See also
 
