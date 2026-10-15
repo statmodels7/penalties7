@@ -14,6 +14,16 @@ additive_penalty(
 )
 }
 \arguments{
+\item{mats}{A list of at least one symmetric positive semidefinite matrix,
+all with the same number of rows. Each component is symmetrized. A
+component is rejected with an error that gives its position when it has
+an entry that is not finite (\code{NA}, \code{NaN} or infinite), when it differs
+from its transpose by more than \code{1e-8} times the larger of 1 and its
+largest absolute entry, when its largest eigenvalue is not positive (a
+zero or negative semidefinite matrix), or when its smallest eigenvalue is
+below \code{-tol} times its largest. Under \code{blocks > 1} they are the
+components of one block.}
+
 \item{map}{The matrix \eqn{D}, with as many rows as each component has and
 one column per coefficient, or \code{NULL} (the default) for the identity. A
 map is absorbed at construction, each component becoming
@@ -148,16 +158,6 @@ matrices, which is also the storage that \code{\link[=penalty_hessian]{penalty_h
 prior, and \code{\link[=penalty_readable]{penalty_readable()}} then reports the standard deviations
 \eqn{\sigma_k = \lambda_k^{-1/2}}, named \code{sigma1}, \code{sigma2} and so on,
 in place of the parameters. The penalty itself is unchanged.
-
-#' @param mats A list of at least one symmetric positive semidefinite matrix,
-all with the same number of rows. Each component is symmetrized. A
-component is rejected with an error that gives its position when it has
-an entry that is not finite (\code{NA}, \code{NaN} or infinite), when it differs
-from its transpose by more than \code{1e-8} times the larger of 1 and its
-largest absolute entry, when its largest eigenvalue is not positive (a
-zero or negative semidefinite matrix), or when its smallest eigenvalue is
-below \code{-tol} times its largest. Under \code{blocks > 1} they are the
-components of one block.
 }
 
 \examples{

@@ -240,7 +240,7 @@ additive_blocks <- function(pen) {
 #' \eqn{\sigma_k = \lambda_k^{-1/2}}, named `sigma1`, `sigma2` and so on,
 #' in place of the parameters. The penalty itself is unchanged.
 #'
-#' #' @param mats A list of at least one symmetric positive semidefinite matrix,
+#' @param mats A list of at least one symmetric positive semidefinite matrix,
 #'   all with the same number of rows. Each component is symmetrized. A
 #'   component is rejected with an error that gives its position when it has
 #'   an entry that is not finite (`NA`, `NaN` or infinite), when it differs
