@@ -220,15 +220,15 @@ pen <- quadratic_penalty(crossprod(diff(diag(5))))
 res <- check_penalty(pen)
 #>                                        check    max_error status
 #>                         gradient vs numDeriv 4.007727e-11     OK
-#>          hessian vs numDeriv on the gradient 7.928288e-12     OK
+#>          hessian vs numDeriv on the gradient 7.080910e-12     OK
 #>               grad_theta[lambda] vs numDeriv 1.851376e-11     OK
 #>        hess_theta[lambda_lambda] vs numDeriv 1.488393e-11     OK
-#>  cross[lambda] vs Richardson on the gradient 1.291110e-11     OK
+#>  cross[lambda] vs Richardson on the gradient 1.291093e-11     OK
 #>               quadratic three-point identity 2.296653e-16     OK
 #>    logpdet linear in log lambda with slope r 4.440892e-16     OK
 #>            rank vs eigenvalues of the matrix 0.000000e+00     OK
 #>        null basis width vs n_coef minus rank 0.000000e+00     OK
-#>            null basis annihilates the matrix 2.775558e-16     OK
+#>            null basis annihilates the matrix 2.395716e-16     OK
 all(res$status == "OK")
 #> [1] TRUE
 

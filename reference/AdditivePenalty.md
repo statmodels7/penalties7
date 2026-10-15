@@ -23,7 +23,10 @@ AdditivePenalty(
   mats = list(),
   p_rank = integer(0),
   null_basis = NULL,
-  tol = 1e-10
+  tol = 1e-10,
+  blocks = integer(0),
+  block_mats = list(),
+  readable = character(0)
 )
 ```
 
@@ -97,11 +100,30 @@ AdditivePenalty(
   as `r_tol`, so the rank of each group of components is counted at the
   same tolerance.
 
+- blocks:
+
+  How many times each component is repeated blockwise, a whole number.
+  An empty value is read as 1. Above 1, `mats` holds the repeated
+  components as sparse matrices and `block_mats` holds one block of
+  each.
+
+- block_mats:
+
+  The components of one block, a list of base matrices, or an empty list
+  when `blocks` is 1.
+
+- readable:
+
+  `"lambda"` or `"sd"`: whether
+  [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+  reports the smoothing parameters themselves or the standard deviations
+  \\\lambda_k^{-1/2}\\. An empty value is read as `"lambda"`.
+
 ## Value
 
 An S7 object of class `AdditivePenalty`, inheriting from
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md),
-with the seven inherited properties and the four above. Its `map` is
+with the seven inherited properties and the seven above. Its `map` is
 always `NULL`, a map given to the constructor having been absorbed into
 `mats`.
 
@@ -164,14 +186,17 @@ The methods registered on this class, by the page that documents each.
   methods.
 
 The class registers no
-[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md),
-[`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md),
-[`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
+[`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
 or
-[`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+[`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
 method, so calls to those generics dispatch to the methods of the base
 class
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md).
+It has its own
+[`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
+and
+[`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+methods.
 
 ## See also
 

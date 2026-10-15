@@ -1,5 +1,22 @@
 # Changelog
 
+## penalties7 0.32.0
+
+- [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
+  takes `blocks`. With `blocks = m` the components are , built from one
+  block of each and stored sparse; the rank, the null basis, the log
+  pseudo-determinant and both of its derivative blocks are computed on
+  one block and multiplied by `m`. Against the assembled penalty on four
+  blocks every quantity agrees exactly.
+- [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
+  takes `readable`. Under `readable = "sd"`,
+  [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+  reports , named `sigma1`, `sigma2`, …, with a diagonal Jacobian and
+  intervals on the log scale.
+- [`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
+  has a method for a blockwise additive penalty, which draws each block
+  from one triangular factor of the precision of the block.
+
 ## penalties7 0.31.0
 
 ### Changes in behavior

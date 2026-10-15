@@ -12,6 +12,8 @@ in another, whereas a single parameter smooths every direction alike.
 additive_penalty(
   mats,
   map = NULL,
+  blocks = 1L,
+  readable = c("lambda", "sd"),
   link_lambda = linkfunctions7::log_link(),
   tol = 1e-10
 )
@@ -28,7 +30,8 @@ additive_penalty(
   differs from its transpose by more than `1e-8` times the larger of 1
   and its largest absolute entry, when its largest eigenvalue is not
   positive (a zero or negative semidefinite matrix), or when its
-  smallest eigenvalue is below `-tol` times its largest.
+  smallest eigenvalue is below `-tol` times its largest. Under
+  `blocks > 1` they are the components of one block.
 
 - map:
 
@@ -39,6 +42,18 @@ additive_penalty(
   number of columns of the map. A map with an entry that is not finite
   is rejected, and so is a map that carries a component to the zero
   matrix, with an error that gives the position of that component.
+
+- blocks:
+
+  How many times each component is repeated blockwise, a whole number of
+  at least 1. `1L`, the default, gives the ordinary penalty. A value
+  above 1 cannot be combined with `map`.
+
+- readable:
+
+  `"lambda"` (the default) or `"sd"`, the quantities that
+  [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+  reports. See the section on the readable quantities.
 
 - link_lambda:
 
@@ -166,6 +181,28 @@ method of its own, before it calls
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md),
 and this class registers none.
 
+`blocks = m` builds the penalty whose components are \\I_m \otimes
+P_k\\, which is the form of a smooth repeated once per group. The sum is
+\\I_m \otimes S_1(\lambda)\\, with \\S_1\\ the sum over one block, so
+its rank is \\m\\ times the rank of the block, its log
+pseudo-determinant is \\m\log\mathrm{pdet}\\S_1(\lambda)\\, and both
+derivative blocks are \\m\\ times those of the block. The decomposition
+is taken on one block, and the repeated components are stored as sparse
+matrices, which is also the storage that
+[`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
+and
+[`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
+return. `blocks` cannot be combined with `map`.
+
+## The readable quantities
+
+`readable = "sd"` declares the smoothing parameters to be precisions of
+a prior, and
+[`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+then reports the standard deviations \\\sigma_k = \lambda_k^{-1/2}\\,
+named `sigma1`, `sigma2` and so on, in place of the parameters. The
+penalty itself is unchanged.
+
 ## See also
 
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
@@ -203,7 +240,7 @@ P2 <- crossprod(diff(diag(5), differences = 2))
 bb <- c(0.4, -1.1, 0.7, 0.2, -0.3)
 penalty_value(additive_penalty(list(P2)), bb, list(lambda1 = 3)) -
   penalty_value(quadratic_penalty(P2), bb, list(lambda = 3))
-#> [1] 7.105427e-15
+#> [1] 3.552714e-15
 
 # The stored rank stays fixed as the parameters spread apart, while an
 # eigenvalue count of the assembled sum drops.
@@ -216,4 +253,19 @@ sapply(c(1, 1e10), function(r) {
   sum(ev > 1e-10 * max(ev))
 })
 #> [1] 4 3
+
+# blocks = m repeats each component without decomposing the repetition.
+rep4 <- additive_penalty(list(crossprod(diff(diag(5))), P2), blocks = 4)
+c(n_coef = rep4@n_coef, rank = penalty_rank(rep4))
+#> n_coef   rank 
+#>     20     16 
+th <- list(lambda1 = 2, lambda2 = 0.5)
+penalty_logpdet(rep4, th)$value - 4 * penalty_logpdet(a, th)$value
+#> [1] 0
+
+# readable = "sd" reports the standard deviations of the prior.
+sdp <- additive_penalty(list(diag(2), diag(c(1, 2))), readable = "sd")
+penalty_readable(sdp, list(lambda1 = 4, lambda2 = 0.25))$value
+#> sigma1 sigma2 
+#>    0.5    2.0 
 ```

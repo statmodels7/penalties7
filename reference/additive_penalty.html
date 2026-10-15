@@ -15,7 +15,7 @@ another, whereas a single parameter smooths every direction alike."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,8 @@ another, whereas a single parameter smooths every direction alike.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">additive_penalty</span><span class="op">(</span></span>
 <span>  <span class="va">mats</span>,</span>
 <span>  map <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  blocks <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  readable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lambda"</span>, <span class="st">"sd"</span><span class="op">)</span>,</span>
 <span>  link_lambda <span class="op">=</span> <span class="fu">linkfunctions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/linkfunctions7/reference/log_link.html" class="external-link">log_link</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  tol <span class="op">=</span> <span class="fl">1e-10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -71,7 +73,8 @@ an entry that is not finite (<code>NA</code>, <code>NaN</code> or infinite), whe
 from its transpose by more than <code>1e-8</code> times the larger of 1 and its
 largest absolute entry, when its largest eigenvalue is not positive (a
 zero or negative semidefinite matrix), or when its smallest eigenvalue is
-below <code>-tol</code> times its largest.</p></dd>
+below <code>-tol</code> times its largest. Under <code>blocks &gt; 1</code> they are the
+components of one block.</p></dd>
 
 
 <dt id="arg-map">map<a class="anchor" aria-label="anchor" href="#arg-map"></a></dt>
@@ -82,6 +85,18 @@ map is absorbed at construction, each component becoming
 the number of columns of the map. A map with an entry that is not finite
 is rejected, and so is a map that carries a component to the zero matrix,
 with an error that gives the position of that component.</p></dd>
+
+
+<dt id="arg-blocks">blocks<a class="anchor" aria-label="anchor" href="#arg-blocks"></a></dt>
+<dd><p>How many times each component is repeated blockwise, a whole
+number of at least 1. <code>1L</code>, the default, gives the ordinary penalty. A
+value above 1 cannot be combined with <code>map</code>.</p></dd>
+
+
+<dt id="arg-readable">readable<a class="anchor" aria-label="anchor" href="#arg-readable"></a></dt>
+<dd><p><code>"lambda"</code> (the default) or <code>"sd"</code>, the quantities that
+<code><a href="penalty_readable.html">penalty_readable()</a></code> reports. See the section on the readable
+quantities.</p></dd>
 
 
 <dt id="arg-link-lambda">link_lambda<a class="anchor" aria-label="anchor" href="#arg-link-lambda"></a></dt>
@@ -180,6 +195,22 @@ with <code>numDeriv</code>, where the plain quadratic branch checks a slope.</p>
 <p><code><a href="has_prox.html">has_prox()</a></code> returns <code>FALSE</code>. That function first tests whether the class
 registers a <code><a href="penalty_prox.html">penalty_prox()</a></code> method of its own, before it calls
 <code><a href="is_quadratic.html">is_quadratic()</a></code>, and this class registers none.</p>
+<p><code>blocks = m</code> builds the penalty whose components are
+\(I_m \otimes P_k\), which is the form of a smooth repeated once per
+group. The sum is \(I_m \otimes S_1(\lambda)\), with \(S_1\) the sum
+over one block, so its rank is \(m\) times the rank of the block, its log
+pseudo-determinant is \(m\log\mathrm{pdet}\,S_1(\lambda)\), and both
+derivative blocks are \(m\) times those of the block. The decomposition is
+taken on one block, and the repeated components are stored as sparse
+matrices, which is also the storage that <code><a href="penalty_gradient.html">penalty_hessian()</a></code> and
+<code><a href="penalty_matrix.html">penalty_matrix()</a></code> return. <code>blocks</code> cannot be combined with <code>map</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="the-readable-quantities">The readable quantities<a class="anchor" aria-label="anchor" href="#the-readable-quantities"></a></h2>
+    <p><code>readable = "sd"</code> declares the smoothing parameters to be precisions of a
+prior, and <code><a href="penalty_readable.html">penalty_readable()</a></code> then reports the standard deviations
+\(\sigma_k = \lambda_k^{-1/2}\), named <code>sigma1</code>, <code>sigma2</code> and so on,
+in place of the parameters. The penalty itself is unchanged.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -215,7 +246,7 @@ computation that they share.</p></div>
 <span class="r-in"><span><span class="va">bb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="op">-</span><span class="fl">1.1</span>, <span class="fl">0.7</span>, <span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="fu">additive_penalty</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">P2</span><span class="op">)</span><span class="op">)</span>, <span class="va">bb</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="fu"><a href="quadratic_penalty.html">quadratic_penalty</a></span><span class="op">(</span><span class="va">P2</span><span class="op">)</span>, <span class="va">bb</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.105427e-15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.552714e-15</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The stored rank stays fixed as the parameters spread apart, while an</span></span></span>
 <span class="r-in"><span><span class="co"># eigenvalue count of the assembled sum drops.</span></span></span>
@@ -228,6 +259,21 @@ computation that they share.</p></div>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">ev</span> <span class="op">&gt;</span> <span class="fl">1e-10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">ev</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4 3</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># blocks = m repeats each component without decomposing the repetition.</span></span></span>
+<span class="r-in"><span><span class="va">rep4</span> <span class="op">&lt;-</span> <span class="fu">additive_penalty</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="va">P2</span><span class="op">)</span>, blocks <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="va">rep4</span><span class="op">@</span><span class="va">n_coef</span>, rank <span class="op">=</span> <span class="fu"><a href="penalty_matrix.html">penalty_rank</a></span><span class="op">(</span><span class="va">rep4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> n_coef   rank </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     20     16 </span>
+<span class="r-in"><span><span class="va">th</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">2</span>, lambda2 <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="penalty_matrix.html">penalty_logpdet</a></span><span class="op">(</span><span class="va">rep4</span>, <span class="va">th</span><span class="op">)</span><span class="op">$</span><span class="va">value</span> <span class="op">-</span> <span class="fl">4</span> <span class="op">*</span> <span class="fu"><a href="penalty_matrix.html">penalty_logpdet</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">th</span><span class="op">)</span><span class="op">$</span><span class="va">value</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># readable = "sd" reports the standard deviations of the prior.</span></span></span>
+<span class="r-in"><span><span class="va">sdp</span> <span class="op">&lt;-</span> <span class="fu">additive_penalty</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, readable <span class="op">=</span> <span class="st">"sd"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="penalty_readable.html">penalty_readable</a></span><span class="op">(</span><span class="va">sdp</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">4</span>, lambda2 <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">value</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sigma1 sigma2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.5    2.0 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

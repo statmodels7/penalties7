@@ -10,11 +10,13 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/ScadPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/StructuredPenalty.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/additive_blocks.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/additive_check_tol.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/additive_penalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/additive_stable.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/additive_sum.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/additive_tol.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/additive_zero.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/align_ptheta.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/as_map.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/beta_quadratic.html</loc></url>
@@ -57,6 +59,7 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_dhessian.penalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.penalty.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/penalty_draw.AdditivePenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_draw.DistribPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_draw.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.AdditivePenalty.html</loc></url>
@@ -91,6 +94,7 @@
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox.ScadPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.html</loc></url>
+<url><loc>https://statmodels7.github.io/penalties7/reference/penalty_readable.AdditivePenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_readable.DistribPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_readable.StructuredPenalty.html</loc></url>
 <url><loc>https://statmodels7.github.io/penalties7/reference/penalty_readable.html</loc></url>

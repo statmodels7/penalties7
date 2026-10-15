@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,15 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.32.0" id="penalties7-0320">penalties7 0.32.0<a class="anchor" aria-label="anchor" href="#penalties7-0320"></a></h2>
+<ul><li>
+<code><a href="../reference/additive_penalty.html">additive_penalty()</a></code> takes <code>blocks</code>. With <code>blocks = m</code> the components are , built from one block of each and stored sparse; the rank, the null basis, the log pseudo-determinant and both of its derivative blocks are computed on one block and multiplied by <code>m</code>. Against the assembled penalty on four blocks every quantity agrees exactly.</li>
+<li>
+<code><a href="../reference/additive_penalty.html">additive_penalty()</a></code> takes <code>readable</code>. Under <code>readable = "sd"</code>, <code><a href="../reference/penalty_readable.html">penalty_readable()</a></code> reports , named <code>sigma1</code>, <code>sigma2</code>, …, with a diagonal Jacobian and intervals on the log scale.</li>
+<li>
+<code><a href="../reference/penalty_draw.html">penalty_draw()</a></code> has a method for a blockwise additive penalty, which draws each block from one triangular factor of the precision of the block.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.31.0" id="penalties7-0310">penalties7 0.31.0<a class="anchor" aria-label="anchor" href="#penalties7-0310"></a></h2>
 <div class="section level3">

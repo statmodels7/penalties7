@@ -17,7 +17,7 @@ tolerance at which ranks are counted."><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.31.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,7 +65,10 @@ tolerance at which ranks are counted.</p>
 <span>  mats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  p_rank <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  null_basis <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  tol <span class="op">=</span> <span class="fl">1e-10</span></span>
+<span>  tol <span class="op">=</span> <span class="fl">1e-10</span>,</span>
+<span>  blocks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  block_mats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  readable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -136,11 +139,28 @@ tolerance, and <code><a href="additive_sum.html">additive_sum()</a></code> passe
 <code>r_tol</code>, so the rank of each group of components is counted at the same
 tolerance.</p></dd>
 
+
+<dt id="arg-blocks">blocks<a class="anchor" aria-label="anchor" href="#arg-blocks"></a></dt>
+<dd><p>How many times each component is repeated blockwise, a whole
+number. An empty value is read as 1. Above 1, <code>mats</code> holds the repeated
+components as sparse matrices and <code>block_mats</code> holds one block of each.</p></dd>
+
+
+<dt id="arg-block-mats">block_mats<a class="anchor" aria-label="anchor" href="#arg-block-mats"></a></dt>
+<dd><p>The components of one block, a list of base matrices, or
+an empty list when <code>blocks</code> is 1.</p></dd>
+
+
+<dt id="arg-readable">readable<a class="anchor" aria-label="anchor" href="#arg-readable"></a></dt>
+<dd><p><code>"lambda"</code> or <code>"sd"</code>: whether <code><a href="penalty_readable.html">penalty_readable()</a></code> reports
+the smoothing parameters themselves or the standard deviations
+\(\lambda_k^{-1/2}\). An empty value is read as <code>"lambda"</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An S7 object of class <code>AdditivePenalty</code>, inheriting from <code><a href="penalty.html">penalty()</a></code>,
-with the seven inherited properties and the four above. Its <code>map</code> is
+with the seven inherited properties and the seven above. Its <code>map</code> is
 always <code>NULL</code>, a map given to the constructor having been absorbed into
 <code>mats</code>.</p>
     </div>
@@ -186,9 +206,10 @@ example of <code><a href="additive_penalty.html">additive_penalty()</a></code> s
 <a href="penalty_d2hessian_beta.penalty.html">penalty_dhessian_beta_theta()</a>.
 The last two return zero matrices, the Hessian being free of the
 coefficients, and are documented on the page of the base-class methods.</p></li>
-</ul><p>The class registers no <code><a href="penalty_prox.html">penalty_prox()</a></code>, <code><a href="penalty_prox_spec.html">penalty_prox_spec()</a></code>,
-<code><a href="penalty_draw.html">penalty_draw()</a></code> or <code><a href="penalty_readable.html">penalty_readable()</a></code> method, so calls to those
-generics dispatch to the methods of the base class <code><a href="penalty.html">penalty()</a></code>.</p>
+</ul><p>The class registers no <code><a href="penalty_prox.html">penalty_prox()</a></code> or <code><a href="penalty_prox_spec.html">penalty_prox_spec()</a></code> method,
+so calls to those generics dispatch to the methods of the base class
+<code><a href="penalty.html">penalty()</a></code>. It has its own <code><a href="penalty_draw.html">penalty_draw()</a></code> and <code><a href="penalty_readable.html">penalty_readable()</a></code>
+methods.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
