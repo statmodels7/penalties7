@@ -550,7 +550,8 @@ S7::method(beta_quadratic, QuadraticPenalty) <- function(pen, theta, ...) TRUE
 #' @keywords internal
 S7::method(penalty_dhessian, AdditivePenalty) <- function(pen, beta, theta,
                                                           ...) {
-  stats::setNames(lapply(pen@mats, function(P) unclass(P)), pen@params)
+  stats::setNames(lapply(pen@mats, function(P)
+    if (methods::is(P, "Matrix")) P else unclass(P)), pen@params)
 }
 
 #' @rdname penalty_dhessian.AdditivePenalty
@@ -558,7 +559,7 @@ S7::method(penalty_dhessian, AdditivePenalty) <- function(pen, beta, theta,
 #' @keywords internal
 S7::method(penalty_d2hessian, AdditivePenalty) <- function(pen, beta, theta,
                                                            ...) {
-  zero_pairs(pen, matrix(0, as.integer(pen@n_coef), as.integer(pen@n_coef)))
+  zero_pairs(pen, additive_zero(pen))
 }
 
 #' @rdname penalty_dhessian.AdditivePenalty
@@ -1165,7 +1166,7 @@ S7::method(penalty_dhessian_beta, QuadraticPenalty) <- function(pen, beta,
 #' @keywords internal
 S7::method(penalty_dhessian_beta, AdditivePenalty) <- function(pen, beta,
                                                                theta, v, ...) {
-  matrix(0, as.integer(pen@n_coef), as.integer(pen@n_coef))
+  additive_zero(pen)
 }
 
 #' @rdname penalty_dhessian_beta.penalty

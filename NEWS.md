@@ -1,3 +1,16 @@
+# penalties7 0.32.0
+
+* `additive_penalty()` takes `blocks`. With `blocks = m` the components are
+  \eqn{I_m \otimes P_k}, built from one block of each and stored sparse; the
+  rank, the null basis, the log pseudo-determinant and both of its
+  derivative blocks are computed on one block and multiplied by `m`. Against
+  the assembled penalty on four blocks every quantity agrees exactly.
+* `additive_penalty()` takes `readable`. Under `readable = "sd"`,
+  `penalty_readable()` reports \eqn{\lambda_k^{-1/2}}, named `sigma1`,
+  `sigma2`, ..., with a diagonal Jacobian and intervals on the log scale.
+* `penalty_draw()` has a method for a blockwise additive penalty, which draws
+  each block from one triangular factor of the precision of the block.
+
 # penalties7 0.31.0
 
 ## Changes in behavior

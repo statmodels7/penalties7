@@ -7,20 +7,13 @@
 additive_penalty(
   mats,
   map = NULL,
+  blocks = 1L,
+  readable = c("lambda", "sd"),
   link_lambda = linkfunctions7::log_link(),
   tol = 1e-10
 )
 }
 \arguments{
-\item{mats}{A list of at least one symmetric positive semidefinite matrix,
-all with the same number of rows. Each component is symmetrized. A
-component is rejected with an error that gives its position when it has
-an entry that is not finite (\code{NA}, \code{NaN} or infinite), when it differs
-from its transpose by more than \code{1e-8} times the larger of 1 and its
-largest absolute entry, when its largest eigenvalue is not positive (a
-zero or negative semidefinite matrix), or when its smallest eigenvalue is
-below \code{-tol} times its largest.}
-
 \item{map}{The matrix \eqn{D}, with as many rows as each component has and
 one column per coefficient, or \code{NULL} (the default) for the identity. A
 map is absorbed at construction, each component becoming
@@ -28,6 +21,14 @@ map is absorbed at construction, each component becoming
 the number of columns of the map. A map with an entry that is not finite
 is rejected, and so is a map that carries a component to the zero matrix,
 with an error that gives the position of that component.}
+
+\item{blocks}{How many times each component is repeated blockwise, a whole
+number of at least 1. \code{1L}, the default, gives the ordinary penalty. A
+value above 1 cannot be combined with \code{map}.}
+
+\item{readable}{\code{"lambda"} (the default) or \code{"sd"}, the quantities that
+\code{\link[=penalty_readable]{penalty_readable()}} reports. See the section on the readable
+quantities.}
 
 \item{link_lambda}{The \pkg{linkfunctions7} link that carries each smoothing
 parameter onto the whole real line, \code{linkfunctions7::log_link()} by
@@ -130,6 +131,33 @@ with \code{numDeriv}, where the plain quadratic branch checks a slope.
 \code{\link[=has_prox]{has_prox()}} returns \code{FALSE}. That function first tests whether the class
 registers a \code{\link[=penalty_prox]{penalty_prox()}} method of its own, before it calls
 \code{\link[=is_quadratic]{is_quadratic()}}, and this class registers none.
+
+\code{blocks = m} builds the penalty whose components are
+\eqn{I_m \otimes P_k}, which is the form of a smooth repeated once per
+group. The sum is \eqn{I_m \otimes S_1(\lambda)}, with \eqn{S_1} the sum
+over one block, so its rank is \eqn{m} times the rank of the block, its log
+pseudo-determinant is \eqn{m\log\mathrm{pdet}\,S_1(\lambda)}, and both
+derivative blocks are \eqn{m} times those of the block. The decomposition is
+taken on one block, and the repeated components are stored as sparse
+matrices, which is also the storage that \code{\link[=penalty_hessian]{penalty_hessian()}} and
+\code{\link[=penalty_matrix]{penalty_matrix()}} return. \code{blocks} cannot be combined with \code{map}.
+}
+
+\section{The readable quantities}{
+\code{readable = "sd"} declares the smoothing parameters to be precisions of a
+prior, and \code{\link[=penalty_readable]{penalty_readable()}} then reports the standard deviations
+\eqn{\sigma_k = \lambda_k^{-1/2}}, named \code{sigma1}, \code{sigma2} and so on,
+in place of the parameters. The penalty itself is unchanged.
+
+#' @param mats A list of at least one symmetric positive semidefinite matrix,
+all with the same number of rows. Each component is symmetrized. A
+component is rejected with an error that gives its position when it has
+an entry that is not finite (\code{NA}, \code{NaN} or infinite), when it differs
+from its transpose by more than \code{1e-8} times the larger of 1 and its
+largest absolute entry, when its largest eigenvalue is not positive (a
+zero or negative semidefinite matrix), or when its smallest eigenvalue is
+below \code{-tol} times its largest. Under \code{blocks > 1} they are the
+components of one block.
 }
 
 \examples{
@@ -161,6 +189,16 @@ sapply(c(1, 1e10), function(r) {
   ev <- eigen(S, symmetric = TRUE, only.values = TRUE)$values
   sum(ev > 1e-10 * max(ev))
 })
+
+# blocks = m repeats each component without decomposing the repetition.
+rep4 <- additive_penalty(list(crossprod(diff(diag(5))), P2), blocks = 4)
+c(n_coef = rep4@n_coef, rank = penalty_rank(rep4))
+th <- list(lambda1 = 2, lambda2 = 0.5)
+penalty_logpdet(rep4, th)$value - 4 * penalty_logpdet(a, th)$value
+
+# readable = "sd" reports the standard deviations of the prior.
+sdp <- additive_penalty(list(diag(2), diag(c(1, 2))), readable = "sd")
+penalty_readable(sdp, list(lambda1 = 4, lambda2 = 0.25))$value
 
 }
 \seealso{

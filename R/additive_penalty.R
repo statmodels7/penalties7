@@ -52,9 +52,10 @@ NULL
 #'   The last two return zero matrices, the Hessian being free of the
 #'   coefficients, and are documented on the page of the base-class methods.
 #'
-#' The class registers no [penalty_prox()], [penalty_prox_spec()],
-#' [penalty_draw()] or [penalty_readable()] method, so calls to those
-#' generics dispatch to the methods of the base class [penalty()].
+#' The class registers no [penalty_prox()] or [penalty_prox_spec()] method,
+#' so calls to those generics dispatch to the methods of the base class
+#' [penalty()]. It has its own [penalty_draw()] and [penalty_readable()]
+#' methods.
 #'
 #' @inheritParams penalty
 #' @param mats A list of symmetric positive semidefinite matrices of the same
@@ -71,9 +72,17 @@ NULL
 #'   tolerance, and [additive_sum()] passes it to [additive_stable()] as
 #'   `r_tol`, so the rank of each group of components is counted at the same
 #'   tolerance.
+#' @param blocks How many times each component is repeated blockwise, a whole
+#'   number. An empty value is read as 1. Above 1, `mats` holds the repeated
+#'   components as sparse matrices and `block_mats` holds one block of each.
+#' @param block_mats The components of one block, a list of base matrices, or
+#'   an empty list when `blocks` is 1.
+#' @param readable `"lambda"` or `"sd"`: whether [penalty_readable()] reports
+#'   the smoothing parameters themselves or the standard deviations
+#'   \eqn{\lambda_k^{-1/2}}. An empty value is read as `"lambda"`.
 #'
 #' @return An S7 object of class `AdditivePenalty`, inheriting from [penalty()],
-#'   with the seven inherited properties and the four above. Its `map` is
+#'   with the seven inherited properties and the seven above. Its `map` is
 #'   always `NULL`, a map given to the constructor having been absorbed into
 #'   `mats`.
 #'
@@ -99,9 +108,28 @@ AdditivePenalty <- S7::new_class(
     mats = S7::class_list,
     p_rank = S7::class_numeric,
     null_basis = S7::class_any,
-    tol = S7::new_property(S7::class_numeric, default = 1e-10)
+    tol = S7::new_property(S7::class_numeric, default = 1e-10),
+    blocks = S7::class_numeric,
+    block_mats = S7::class_list,
+    readable = S7::class_character
   )
 )
+
+#' How Many Blocks an Additive Penalty Repeats
+#'
+#' @description
+#' Returns the `blocks` property as a single integer, reading an empty value
+#' as 1.
+#'
+#' @param pen An [AdditivePenalty()] object.
+#'
+#' @return A single integer of at least 1.
+#'
+#' @keywords internal
+additive_blocks <- function(pen) {
+  b <- pen@blocks
+  if (!length(b)) 1L else as.integer(b[[1L]])
+}
 
 #' @title Construct a Sum of Quadratic Penalties
 #'
@@ -193,14 +221,34 @@ AdditivePenalty <- S7::new_class(
 #' registers a [penalty_prox()] method of its own, before it calls
 #' [is_quadratic()], and this class registers none.
 #'
-#' @param mats A list of at least one symmetric positive semidefinite matrix,
+# Blockwise repetition
+#'
+#' `blocks = m` builds the penalty whose components are
+#' \eqn{I_m \otimes P_k}, which is the form of a smooth repeated once per
+#' group. The sum is \eqn{I_m \otimes S_1(\lambda)}, with \eqn{S_1} the sum
+#' over one block, so its rank is \eqn{m} times the rank of the block, its log
+#' pseudo-determinant is \eqn{m\log\mathrm{pdet}\,S_1(\lambda)}, and both
+#' derivative blocks are \eqn{m} times those of the block. The decomposition is
+#' taken on one block, and the repeated components are stored as sparse
+#' matrices, which is also the storage that [penalty_hessian()] and
+#' [penalty_matrix()] return. `blocks` cannot be combined with `map`.
+#'
+#' # The readable quantities
+#'
+#' `readable = "sd"` declares the smoothing parameters to be precisions of a
+#' prior, and [penalty_readable()] then reports the standard deviations
+#' \eqn{\sigma_k = \lambda_k^{-1/2}}, named `sigma1`, `sigma2` and so on,
+#' in place of the parameters. The penalty itself is unchanged.
+#'
+#' #' @param mats A list of at least one symmetric positive semidefinite matrix,
 #'   all with the same number of rows. Each component is symmetrized. A
 #'   component is rejected with an error that gives its position when it has
 #'   an entry that is not finite (`NA`, `NaN` or infinite), when it differs
 #'   from its transpose by more than `1e-8` times the larger of 1 and its
 #'   largest absolute entry, when its largest eigenvalue is not positive (a
 #'   zero or negative semidefinite matrix), or when its smallest eigenvalue is
-#'   below `-tol` times its largest.
+#'   below `-tol` times its largest. Under `blocks > 1` they are the
+#'   components of one block.
 #' @param map The matrix \eqn{D}, with as many rows as each component has and
 #'   one column per coefficient, or `NULL` (the default) for the identity. A
 #'   map is absorbed at construction, each component becoming
@@ -211,6 +259,12 @@ AdditivePenalty <- S7::new_class(
 #' @param link_lambda The \pkg{linkfunctions7} link that carries each smoothing
 #'   parameter onto the whole real line, `linkfunctions7::log_link()` by
 #'   default. The same link is used for every parameter.
+#' @param blocks How many times each component is repeated blockwise, a whole
+#'   number of at least 1. `1L`, the default, gives the ordinary penalty. A
+#'   value above 1 cannot be combined with `map`.
+#' @param readable `"lambda"` (the default) or `"sd"`, the quantities that
+#'   [penalty_readable()] reports. See the section on the readable
+#'   quantities.
 #' @param tol The relative eigenvalue tolerance, `1e-10` by default. It is used
 #'   to reject a component whose smallest eigenvalue is below `-tol` times its
 #'   largest, and to count the rank of the sum of the components, each divided
@@ -252,6 +306,16 @@ AdditivePenalty <- S7::new_class(
 #'   sum(ev > 1e-10 * max(ev))
 #' })
 #'
+#' # blocks = m repeats each component without decomposing the repetition.
+#' rep4 <- additive_penalty(list(crossprod(diff(diag(5))), P2), blocks = 4)
+#' c(n_coef = rep4@n_coef, rank = penalty_rank(rep4))
+#' th <- list(lambda1 = 2, lambda2 = 0.5)
+#' penalty_logpdet(rep4, th)$value - 4 * penalty_logpdet(a, th)$value
+#'
+#' # readable = "sd" reports the standard deviations of the prior.
+#' sdp <- additive_penalty(list(diag(2), diag(c(1, 2))), readable = "sd")
+#' penalty_readable(sdp, list(lambda1 = 4, lambda2 = 0.25))$value
+#'
 #' @seealso [quadratic_penalty()] for one matrix with one scale,
 #'   [structured_penalty()] for a matrix whose entries move with the
 #'   hyperparameters, [penalty_logpdet.AdditivePenalty()] for the log
@@ -259,11 +323,23 @@ AdditivePenalty <- S7::new_class(
 #'   computation that they share.
 #'
 #' @export
-additive_penalty <- function(mats, map = NULL,
+additive_penalty <- function(mats, map = NULL, blocks = 1L,
+                             readable = c("lambda", "sd"),
                              link_lambda = linkfunctions7::log_link(),
                              tol = 1e-10) {
   if (!is.list(mats) || length(mats) < 1L) {
     stop("'mats' must be a non-empty list of matrices.", call. = FALSE)
+  }
+  readable <- match.arg(readable)
+  if (!is.numeric(blocks) || length(blocks) != 1L || is.na(blocks) ||
+      blocks < 1 || blocks != round(blocks)) {
+    stop("'blocks' must be a whole number of at least 1.", call. = FALSE)
+  }
+  blocks <- as.integer(blocks)
+  if (blocks > 1L && !is.null(map)) {
+    stop(paste0("'blocks' and 'map' do not combine: a map mixes the blocks,",
+                " so the\n  components are not block diagonal with the",
+                " structure 'blocks' names."), call. = FALSE)
   }
   mats <- lapply(seq_along(mats), function(k) {
     P <- as.matrix(mats[[k]])
@@ -340,6 +416,20 @@ additive_penalty <- function(mats, map = NULL,
   # lambda, which is what makes it a property of the family
   nb <- es$vectors[, !keep, drop = FALSE]
 
+  # REPEATED BLOCKWISE, the rank, the null basis and every determinant follow
+  # from one block, the eigenvalues of I_m (x) S_1 being S_1's repeated m
+  # times; the repeated components are stored sparse and never decomposed
+  bm <- list()
+  if (blocks > 1L) {
+    bm <- mats
+    I <- Matrix::Diagonal(blocks)
+    mats <- lapply(bm, function(P) Matrix::kronecker(
+      I, methods::as(Matrix::Matrix(P, sparse = TRUE), "generalMatrix")))
+    nb <- Matrix::kronecker(I, Matrix::Matrix(nb, sparse = TRUE))
+    r <- blocks * r
+    d <- blocks * d
+  }
+
   nm <- paste0("lambda", seq_along(mats))
   AdditivePenalty(
     penalty_name = sprintf("additive [%d components]", length(mats)),
@@ -353,7 +443,10 @@ additive_penalty <- function(mats, map = NULL,
     mats = mats,
     p_rank = r,
     null_basis = nb,
-    tol = tol
+    tol = tol,
+    blocks = blocks,
+    block_mats = bm,
+    readable = readable
   )
 }
 
@@ -451,7 +544,15 @@ additive_penalty <- function(mats, map = NULL,
 additive_sum <- function(pen, theta) {
   lam <- unlist(theta[pen@params])
   S <- Reduce(`+`, Map(function(P, l) l * P, pen@mats, lam))
-  st <- additive_stable(pen@mats, lam, pen@p_rank, r_tol = pen@tol)
+  m <- additive_blocks(pen)
+  st <- if (m > 1L) {
+    # one block decomposed, and every determinant quantity m times its own
+    s1 <- additive_stable(pen@block_mats, lam, pen@p_rank / m,
+                          r_tol = pen@tol)
+    list(value = m * s1$value, dlog = m * s1$dlog, d2log = m * s1$d2log)
+  } else {
+    additive_stable(pen@mats, lam, pen@p_rank, r_tol = pen@tol)
+  }
   # tr(S+ S) = r exactly, so this sum is the rank whatever the parameters are.
   # It is free -- the gradient is computed anyway -- it needs no reference,
   # and it is the only check available where the spread puts a finite
@@ -745,7 +846,7 @@ additive_stable <- function(mats, lam, p_rank, d_tol = additive_tol(),
 #' @keywords internal
 S7::method(penalty_value, AdditivePenalty) <- function(pen, beta, theta, ...) {
   a <- additive_sum(pen, theta)
-  0.5 * sum(beta * (a$S %*% beta)) - 0.5 * a$logpdet +
+  0.5 * sum(beta * as.numeric(a$S %*% beta)) - 0.5 * a$logpdet +
     pen@p_rank / 2 * log(2 * pi)
 }
 
@@ -870,7 +971,8 @@ S7::method(penalty_grad_theta, AdditivePenalty) <-
   function(pen, beta, theta, scale = c("parameter", "link"), ...) {
     a <- additive_sum(pen, theta)
     stats::setNames(lapply(seq_along(pen@mats), function(k) {
-      0.5 * sum(beta * (pen@mats[[k]] %*% beta)) - 0.5 * a$dlog[[k]]
+      0.5 * sum(beta * as.numeric(pen@mats[[k]] %*% beta)) -
+        0.5 * a$dlog[[k]]
     }), pen@params)
   }
 
@@ -1083,3 +1185,66 @@ S7::method(penalty_null_basis, AdditivePenalty) <- function(pen, ...) {
 #'   predicate gates.
 #' @keywords internal
 S7::method(is_quadratic, AdditivePenalty) <- function(pen, ...) TRUE
+
+
+#' The Zero Matrix of an Additive Penalty's Side
+#'
+#' @description
+#' Returns the zero matrix of side `pen@n_coef`: sparse when the penalty is
+#' repeated blockwise, so that a third-order block added to it by a caller
+#' is not allocated dense, and a base matrix otherwise.
+#'
+#' @param pen An [AdditivePenalty()] object.
+#'
+#' @return A square zero matrix.
+#'
+#' @keywords internal
+additive_zero <- function(pen) {
+  n <- as.integer(pen@n_coef)
+  if (additive_blocks(pen) > 1L) {
+    return(Matrix::sparseMatrix(i = integer(0), j = integer(0), x = numeric(0),
+                                dims = c(n, n)))
+  }
+  matrix(0, n, n)
+}
+
+
+#' @title Readable Quantities of an Additive Penalty
+#' @name penalty_readable.AdditivePenalty
+#'
+#' @description
+#' Returns `NULL` for a penalty built with `readable = "lambda"`, whose
+#' smoothing parameters are the quantities reported, and the standard
+#' deviations \eqn{\sigma_k = \lambda_k^{-1/2}} for one built with
+#' `readable = "sd"`.
+#'
+#' @details
+#' Each standard deviation depends on its own parameter alone, so the Jacobian
+#' is diagonal, with entries \eqn{-\tfrac{1}{2}\lambda_k^{-3/2}}, and each
+#' interval is built on the log scale.
+#'
+#' @param pen An [AdditivePenalty()] object.
+#' @param theta A named list of `lambda1`, `lambda2`, ...
+#' @param ... Unused, and accepted so that the signature matches the generic's.
+#'
+#' @return `NULL`, or a list of `value` (named `sigma1`, `sigma2`, ...),
+#'   `jacobian`, `transform` and `block`, as [penalty_readable()] documents.
+#'
+#' @examples
+#' pen <- additive_penalty(list(diag(2), diag(c(1, 2))), readable = "sd")
+#' penalty_readable(pen, list(lambda1 = 4, lambda2 = 0.25))
+#'
+#' @seealso [penalty_readable()] for the generic, [additive_penalty()] for
+#'   the argument.
+#' @keywords internal
+S7::method(penalty_readable, AdditivePenalty) <- function(pen, theta, ...) {
+  if (!identical(pen@readable, "sd")) return(NULL)
+  lam <- unlist(theta[pen@params])
+  K <- length(lam)
+  nm <- paste0("sigma", seq_len(K))
+  J <- diag(-0.5 * lam^(-1.5), K, K)
+  dimnames(J) <- list(nm, pen@params)
+  list(value = stats::setNames(lam^(-0.5), nm), jacobian = J,
+       transform = rep("log", K), block = rep("sd", K))
+}
+

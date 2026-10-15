@@ -15,7 +15,10 @@ AdditivePenalty(
   mats = list(),
   p_rank = integer(0),
   null_basis = NULL,
-  tol = 1e-10
+  tol = 1e-10,
+  blocks = integer(0),
+  block_mats = list(),
+  readable = character(0)
 )
 }
 \arguments{
@@ -60,10 +63,21 @@ eigendecomposition as \code{p_rank} and fixed in the same way.}
 tolerance, and \code{\link[=additive_sum]{additive_sum()}} passes it to \code{\link[=additive_stable]{additive_stable()}} as
 \code{r_tol}, so the rank of each group of components is counted at the same
 tolerance.}
+
+\item{blocks}{How many times each component is repeated blockwise, a whole
+number. An empty value is read as 1. Above 1, \code{mats} holds the repeated
+components as sparse matrices and \code{block_mats} holds one block of each.}
+
+\item{block_mats}{The components of one block, a list of base matrices, or
+an empty list when \code{blocks} is 1.}
+
+\item{readable}{\code{"lambda"} or \code{"sd"}: whether \code{\link[=penalty_readable]{penalty_readable()}} reports
+the smoothing parameters themselves or the standard deviations
+\eqn{\lambda_k^{-1/2}}. An empty value is read as \code{"lambda"}.}
 }
 \value{
 An S7 object of class \code{AdditivePenalty}, inheriting from \code{\link[=penalty]{penalty()}},
-with the seven inherited properties and the four above. Its \code{map} is
+with the seven inherited properties and the seven above. Its \code{map} is
 always \code{NULL}, a map given to the constructor having been absorbed into
 \code{mats}.
 }
@@ -118,9 +132,10 @@ The last two return zero matrices, the Hessian being free of the
 coefficients, and are documented on the page of the base-class methods.
 }
 
-The class registers no \code{\link[=penalty_prox]{penalty_prox()}}, \code{\link[=penalty_prox_spec]{penalty_prox_spec()}},
-\code{\link[=penalty_draw]{penalty_draw()}} or \code{\link[=penalty_readable]{penalty_readable()}} method, so calls to those
-generics dispatch to the methods of the base class \code{\link[=penalty]{penalty()}}.
+The class registers no \code{\link[=penalty_prox]{penalty_prox()}} or \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} method,
+so calls to those generics dispatch to the methods of the base class
+\code{\link[=penalty]{penalty()}}. It has its own \code{\link[=penalty_draw]{penalty_draw()}} and \code{\link[=penalty_readable]{penalty_readable()}}
+methods.
 }
 
 \examples{

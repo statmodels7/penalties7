@@ -1,4 +1,5 @@
 #' @include generics.R distrib_penalty.R quadratic_penalty.R prox.R
+#' @include additive_penalty.R
 NULL
 
 #' @title Drawing From a Penalty Read as a Prior
@@ -182,4 +183,45 @@ S7::method(penalty_draw, DistribPenalty) <- function(pen, theta, ...) {
   out <- t / d
   out[is.na(d) | d == 0] <- NA_real_
   out
+}
+
+
+#' @title Drawing From an Additive Penalty
+#' @name penalty_draw.AdditivePenalty
+#'
+#' @description
+#' One draw from the Gaussian prior with precision \eqn{S(\lambda)}, block by
+#' block where the penalty is repeated blockwise.
+#'
+#' @details
+#' With one block the draw is the base method's. Repeated blockwise, the
+#' precision is \eqn{I_m \otimes S_1(\lambda)}, so one triangular factor of
+#' \eqn{S_1} gives every block: with \eqn{S_1 = R^\top R} the vector
+#' \eqn{R^{-1}z} has covariance \eqn{S_1^{-1}}. A block whose precision is
+#' singular is not a proper prior and comes back `NA`, as the base method
+#' returns it.
+#'
+#' @param pen An [AdditivePenalty()] object.
+#' @param theta A named list of `lambda1`, `lambda2`, ...
+#' @param ... Unused.
+#'
+#' @return A numeric vector of length `pen@n_coef`.
+#'
+#' @examples
+#' pen <- additive_penalty(list(diag(2), diag(c(1, 2))), blocks = 3)
+#' set.seed(1)
+#' penalty_draw(pen, list(lambda1 = 1, lambda2 = 4))
+#'
+#' @seealso [penalty_draw()]
+#' @keywords internal
+S7::method(penalty_draw, AdditivePenalty) <- function(pen, theta, ...) {
+  m <- additive_blocks(pen)
+  if (m == 1L) return(S7::method(penalty_draw, penalty)(pen, theta, ...))
+  n <- as.integer(pen@n_coef)
+  lam <- unlist(theta[pen@params])
+  S1 <- Reduce(`+`, Map(function(P, l) l * P, pen@block_mats, lam))
+  R <- try(chol(S1), silent = TRUE)
+  if (inherits(R, "try-error")) return(rep(NA_real_, n))
+  q <- nrow(S1)
+  as.numeric(backsolve(R, matrix(stats::rnorm(n), q, m)))
 }
