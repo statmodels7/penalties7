@@ -23,7 +23,8 @@ the covariance.
 - theta:
 
   A named list of the structure's free values, already aligned by the
-  generic. The bounds are the whole line, so no value is rejected here.
+  generic. The bounds are the whole line, so this method rejects no
+  value.
 
 - ...:
 

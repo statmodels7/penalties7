@@ -1,6 +1,6 @@
 # S7 Class for a Sum of Quadratic Penalties
 
-The class of the objects that
+This class holds the objects that
 [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
 builds: several quadratic penalties added together, each with a
 smoothing parameter of its own. Beyond the seven properties that every
@@ -42,23 +42,23 @@ AdditivePenalty(
 
   The matrix \\D\\, of \\m\\ rows and \\q\\ columns, or `NULL` for the
   identity. A Matrix object is kept in its own storage, so a diagonal
-  map, which is what standardization produces, is recognized as diagonal
-  by its class.
+  map, such as the map that standardization produces, is recognized as
+  diagonal by its class.
 
 - n_coef:
 
-  The number of coefficients \\q\\. A single whole number.
+  The number of coefficients \\q\\. The value is a single whole number.
 
 - params:
 
-  The hyperparameter names, in the order every derivative list is keyed
-  by. `character(0)` for a penalty with none.
+  The hyperparameter names, in the order by which every derivative list
+  is keyed. The value is `character(0)` for a penalty with none.
 
 - params_bounds:
 
-  A named list, one entry per hyperparameter, each a numeric pair giving
-  an **open** interval. A value at either endpoint is rejected, so
-  `(0, Inf)` excludes zero.
+  A named list with one entry per hyperparameter, and each entry is a
+  numeric pair giving an open interval. A value at either endpoint is
+  rejected, so `(0, Inf)` excludes zero.
 
 - link_params:
 
@@ -124,15 +124,15 @@ AdditivePenalty(
 An S7 object of class `AdditivePenalty`, inheriting from
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md),
 with the seven inherited properties and the seven above. Its `map` is
-always `NULL`, a map given to the constructor having been absorbed into
+always `NULL`, because a map given to the constructor is absorbed into
 `mats`.
 
 ## Details
 
-The rank and the null basis are stored because both are properties of
-the components alone. The null space of a sum of positive semidefinite
-matrices with positive weights is the intersection of the null spaces of
-the components, so neither the rank nor the null basis changes with the
+The rank and the null basis are stored because both depend only on the
+components. The null space of a sum of positive semidefinite matrices
+with positive weights is the intersection of the null spaces of the
+components, so the rank and the null basis do not change with the
 smoothing parameters. A rank counted on the assembled \\S(\lambda)\\
 would fall as the parameters spread apart, because the smaller
 contributions drop below any fixed relative eigenvalue tolerance; the
@@ -142,7 +142,8 @@ shows this.
 
 ## Methods
 
-The methods registered on this class, by the page that documents each.
+The list below gives the methods registered on this class, by the page
+that documents each.
 
 - The value and its coefficient derivatives:
   [penalty_value()](https://statmodels7.github.io/penalties7/reference/penalty_value.AdditivePenalty.md),
@@ -181,8 +182,8 @@ The methods registered on this class, by the page that documents each.
   [penalty_d2hessian_beta()](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md)
   and
   [penalty_dhessian_beta_theta()](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md).
-  The last two return zero matrices, the Hessian being free of the
-  coefficients, and are documented on the page of the base-class
+  The last two return zero matrices, because the Hessian does not depend
+  on the coefficients, and are documented on the page of the base-class
   methods.
 
 The class registers no
@@ -214,7 +215,8 @@ pen <- additive_penalty(list(diag(3), diag(c(1, 0, 0))))
 S7::S7_inherits(pen, AdditivePenalty)
 #> [1] TRUE
 
-# One hyperparameter per component, and a rank fixed at construction.
+# The penalty has one hyperparameter per component and a rank fixed at
+# construction.
 pen@params
 #> [1] "lambda1" "lambda2"
 c(rank = pen@p_rank, null_width = ncol(pen@null_basis))

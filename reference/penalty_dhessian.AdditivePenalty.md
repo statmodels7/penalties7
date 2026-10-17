@@ -1,9 +1,9 @@
 # Marginal Derivatives of an Additive Penalty
 
-The methods of the additive branch for the four generics that a marginal
-criterion requires beyond the second order. With \\S_k = D'P_kD\\, the
-Hessian \\S = \sum_k \lambda_k S_k\\ is linear in the smoothing
-parameters and free of the coefficients, so
+The methods of the additive branch cover the four generics that a
+marginal criterion requires beyond the second order. With \\S_k =
+D'P_kD\\, the Hessian \\S = \sum_k \lambda_k S_k\\ is linear in the
+smoothing parameters and free of the coefficients, so
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
 returns the components \\S_k\\ themselves,
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
@@ -23,11 +23,11 @@ returns `TRUE`.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`. Unused.
+  A numeric vector of length `pen@n_coef`. The methods do not use it.
 
 - theta:
 
-  A named list of `lambda1`, `lambda2`, ... Unused.
+  A named list of `lambda1`, `lambda2`, ... The methods do not use it.
 
 - ...:
 
@@ -36,20 +36,21 @@ returns `TRUE`.
 ## Value
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-a list of one base matrix per component, named by `pen@params`.
+returns a list of one base matrix per component, named by `pen@params`.
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
-a list of zero matrices, one per unordered pair.
+returns a list of zero matrices, one per unordered pair.
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
-a list of zero vectors, one per unordered pair.
+returns a list of zero vectors, one per unordered pair.
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
-the single logical `TRUE`.
+returns the single logical `TRUE`.
 
 ## Details
 
-Every entry is exact, and none is computed at call time. The components
-were fixed at construction and are stored already carried through the
-map, so the first derivative is a lookup of `pen@mats` and the higher
-ones are zeros of the right shape. Under the identity map \\S_k = P_k\\.
+Every entry is exact, and the methods do not compute any entry at call
+time. The components were fixed at construction and are stored already
+carried through the map, so the first derivative is a lookup of
+`pen@mats` and the higher ones are zeros of the right shape. Under the
+identity map \\S_k = P_k\\.
 
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
 returns `TRUE` for this branch, as it does for the quadratic and

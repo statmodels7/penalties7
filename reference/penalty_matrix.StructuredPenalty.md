@@ -1,6 +1,7 @@
 # Marginal Quantities of a Structured Penalty
 
-The four quantities that a REML or marginal likelihood criterion reads.
+This page documents the four quantities that a REML or marginal
+likelihood criterion reads.
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns the precision \\\Omega(\theta)\\,
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
@@ -21,11 +22,11 @@ derivatives in the free values.
 
 - theta:
 
-  A named list of the structure's free values.
+  A named list of the structure's free values. Only
   [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
   and
   [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-  only.
+  read it.
 
 - ...:
 
@@ -34,16 +35,16 @@ derivatives in the free values.
 ## Value
 
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-the symmetric precision matrix, of side `pen@n_coef`, carrying the
-structure's own dimnames.
+returns the symmetric precision matrix, of side `pen@n_coef`, carrying
+the structure's own dimnames.
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-a single integer, the structure's rank.
+returns a single integer, the structure's rank.
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-a matrix with `pen@n_coef` rows and one column per null direction, with
-no columns for a full-rank structure.
+returns a matrix with `pen@n_coef` rows and one column per null
+direction, with no columns for a full-rank structure.
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-a list of `value` (a number), `grad` (a list of one number per free
-value) and `hess` (a list of one number per unordered pair, keyed
+returns a list of `value` (a number), `grad` (a list of one number per
+free value) and `hess` (a list of one number per unordered pair, keyed
 diagonals first).
 
 ## Details
@@ -87,7 +88,7 @@ all.equal(penalty_matrix(pen, th), penalty_hessian(pen, c(0, 0, 0, 0), th))
 #> [1] TRUE
 
 # And its log pseudo-determinant is the ordinary log-determinant here,
-# the structure being full rank.
+# because the structure is full rank.
 lp <- penalty_logpdet(pen, th)
 lp$value - as.numeric(
   determinant(penalty_matrix(pen, th), logarithm = TRUE)$modulus)

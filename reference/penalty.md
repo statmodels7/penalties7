@@ -1,13 +1,13 @@
 # S7 Base Class for Penalties
 
-The abstract parent of every penalty in this package. A penalty is a
-scalar function of the coefficients, written \\\rho(D\beta; \theta)\\: a
-linear map \\D\\ that selects or combines coefficients, a scalar
-function \\\rho\\ applied to what the map returns, and hyperparameters
-\\\theta\\ that scale or shape it. The class holds no mathematics of its
-own. It records the pieces that every branch needs, so that a penalty's
-size, its hyperparameter names and their bounds can be read without
-knowing which branch it is.
+This class is the abstract parent of every penalty in this package. A
+penalty is a scalar function of the coefficients, written \\\rho(D\beta;
+\theta)\\: a linear map \\D\\ that selects or combines coefficients, a
+scalar function \\\rho\\ applied to what the map returns, and
+hyperparameters \\\theta\\ that scale or shape it. The class holds no
+mathematics of its own. It records the pieces that every branch needs,
+so that a penalty's size, its hyperparameter names and their bounds can
+be read in the same way for every branch.
 
 ## Usage
 
@@ -35,23 +35,23 @@ penalty(
 
   The matrix \\D\\, of \\m\\ rows and \\q\\ columns, or `NULL` for the
   identity. A Matrix object is kept in its own storage, so a diagonal
-  map, which is what standardization produces, is recognized as diagonal
-  by its class.
+  map, such as the map that standardization produces, is recognized as
+  diagonal by its class.
 
 - n_coef:
 
-  The number of coefficients \\q\\. A single whole number.
+  The number of coefficients \\q\\. The value is a single whole number.
 
 - params:
 
-  The hyperparameter names, in the order every derivative list is keyed
-  by. `character(0)` for a penalty with none.
+  The hyperparameter names, in the order by which every derivative list
+  is keyed. The value is `character(0)` for a penalty with none.
 
 - params_bounds:
 
-  A named list, one entry per hyperparameter, each a numeric pair giving
-  an **open** interval. A value at either endpoint is rejected, so
-  `(0, Inf)` excludes zero.
+  A named list with one entry per hyperparameter, and each entry is a
+  numeric pair giving an open interval. A value at either endpoint is
+  rejected, so `(0, Inf)` excludes zero.
 
 - link_params:
 
@@ -76,8 +76,8 @@ and the other generics without a base method signal an error for it.
 With \\q\\ coefficients and a map of \\m\\ rows, `beta` is a vector of
 length \\q\\, \\D\beta\\ has length \\m\\, and every derivative in the
 coefficients is returned with length \\q\\ or shape \\q \times q\\. A
-`NULL` map is the identity, and then \\m = q\\ and no arithmetic is
-done.
+`NULL` map is the identity, and then \\m = q\\ and applying the map
+involves no arithmetic.
 
 Each hyperparameter carries a linkfunctions7 link in `link_params`,
 which maps its own open interval onto the whole real line. A penalty can
@@ -130,7 +130,7 @@ and
 [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
 and
 [`structured_penalty()`](https://statmodels7.github.io/penalties7/reference/structured_penalty.md),
-the last built on a parameters7 matrix parameter.
+which is built on a parameters7 matrix parameter.
 
 ## Methods
 
@@ -211,7 +211,7 @@ pen <- quadratic_penalty(crossprod(diff(diag(4))), map = NULL)
 S7::S7_inherits(pen, penalty)
 #> [1] TRUE
 
-# The properties that can be read without knowing the branch.
+# These properties can be read in the same way for every branch.
 pen@penalty_name
 #> [1] "quadratic"
 pen@n_coef
@@ -223,8 +223,8 @@ pen@params_bounds
 #> [1]   0 Inf
 #> 
 
-# A first-difference map over three coefficients: three coefficients in,
-# two rows out.
+# A first-difference map over three coefficients takes three coefficients
+# in and returns two rows.
 D <- diff(diag(3))
 mapped <- quadratic_penalty(diag(2), map = D)
 mapped

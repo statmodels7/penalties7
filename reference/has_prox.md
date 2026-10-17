@@ -1,10 +1,10 @@
 # Does a Penalty Supply a Proximal Operator?
 
-`TRUE` when
+Returns `TRUE` when
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
 has an operator for this penalty, so that a caller can route a block to
-a proximal method. `FALSE` when the penalty has none, and the block then
-goes to a smooth method or to a scheme of its own.
+a proximal method. Returns `FALSE` when the penalty has none, and the
+block then goes to a smooth method or to a scheme of its own.
 
 ## Usage
 
@@ -46,10 +46,10 @@ The value for each shipped branch is:
 | quadratic, at any map | `TRUE` |
 | structured | `TRUE` |
 | ridge, lasso, elastic net, heavy-tailed, with no map | `TRUE` |
-| a separable penalty under a **diagonal** map with nonzero entries | `TRUE` |
-| SCAD, MCP, with no map or a **diagonal** map with nonzero entries | `TRUE` |
-| **additive** | `FALSE` |
-| a separable, SCAD or MCP penalty under a **general** map | `FALSE` |
+| a separable penalty under a diagonal map with nonzero entries | `TRUE` |
+| SCAD, MCP, with no map or a diagonal map with nonzero entries | `TRUE` |
+| additive | `FALSE` |
+| a separable, SCAD or MCP penalty under a general map | `FALSE` |
 | a separable penalty read in blocks | `FALSE` |
 
 ## Conditions on the step and on the parent
@@ -57,11 +57,11 @@ The value for each shipped branch is:
 A `TRUE` value means that the penalty has an operator; a call can still
 signal an error for some steps and some parents. SCAD and MCP return
 `TRUE` and reject a step for which \\t c_j\\ reaches \\a - 1\\ or
-\\\gamma\\ in some coordinate (with \\c_j\\ the curvature and \\t\\
-multiplied by \\d_j^2\\ under a diagonal map), because the subproblem is
-then not convex and the operator is set-valued. A Laplace or elastic-net
-parent that is not centered at zero, and a separable parent that
-declares a kink and has no closed form, return `TRUE`, and the call
+\\\gamma\\ in some coordinate (where \\c_j\\ is the curvature and \\t\\
+is multiplied by \\d_j^2\\ under a diagonal map), because the subproblem
+is then not convex and the operator is set-valued. A Laplace or
+elastic-net parent that is not centered at zero, and a separable parent
+that declares a kink and has no closed form, return `TRUE`, and the call
 signals an error.
 
 ## See also
@@ -99,8 +99,9 @@ c(diagonal = has_prox(lasso_penalty(map = Matrix::Diagonal(x = c(1, 2, 3)))),
 has_prox(scad_penalty(n_coef = 1))
 #> [1] TRUE
 try(penalty_prox(scad_penalty(n_coef = 1), 2, 2.7, list(lambda = 1, a = 3.7)))
-#> Error : the SCAD proximal operator needs step < a - 1 (2.7 here), with the step
-#>   multiplied by the curvature and, under a diagonal map, by the squared
-#>   diagonal entry; the largest scaled step is 2.7. Beyond that bound the
-#>   subproblem is not convex and the operator is set-valued.
+#> Error : the SCAD proximal operator needs step < a - 1 (2.7 here), where the
+#>   step is multiplied by the curvature and, under a diagonal map, by
+#>   the squared diagonal entry; the largest scaled step is 2.7. Beyond
+#>   that bound the subproblem is not convex and the operator is
+#>   set-valued.
 ```

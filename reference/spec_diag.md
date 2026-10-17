@@ -27,7 +27,7 @@ spec_diag(pen, step, build)
 - build:
 
   A function of a penalty and a step returning the table, or `NULL`. It
-  is called on the penalty with its map removed.
+  is called on the penalty after the map has been removed.
 
 ## Value
 
@@ -47,9 +47,9 @@ carries the table across. The identity-map table reads \\\lvert w\rvert
 \le \mathrm{cut}\\ to \\\mathrm{sign}(w)(\mathrm{slope}\\\lvert
 w\rvert + \mathrm{icept})\\ at \\w = dv\\, so a cut on \\\lvert
 w\rvert\\ is a cut on \\\lvert v\rvert\\ divided by \\\lvert d\rvert\\,
-the intercept divides by the same, and the slope does not move,
-multiplying a point that was scaled and then divided back. The operator
-is odd, so only the magnitude of \\d\\ enters.
+the intercept is divided by the same, and the slope does not move,
+because it multiplies a point that was scaled and then divided back. The
+operator is odd, so only the magnitude of \\d\\ enters.
 
 The step passed to the builder is \\t d^2\\, and the step limit of SCAD
 and MCP is tested on it, so a standardized penalty takes shorter steps

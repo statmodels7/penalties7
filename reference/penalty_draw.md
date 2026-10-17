@@ -1,8 +1,8 @@
 # Drawing From a Penalty Read as a Prior
 
-A vector drawn from the distribution of which the penalty is the
-negative log-density, at the given hyperparameters, with `NA` in the
-coordinates that the distribution does not determine.
+Returns a draw from the distribution whose negative log-density is the
+penalty, at the given hyperparameters, with `NA` in the coordinates that
+the distribution does not determine.
 
 ## Usage
 
@@ -60,7 +60,7 @@ covariance \\S^{-1}\\.
 
 A rank-deficient \\S\\ that is not diagonal, such as the penalty of an
 anisotropic tensor smooth, gives a vector of `NA`. The prior is flat
-along the null space of \\S\\, and a draw on the range alone would
+along the null space of \\S\\, and a draw restricted to the range would
 require a basis of that range, a decomposition that these branches do
 not compute.
 
@@ -72,12 +72,12 @@ method of its own also gives `NA` everywhere.
 
 A separable penalty is a prior on \\D\beta\\, so a draw of the
 coefficients inverts the map. Without a map the draw is returned as it
-is. Under a diagonal map, which is what standardization produces, each
-coordinate is divided by its diagonal entry, and a coordinate whose
+is. Under a diagonal map, such as the one that standardization produces,
+each coordinate is divided by its diagonal entry, and a coordinate whose
 entry is zero is not determined by the prior and is `NA`. Under any
-other map, square and invertible included, the draw is not inverted and
-every coordinate is `NA`. A quadratic penalty does not need this step,
-because
+other map, including a square invertible one, the draw is not inverted
+and every coordinate is `NA`. A quadratic penalty does not need this
+step, because
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns the precision in the coefficients themselves.
 
@@ -85,10 +85,10 @@ returns the precision in the coefficients themselves.
 
 The coordinates that the prior does not determine are `NA` rather than
 zero. A caller that draws a whole model has its own rule for a
-coefficient that is not covered by any prior, an intercept being the
+coefficient that is not covered by any prior; an intercept is the
 ordinary case. A zero would be indistinguishable from a prior that
-concentrates at zero, and the caller could not tell which coordinates
-remain to be filled.
+concentrates at zero, so it would not show which coordinates remain to
+be filled.
 
 ## Methods
 

@@ -19,7 +19,7 @@ prior."><meta property="og:image" content="https://statmodels7.github.io/penalti
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,7 @@ prior.</p>
 
 
 <dt id="arg-v">v<a class="anchor" aria-label="anchor" href="#arg-v"></a></dt>
-<dd><p>A numeric vector, the points pulled towards.</p></dd>
+<dd><p>A numeric vector, the points towards which the operator pulls.</p></dd>
 
 
 <dt id="arg-step">step<a class="anchor" aria-label="anchor" href="#arg-step"></a></dt>
@@ -87,7 +87,8 @@ prior.</p>
 
 
 <dt id="arg-n-grid">n_grid<a class="anchor" aria-label="anchor" href="#arg-n-grid"></a></dt>
-<dd><p>The number of grid points on each segment, ends included.</p></dd>
+<dd><p>The number of grid points on each segment, including both
+ends.</p></dd>
 
 
 <dt id="arg-ly">ly<a class="anchor" aria-label="anchor" href="#arg-ly"></a></dt>
@@ -138,16 +139,16 @@ are the same for every coordinate: when \(\ell^{(y)}(0)\) is exactly
 zero the mode is taken as zero, and otherwise the root is bracketed by
 doubling a step from zero in the direction in which \(\ell^{(y)}\)
 points, up to \(2^{60}\), and refined by <code><a href="https://rdrr.io/r/stats/uniroot.html" class="external-link">uniroot()</a></code> to full relative
-precision. When no change of sign is found, or \(\ell^{(y)}\) is not
-finite, the mode is taken as zero and the segment is the one between zero
-and \(v\). The search moves away from zero only while \(\ell^{(y)}\)
-keeps its sign, so the root it finds is a local mode, which is the mode
-when the parent is unimodal.</p>
-<p>The segment is scanned on <code>n_grid</code> equally spaced points, both ends
-included, with \(h\) evaluated for every coordinate in one call. Every
-interval over which \(h\) changes sign is refined by <code><a href="https://rdrr.io/r/stats/uniroot.html" class="external-link">uniroot()</a></code>, a grid
-point where \(h\) is exactly zero is kept as it is, and the candidate of
-smallest objective is returned, with the log-density computed by
+precision. When the search finds no change of sign, or \(\ell^{(y)}\) is
+not finite, the mode is taken as zero and the segment is the one between
+zero and \(v\). The search moves away from zero only while
+\(\ell^{(y)}\) keeps its sign, so the root that it finds is a local mode,
+which is the mode when the parent is unimodal.</p>
+<p>The function scans the segment on <code>n_grid</code> equally spaced points that
+include both ends, and evaluates \(h\) for every coordinate in one call.
+It refines by <code><a href="https://rdrr.io/r/stats/uniroot.html" class="external-link">uniroot()</a></code> every interval over which \(h\) changes sign,
+keeps as it is a grid point where \(h\) is exactly zero, and returns the
+candidate of smallest objective, computing the log-density with
 <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_pdf.html" class="external-link">distributions7::distrib_pdf()</a></code>.</p>
 <p>When the segment shows no change of sign, the bracket starts one unit
 beyond \(\min(v, m)\) and \(\max(v, m)\), each end that does not yet
@@ -166,8 +167,8 @@ accuracy whatever its magnitude.</p>
     <h2 id="errors">Errors<a class="anchor" aria-label="anchor" href="#errors"></a></h2>
 
 
-<p>A message naming the penalty where neither the segment nor the widened
-bracket shows a change of sign.</p>
+<p>The message names the penalty where the stationary condition changes sign
+neither on the segment nor in the widened bracket.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

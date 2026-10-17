@@ -6,7 +6,7 @@ supplies its own normalizing constant, the value is the negative log
 prior density of \\D\beta\\. Under a square nonsingular map, diagonal or
 not, \\\log\lvert\det D\rvert\\ is subtracted, which makes the value the
 negative log-density of \\\beta\\. Under a map that is not square, or is
-singular, no constant is subtracted.
+singular, the function does not subtract a constant.
 
 ## Arguments
 

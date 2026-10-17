@@ -32,8 +32,9 @@ curv_of(pen, n)
 
 ## Value
 
-`check_curv()` a numeric vector of length `n`, or `numeric(0)` for
-`NULL`; `curv_of()` the stored numeric vector, or a vector of `n` ones.
+`check_curv()` returns a numeric vector of length `n`, or `numeric(0)`
+for `NULL`; `curv_of()` the stored numeric vector, or a vector of `n`
+ones.
 
 ## Details
 
@@ -48,6 +49,6 @@ stays \\\lambda\\, and the knee moves to \\a\lambda/c_j\\
 `check_curv()` signals an error for an empty vector, a missing,
 infinite, zero or negative value, and a length other than one or `n`; a
 single value is repeated `n` times. `curv_of()` returns the stored
-curvature, or `n` ones where none is stored, which is the penalty as
-defined without this scaling. A stored curvature is returned whatever
-`n` is.
+curvature, or `n` ones where the curvature is not stored, which is the
+penalty as defined without this scaling. A stored curvature is returned
+whatever `n` is.

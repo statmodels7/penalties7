@@ -35,13 +35,13 @@ penalty_prox_spec(pen, theta, step, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
 A list of three matrices, `cut`, `slope` and `icept`, each with
-`pen@n_coef` rows and one column per piece, the last column of `cut`
-being `Inf`. `NULL` where the operator has no piecewise linear
+`pen@n_coef` rows and one column per piece. The last column of `cut` is
+`Inf`. The value is `NULL` where the operator has no piecewise linear
 description.
 
 ## The piecewise linear map
@@ -95,10 +95,10 @@ c_j d_j^2\\ described below.
 
 A coordinate descent applies the operator once per coordinate per sweep,
 at a point that moves every time, so a compiled loop that called back
-into R for it would lose its gain to the calls. Passing the numbers
-keeps the loop compiled. The table holds the mathematics of the penalty,
-and the compiled kernel evaluates any map of this shape without
-reference to the family.
+into R for each application would lose the speed gained by compiling it.
+Passing the numbers keeps the loop compiled. The table holds the
+mathematics of the penalty, and the compiled kernel evaluates any map of
+this shape without reference to the family.
 
 ## Why the step is a vector
 
@@ -107,7 +107,7 @@ In a coordinate descent the step of coordinate \\j\\ is \\1/v_j\\ with
 weights are held fixed. The whole table is therefore built once per
 weighted least squares iteration and read by every sweep.
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md),
-by contrast, takes a **single** step.
+by contrast, takes a single step.
 
 ## Under a diagonal map
 

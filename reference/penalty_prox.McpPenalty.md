@@ -1,7 +1,7 @@
 # Proximal Operator of MCP
 
-The closed piecewise operator of Zhang (2010): a rescaled soft threshold
-below \\\gamma\lambda\\ and the identity beyond it, so a large
+Computes the closed piecewise operator of Zhang (2010): a rescaled soft
+threshold below \\\gamma\lambda\\ and the identity beyond it, so a large
 coefficient passes through untouched.
 
 ## Arguments
@@ -97,8 +97,9 @@ penalty_prox(scad_penalty(n_coef = 1), 2.5, 1, list(lambda = 1, a = 3.7))
 # At the convexity bound the operator is set-valued, and the call signals
 # an error.
 try(penalty_prox(mcp_penalty(n_coef = 1), 2, 3, th))
-#> Error : the MCP proximal operator needs step < gamma (3 here), with the step
-#>   multiplied by the curvature and, under a diagonal map, by the squared
-#>   diagonal entry; the largest scaled step is 3. Beyond that bound the
-#>   subproblem is not convex and the operator is set-valued.
+#> Error : the MCP proximal operator needs step < gamma (3 here), where the
+#>   step is multiplied by the curvature and, under a diagonal map, by
+#>   the squared diagonal entry; the largest scaled step is 3. Beyond
+#>   that bound the subproblem is not convex and the operator is
+#>   set-valued.
 ```

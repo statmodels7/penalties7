@@ -54,7 +54,7 @@ explains.
 [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
 for the table,
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
-for the operator it stands in for.
+for the operator in whose place the table is used.
 
 ## Examples
 
@@ -68,7 +68,7 @@ prox_apply(sp, c(2, 2))
 prox_apply(sp, c(0.5, 2.9))
 #> [1] 0 0
 
-# Which is exactly what the operator gives, coordinate by coordinate.
+# This is exactly what the operator gives, coordinate by coordinate.
 one <- lasso_penalty(n_coef = 1)
 c(penalty_prox(one, 2, 0.5, list(lambda = 1.5)),
   penalty_prox(one, 2, 2, list(lambda = 1.5)))

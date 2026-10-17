@@ -7,8 +7,8 @@ whose slice \(i\) is
 \(\sum_{c_1 \dots c_m} A_{ab c_1 \dots c_m i}\,v_{1,ic_1}\cdots
 v_{m,ic_m}\). That is the derivative of the response Hessian of block
 \(i\) along the coordinates of the block in the directions, which
-dp_blockdiag() then places on the diagonal. Arrays of four and five
-dimensions are handled, that is one or two directions.
+dp_blockdiag() then places on the diagonal. The function handles arrays
+of four and five dimensions, that is one or two directions.
 dp_parent_or_reject() calls the generic fun of the parent. If that call
 signals an error of any kind, it signals in its place an error that names
 the penalty and the derivative, so that a criterion receives either the
@@ -20,8 +20,8 @@ whose slice \(i\) is
 \(\sum_{c_1 \dots c_m} A_{ab c_1 \dots c_m i}\,v_{1,ic_1}\cdots
 v_{m,ic_m}\). That is the derivative of the response Hessian of block
 \(i\) along the coordinates of the block in the directions, which
-dp_blockdiag() then places on the diagonal. Arrays of four and five
-dimensions are handled, that is one or two directions.
+dp_blockdiag() then places on the diagonal. The function handles arrays
+of four and five dimensions, that is one or two directions.
 dp_parent_or_reject() calls the generic fun of the parent. If that call
 signals an error of any kind, it signals in its place an error that names
 the penalty and the derivative, so that a criterion receives either the
@@ -33,7 +33,7 @@ complete tensor or an error."><meta property="og:image" content="https://statmod
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,8 +68,8 @@ whose slice \(i\) is
 \(\sum_{c_1 \dots c_m} A_{ab c_1 \dots c_m i}\,v_{1,ic_1}\cdots
 v_{m,ic_m}\). That is the derivative of the response Hessian of block
 \(i\) along the coordinates of the block in the directions, which
-<code><a href="dp_blockdiag.html">dp_blockdiag()</a></code> then places on the diagonal. Arrays of four and five
-dimensions are handled, that is one or two directions.</p>
+<code><a href="dp_blockdiag.html">dp_blockdiag()</a></code> then places on the diagonal. The function handles arrays
+of four and five dimensions, that is one or two directions.</p>
 <p><code>dp_parent_or_reject()</code> calls the generic <code>fun</code> of the parent. If that call
 signals an error of any kind, it signals in its place an error that names
 the penalty and the derivative, so that a criterion receives either the
@@ -119,8 +119,9 @@ last direction.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>dp_contract()</code> a \(p \times p \times n\) numeric array.
-<code>dp_parent_or_reject()</code> the value returned by <code>fun</code>, or an error.</p>
+    <p><code>dp_contract()</code> returns a \(p \times p \times n\) numeric array.
+<code>dp_parent_or_reject()</code> returns the value that <code>fun</code> returns, or signals an
+error.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

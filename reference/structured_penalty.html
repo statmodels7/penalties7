@@ -19,7 +19,7 @@ entry of the matrix."><meta property="og:image" content="https://statmodels7.git
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,8 +71,8 @@ side instead.</p>
 <p>It may be rank deficient, giving an improper prior: <code><a href="is_proper.html">is_proper()</a></code> then
 returns <code>FALSE</code> and the constant uses the rank and the log
 pseudo-determinant. A rank-deficient structure can be used only on the
-precision side, because <code><a href="https://statmodels7.github.io/parameters7/reference/inverse_of.html" class="external-link">parameters7::inverse_of()</a></code> rejects it, a
-singular matrix having no inverse.</p></dd>
+precision side, because <code><a href="https://statmodels7.github.io/parameters7/reference/inverse_of.html" class="external-link">parameters7::inverse_of()</a></code> rejects it: a
+singular matrix has no inverse.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -94,7 +94,7 @@ evaluation of that density.</p>
     </div>
     <div class="section level2">
     <h2 id="the-structure-is-the-precision">The structure is the precision<a class="anchor" aria-label="anchor" href="#the-structure-is-the-precision"></a></h2>
-    <p>The matrix that the structure supplies is the prior's <strong>precision</strong>:
+    <p>The matrix that the structure supplies is the prior's precision:
 \(\Omega = M(\eta)\). This follows from the construction and is not an
 option, because \(\rho\) is a negative log-density and the matrix that
 enters its quadratic form is the precision.</p>
@@ -121,10 +121,9 @@ supplies. The hyperparameter gradient is
 \(\tfrac{1}{2}\beta'A_k\beta
   - \tfrac{1}{2}\partial_k\log\mathrm{pdet}\,\Omega\),
 with \(A_k = \partial_k\Omega\) the structure's <code>param_d1</code>; the Hessian
-uses <code>param_d2</code>, and the mixed block is \(A_k\beta\). No conversion
-between covariance and precision happens in this package: a structure
-meant for the covariance side is a different structure, and it supplies
-its own arrays.</p>
+uses <code>param_d2</code>, and the mixed block is \(A_k\beta\). The package does not
+convert between covariance and precision: a structure meant for the
+covariance side is a different structure, and it supplies its own arrays.</p>
     </div>
     <div class="section level2">
     <h2 id="no-map">No map<a class="anchor" aria-label="anchor" href="#no-map"></a></h2>

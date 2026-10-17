@@ -11,7 +11,7 @@ and nonsingular, and FALSE otherwise."><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,8 +63,8 @@ by <code><a href="penalty_kinks.html">penalty_kinks()</a></code>, whose result d
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code><a href="penalty_kinks.html">penalty_kinks()</a></code> a numeric vector, <code>pen@kinks</code> as it stands.
-<code><a href="is_proper.html">is_proper()</a></code> a single logical.</p>
+    <p><code><a href="penalty_kinks.html">penalty_kinks()</a></code> returns a numeric vector, <code>pen@kinks</code> as it stands.
+<code><a href="is_proper.html">is_proper()</a></code> returns a single logical.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -107,9 +107,9 @@ improper map leaves free,
 <span class="r-in"><span><span class="fu"><a href="penalty_kinks.html">penalty_kinks</a></span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">heavy_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">1</span>, nu <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> numeric(0)</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Proper without a map and with a square nonsingular map; improper with a</span></span></span>
-<span class="r-in"><span><span class="co"># map that has more rows than columns, with a singular one, and with one</span></span></span>
-<span class="r-in"><span><span class="co"># that has fewer rows than columns.</span></span></span>
+<span class="r-in"><span><span class="co"># The penalty is proper without a map and with a square nonsingular map. It</span></span></span>
+<span class="r-in"><span><span class="co"># is improper with a map that has more rows than columns, with a singular</span></span></span>
+<span class="r-in"><span><span class="co"># one, and with one that has fewer rows than columns.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>none     <span class="op">=</span> <span class="fu"><a href="is_proper.html">is_proper</a></span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  square   <span class="op">=</span> <span class="fu"><a href="is_proper.html">is_proper</a></span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>map <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">3</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  tall     <span class="op">=</span> <span class="fu"><a href="is_proper.html">is_proper</a></span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>map <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>

@@ -17,7 +17,7 @@ penalty_prox()."><meta property="og:image" content="https://statmodels7.github.i
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,14 +78,15 @@ naming <code>step</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Passed to methods. No shipped method reads it.</p></dd>
+<dd><p>Passed to methods. The shipped methods do not read it.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list of three matrices, <code>cut</code>, <code>slope</code> and <code>icept</code>, each with
-<code>pen@n_coef</code> rows and one column per piece, the last column of <code>cut</code> being
-<code>Inf</code>. <code>NULL</code> where the operator has no piecewise linear description.</p>
+<code>pen@n_coef</code> rows and one column per piece. The last column of <code>cut</code> is
+<code>Inf</code>. The value is <code>NULL</code> where the operator has no piecewise linear
+description.</p>
     </div>
     <div class="section level2">
     <h2 id="the-piecewise-linear-map">The piecewise linear map<a class="anchor" aria-label="anchor" href="#the-piecewise-linear-map"></a></h2>
@@ -121,9 +122,10 @@ scaled step \(t_j c_j d_j^2\) described below.</p>
     <h2 id="why-a-table-rather-than-the-operator">Why a table rather than the operator<a class="anchor" aria-label="anchor" href="#why-a-table-rather-than-the-operator"></a></h2>
     <p>A coordinate descent applies the operator once per coordinate per sweep, at
 a point that moves every time, so a compiled loop that called back into R
-for it would lose its gain to the calls. Passing the numbers keeps the loop
-compiled. The table holds the mathematics of the penalty, and the compiled
-kernel evaluates any map of this shape without reference to the family.</p>
+for each application would lose the speed gained by compiling it. Passing
+the numbers keeps the loop compiled. The table holds the mathematics of the
+penalty, and the compiled kernel evaluates any map of this shape without
+reference to the family.</p>
     </div>
     <div class="section level2">
     <h2 id="why-the-step-is-a-vector">Why the step is a vector<a class="anchor" aria-label="anchor" href="#why-the-step-is-a-vector"></a></h2>
@@ -131,7 +133,7 @@ kernel evaluates any map of this shape without reference to the family.</p>
 \(v_j = \sum_i w_i x_{ij}^2\), which does not change while the working
 weights are held fixed. The whole table is therefore built once per
 weighted least squares iteration and read by every sweep. <code><a href="penalty_prox.html">penalty_prox()</a></code>,
-by contrast, takes a <strong>single</strong> step.</p>
+by contrast, takes a single step.</p>
     </div>
     <div class="section level2">
     <h2 id="under-a-diagonal-map">Under a diagonal map<a class="anchor" aria-label="anchor" href="#under-a-diagonal-map"></a></h2>

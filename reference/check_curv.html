@@ -11,7 +11,7 @@ curv_of() returns the curvature stored in a penalty."><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,9 +69,9 @@ scaled and returns it with one value per coordinate of \(D\beta\).
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>check_curv()</code> a numeric vector of length <code>n</code>, or <code>numeric(0)</code>
-for <code>NULL</code>; <code>curv_of()</code> the stored numeric vector, or a vector of <code>n</code>
-ones.</p>
+    <p><code>check_curv()</code> returns a numeric vector of length <code>n</code>, or
+<code>numeric(0)</code> for <code>NULL</code>; <code>curv_of()</code> the stored numeric vector, or a vector
+of <code>n</code> ones.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -85,8 +85,8 @@ the knee to \(\lambda/c_j\) is the shape parameter in every coordinate.</p>
 <p><code>check_curv()</code> signals an error for an empty vector, a missing, infinite,
 zero or negative value, and a length other than one or <code>n</code>; a single value
 is repeated <code>n</code> times. <code>curv_of()</code> returns the stored curvature, or <code>n</code>
-ones where none is stored, which is the penalty as defined without this
-scaling. A stored curvature is returned whatever <code>n</code> is.</p>
+ones where the curvature is not stored, which is the penalty as defined
+without this scaling. A stored curvature is returned whatever <code>n</code> is.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

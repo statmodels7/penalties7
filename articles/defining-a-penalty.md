@@ -64,8 +64,8 @@ names off the values, checks that each value is a single number inside
 `params_bounds`, and, where it also takes `beta`, checks that `beta` has
 length `pen@n_coef`. A method therefore receives a list in the penalty’s
 own order and does not align it again. One helper reads the list and
-records which branch each coefficient falls in, and the six methods for
-the value and the derivatives share it:
+records the branch in which each coefficient falls, and the six methods
+for the value and the derivatives share it:
 
 ``` r
 
@@ -75,7 +75,8 @@ the value and the derivatives share it:
 }
 ```
 
-The value, the gradient in $`\beta`$ and the Hessian in $`\beta`$:
+The next three methods supply the value, the gradient in $`\beta`$ and
+the Hessian in $`\beta`$:
 
 ``` r
 
@@ -95,14 +96,15 @@ S7::method(penalty_hessian, BerhuPenalty) <- function(pen, beta, theta, ...) {
 }
 ```
 
-Then the three blocks in the hyperparameters: the gradient, the Hessian
-and the mixed block $`\partial^2\rho/\partial\beta\,\partial\theta`$,
-which an outer search uses to estimate the hyperparameters. Each of the
-three methods includes the `scale` argument in its formals, because an
-S7 method must include the named arguments of its generic and these
-three generics have one. The methods return the derivatives on the
-parameter scale, and with `scale = "link"` the generic carries them to
-the link scale through the links in `link_params`.
+Three more methods supply the blocks in the hyperparameters: the
+gradient, the Hessian and the mixed block
+$`\partial^2\rho/\partial\beta\,\partial\theta`$, which an outer search
+uses to estimate the hyperparameters. Each of the three methods includes
+the `scale` argument in its formals, because an S7 method must include
+the named arguments of its generic and these three generics have one.
+The methods return the derivatives on the parameter scale, and with
+`scale = "link"` the generic carries them to the link scale through the
+links in `link_params`.
 
 ``` r
 
@@ -131,12 +133,12 @@ S7::method(penalty_cross, BerhuPenalty) <- function(
 }
 ```
 
-Finally
+The last two methods are
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
 and
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md).
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-returns the **positions** of the points at which some derivative of the
+returns the positions of the points at which some derivative of the
 value is discontinuous, in the units of $`D\beta`$, and not their
 number. The Berhu has three such points. At the origin the first
 derivative jumps from $`-\lambda`$ to $`\lambda`$, and at $`\pm\delta`$
@@ -173,15 +175,15 @@ diag(penalty_hessian(pen, b, th))
 
 ### The shapes of the hyperparameter blocks
 
-Every hyperparameter block is a **named list**, not a matrix or a data
+Every hyperparameter block is a named list, not a matrix or a data
 frame.
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns one number per hyperparameter, keyed by `pen@params`.
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns one number per pair of hyperparameters, keyed by the two names
-joined by an underscore, with the diagonal pairs first and then each
-remaining pair in the order of `pen@params` (here `"lambda_lambda"`,
-`"delta_delta"` and `"lambda_delta"`).
+joined by an underscore: the diagonal pairs come first, and then each
+remaining pair follows in the order of `pen@params` (here
+`"lambda_lambda"`, `"delta_delta"` and `"lambda_delta"`).
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns one vector of length `n_coef` per hyperparameter. The generics
 read these names when they carry the blocks to the link scale. A shipped
@@ -220,9 +222,9 @@ print(check_penalty(pen, theta = th, verbose = FALSE))
 
 The rows for the gradient in $`\beta`$ and in each hyperparameter
 differentiate the value with `numDeriv`. The rows for the Hessian in
-$`\beta`$, for every entry of the Hessian in the hyperparameters (the
-off-diagonal entry `lambda_delta` included) and for the mixed block
-differentiate the analytic first derivatives instead, with the
+$`\beta`$, for every entry of the Hessian in the hyperparameters
+(including the off-diagonal entry `lambda_delta`) and for the mixed
+block differentiate the analytic first derivatives instead, with the
 Richardson extrapolation of `numDeriv`, so that the value is never
 differenced twice.
 
@@ -247,7 +249,8 @@ is left `NULL`,
 draws it from a fixed seed and shifts the draw until every coordinate of
 $`D\beta`$ lies more than `0.05` from every point that
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-returns, which is why the first run passed. Moving the zero is enough:
+returns, and the first run passed because of this shift. Moving the zero
+is enough:
 
 ``` r
 
@@ -371,8 +374,7 @@ chosen by a criterion on prediction error, not by a marginal likelihood.
 
 ## Summary
 
-- **Minimum to define a penalty:** a subclass of `penalty` and methods
-  for
+- Minimum to define a penalty: a subclass of `penalty` and methods for
   [`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md),
   [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md),
   [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md),
@@ -383,15 +385,15 @@ chosen by a criterion on prediction error, not by a marginal likelihood.
   and
   [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md).
 - The three hyperparameter blocks take a `scale` argument, because their
-  generics declare one. Each returns a **named list** on the parameter
+  generics declare one. Each returns a named list on the parameter
   scale, and the generic carries it to the link scale.
 - [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
   returns positions, so that a numerical reference can be kept away from
   them.
 - [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
   compares the gradients with `numDeriv` on the value and the second
-  derivatives with `numDeriv` on the analytic gradients, every entry of
-  the hyperparameter Hessian included. When it is given no $`\beta`$ it
+  derivatives with `numDeriv` on the analytic gradients, including every
+  entry of the hyperparameter Hessian. When it is given no $`\beta`$ it
   draws one away from every declared kink.
 - [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md),
   [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md),

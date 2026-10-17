@@ -28,7 +28,7 @@ unmapped penalty shows the same number twice.
 quadratic_penalty(diag(3))
 #> quadratic penalty on 3 coefficient(s) through 3 row(s); theta: lambda
 
-# A first-difference map: three coefficients, two differences.
+# A first-difference map over three coefficients gives two differences.
 quadratic_penalty(diag(2), map = diff(diag(3)))
 #> quadratic penalty on 3 coefficient(s) through 2 row(s); theta: lambda
 

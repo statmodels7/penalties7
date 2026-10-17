@@ -30,7 +30,7 @@ documents.
 
 ## Details
 
-Each standard deviation depends on its own parameter alone, so the
+Each standard deviation depends only on its own parameter, so the
 Jacobian is diagonal, with entries \\-\tfrac{1}{2}\lambda_k^{-3/2}\\,
 and each interval is built on the log scale.
 

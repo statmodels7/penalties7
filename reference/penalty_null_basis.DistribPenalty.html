@@ -17,7 +17,7 @@ coordinates."><meta property="og:image" content="https://statmodels7.github.io/p
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,7 +78,7 @@ improper separable prior only the directions that the prior leaves free,
 and this basis supplies them. The rank of a non-diagonal map is the rank
 that <code><a href="https://rdrr.io/r/base/qr.html" class="external-link">qr()</a></code> reports at its default tolerance, and the basis is formed by the
 right singular vectors of the map beyond that rank. For a square map this
-is the same rank test that decides <code><a href="is_proper.html">is_proper()</a></code>. A map with more rows than
+is the same rank test that <code><a href="is_proper.html">is_proper()</a></code> uses. A map with more rows than
 columns and full column rank has an empty basis, although <code><a href="is_proper.html">is_proper()</a></code>
 returns <code>FALSE</code> for it.</p>
     </div>
@@ -90,7 +90,8 @@ test of properness.</p></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># No map, and a diagonal map with a zero at the second coordinate.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The first call has no map, and the second has a diagonal map with a zero</span></span></span>
+<span class="r-in"><span><span class="co"># at the second coordinate.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="penalty_matrix.html">penalty_null_basis</a></span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,]</span>

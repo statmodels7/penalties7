@@ -2,8 +2,8 @@
 
 Applies the chain rule that turns a derivative in \\\theta\\ into one in
 \\\eta = g(\theta)\\, at first and second order, using the diagonal
-Jacobian the links supply. Handles one of the three derivative kinds per
-call, whichever of `g`, `H` and `cross` is given.
+Jacobian that the links supply. Handles one of the three derivative
+kinds per call, whichever of `g`, `H` and `cross` is given.
 
 ## Usage
 
@@ -27,19 +27,19 @@ ptheta_to_link(pen, theta, g = NULL, H = NULL, cross = NULL)
 
 - g:
 
-  The parameter-scale gradient list, keyed by `pen@params`. Required for
-  the gradient and for the Hessian; `NULL` otherwise.
+  The parameter-scale gradient list, keyed by `pen@params`. It is
+  required for the gradient and for the Hessian and is `NULL` otherwise.
 
 - H:
 
   The parameter-scale Hessian list, keyed as
   [`ptheta_pairs()`](https://statmodels7.github.io/penalties7/reference/ptheta_pairs.md)
-  names the pairs. Supplied with `g` for the second order.
+  names the pairs. It is supplied with `g` for the second order.
 
 - cross:
 
-  The parameter-scale mixed list, keyed by `pen@params`, each element a
-  vector of length `pen@n_coef`. Supplied alone.
+  The parameter-scale mixed list, keyed by `pen@params`, in which each
+  element is a vector of length `pen@n_coef`. It is supplied alone.
 
 ## Value
 
@@ -60,12 +60,11 @@ g^{-1}\\ and \\\eta_i = g_i(\theta_i)\\,
 h_i'(\eta_i)\\ h_j'(\eta_j) + \delta\_{ij}\\
 \frac{\partial\rho}{\partial\theta_i}\\ h_i''(\eta_i).\$\$
 
-The second-derivative term appears on the diagonal alone, which is why
-the Hessian branch requires the gradient as well. The mixed block
-\\\partial^2\rho / \partial\beta\\\partial\theta_i\\ is first order in
-\\\theta\\ and picks up one factor of \\h_i'\\, because a
-reparametrization of the hyperparameters does not change the coefficient
-direction.
+The second-derivative term appears only on the diagonal, so the Hessian
+branch requires the gradient as well. The mixed block \\\partial^2\rho /
+\partial\beta\\\partial\theta_i\\ is first order in \\\theta\\ and picks
+up one factor of \\h_i'\\, because a reparametrization of the
+hyperparameters does not change the coefficient direction.
 
 This is the chain rule that distributions7 applies to the link scale of
 a distribution's parameters, restricted to the first two orders.

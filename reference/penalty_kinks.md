@@ -5,7 +5,7 @@ Returns the values of \\t = D\beta\\ at which some derivative of
 of them would measure the break instead of the formula.
 [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
 places its grids clear of these points, and a fitting routine can read
-them to decide whether a block can be passed to a gradient method.
+them to determine whether a block can be passed to a gradient method.
 
 ## Usage
 
@@ -24,8 +24,9 @@ penalty_kinks(pen, theta, ...)
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same, holding every name in `pen@params`. Required even
-  for a smooth penalty, whose result does not depend on it.
+  carrying the same, holding every name in `pen@params`. The argument is
+  required even for a smooth penalty, whose result does not depend on
+  it.
 
 - ...:
 
@@ -34,8 +35,8 @@ penalty_kinks(pen, theta, ...)
 ## Value
 
 A numeric vector of the points, unsorted and possibly empty, in the
-units of \\t = D\beta\\. `numeric(0)` for a penalty that is smooth
-everywhere.
+units of \\t = D\beta\\. The result is `numeric(0)` for a penalty that
+is smooth everywhere.
 
 ## Kinks and the other breaks
 
@@ -68,7 +69,7 @@ For a separable penalty the points are fixed when the penalty is built,
 from the parameters of the parent that
 [`distributions7::fixed()`](https://statmodels7.github.io/distributions7/reference/fixed.html)
 holds at a value: the lasso has its kink at \\0\\, and a Laplace parent
-with its location fixed at \\2\\ has its kink at \\2\\. For SCAD and MCP
+whose location is fixed at \\2\\ has its kink at \\2\\. For SCAD and MCP
 only \\0\\ is fixed. Their other points are at \\\pm\lambda/c_j\\ and
 \\\pm a\lambda/c_j\\ for SCAD and at \\\pm\gamma\lambda/c_j\\ for MCP,
 where \\c_j\\ is the curvature of coordinate \\j\\ (one by default), so
@@ -92,7 +93,7 @@ for the caller that uses this to place a grid.
 penalty_kinks(quadratic_penalty(diag(2)), list(lambda = 1))
 #> numeric(0)
 
-# The lasso breaks at the origin alone.
+# The lasso breaks only at the origin.
 penalty_kinks(lasso_penalty(), list(lambda = 1))
 #> [1] 0
 

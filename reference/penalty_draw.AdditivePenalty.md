@@ -1,7 +1,7 @@
 # Drawing From an Additive Penalty
 
-One draw from the Gaussian prior with precision \\S(\lambda)\\, block by
-block where the penalty is repeated blockwise.
+Returns one draw from the Gaussian prior with precision \\S(\lambda)\\,
+block by block where the penalty is repeated blockwise.
 
 ## Arguments
 

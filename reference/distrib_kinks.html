@@ -4,12 +4,14 @@ is not differentiable, derived from the distribution itself, or
 numeric(0) when there are none. Among the families that
 distributions7 ships, only the two Laplace parametrizations and the
 elastic net have a location in which the log-density is not smooth, so only
-these, with the location held by distributions7::fixed(), give a kink."><meta property="og:description" content="Returns the points at which a separable penalty built on this distribution
+these give a kink, and only when distributions7::fixed() holds the
+location."><meta property="og:description" content="Returns the points at which a separable penalty built on this distribution
 is not differentiable, derived from the distribution itself, or
 numeric(0) when there are none. Among the families that
 distributions7 ships, only the two Laplace parametrizations and the
 elastic net have a location in which the log-density is not smooth, so only
-these, with the location held by distributions7::fixed(), give a kink."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
+these give a kink, and only when distributions7::fixed() holds the
+location."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +19,7 @@ these, with the location held by distributions7::fixed(), give a kink."><meta pr
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,7 +51,8 @@ is not differentiable, derived from the distribution itself, or
 <code>numeric(0)</code> when there are none. Among the families that
 <span class="pkg">distributions7</span> ships, only the two Laplace parametrizations and the
 elastic net have a location in which the log-density is not smooth, so only
-these, with the location held by <code><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">distributions7::fixed()</a></code>, give a kink.</p>
+these give a kink, and only when <code><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">distributions7::fixed()</a></code> holds the
+location.</p>
     </div>
 
     <div class="section level2">
@@ -64,13 +67,13 @@ these, with the location held by <code><a href="https://statmodels7.github.io/di
 <dl><dt id="arg-d">d<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
 <dd><p>A univariate <span class="pkg">distributions7</span> object. An object without
 <code>parent_distrib</code>, or whose chain of parents has no level carrying
-<code>fixed_params</code>, gets <code>numeric(0)</code> without further inspection.</p></dd>
+<code>fixed_params</code>, yields <code>numeric(0)</code> without further inspection.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A numeric vector of the confirmed kink points, possibly empty, with
-duplicates removed.</p>
+    <p>A numeric vector of the confirmed kink points, without duplicates
+and possibly empty.</p>
     </div>
     <div class="section level2">
     <h2 id="how-a-candidate-is-found">How a candidate is found<a class="anchor" aria-label="anchor" href="#how-a-candidate-is-found"></a></h2>
@@ -82,7 +85,7 @@ is the negative log-density read at the coefficient, so a
 puts the kink at that value: <code>fixed(laplace_distrib(), mu = 0)</code> is a
 Laplace prior at zero and has a kink at zero, while
 <code>fixed(laplace_distrib(), mu = 2)</code> has one at two.</p>
-<p>A <strong>free</strong> parameter gives no candidate, because its value is set by the
+<p>A free parameter gives no candidate, because its value is set by the
 hyperparameters at the time of each evaluation. A Laplace with a free
 location therefore has no reported kink.</p>
 <p>The wrapper is recognized by the properties that it carries,
@@ -96,8 +99,8 @@ so that <code>truncated(fixed(laplace2_distrib(), mu = 0), lower = -1, upper = 3
     <div class="section level2">
     <h2 id="how-a-candidate-is-confirmed">How a candidate is confirmed<a class="anchor" aria-label="anchor" href="#how-a-candidate-is-confirmed"></a></h2>
     <p>A candidate is dropped when it is not finite or when it does not lie
-strictly inside the support of the outermost object, a point at the edge of
-the support not being a kink of the density on its support: a
+strictly inside the support of the outermost object, because a point at the
+edge of the support is not a kink of the density on its support: a
 <code>folded()</code> Laplace held at zero has no kink at zero. Each remaining
 candidate is then tested by comparing the one-sided derivatives of the
 log-density across it at a probe point (<code><a href="probe_theta.html">probe_theta()</a></code>, <code><a href="has_jump.html">has_jump()</a></code>),
@@ -117,7 +120,7 @@ point drops the candidate.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A Laplace held at a location: a kink at that location.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A Laplace held at a location has a kink at that location.</span></span></span>
 <span class="r-in"><span><span class="fu">distrib_kinks</span><span class="op">(</span><span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">fixed</a></span><span class="op">(</span><span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/laplace_distrib.html" class="external-link">laplace_distrib</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                                    mu <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>

@@ -5,9 +5,9 @@ distribution is not differentiable, derived from the distribution
 itself, or `numeric(0)` when there are none. Among the families that
 distributions7 ships, only the two Laplace parametrizations and the
 elastic net have a location in which the log-density is not smooth, so
-only these, with the location held by
-[`distributions7::fixed()`](https://statmodels7.github.io/distributions7/reference/fixed.html),
-give a kink.
+only these give a kink, and only when
+[`distributions7::fixed()`](https://statmodels7.github.io/distributions7/reference/fixed.html)
+holds the location.
 
 ## Usage
 
@@ -21,12 +21,12 @@ distrib_kinks(d)
 
   A univariate distributions7 object. An object without
   `parent_distrib`, or whose chain of parents has no level carrying
-  `fixed_params`, gets `numeric(0)` without further inspection.
+  `fixed_params`, yields `numeric(0)` without further inspection.
 
 ## Value
 
-A numeric vector of the confirmed kink points, possibly empty, with
-duplicates removed.
+A numeric vector of the confirmed kink points, without duplicates and
+possibly empty.
 
 ## How a candidate is found
 
@@ -40,7 +40,7 @@ value: `fixed(laplace_distrib(), mu = 0)` is a Laplace prior at zero and
 has a kink at zero, while `fixed(laplace_distrib(), mu = 2)` has one at
 two.
 
-A **free** parameter gives no candidate, because its value is set by the
+A free parameter gives no candidate, because its value is set by the
 hyperparameters at the time of each evaluation. A Laplace with a free
 location therefore has no reported kink.
 
@@ -58,8 +58,8 @@ has its kink at zero.
 ## How a candidate is confirmed
 
 A candidate is dropped when it is not finite or when it does not lie
-strictly inside the support of the outermost object, a point at the edge
-of the support not being a kink of the density on its support: a
+strictly inside the support of the outermost object, because a point at
+the edge of the support is not a kink of the density on its support: a
 `folded()` Laplace held at zero has no kink at zero. Each remaining
 candidate is then tested by comparing the one-sided derivatives of the
 log-density across it at a probe point
@@ -84,7 +84,7 @@ for the test.
 ## Examples
 
 ``` r
-# A Laplace held at a location: a kink at that location.
+# A Laplace held at a location has a kink at that location.
 distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),
                                     mu = 0))
 #> [1] 0

@@ -15,7 +15,7 @@ quantity, and the value, the gradient and the Hessian do not determine it."><met
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@ present as a single number inside its bounds.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Passed to methods. No shipped method reads it.</p></dd>
+<dd><p>Passed to methods. The shipped methods do not read it.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -94,8 +94,8 @@ Laplace approximation, whose determinant is \(\lvert H + S\rvert\) with
 \(S\) the Hessian of the penalty in the coefficients. The derivative of
 \(\log\lvert H+S\rvert\) in \(\theta_m\) contains
 \(\partial S/\partial\theta_m\), which is a third derivative of
-\(\rho\). The derivatives are taken in \(\theta\) on its own scale, and
-no link is applied.</p>
+\(\rho\). The derivatives are taken in \(\theta\) on its own scale,
+without a link.</p>
     </div>
     <div class="section level2">
     <h2 id="the-value-on-each-branch">The value on each branch<a class="anchor" aria-label="anchor" href="#the-value-on-each-branch"></a></h2>
@@ -108,10 +108,10 @@ the base class the method signals an error that names the penalty, so a
 penalty class written later is usable in a marginal criterion only if it
 supplies <code>penalty_dhessian()</code>, <code><a href="penalty_d2hessian.html">penalty_d2hessian()</a></code> and
 <code><a href="penalty_dcross.html">penalty_dcross()</a></code>.</p>
-<p>A separable penalty with a <strong>kink</strong> signals an error as well, whatever its
-parent. The third derivative does not exist at the kink, and the mode at
-which a marginal criterion is expanded is where a kinked penalty places
-coefficients.</p>
+<p>A separable penalty with a kink signals an error as well, whatever its
+parent. The third derivative does not exist at the kink, and a kinked
+penalty places coefficients at the mode at which a marginal criterion is
+expanded.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

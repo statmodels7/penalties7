@@ -1,14 +1,15 @@
 # Is a Penalty a Proper Prior?
 
-`TRUE` when \\\exp(-\rho)\\ integrates to one over the coefficients, so
-the value returned by
+Returns `TRUE` when \\\exp(-\rho)\\ integrates to one over the
+coefficients, so the value returned by
 [`penalty_value()`](https://statmodels7.github.io/penalties7/reference/penalty_value.md)
 is exactly the negative log-density of a prior in \\\beta\\ and may be
-added to a negative log-likelihood as it stands. `FALSE` when it does
-not. In that case the value keeps the constant that its branch defines,
-if any: a rank-deficient quadratic, additive or structured penalty keeps
-its pseudo-determinant term, a separable penalty keeps the parent's own
-constant without a Jacobian term, and SCAD and MCP carry no constant.
+added to a negative log-likelihood as it stands. Returns `FALSE` when it
+does not. In that case the value keeps the constant that its branch
+defines, if any: a rank-deficient quadratic, additive or structured
+penalty keeps its pseudo-determinant term, a separable penalty keeps the
+parent's own constant without a Jacobian term, and SCAD and MCP carry no
+constant.
 
 ## Usage
 
@@ -37,28 +38,26 @@ A single logical.
 Three situations make a penalty improper, and they arise from different
 causes.
 
-A **rank-deficient quadratic** puts no cost at all on its null
-directions, so \\\exp(-\rho)\\ is flat along them and its integral
-diverges. This is the ordinary case for a smoothing penalty: second
-differences over \\q\\ coefficients leave the level and the slope
-unpenalized and have rank \\q - 2\\. The penalty is still usable,
-because the likelihood supplies the missing curvature, and its
-normalizing constant is the log **pseudo**-determinant over the range,
-which
+A rank-deficient quadratic puts no cost at all on its null directions,
+so \\\exp(-\rho)\\ is flat along them and its integral diverges. This is
+the ordinary case for a smoothing penalty: second differences over \\q\\
+coefficients leave the level and the slope unpenalized and have rank
+\\q - 2\\. The penalty is still usable, because the likelihood supplies
+the missing curvature, and its normalizing constant is the log
+pseudo-determinant over the range, which
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns. The same holds for a rank-deficient additive or structured
 penalty.
 
-A **separable penalty** is a density in \\t = D\beta\\. It is proper
-without a map, and under a square nonsingular map, where the value
-carries the Jacobian term \\-\log\lvert\det D\rvert\\ and is a density
-in \\\beta\\. Under a map with fewer rows than columns, or a singular
-square map (a diagonal map with a zero entry, for instance),
-\\\exp(-\rho)\\ is flat along the null space of the map, and the
-predicate is `FALSE`.
+A separable penalty is a density in \\t = D\beta\\. It is proper without
+a map, and under a square nonsingular map, where the value carries the
+Jacobian term \\-\log\lvert\det D\rvert\\ and is a density in \\\beta\\.
+Under a map with fewer rows than columns, or a singular square map (a
+diagonal map with a zero entry, for instance), \\\exp(-\rho)\\ is flat
+along the null space of the map, and the predicate is `FALSE`.
 
-**SCAD and MCP** are improper for a third reason. Both are defined by
-their derivative, which is exactly zero beyond \\a\lambda\\ and
+SCAD and MCP are improper for a third reason. Both are defined by their
+derivative, which is exactly zero beyond \\a\lambda\\ and
 \\\gamma\lambda\\, so \\\rho\\ is constant in every direction far from
 the origin and \\\exp(-\rho)\\ is not integrable for any constant. They
 are not the negative log-density of any prior, and the quantities of a

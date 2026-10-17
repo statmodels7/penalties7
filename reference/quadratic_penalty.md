@@ -50,8 +50,9 @@ quadratic_penalty(
 - link_lambda:
 
   The linkfunctions7 link carrying \\\lambda\\ onto the whole real line.
-  [`linkfunctions7::log_link()`](https://statmodels7.github.io/linkfunctions7/reference/log_link.html)
-  by default, \\\lambda\\ being positive.
+  The default is
+  [`linkfunctions7::log_link()`](https://statmodels7.github.io/linkfunctions7/reference/log_link.html),
+  because \\\lambda\\ is positive.
 
 - tol:
 
@@ -78,7 +79,7 @@ With \\r\\ the rank of \\D'PD\\,
 \tfrac{1}{2}\log\mathrm{pdet}(D'PD).\$\$
 
 The last three terms are the normalizing constant of the prior, taken
-over the range of \\D'PD\\ alone when that matrix is rank deficient. The
+only over the range of \\D'PD\\ when that matrix is rank deficient. The
 constant is the one of the matrix applied to \\\beta\\, so it carries
 the map. For a diagonal map with non-zero entries \\d_j\\ and a
 full-rank \\P\\, \\\log\mathrm{pdet}(D'PD) = \log\det P +
@@ -116,9 +117,8 @@ that annihilates \\P\\ only up to rounding, so that every entry of
 \\D'PD\\ is a rounding error relative to \\P\\, is therefore not
 detected: the largest of those rounding errors passes the rule, and the
 penalty is built with a positive rank and a log pseudo-determinant made
-of rounding errors. The constructor rejects the map only when no
-eigenvalue of \\D'PD\\ is positive, as when \\D'PD\\ is exactly the zero
-matrix.
+of rounding errors. The constructor rejects the map only when \\D'PD\\
+has no positive eigenvalue, as when \\D'PD\\ is exactly the zero matrix.
 
 ## Blockwise repetition
 
@@ -132,8 +132,8 @@ matrix is stored in sparse form. The result has the same value,
 gradient, Hessian, rank, null basis and log pseudo-determinant as the
 penalty built from the assembled \\I_m \otimes P\\, up to rounding.
 
-**Under `blocks > 1` the matrix-valued returns are `dgCMatrix`**, not
-base matrices:
+Under `blocks > 1` the matrix-valued returns are `dgCMatrix`, not base
+matrices:
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md),
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)

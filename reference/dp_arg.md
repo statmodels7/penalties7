@@ -24,26 +24,26 @@ dp_flat(pen, g)
 - t:
 
   The mapped coefficient vector \\D\beta\\, of length a multiple of
-  `pen@block`. `dp_arg()` only.
+  `pen@block`. This argument belongs to `dp_arg()` only.
 
 - g:
 
   The result of the parent: a vector for a univariate parent, a matrix
-  of one row per block for a multivariate one. `dp_flat()` only.
+  of one row per block for a multivariate one. This argument belongs to
+  `dp_flat()` only.
 
 ## Value
 
-`dp_arg()` the vector unchanged when `pen@block` is `1L`, and otherwise
-a matrix with `pen@block` columns filled by row. `dp_flat()` a numeric
-vector, in coefficient order.
+`dp_arg()` returns the vector unchanged when `pen@block` is `1L`, and
+otherwise a matrix with `pen@block` columns filled by row. `dp_flat()`
+returns a numeric vector, in coefficient order.
 
 ## Details
 
-The blocks are the **successive** stretches of \\D\beta\\, so the
-reshaping fills by row: block \\i\\ occupies positions \\(i-1)p+1,
-\dots, ip\\. This is the order in which a grouped design assembles its
-coefficients and the order that \\I_m \otimes \Sigma\\ assumes, so the
-two agree.
+The blocks are the successive stretches of \\D\beta\\, so the reshaping
+fills by row: block \\i\\ occupies positions \\(i-1)p+1, \dots, ip\\.
+This is the order in which a grouped design assembles its coefficients
+and the order that \\I_m \otimes \Sigma\\ assumes, so the two agree.
 
 Both functions return their argument unchanged when the block width is
 one, which is the case of every univariate parent.

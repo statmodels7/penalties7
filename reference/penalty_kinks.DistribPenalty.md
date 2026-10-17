@@ -27,9 +27,9 @@ nonsingular, and `FALSE` otherwise.
 ## Value
 
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-a numeric vector, `pen@kinks` as it stands.
+returns a numeric vector, `pen@kinks` as it stands.
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
-a single logical.
+returns a single logical.
 
 ## Details
 
@@ -83,9 +83,9 @@ penalty_kinks(lasso_penalty(n_coef = 3), list(lambda = 20))
 penalty_kinks(heavy_penalty(n_coef = 3), list(sigma = 1, nu = 4))
 #> numeric(0)
 
-# Proper without a map and with a square nonsingular map; improper with a
-# map that has more rows than columns, with a singular one, and with one
-# that has fewer rows than columns.
+# The penalty is proper without a map and with a square nonsingular map. It
+# is improper with a map that has more rows than columns, with a singular
+# one, and with one that has fewer rows than columns.
 c(none     = is_proper(lasso_penalty(n_coef = 3)),
   square   = is_proper(lasso_penalty(map = matrix(c(2, 1, 0, 3), 2))),
   tall     = is_proper(lasso_penalty(map = rbind(diag(2), c(1, 1)))),

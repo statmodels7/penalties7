@@ -13,7 +13,7 @@ called directly."><meta property="og:image" content="https://statmodels7.github.
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,7 @@ called directly.</p>
 
 <dt id="arg-build">build<a class="anchor" aria-label="anchor" href="#arg-build"></a></dt>
 <dd><p>A function of a penalty and a step returning the table, or
-<code>NULL</code>. It is called on the penalty with its map removed.</p></dd>
+<code>NULL</code>. It is called on the penalty after the map has been removed.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -83,10 +83,10 @@ map is not recognized as diagonal or the builder returns <code>NULL</code>.</p>
 \(\lvert w\rvert \le \mathrm{cut}\) to
 \(\mathrm{sign}(w)(\mathrm{slope}\,\lvert w\rvert + \mathrm{icept})\) at
 \(w = dv\), so a cut on \(\lvert w\rvert\) is a cut on
-\(\lvert v\rvert\) divided by \(\lvert d\rvert\), the intercept divides
-by the same, and the slope does not move, multiplying a point that was
-scaled and then divided back. The operator is odd, so only the magnitude of
-\(d\) enters.</p>
+\(\lvert v\rvert\) divided by \(\lvert d\rvert\), the intercept is
+divided by the same, and the slope does not move, because it multiplies a
+point that was scaled and then divided back. The operator is odd, so only the
+magnitude of \(d\) enters.</p>
 <p>The step passed to the builder is \(t d^2\), and the step limit of SCAD
 and MCP is tested on it, so a standardized penalty takes shorter steps and
 the table can be <code>NULL</code> at a step where the table without the map exists.</p>

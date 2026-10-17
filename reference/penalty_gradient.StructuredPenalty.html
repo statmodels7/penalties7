@@ -13,7 +13,7 @@ coefficients and the gradient is the Hessian applied to them."><meta property="o
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,9 +69,9 @@ coefficients and the gradient is the Hessian applied to them.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code><a href="penalty_gradient.html">penalty_gradient()</a></code> an unnamed numeric vector of length
+    <p><code><a href="penalty_gradient.html">penalty_gradient()</a></code> returns an unnamed numeric vector of length
 <code>pen@n_coef</code>; <code><a href="penalty_gradient.html">penalty_hessian()</a></code> the symmetric precision matrix
-\(\Omega(\theta)\), <strong>carrying the structure's own dimnames</strong> (<code>v1</code>,
+\(\Omega(\theta)\), carrying the structure's own dimnames (<code>v1</code>,
 <code>v2</code>, ... for the <span class="pkg">parameters7</span> primitives). The quadratic and
 additive branches return matrices with no dimnames, so a comparison
 across branches requires <code><a href="https://rdrr.io/r/base/unname.html" class="external-link">unname()</a></code>.</p>

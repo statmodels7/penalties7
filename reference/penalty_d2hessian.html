@@ -13,7 +13,7 @@ hyperparameters contains it, and so does an exact outer Hessian."><meta property
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,7 @@ vector carrying the same, checked by the generic as in
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Passed to methods. No shipped method reads it.</p></dd>
+<dd><p>Passed to methods. The shipped methods do not read it.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -82,20 +82,20 @@ hyperparameters gives \(p(p+1)/2\) entries.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>It is <strong>exactly zero</strong> for every penalty whose Hessian is linear in its
+    <p>It is exactly zero for every penalty whose Hessian is linear in its
 hyperparameters, which is the quadratic branch, where
 \(S = \lambda D'PD\), and the additive branch, where
 \(S = \sum_k \lambda_k D'P_kD\). The structured branch reads the second
-derivative <code>param_d2</code> of the matrix parameter, and the separable branch the
-second \(\theta\)-derivative of the response curvature of the parent,
-through <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_hess_y_hess.html" class="external-link">distributions7::distrib_hess_y_hess()</a></code>, carried through the map as
-in <code><a href="penalty_dhessian.html">penalty_dhessian()</a></code>. The derivatives are taken in \(\theta\) on its
-own scale.</p>
-<p>The keys are those of <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code>: the diagonal pairs first in
-<code>pen@params</code> order, then the upper off-diagonal pairs, each pair joined by
-an underscore. Each unordered pair has one key, written in <code>pen@params</code>
-order (<code>sigma_nu</code> and not <code>nu_sigma</code> when <code>sigma</code> comes first), and the
-reversed name is not an element of the list.</p>
+derivative <code>param_d2</code> of the matrix parameter. The separable branch reads
+the second \(\theta\)-derivative of the response curvature of the parent
+through <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_hess_y_hess.html" class="external-link">distributions7::distrib_hess_y_hess()</a></code> and carries it through the
+map as in <code><a href="penalty_dhessian.html">penalty_dhessian()</a></code>. The derivatives are taken in \(\theta\)
+on its own scale.</p>
+<p>The keys are those of <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code>: the diagonal pairs come first
+in <code>pen@params</code> order, then the upper off-diagonal pairs follow, and each
+key joins the two names with an underscore. Each unordered pair has one
+key, written in <code>pen@params</code> order (<code>sigma_nu</code> and not <code>nu_sigma</code> when
+<code>sigma</code> comes first), and the reversed name is not an element of the list.</p>
 <p>A penalty with a kink signals an error, and so does the base class.</p>
     </div>
     <div class="section level2">
@@ -108,7 +108,8 @@ the mixed one, <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a><
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.3</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Zero for a quadratic penalty, whose Hessian is linear in lambda.</span></span></span>
+<span class="r-in"><span><span class="co"># The second derivative is zero for a quadratic penalty, whose Hessian is</span></span></span>
+<span class="r-in"><span><span class="co"># linear in lambda.</span></span></span>
 <span class="r-in"><span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu"><a href="quadratic_penalty.html">quadratic_penalty</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">penalty_d2hessian</span><span class="op">(</span><span class="va">pen</span>, <span class="va">b</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lambda_lambda</span>
@@ -118,13 +119,14 @@ the mixed one, <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a><
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]    0    0    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Zero for an additive one as well, keyed diagonals first over three pairs.</span></span></span>
+<span class="r-in"><span><span class="co"># It is zero for an additive penalty as well, and the keys list the</span></span></span>
+<span class="r-in"><span><span class="co"># diagonals first over three pairs.</span></span></span>
 <span class="r-in"><span><span class="va">add</span> <span class="op">&lt;-</span> <span class="fu"><a href="additive_penalty.html">additive_penalty</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">penalty_d2hessian</span><span class="op">(</span><span class="va">add</span>, <span class="va">b</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">2</span>, lambda2 <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "lambda1_lambda1" "lambda2_lambda2" "lambda1_lambda2"</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Not zero for a structured penalty, whose matrix is not linear in its</span></span></span>
-<span class="r-in"><span><span class="co"># free values.</span></span></span>
+<span class="r-in"><span><span class="co"># It is not zero for a structured penalty, whose matrix is not linear in</span></span></span>
+<span class="r-in"><span><span class="co"># its free values.</span></span></span>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="structured_penalty.html">structured_penalty</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/log_cholesky.html" class="external-link">log_cholesky</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">th</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>log_L1 <span class="op">=</span> <span class="fl">0.1</span>, log_L2 <span class="op">=</span> <span class="op">-</span><span class="fl">0.1</span>, L2.1 <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">penalty_d2hessian</span><span class="op">(</span><span class="va">s</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">0.5</span><span class="op">)</span>, <span class="va">th</span><span class="op">)</span><span class="op">$</span><span class="va">log_L1_log_L1</span></span></span>

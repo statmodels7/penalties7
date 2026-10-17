@@ -9,8 +9,8 @@ i}\\v\_{1,ic_1}\cdots v\_{m,ic_m}\\. That is the derivative of the
 response Hessian of block \\i\\ along the coordinates of the block in
 the directions, which
 [`dp_blockdiag()`](https://statmodels7.github.io/penalties7/reference/dp_blockdiag.md)
-then places on the diagonal. Arrays of four and five dimensions are
-handled, that is one or two directions.
+then places on the diagonal. The function handles arrays of four and
+five dimensions, that is one or two directions.
 
 `dp_parent_or_reject()` calls the generic `fun` of the parent. If that
 call signals an error of any kind, it signals in its place an error that
@@ -62,8 +62,9 @@ dp_parent_or_reject(pen, what, fun, a, theta)
 
 ## Value
 
-`dp_contract()` a \\p \times p \times n\\ numeric array.
-`dp_parent_or_reject()` the value returned by `fun`, or an error.
+`dp_contract()` returns a \\p \times p \times n\\ numeric array.
+`dp_parent_or_reject()` returns the value that `fun` returns, or signals
+an error.
 
 ## See also
 

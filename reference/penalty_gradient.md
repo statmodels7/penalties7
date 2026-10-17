@@ -1,10 +1,10 @@
 # Coefficient Derivatives of a Penalty
 
 `penalty_gradient()` returns \\\partial\rho/\partial\beta\\ and
-`penalty_hessian()` returns \\\partial^2\rho/\partial\beta^2\\, both in
-closed form for every shipped branch and both already carried back
-through the map. These are the two quantities that a penalized fit adds
-to the score and to the information at each iteration.
+`penalty_hessian()` returns \\\partial^2\rho/\partial\beta^2\\. Each is
+computed in closed form for every shipped branch and is already carried
+back through the map. These are the two quantities that a penalized fit
+adds to the score and to the information at each iteration.
 
 ## Usage
 
@@ -39,7 +39,7 @@ penalty_hessian(pen, beta, theta, ...)
 
 ## Value
 
-`penalty_gradient()` a numeric vector of length `pen@n_coef`;
+`penalty_gradient()` returns a numeric vector of length `pen@n_coef`;
 `penalty_hessian()` a symmetric matrix of that side. It is a base matrix
 even where the map is a Matrix, except for a penalty built by
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)

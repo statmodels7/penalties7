@@ -1,5 +1,21 @@
 # Changelog
 
+## penalties7 0.32.1
+
+- Documentation and messages: relative clauses without a relative
+  pronoun, stranded prepositions, absolute constructions, sentences
+  without a verb (example captions and later sentences of `@return`
+  included), emphasis in bold, negated subjects and personified
+  descriptions of the code rewritten as plain clauses. The error
+  messages for a hyperparameter missing from `theta`, for `blocks`
+  combined with `map` in
+  [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md),
+  for a blockwise multivariate parent in
+  [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md),
+  for a missing second-derivative component of a structured penalty and
+  for the step bound of the SCAD and MCP proximal operators are
+  reworded.
+
 ## penalties7 0.32.0
 
 - [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)

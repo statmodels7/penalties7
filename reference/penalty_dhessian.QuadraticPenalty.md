@@ -1,6 +1,6 @@
 # Marginal Derivatives of a Quadratic Penalty
 
-The methods of the quadratic branch for the four generics that a
+The methods of the quadratic branch cover the four generics that a
 marginal criterion requires beyond the second order. \\S = \lambda
 D'PD\\ is linear in \\\lambda\\ and free of the coefficients, so
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
@@ -22,13 +22,13 @@ returns `TRUE`.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`. Unused, because none of these
-  quantities depends on the coefficients.
+  A numeric vector of length `pen@n_coef`. The methods do not use it,
+  because these quantities do not depend on the coefficients.
 
 - theta:
 
-  A named list holding `lambda`. Unused, because none of these
-  quantities depends on \\\lambda\\.
+  A named list holding `lambda`. The methods do not use it, because
+  these quantities do not depend on \\\lambda\\.
 
 - ...:
 
@@ -37,18 +37,18 @@ returns `TRUE`.
 ## Value
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-a list of one matrix named `lambda`.
+returns a list of one matrix named `lambda`.
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
-a list of one zero matrix named `lambda_lambda`.
+returns a list of one zero matrix named `lambda_lambda`.
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
-a list of one zero vector named `lambda_lambda`.
+returns a list of one zero vector named `lambda_lambda`.
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
-the single logical `TRUE`.
+returns the single logical `TRUE`.
 
 ## Details
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-returns the stored \\D'PD\\ **in the storage that the penalty keeps**. A
+returns the stored \\D'PD\\ in the storage that the penalty keeps. A
 base matrix is passed through
 [`unclass()`](https://rdrr.io/r/base/class.html), which removes the
 attributes that it may carry, and an S4 matrix is returned unchanged. A

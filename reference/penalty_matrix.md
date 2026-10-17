@@ -1,12 +1,12 @@
 # Quantities of a Quadratic Penalty for a Marginal Criterion
 
-The four quantities that a REML or marginal likelihood criterion
-requires from a quadratic penalty. `penalty_matrix()` returns the matrix
-\\S(\theta)\\ of the quadratic form, `penalty_rank()` its rank,
-`penalty_null_basis()` an orthonormal basis of the directions that the
-penalty leaves unpenalized, and `penalty_logpdet()` the log
-pseudo-determinant with its first two derivatives in the
-hyperparameters.
+These functions return the four quantities that a REML or marginal
+likelihood criterion requires from a quadratic penalty.
+`penalty_matrix()` returns the matrix \\S(\theta)\\ of the quadratic
+form, `penalty_rank()` its rank, `penalty_null_basis()` an orthonormal
+basis of the directions that the penalty leaves unpenalized, and
+`penalty_logpdet()` the log pseudo-determinant with its first two
+derivatives in the hyperparameters.
 
 ## Usage
 
@@ -33,7 +33,8 @@ penalty_logpdet(pen, theta, ...)
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same. `penalty_matrix()` and `penalty_logpdet()` only.
+  carrying the same. Only `penalty_matrix()` and `penalty_logpdet()`
+  take this argument.
 
 - ...:
 
@@ -41,19 +42,19 @@ penalty_logpdet(pen, theta, ...)
 
 ## Value
 
-`penalty_matrix()` a symmetric `q x q` matrix, where `q` is
-`pen@n_coef`. `penalty_rank()` a single integer, fixed at construction.
-`penalty_null_basis()` a `q x (q - r)` matrix with orthonormal columns
-spanning the null space, and a `q x 0` matrix when there is none. The
-two matrices are base matrices ordinarily, and `dgCMatrix` objects for a
-penalty built by
+`penalty_matrix()` returns a symmetric `q x q` matrix, where `q` is
+`pen@n_coef`. `penalty_rank()` returns a single integer, fixed at
+construction. `penalty_null_basis()` returns a `q x (q - r)` matrix with
+orthonormal columns spanning the null space, and a `q x 0` matrix when
+there is none. The two matrices are base matrices ordinarily, and
+`dgCMatrix` objects for a penalty built by
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
-with `blocks > 1`. `penalty_logpdet()` a list of three: `value`, a
-single number; `grad`, a named list of one number per hyperparameter;
-and `hess`, a named list of one number per hyperparameter pair, keyed
-diagonals first as
-[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-is.
+with `blocks > 1`. `penalty_logpdet()` returns a list of three: `value`,
+a single number; `grad`, a named list of one number per hyperparameter;
+and `hess`, a named list of one number per hyperparameter pair, keyed as
+in
+[`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md),
+with the diagonal pairs first.
 
 ## Role in a marginal criterion
 
@@ -61,16 +62,16 @@ A marginal criterion integrates the coefficients out under the prior
 that the penalty defines, and a Laplace expansion at the penalized mode
 leaves \\\tfrac{1}{2}\log^{+}\lvert S(\theta)\rvert -
 \tfrac{1}{2}\log\lvert H + S(\theta)\rvert\\. These generics supply the
-first term. It is a **pseudo**-determinant, taken over the range of
-\\S\\ alone, because a smoothing penalty is rank deficient by design and
-its ordinary determinant is zero.
+first term. It is a pseudo-determinant, taken only over the range of
+\\S\\, because a smoothing penalty is rank deficient by design and its
+ordinary determinant is zero.
 
 The rank and the null basis are fixed at construction and do not move
-with `theta`, which is why neither function takes it. A count of the
-eigenvalues of the assembled \\S(\theta)\\ above a tolerance would fall
-as several smoothing parameters spread apart, whereas the null space of
-a sum of positive semidefinite matrices is the intersection of their
-null spaces and does not depend on the weights.
+with `theta`, so `penalty_rank()` and `penalty_null_basis()` do not take
+it. A count of the eigenvalues of the assembled \\S(\theta)\\ above a
+tolerance would fall as several smoothing parameters spread apart,
+whereas the null space of a sum of positive semidefinite matrices is the
+intersection of their null spaces and does not depend on the weights.
 
 ## The log pseudo-determinant
 
@@ -131,8 +132,8 @@ for the names of `penalty_logpdet()`'s `hess`.
 ## Examples
 
 ``` r
-# Second differences over four coefficients: rank 2, a two-dimensional
-# null space holding the level and the slope.
+# Second differences over four coefficients give rank 2 and a
+# two-dimensional null space that holds the level and the slope.
 pen <- quadratic_penalty(crossprod(diff(diag(4), differences = 2)))
 penalty_rank(pen)
 #> [1] 2

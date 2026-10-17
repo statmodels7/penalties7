@@ -13,7 +13,7 @@ hyperparameters are the free values of a matrix parameter."><meta property="og:i
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,9 +65,9 @@ hyperparameters are the free values of a matrix parameter.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>NULL</code> when <code>pen@block</code> is <code>1L</code>. Otherwise the list that
-<code><a href="https://statmodels7.github.io/distributions7/reference/mv_derived.html" class="external-link">distributions7::mv_derived()</a></code> returns, with the elements <code>value</code>,
-<code>jacobian</code>, <code>transform</code> and <code>block</code>.</p>
+    <p><code>NULL</code> when <code>pen@block</code> is <code>1L</code>. Otherwise the method returns the
+list that <code><a href="https://statmodels7.github.io/distributions7/reference/mv_derived.html" class="external-link">distributions7::mv_derived()</a></code> produces, with the elements
+<code>value</code>, <code>jacobian</code>, <code>transform</code> and <code>block</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -76,23 +76,24 @@ a rate or a shape, each on its own scale, so there is nothing to derive and
 the method returns <code>NULL</code>. Those of a multivariate parent are coordinates
 such as log-Cholesky entries, which are not directly interpretable; the
 interpretable quantities are the standard deviations and the correlations
-of the effects within a block, and the parent declares them through
+of the effects within a block, and the parent provides them through
 <code><a href="https://statmodels7.github.io/distributions7/reference/mv_derived.html" class="external-link">distributions7::mv_derived()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="penalty_readable.html">penalty_readable()</a></code> for the generic,
 <code><a href="https://statmodels7.github.io/distributions7/reference/mv_derived.html" class="external-link">distributions7::mv_derived()</a></code> for the quantities that a multivariate
-family declares.</p></div>
+family provides.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A univariate parent: the rate is the quantity, so nothing is derived.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># For a univariate parent the rate is already the quantity of interest, so</span></span></span>
+<span class="r-in"><span><span class="co"># the result is NULL.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="penalty_readable.html">penalty_readable</a></span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A bivariate Gaussian prior: two standard deviations and a correlation.</span></span></span>
+<span class="r-in"><span><span class="co"># A bivariate Gaussian prior has two standard deviations and a correlation.</span></span></span>
 <span class="r-in"><span><span class="va">mv</span> <span class="op">&lt;-</span> <span class="fu"><a href="distrib_penalty.html">distrib_penalty</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">fixed</a></span><span class="op">(</span><span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/mvgaussian1_distrib.html" class="external-link">mvgaussian1_distrib</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                        mu1 <span class="op">=</span> <span class="fl">0</span>, mu2 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, n_coef <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>

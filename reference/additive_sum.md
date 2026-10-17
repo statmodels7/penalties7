@@ -38,7 +38,7 @@ A list of four: `S`, the assembled symmetric matrix of side
 `pen@n_coef`; `logpdet`, a single number; `dlog`, a numeric vector of
 \\\operatorname{tr}(S^{+}P_k)\\ in `pen@params` order; and `d2log`, the
 square matrix of \\\operatorname{tr}(S^{+}P_kS^{+}P_l)\\. The last three
-are `NaN` at a setting the transformation cannot resolve.
+are `NaN` at a setting that the transformation cannot resolve.
 
 ## A single decomposition of the sum
 
@@ -48,8 +48,8 @@ eigendecomposition computes its eigenvalues with an absolute accuracy of
 order \\d\\\epsilon\lVert S\rVert\_{2}\\, so the smallest eigenvalue on
 the range can fall below that resolution and carry no significant digit.
 The sum of logarithms is then `NaN` if that eigenvalue is computed as
-negative and an inaccurate number if it is computed as positive, and
-neither case raises a warning.
+negative and an inaccurate number if it is computed as positive, and the
+computation raises no warning in either case.
 
 ## The similarity transformation
 
@@ -59,10 +59,10 @@ partitions the components by the size of their contributions,
 eigenvectors of the dominant group, the components whose contribution is
 at least
 [`additive_tol()`](https://statmodels7.github.io/penalties7/reference/additive_tol.md)
-times the largest. With \\U\_{+}\\ spanning the range of that group and
-\\U\_{0}\\ its kernel, \\A = U\_{+}^{\top}SU\_{+}\\, \\C =
+times the largest. Let \\U\_{+}\\ span the range of that group and
+\\U\_{0}\\ its kernel, and let \\A = U\_{+}^{\top}SU\_{+}\\, \\C =
 U\_{+}^{\top}SU\_{0}\\, \\F = A^{-1}C\\ and \\M = U\_{0}^{\top}SU\_{0} -
-C^{\top}F\\,
+C^{\top}F\\. Then
 
 \$\$\log\mathrm{pdet}\\S = \log\lvert A\rvert + \log\mathrm{pdet}\\M,
 \qquad S^{+} = U\_{+}A^{-1}U\_{+}^{\top} + GM^{+}G^{\top}, \qquad G =
@@ -83,15 +83,15 @@ dominant group is zero or reaches the rank left, and that level takes
 one eigendecomposition.
 
 Two quantities are exactly zero and are dropped instead of computed. The
-dominant group vanishes on \\U\_{0}\\, that subspace being its kernel,
-so a computed value there would consist of rounding errors of order
-\\\lambda\_{\mathrm{dom}}\epsilon\\, which would swamp the subordinate
-terms; the blocks of each dominant component on \\U\_{0}\\ vanish for
-the same reason. The part of \\M\\ that the next level does not carry as
-components is likewise built from the reductions of the dominant
-components and not obtained by subtracting the subordinate reductions
-from \\M\\, since that subtraction would be a difference of two
-quantities of the dominant size.
+dominant group vanishes on \\U\_{0}\\, because that subspace is its
+kernel, so a computed value there would consist of rounding errors of
+order \\\lambda\_{\mathrm{dom}}\epsilon\\, which would swamp the
+subordinate terms; the blocks of each dominant component on \\U\_{0}\\
+vanish for the same reason. The part of \\M\\ that the next level does
+not carry as components is likewise built from the reductions of the
+dominant components and not obtained by subtracting the subordinate
+reductions from \\M\\, since that subtraction would be a difference of
+two quantities of the dominant size.
 
 ## The rank identity
 

@@ -39,7 +39,7 @@ penalty_dhessian_beta(pen, beta, theta, v, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
@@ -117,7 +117,8 @@ for the derivatives of this quantity.
 b <- c(1, -0.5, 0.3)
 v <- c(0.2, 0.1, -0.4)
 
-# Zero for a quadratic penalty, whose Hessian does not change with beta.
+# The derivative is zero for a quadratic penalty, whose Hessian does not
+# change with beta.
 penalty_dhessian_beta(quadratic_penalty(diag(3)), b, list(lambda = 2), v)
 #>      [,1] [,2] [,3]
 #> [1,]    0    0    0

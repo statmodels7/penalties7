@@ -1,12 +1,12 @@
 # The Diagonal and the Log-Jacobian of a Map
 
-`dp_diag_entries()` returns the entries of a Matrix diagonal map, zeros
-included, and `NULL` for any other map. `map_log_jacobian()` returns
-\\\log\lvert\det D\rvert\\: `0` for a `NULL` map, \\\sum_j\log\lvert
-d_j\rvert\\ for a diagonal one, the log-modulus of the determinant for a
-square nonsingular one, and `NA` for a map that is not square or is
-singular. `dp_log_jacobian()` returns the same quantity for a built
-penalty.
+`dp_diag_entries()` returns the entries of a Matrix diagonal map,
+including the zeros, and `NULL` for any other map. `map_log_jacobian()`
+returns \\\log\lvert\det D\rvert\\: `0` for a `NULL` map,
+\\\sum_j\log\lvert d_j\rvert\\ for a diagonal one, the log-modulus of
+the determinant for a square nonsingular one, and `NA` for a map that is
+not square or is singular. `dp_log_jacobian()` returns the same quantity
+for a built penalty.
 
 ## Usage
 
@@ -32,15 +32,16 @@ dp_log_jacobian(pen)
 
 ## Value
 
-`dp_diag_entries()` a numeric vector of length `nrow(map)`, a unit
-diagonal (`diag = "U"`) giving ones, or `NULL`. `map_log_jacobian()` and
-`dp_log_jacobian()` a single number, possibly `NA`.
+`dp_diag_entries()` returns a numeric vector of length `nrow(map)`, a
+unit diagonal (`diag = "U"`) giving ones, or `NULL`.
+`map_log_jacobian()` and `dp_log_jacobian()` return a single number,
+possibly `NA`.
 
 ## Details
 
 A diagonal map is treated as singular when an entry is zero or missing.
-Any other square map is densified once; it is treated as singular when
-an entry is not finite or when the rank that
+Any other square map is converted once to a dense matrix; it is treated
+as singular when an entry is not finite or when the rank that
 [`qr()`](https://rdrr.io/r/base/qr.html) reports at its default
 tolerance is below the number of columns, and otherwise the log-modulus
 comes from [`determinant()`](https://rdrr.io/r/base/det.html).

@@ -17,7 +17,7 @@ coefficients, and one smoothing parameter that scales the weights."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,8 +96,8 @@ Above 1 it must be given without a <code>map</code>.</p></dd>
 
 <dt id="arg-link-lambda">link_lambda<a class="anchor" aria-label="anchor" href="#arg-link-lambda"></a></dt>
 <dd><p>The <span class="pkg">linkfunctions7</span> link carrying \(\lambda\) onto
-the whole real line. <code><a href="https://statmodels7.github.io/linkfunctions7/reference/log_link.html" class="external-link">linkfunctions7::log_link()</a></code> by default, \(\lambda\)
-being positive.</p></dd>
+the whole real line. The default is <code><a href="https://statmodels7.github.io/linkfunctions7/reference/log_link.html" class="external-link">linkfunctions7::log_link()</a></code>, because
+\(\lambda\) is positive.</p></dd>
 
 
 <dt id="arg-tol">tol<a class="anchor" aria-label="anchor" href="#arg-tol"></a></dt>
@@ -120,8 +120,8 @@ bounded on \((0, \infty)\).</p>
 <p>$$\rho(\beta; \lambda) = \tfrac{\lambda}{2}\,(D\beta)'P(D\beta)
   - \tfrac{r}{2}\log\lambda + \tfrac{r}{2}\log 2\pi
   - \tfrac{1}{2}\log\mathrm{pdet}(D'PD).$$</p>
-<p>The last three terms are the normalizing constant of the prior, taken over
-the range of \(D'PD\) alone when that matrix is rank deficient. The
+<p>The last three terms are the normalizing constant of the prior, taken only
+over the range of \(D'PD\) when that matrix is rank deficient. The
 constant is the one of the matrix applied to \(\beta\), so it carries the
 map. For a diagonal map with non-zero entries \(d_j\) and a full-rank
 \(P\),
@@ -159,8 +159,8 @@ that annihilates \(P\) only up to rounding, so that every entry of
 \(D'PD\) is a rounding error relative to \(P\), is therefore not
 detected: the largest of those rounding errors passes the rule, and the
 penalty is built with a positive rank and a log pseudo-determinant made of
-rounding errors. The constructor rejects the map only when no eigenvalue of
-\(D'PD\) is positive, as when \(D'PD\) is exactly the zero matrix.</p>
+rounding errors. The constructor rejects the map only when \(D'PD\) has no
+positive eigenvalue, as when \(D'PD\) is exactly the zero matrix.</p>
     </div>
     <div class="section level2">
     <h2 id="blockwise-repetition">Blockwise repetition<a class="anchor" aria-label="anchor" href="#blockwise-repetition"></a></h2>
@@ -173,7 +173,7 @@ times, so the rank is \(mr\), the log pseudo-determinant is
 large matrix is stored in sparse form. The result has the same value,
 gradient, Hessian, rank, null basis and log pseudo-determinant as the
 penalty built from the assembled \(I_m \otimes P\), up to rounding.</p>
-<p><strong>Under <code>blocks &gt; 1</code> the matrix-valued returns are <code>dgCMatrix</code></strong>, not base
+<p>Under <code>blocks &gt; 1</code> the matrix-valued returns are <code>dgCMatrix</code>, not base
 matrices: <code><a href="penalty_gradient.html">penalty_hessian()</a></code>, <code><a href="penalty_matrix.html">penalty_matrix()</a></code>, <code><a href="penalty_matrix.html">penalty_null_basis()</a></code>
 and the matrices of <code><a href="penalty_dhessian.html">penalty_dhessian()</a></code> all keep the sparse storage, so the
 assembled matrix is never densified. A consumer that writes these results

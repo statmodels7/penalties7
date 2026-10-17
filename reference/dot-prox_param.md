@@ -52,7 +52,7 @@ and from the parent's `fixed_params` otherwise.
 
 ## Errors
 
-A message naming the penalty and the parameter when the parameter is
+The message names the penalty and the parameter when the parameter is
 neither a free hyperparameter nor held by
 [`distributions7::fixed()`](https://statmodels7.github.io/distributions7/reference/fixed.html).
 

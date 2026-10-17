@@ -24,14 +24,14 @@ returns, and `NULL` for a structure that declares none.
 
 ## Value
 
-`NULL` when the structure declares no quantities. Otherwise a list of
-four: `value`, a numeric vector of the quantities, each name the
-structure's own with the prefix `precision_`; `jacobian`, their
-derivatives, one row per quantity and one column per hyperparameter,
-with row names from `value` and column names from `pen@params`;
-`transform`, a character vector named like `value` that names the scale
-on which each interval is built; and `block`, the structure's label for
-every quantity, named like `value`.
+`NULL` when the structure declares no quantities. Otherwise the function
+returns a list of four: `value`, a numeric vector of the quantities, in
+which each name is the structure's own name with the prefix
+`precision_`; `jacobian`, their derivatives, one row per quantity and
+one column per hyperparameter, with row names from `value` and column
+names from `pen@params`; `transform`, a character vector named like
+`value` that names the scale on which each interval is built; and
+`block`, the structure's label for every quantity, named like `value`.
 
 ## Details
 
@@ -88,8 +88,8 @@ for the quantities that a structure declares.
 ## Examples
 
 ``` r
-# An AR(1) precision on four coefficients: the scale and the correlation
-# of the precision, named precision_scale and precision_rho.
+# The scale and the correlation of an AR(1) precision on four coefficients
+# are named precision_scale and precision_rho.
 pen <- structured_penalty(parameters7::ar1(4))
 r <- penalty_readable(pen, list(log_scale = 0.2, z_rho = 0.5))
 r$value

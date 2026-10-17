@@ -33,10 +33,10 @@ free, and this basis supplies them. The rank of a non-diagonal map is
 the rank that [`qr()`](https://rdrr.io/r/base/qr.html) reports at its
 default tolerance, and the basis is formed by the right singular vectors
 of the map beyond that rank. For a square map this is the same rank test
-that decides
-[`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md).
-A map with more rows than columns and full column rank has an empty
-basis, although
+that
+[`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
+uses. A map with more rows than columns and full column rank has an
+empty basis, although
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
 returns `FALSE` for it.
 
@@ -50,7 +50,8 @@ for the test of properness.
 ## Examples
 
 ``` r
-# No map, and a diagonal map with a zero at the second coordinate.
+# The first call has no map, and the second has a diagonal map with a zero
+# at the second coordinate.
 penalty_null_basis(lasso_penalty(n_coef = 3))
 #>     
 #> [1,]

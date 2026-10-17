@@ -1,8 +1,8 @@
 # Value of an MCP Penalty
 
 Returns the closed antiderivative of MCP's defining \\\rho'\\, summed
-over the coordinates of \\D\beta\\ and anchored at \\\rho(0) = 0\\. No
-constant is added, since MCP is improper.
+over the coordinates of \\D\beta\\ and anchored at \\\rho(0) = 0\\. It
+adds no constant, since MCP is improper.
 
 ## Arguments
 
@@ -29,9 +29,9 @@ constant is added, since MCP is improper.
 ## Value
 
 A single number, the sum over coordinates. It is bounded above by
-\\\sum_j \gamma\lambda^2/(2c_j)\\, the sum running over the coordinates
-of \\D\beta\\, which is `pen@n_coef * gamma * lambda^2 / 2` under the
-identity map at unit curvature.
+\\\sum_j \gamma\lambda^2/(2c_j)\\, where the sum runs over the
+coordinates of \\D\beta\\; under the identity map at unit curvature the
+bound is `pen@n_coef * gamma * lambda^2 / 2`.
 
 ## Details
 
@@ -41,9 +41,9 @@ With unit curvature and \\u = \lvert t\rvert\\ on each coordinate,
 \gamma\lambda), \qquad \rho(u) = \frac{\gamma\lambda^2}{2} \\\\ (u \>
 \gamma\lambda),\$\$
 
-the two pieces meeting continuously at \\\gamma\lambda\\. SCAD keeps the
-slope of the lasso over an interval before it tapers, while MCP tapers
-from the origin, so its value is a downward parabola up to
+where the two pieces meet continuously at \\\gamma\lambda\\. SCAD keeps
+the slope of the lasso over an interval before it tapers, while MCP
+tapers from the origin, so its value is a downward parabola up to
 \\\gamma\lambda\\. With curvature \\c_j\\ (the `curv` property),
 coordinate \\j\\ contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, the same
 formula with \\\lambda/c_j\\ in place of \\\lambda\\ and multiplied by
@@ -54,7 +54,7 @@ formula with \\\lambda/c_j\\ in place of \\\lambda\\ and multiplied by
 [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
 for the construction,
 [`penalty_gradient.McpPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.McpPenalty.md)
-for the derivative it integrates,
+for the derivative that it integrates,
 [`penalty_value.ScadPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_value.ScadPenalty.md)
 for the sibling family.
 
@@ -64,7 +64,7 @@ for the sibling family.
 pen <- mcp_penalty(n_coef = 1)
 th <- list(lambda = 1, gamma = 3)
 
-# Inside the taper and beyond it.
+# The coordinate is evaluated twice inside the taper and once beyond it.
 sapply(c(0.5, 2, 100), function(t) penalty_value(pen, t, th))
 #> [1] 0.4583333 1.3333333 1.5000000
 

@@ -25,12 +25,12 @@ constant.
 ## Value
 
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-a numeric vector of distinct points: `0`, then \\-\gamma\lambda/c_j\\
-and \\\gamma\lambda/c_j\\ over the distinct rates \\\lambda/c_j\\. At
-unit curvature these are the three points `0`, \\-\gamma\lambda\\,
-\\\gamma\lambda\\, in this order.
+returns a numeric vector of distinct points: `0`, then
+\\-\gamma\lambda/c_j\\ and \\\gamma\lambda/c_j\\ over the distinct rates
+\\\lambda/c_j\\. At unit curvature these are the three points `0`,
+\\-\gamma\lambda\\, \\\gamma\lambda\\, in this order.
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
-the single logical `FALSE`.
+returns the single logical `FALSE`.
 
 ## Details
 
@@ -38,10 +38,10 @@ At unit curvature the points are `0` and \\\pm\gamma\lambda\\, and they
 differ in the order of the derivative that jumps. At the origin the
 first derivative jumps from \\-\lambda\\ to \\\lambda\\, which is the
 kink that produces exact zeros. At \\\pm\gamma\lambda\\ the first
-derivative is continuous, both branches giving zero, and the second
-jumps from \\-1/\gamma\\ to \\0\\ (from \\-c_j/\gamma\\ with curvature
-\\c_j\\). MCP has one pair of outer points where SCAD has two, because
-its taper starts at the origin instead of at \\\lambda\\.
+derivative is continuous, because both branches give zero, and the
+second jumps from \\-1/\gamma\\ to \\0\\ (from \\-c_j/\gamma\\ with
+curvature \\c_j\\). MCP has one pair of outer points where SCAD has two,
+because its taper starts at the origin instead of at \\\lambda\\.
 
 With `curv`, the points \\\pm\gamma\lambda/c_j\\ are returned for each
 distinct value of \\\lambda/c_j\\, so the vector has more than three

@@ -1,12 +1,13 @@
 # The Hyperparameter Pair Names
 
-The keys of a penalty's second hyperparameter derivatives, and the pairs
-they stand for: the \\p\\ diagonals first, in `params` order, then the
-\\p(p-1)/2\\ upper off-diagonal pairs, each joined by an underscore. For
+Returns the keys of a penalty's second hyperparameter derivatives and
+the pairs that the keys represent. The \\p\\ diagonal keys come first,
+in `params` order, the \\p(p-1)/2\\ upper off-diagonal pairs follow, and
+each key joins the two names with an underscore. For
 `c("lambda", "alpha")` the keys are `lambda_lambda`, `alpha_alpha`,
-`lambda_alpha`. This is the order
+`lambda_alpha`. This is the order that
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-returns and the order
+returns and that
 [`ptheta_to_link()`](https://statmodels7.github.io/penalties7/reference/ptheta_to_link.md)
 reads.
 
@@ -21,13 +22,13 @@ ptheta_pairs(params)
 - params:
 
   A character vector of hyperparameter names, in the order in which the
-  penalty holds them. May be empty.
+  penalty holds them. The vector may be empty.
 
 ## Value
 
 A named list of length \\p(p+1)/2\\, empty when `params` is. Each
 element is a character pair naming the two hyperparameters of the
-derivative, and each name is those two joined by an underscore.
+derivative, and each name joins those two with an underscore.
 
 ## Details
 
@@ -35,7 +36,7 @@ The diagonals come first, rather than in lexicographic order, so that
 the first \\p\\ entries are the diagonal of the Hessian. The same
 convention names the Hessian components of distributions7.
 
-`character(0)` gives an empty **named** list. A penalty with no free
+`character(0)` gives an empty named list. A penalty with no free
 hyperparameters has no pair in which to differentiate, and the named
 empty list is the shape that
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)

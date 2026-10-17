@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -122,14 +122,14 @@ each value is a single number inside <code>params_bounds</code>, and,
 where it also takes <code>beta</code>, checks that <code>beta</code> has
 length <code>pen@n_coef</code>. A method therefore receives a list in
 the penalty’s own order and does not align it again. One helper reads
-the list and records which branch each coefficient falls in, and the six
-methods for the value and the derivatives share it:</p>
+the list and records the branch in which each coefficient falls, and the
+six methods for the value and the derivatives share it:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.berhu</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">pen</span>, <span class="va">beta</span>, <span class="va">theta</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lam <span class="op">=</span> <span class="va">theta</span><span class="op">$</span><span class="va">lambda</span>, del <span class="op">=</span> <span class="va">theta</span><span class="op">$</span><span class="va">delta</span>,</span>
 <span>       a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span>, big <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span> <span class="op">&gt;</span> <span class="va">theta</span><span class="op">$</span><span class="va">delta</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>The value, the gradient in
+<p>The next three methods supply the value, the gradient in
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
 and the Hessian in
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>:</p>
@@ -148,8 +148,8 @@ and the Hessian in
 <span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">.berhu</span><span class="op">(</span><span class="va">pen</span>, <span class="va">beta</span>, <span class="va">theta</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">big</span>, <span class="va">p</span><span class="op">$</span><span class="va">lam</span> <span class="op">/</span> <span class="va">p</span><span class="op">$</span><span class="va">del</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Then the three blocks in the hyperparameters: the gradient, the
-Hessian and the mixed block
+<p>Three more methods supply the blocks in the hyperparameters: the
+gradient, the Hessian and the mixed block
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>ρ</mi><mi>/</mi><mi>∂</mi><mi>β</mi><mspace width="0.167em"></mspace><mi>∂</mi><mi>θ</mi></mrow><annotation encoding="application/x-tex">\partial^2\rho/\partial\beta\,\partial\theta</annotation></semantics></math>,
 which an outer search uses to estimate the hyperparameters. Each of the
 three methods includes the <code>scale</code> argument in its formals,
@@ -182,10 +182,10 @@ carries them to the link scale through the links in
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">big</span>, <span class="va">beta</span> <span class="op">/</span> <span class="va">p</span><span class="op">$</span><span class="va">del</span>, <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>       delta  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">big</span>, <span class="op">-</span><span class="va">p</span><span class="op">$</span><span class="va">lam</span> <span class="op">*</span> <span class="va">beta</span> <span class="op">/</span> <span class="va">p</span><span class="op">$</span><span class="va">del</span><span class="op">^</span><span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Finally <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> and <code><a href="../reference/is_proper.html">is_proper()</a></code>.
-<code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns the <strong>positions</strong> of
-the points at which some derivative of the value is discontinuous, in
-the units of
+<p>The last two methods are <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> and
+<code><a href="../reference/is_proper.html">is_proper()</a></code>. <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns the
+positions of the points at which some derivative of the value is
+discontinuous, in the units of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mi>β</mi></mrow><annotation encoding="application/x-tex">D\beta</annotation></semantics></math>,
 and not their number. The Berhu has three such points. At the origin the
 first derivative jumps from
@@ -228,13 +228,13 @@ prior.</p>
 <div class="section level3">
 <h3 id="the-shapes-of-the-hyperparameter-blocks">The shapes of the hyperparameter blocks<a class="anchor" aria-label="anchor" href="#the-shapes-of-the-hyperparameter-blocks"></a>
 </h3>
-<p>Every hyperparameter block is a <strong>named list</strong>, not a
-matrix or a data frame. <code><a href="../reference/penalty_grad_theta.html">penalty_grad_theta()</a></code> returns one
-number per hyperparameter, keyed by <code>pen@params</code>.
+<p>Every hyperparameter block is a named list, not a matrix or a data
+frame. <code><a href="../reference/penalty_grad_theta.html">penalty_grad_theta()</a></code> returns one number per
+hyperparameter, keyed by <code>pen@params</code>.
 <code><a href="../reference/penalty_grad_theta.html">penalty_hess_theta()</a></code> returns one number per pair of
-hyperparameters, keyed by the two names joined by an underscore, with
-the diagonal pairs first and then each remaining pair in the order of
-<code>pen@params</code> (here <code>"lambda_lambda"</code>,
+hyperparameters, keyed by the two names joined by an underscore: the
+diagonal pairs come first, and then each remaining pair follows in the
+order of <code>pen@params</code> (here <code>"lambda_lambda"</code>,
 <code>"delta_delta"</code> and <code>"lambda_delta"</code>).
 <code><a href="../reference/penalty_grad_theta.html">penalty_cross()</a></code> returns one vector of length
 <code>n_coef</code> per hyperparameter. The generics read these names
@@ -271,8 +271,8 @@ numerical reference and reports one row per comparison:</p>
 and in each hyperparameter differentiate the value with
 <code>numDeriv</code>. The rows for the Hessian in
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>,
-for every entry of the Hessian in the hyperparameters (the off-diagonal
-entry <code>lambda_delta</code> included) and for the mixed block
+for every entry of the Hessian in the hyperparameters (including the
+off-diagonal entry <code>lambda_delta</code>) and for the mixed block
 differentiate the analytic first derivatives instead, with the
 Richardson extrapolation of <code>numDeriv</code>, so that the value is
 never differenced twice.</p>
@@ -299,8 +299,8 @@ jump and not the formula. When <code>beta</code> is left
 seed and shifts the draw until every coordinate of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mi>β</mi></mrow><annotation encoding="application/x-tex">D\beta</annotation></semantics></math>
 lies more than <code>0.05</code> from every point that
-<code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns, which is why the first run passed.
-Moving the zero is enough:</p>
+<code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns, and the first run passed because
+of this shift. Moving the zero is enough:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/check_penalty.html">check_penalty</a></span><span class="op">(</span><span class="va">pen</span>, beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.5</span>, <span class="op">-</span><span class="fl">0.4</span>, <span class="fl">0.05</span>, <span class="fl">0.7</span>, <span class="fl">3.1</span><span class="op">)</span>,</span>
 <span>              theta <span class="op">=</span> <span class="va">th</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="op">]</span></span>
@@ -399,25 +399,23 @@ prediction error, not by a marginal likelihood.</p>
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
 <ul>
-<li>
-<strong>Minimum to define a penalty:</strong> a subclass of
-<code>penalty</code> and methods for <code><a href="../reference/penalty_value.html">penalty_value()</a></code>,
+<li>Minimum to define a penalty: a subclass of <code>penalty</code> and
+methods for <code><a href="../reference/penalty_value.html">penalty_value()</a></code>,
 <code><a href="../reference/penalty_gradient.html">penalty_gradient()</a></code>, <code><a href="../reference/penalty_gradient.html">penalty_hessian()</a></code>,
 <code><a href="../reference/penalty_grad_theta.html">penalty_grad_theta()</a></code>, <code><a href="../reference/penalty_grad_theta.html">penalty_hess_theta()</a></code>,
 <code><a href="../reference/penalty_grad_theta.html">penalty_cross()</a></code>, <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> and
 <code><a href="../reference/is_proper.html">is_proper()</a></code>.</li>
 <li>The three hyperparameter blocks take a <code>scale</code> argument,
-because their generics declare one. Each returns a <strong>named
-list</strong> on the parameter scale, and the generic carries it to the
-link scale.</li>
+because their generics declare one. Each returns a named list on the
+parameter scale, and the generic carries it to the link scale.</li>
 <li>
 <code><a href="../reference/penalty_kinks.html">penalty_kinks()</a></code> returns positions, so that a numerical
 reference can be kept away from them.</li>
 <li>
 <code><a href="../reference/check_penalty.html">check_penalty()</a></code> compares the gradients with
 <code>numDeriv</code> on the value and the second derivatives with
-<code>numDeriv</code> on the analytic gradients, every entry of the
-hyperparameter Hessian included. When it is given no
+<code>numDeriv</code> on the analytic gradients, including every entry
+of the hyperparameter Hessian. When it is given no
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
 it draws one away from every declared kink.</li>
 <li>

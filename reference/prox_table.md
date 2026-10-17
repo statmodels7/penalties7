@@ -3,11 +3,11 @@
 Builds the three matrices that
 [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md)
 returns from a function that gives one column per piece for a single
-coefficient. `prox_table()` takes a function of the step alone, for a
-family whose pieces are the same in every coordinate; `prox_table_j()`
-takes a function of the step and the coordinate index, for a family
-whose rate can differ by coordinate, as the rate \\\lambda/c_j\\ of SCAD
-and MCP does.
+coefficient. `prox_table()` takes a function whose only argument is the
+step, for a family whose pieces are the same in every coordinate;
+`prox_table_j()` takes a function of the step and the coordinate index,
+for a family whose rate can differ by coordinate, as the rate
+\\\lambda/c_j\\ of SCAD and MCP does.
 
 ## Usage
 

@@ -1,8 +1,8 @@
 # Hyperparameter Derivatives of a Penalty
 
-The three blocks of derivatives in the hyperparameters.
-`penalty_grad_theta()` returns \\\partial\rho/\partial\theta_k\\,
-`penalty_hess_theta()` returns
+The three functions return the three blocks of derivatives in the
+hyperparameters. `penalty_grad_theta()` returns
+\\\partial\rho/\partial\theta_k\\, `penalty_hess_theta()` returns
 \\\partial^2\rho/\partial\theta_k\partial\theta_l\\, and
 `penalty_cross()` returns the mixed block
 \\\partial^2\rho/\partial\beta\\\partial\theta_k\\, one coefficient
@@ -52,10 +52,11 @@ penalty_cross(pen, beta, theta, scale = c("parameter", "link"), ...)
 ## Value
 
 All three return a named list. `penalty_grad_theta()` has one element
-per hyperparameter, each a single number, named by `pen@params`.
-`penalty_hess_theta()` has \\p(p+1)/2\\ elements, each a single number,
-keyed by pairs as described above. `penalty_cross()` has one element per
-hyperparameter, each a numeric vector of length `pen@n_coef`.
+per hyperparameter; each element is a single number, and the elements
+are named by `pen@params`. `penalty_hess_theta()` has \\p(p+1)/2\\
+elements; each element is a single number, and the elements are keyed by
+pairs as described above. `penalty_cross()` has one element per
+hyperparameter; each element is a numeric vector of length `pen@n_coef`.
 
 ## Uses of the three blocks
 
@@ -71,7 +72,7 @@ criterion computed at the mode requires it.
 ## The two scales
 
 Each hyperparameter carries a link \\g\\ that maps its open interval
-onto the whole line. With `scale = "link"` the derivatives are taken in
+onto the whole line. If `scale = "link"`, the derivatives are taken in
 \\\eta = g(\theta)\\, the coordinates that an unconstrained optimizer
 moves. The chain rule is applied in the generic body, so a method always
 returns the parameter scale and a branch written by a user obtains both
@@ -91,10 +92,11 @@ the coefficient direction.
 ## Names of the elements
 
 The gradient and the mixed block are keyed by `pen@params`. The Hessian
-is keyed by pairs, **diagonals first** in `params` order and then the
-upper off-diagonal pairs, each joined by an underscore: for an elastic
-net the keys are `lambda_lambda`, `alpha_alpha`, `lambda_alpha`. Only
-the upper triangle is returned, since the matrix is symmetric.
+is keyed by pairs. The diagonal entries come first, in `params` order,
+the upper off-diagonal pairs follow, and each key joins the two names
+with an underscore. For an elastic net the keys are `lambda_lambda`,
+`alpha_alpha`, `lambda_alpha`. Only the upper triangle is returned,
+since the matrix is symmetric.
 
 ## See also
 

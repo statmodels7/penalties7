@@ -22,8 +22,8 @@ dp_is_multinomial(d)
 
 ## Value
 
-`dp_params_smooth()` a named logical vector, one entry per element of
-`d@params`. `dp_is_multinomial()` a single logical.
+`dp_params_smooth()` returns a named logical vector, one entry per
+element of `d@params`. `dp_is_multinomial()` returns a single logical.
 
 ## See also
 

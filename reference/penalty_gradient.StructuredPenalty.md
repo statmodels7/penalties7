@@ -30,10 +30,10 @@ gradient is the Hessian applied to them.
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-an unnamed numeric vector of length `pen@n_coef`;
+returns an unnamed numeric vector of length `pen@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-the symmetric precision matrix \\\Omega(\theta)\\, **carrying the
-structure's own dimnames** (`v1`, `v2`, ... for the parameters7
+the symmetric precision matrix \\\Omega(\theta)\\, carrying the
+structure's own dimnames (`v1`, `v2`, ... for the parameters7
 primitives). The quadratic and additive branches return matrices with no
 dimnames, so a comparison across branches requires
 [`unname()`](https://rdrr.io/r/base/unname.html).

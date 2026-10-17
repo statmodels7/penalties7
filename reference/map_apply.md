@@ -24,14 +24,16 @@ map_back(pen, g)
 
 - beta:
 
-  A numeric vector of length \\q\\. `map_apply()` only.
+  A numeric vector of length \\q\\. Only `map_apply()` takes this
+  argument.
 
 - g:
 
-  A numeric vector of length \\m\\. `map_back()` only.
+  A numeric vector of length \\m\\. Only `map_back()` takes this
+  argument.
 
 ## Value
 
-`map_apply()` a numeric vector of length \\m\\; `map_back()` a numeric
-vector of length \\q\\. Both are plain numeric vectors even when the map
-is a Matrix object, rather than one-column Matrix objects.
+`map_apply()` returns a numeric vector of length \\m\\; `map_back()` a
+numeric vector of length \\q\\. Both are plain numeric vectors even when
+the map is a Matrix object, rather than one-column Matrix objects.

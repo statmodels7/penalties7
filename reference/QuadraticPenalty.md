@@ -1,13 +1,13 @@
 # S7 Class for the Quadratic Penalty
 
-The class of the objects that
+`QuadraticPenalty` is the class of the objects that
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
 builds. Beyond the seven properties that every penalty carries, it
 stores the matrix \\P\\, the rank of \\D'PD\\, an orthonormal basis of
 the null space of \\D'PD\\, the log pseudo-determinant of \\D'PD\\ and
 the assembled \\D'PD\\. All five are computed once at construction and
-none of them depends on the hyperparameter, so every quantity of the
-branch is closed form in \\\lambda\\.
+are independent of the hyperparameter, so every quantity of the branch
+is closed form in \\\lambda\\.
 
 ## Usage
 
@@ -41,23 +41,23 @@ QuadraticPenalty(
 
   The matrix \\D\\, of \\m\\ rows and \\q\\ columns, or `NULL` for the
   identity. A Matrix object is kept in its own storage, so a diagonal
-  map, which is what standardization produces, is recognized as diagonal
-  by its class.
+  map, such as the map that standardization produces, is recognized as
+  diagonal by its class.
 
 - n_coef:
 
-  The number of coefficients \\q\\. A single whole number.
+  The number of coefficients \\q\\. The value is a single whole number.
 
 - params:
 
-  The hyperparameter names, in the order every derivative list is keyed
-  by. `character(0)` for a penalty with none.
+  The hyperparameter names, in the order by which every derivative list
+  is keyed. The value is `character(0)` for a penalty with none.
 
 - params_bounds:
 
-  A named list, one entry per hyperparameter, each a numeric pair giving
-  an **open** interval. A value at either endpoint is rejected, so
-  `(0, Inf)` excludes zero.
+  A named list with one entry per hyperparameter, and each entry is a
+  numeric pair giving an open interval. A value at either endpoint is
+  rejected, so `(0, Inf)` excludes zero.
 
 - link_params:
 
@@ -73,7 +73,7 @@ QuadraticPenalty(
 
   The symmetric positive semidefinite matrix of the quadratic form, with
   as many rows as the map has, or as many as there are coefficients when
-  the map is `NULL`. A `dgCMatrix` under `blocks > 1`.
+  the map is `NULL`. It is a `dgCMatrix` under `blocks > 1`.
 
 - p_rank:
 
@@ -89,8 +89,8 @@ QuadraticPenalty(
 - logpdet_DPD:
 
   The log pseudo-determinant of \\D'PD\\: the sum of the logarithms of
-  its non-zero eigenvalues. A single number. Without a map it is the log
-  pseudo-determinant of \\P\\.
+  its non-zero eigenvalues. It is a single number. Without a map it is
+  the log pseudo-determinant of \\P\\.
 
 - DPD:
 
@@ -119,8 +119,8 @@ Construct through
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md),
 which computes the five properties and checks that \\P\\ is symmetric
 and positive semidefinite. This raw constructor takes them as given and
-checks none of them. A wrong rank passed here enters the value, the
-hyperparameter derivatives,
+does not check any of them. A wrong rank passed here enters the value,
+the hyperparameter derivatives,
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 and
@@ -132,7 +132,8 @@ rank.
 
 ## Methods
 
-The methods registered on this class, by the page that documents each.
+This section lists the methods registered on this class, by the page
+that documents each.
 
 - The value and its coefficient derivatives:
   [penalty_value()](https://statmodels7.github.io/penalties7/reference/penalty_value.QuadraticPenalty.md),
@@ -171,21 +172,21 @@ The methods registered on this class, by the page that documents each.
   [penalty_d2hessian_beta()](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md)
   and
   [penalty_dhessian_beta_theta()](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.penalty.md).
-  The last two return zero matrices, the Hessian being free of the
-  coefficients, and are documented on the page of the base-class
+  The last two return zero matrices because the Hessian does not depend
+  on the coefficients, and are documented on the page of the base-class
   methods.
 
 - The proximal operator:
   [penalty_prox()](https://statmodels7.github.io/penalties7/reference/penalty_prox.QuadraticPenalty.md).
 
-The class registers no
+The class has no
 [`penalty_prox_spec()`](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md),
 [`penalty_draw()`](https://statmodels7.github.io/penalties7/reference/penalty_draw.md)
 or
 [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
-method, so the methods of the base class
-[`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
-answer those generics.
+method of its own, so those generics dispatch to the methods of the base
+class
+[`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md).
 
 ## See also
 
@@ -207,7 +208,7 @@ pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
 S7::S7_inherits(pen, QuadraticPenalty)
 #> [1] TRUE
 
-# Three of the six properties, computed at construction.
+# These are three of the six properties, all computed at construction.
 pen@p_rank
 #> [1] 3
 dim(pen@null_basis)

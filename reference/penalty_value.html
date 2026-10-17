@@ -4,20 +4,20 @@ coefficients is penalized. The normalizing constant is included whenever
 the penalty is proper, so the value is exactly the negative log-density of
 the prior and can be added to a negative log-likelihood without a further
 term. is_proper() reports whether this is the case. An improper penalty
-keeps whatever constant its branch defines: a rank-deficient quadratic,
-additive or structured penalty keeps the constant taken over the range of
-its matrix (a log pseudo-determinant), a separable penalty under a map that
-is not square, or is singular, returns \(-\sum_i \log f(t_i; \theta)\)
-without a Jacobian term, and SCAD and MCP return the bare \(\rho\)."><meta property="og:description" content="Returns the scalar \(\rho(D\beta; \theta)\), the amount by which a set of
+keeps the constant, if any, that its branch defines. A rank-deficient
+quadratic, additive or structured penalty keeps a log pseudo-determinant,
+which is taken over the range of its matrix. A separable penalty under a map
+that is not square, or is singular, returns \(-\sum_i \log f(t_i; \theta)\)
+without a Jacobian term. SCAD and MCP return the bare \(\rho\)."><meta property="og:description" content="Returns the scalar \(\rho(D\beta; \theta)\), the amount by which a set of
 coefficients is penalized. The normalizing constant is included whenever
 the penalty is proper, so the value is exactly the negative log-density of
 the prior and can be added to a negative log-likelihood without a further
 term. is_proper() reports whether this is the case. An improper penalty
-keeps whatever constant its branch defines: a rank-deficient quadratic,
-additive or structured penalty keeps the constant taken over the range of
-its matrix (a log pseudo-determinant), a separable penalty under a map that
-is not square, or is singular, returns \(-\sum_i \log f(t_i; \theta)\)
-without a Jacobian term, and SCAD and MCP return the bare \(\rho\)."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
+keeps the constant, if any, that its branch defines. A rank-deficient
+quadratic, additive or structured penalty keeps a log pseudo-determinant,
+which is taken over the range of its matrix. A separable penalty under a map
+that is not square, or is singular, returns \(-\sum_i \log f(t_i; \theta)\)
+without a Jacobian term. SCAD and MCP return the bare \(\rho\)."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -25,7 +25,7 @@ without a Jacobian term, and SCAD and MCP return the bare \(\rho\)."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,11 +57,11 @@ coefficients is penalized. The normalizing constant is included whenever
 the penalty is proper, so the value is exactly the negative log-density of
 the prior and can be added to a negative log-likelihood without a further
 term. <code><a href="is_proper.html">is_proper()</a></code> reports whether this is the case. An improper penalty
-keeps whatever constant its branch defines: a rank-deficient quadratic,
-additive or structured penalty keeps the constant taken over the range of
-its matrix (a log pseudo-determinant), a separable penalty under a map that
-is not square, or is singular, returns \(-\sum_i \log f(t_i; \theta)\)
-without a Jacobian term, and SCAD and MCP return the bare \(\rho\).</p>
+keeps the constant, if any, that its branch defines. A rank-deficient
+quadratic, additive or structured penalty keeps a log pseudo-determinant,
+which is taken over the range of its matrix. A separable penalty under a map
+that is not square, or is singular, returns \(-\sum_i \log f(t_i; \theta)\)
+without a Jacobian term. SCAD and MCP return the bare \(\rho\).</p>
     </div>
 
     <div class="section level2">
@@ -78,16 +78,16 @@ without a Jacobian term, and SCAD and MCP return the bare \(\rho\).</p>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>A finite numeric vector of length <code>pen@n_coef</code>. Coerced with
-<code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric()</a></code> in the generic, so an integer vector or a one-column
+<dd><p>A finite numeric vector of length <code>pen@n_coef</code>. The generic
+coerces it with <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric()</a></code>, so an integer vector or a one-column
 matrix is accepted. A vector of another length signals an error.</p></dd>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
 <dd><p>A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in <code>pen@params</code>. Reordered
-and checked against the penalty's open bounds before dispatch. Pass
-<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> for a penalty with no hyperparameters.</p></dd>
+vector carrying the same, holding every name in <code>pen@params</code>. The generic
+reorders it and checks it against the penalty's open bounds before
+dispatch. Pass <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> for a penalty with no hyperparameters.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -97,25 +97,27 @@ and checked against the penalty's open bounds before dispatch. Pass
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A single number, which is not <code>NA</code> when <code>beta</code> is finite and
-<code>theta</code> lies inside the bounds. The value is defined for a finite <code>beta</code>
-only: at an infinite coefficient a quadratic penalty returns <code>NaN</code>.</p>
+<code>theta</code> lies inside the bounds. The value is defined only for a finite
+<code>beta</code>: at an infinite coefficient a quadratic penalty returns <code>NaN</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="the-normalizing-constant">The normalizing constant<a class="anchor" aria-label="anchor" href="#the-normalizing-constant"></a></h2>
     <p>Dropping the normalizing constant makes no difference to a fit at a fixed
 hyperparameter, since it does not depend on \(\beta\). It does make the
-hyperparameter itself unestimable: with the constant dropped, driving
-\(\lambda\) to zero drives the penalty to zero and the joint maximum runs
-away. With the constant kept, a proper penalty is a density in \(\beta\)
-for every \(\lambda\), so the joint objective has an interior maximum and
-a marginal criterion has a mode to expand around. The degrees of freedom of
-a heavy-tailed prior are estimable for the same reason.</p>
+hyperparameter itself impossible to estimate: if the constant is dropped,
+driving \(\lambda\) to zero drives the penalty to zero and the joint
+maximum runs away. If the constant is kept, a proper penalty is a density
+in \(\beta\) for every \(\lambda\), so the joint objective has an
+interior maximum, and a marginal criterion has a mode around which it can
+be expanded. The degrees of freedom of a heavy-tailed prior are estimable
+for the same reason.</p>
     </div>
     <div class="section level2">
     <h2 id="the-map">The map<a class="anchor" aria-label="anchor" href="#the-map"></a></h2>
-    <p>\(\rho\) is evaluated at \(t = D\beta\), not at \(\beta\). With the
-map <code>NULL</code>, which is the default of every constructor that takes a map,
-\(t = \beta\) and no arithmetic is done. A map of \(m\) rows gives
+    <p>\(\rho\) is evaluated at \(t = D\beta\), not at \(\beta\). If the
+map is <code>NULL</code>, which is the default of every constructor that takes a map,
+then \(t = \beta\) and the function does not apply the map. A map of
+\(m\) rows gives
 \(\rho\) an argument of length \(m\), so a second-difference map
 penalizes curvature and leaves the level and the slope unpenalized.</p>
     </div>
@@ -129,16 +131,16 @@ where the value is not differentiable.</p></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A ridge over three coefficients, with the Gaussian constant kept.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A ridge over three coefficients includes the Gaussian constant.</span></span></span>
 <span class="r-in"><span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu"><a href="quadratic_penalty.html">quadratic_penalty</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">penalty_value</span><span class="op">(</span><span class="va">pen</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.717095</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Which is exactly the negative log-density of a N(0, 1/lambda) prior.</span></span></span>
+<span class="r-in"><span><span class="co"># This value is exactly the negative log-density of a N(0, 1/lambda) prior.</span></span></span>
 <span class="r-in"><span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.717095</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># The constant is why the value moves with lambda even at beta = 0.</span></span></span>
+<span class="r-in"><span><span class="co"># Because of the constant, the value moves with lambda even at beta = 0.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">8</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>       <span class="kw">function</span><span class="op">(</span><span class="va">l</span><span class="op">)</span> <span class="fu">penalty_value</span><span class="op">(</span><span class="va">pen</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="va">l</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  3.7965364  2.7568156  1.7170948 -0.3623467</span>

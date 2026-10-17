@@ -1,6 +1,7 @@
 # Hyperparameter Derivatives of an Additive Penalty
 
-The three blocks in the smoothing parameters.
+These methods return the three blocks of derivatives in the smoothing
+parameters.
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns one number per component,
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
@@ -37,11 +38,13 @@ one coefficient vector per component.
 ## Value
 
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one number per component, named `lambda1`, `lambda2`, ...
+returns a list of one number per component, named `lambda1`, `lambda2`,
+...
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one number per unordered pair, keyed diagonals first.
+returns a list of one number per unordered pair, keyed diagonals first.
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one numeric vector of length `pen@n_coef` per component.
+returns a list of one numeric vector of length `pen@n_coef` per
+component.
 
 ## Details
 

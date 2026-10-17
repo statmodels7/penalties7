@@ -1,7 +1,7 @@
 # Hyperparameter Derivatives of a Separable Penalty
 
-The parent's own score and information in its parameters, negated and
-summed over the blocks, plus the mixed block.
+These methods return the parent's own score and information in its
+parameters, negated and summed over the blocks, plus the mixed block.
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns \\-\sum_i \ell^{(\theta_k)}\\,
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
@@ -29,7 +29,7 @@ hyperparameter.
 - scale:
 
   Read by the generic, which applies the chain rule to the unconstrained
-  scale after dispatch, with the links copied from the parent. These
+  scale after dispatch and uses the links copied from the parent. These
   methods always return derivatives on the parameter scale.
 
 - ...:
@@ -39,11 +39,12 @@ hyperparameter.
 ## Value
 
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one number per hyperparameter, named by `pen@params`.
+returns a list of one number per hyperparameter, named by `pen@params`.
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one number per unordered pair, keyed diagonals first.
+returns a list of one number per unordered pair, keyed diagonals first.
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one numeric vector of length `pen@n_coef` per hyperparameter.
+returns a list of one numeric vector of length `pen@n_coef` per
+hyperparameter.
 
 ## Details
 
@@ -97,8 +98,8 @@ penalty_hess_theta(pen, b, list(lambda = 0.5))
 3 / 0.5^2
 #> [1] 12
 
-# The mixed block is the sign vector, the value being lambda times the L1
-# norm in every coefficient direction.
+# The mixed block is the sign vector, because the value is lambda times the
+# L1 norm in every coefficient direction.
 penalty_cross(pen, b, list(lambda = 0.5))
 #> $lambda
 #> [1]  1  0 -1

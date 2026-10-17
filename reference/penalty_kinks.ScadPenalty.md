@@ -25,13 +25,13 @@ constant.
 ## Value
 
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-a numeric vector of distinct points: `0`, then \\-\lambda/c_j\\ and
-\\\lambda/c_j\\ over the distinct rates, then \\-a\lambda/c_j\\ and
+returns a numeric vector of distinct points: `0`, then \\-\lambda/c_j\\
+and \\\lambda/c_j\\ over the distinct rates, then \\-a\lambda/c_j\\ and
 \\a\lambda/c_j\\ over the same rates. At unit curvature these are the
 five points `0`, \\-\lambda\\, \\\lambda\\, \\-a\lambda\\, \\a\lambda\\,
 in this order.
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
-the single logical `FALSE`.
+returns the single logical `FALSE`.
 
 ## Details
 

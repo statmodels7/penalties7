@@ -1,7 +1,7 @@
 # Smoothness and Kind of a Structured Penalty
 
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-returns `numeric(0)`, the value being a quadratic form and smooth
+returns `numeric(0)`, because the value is a quadratic form and smooth
 everywhere.
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
 returns `TRUE`, so the four marginal quantities are available.
@@ -18,7 +18,7 @@ returns `TRUE` when the structure has full rank.
 
 - theta:
 
-  A named list of the structure's free values. Accepted by
+  A named list of the structure's free values. It is accepted by
   [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md),
   whose result does not depend on it.
 
@@ -29,11 +29,12 @@ returns `TRUE` when the structure has full rank.
 ## Value
 
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-a numeric vector of length zero.
+returns a numeric vector of length zero.
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-the single logical `TRUE`.
+returns the single logical `TRUE`.
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
-a single logical, `TRUE` when the structure's rank equals its dimension.
+returns a single logical, `TRUE` when the structure's rank equals its
+dimension.
 
 ## Details
 
@@ -51,7 +52,7 @@ and
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
 for the generics,
 [`penalty_matrix.StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.md)
-for the quantities
+for the quantities that
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
 gates.
 

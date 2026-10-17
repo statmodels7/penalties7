@@ -1,10 +1,10 @@
 # Proximal Operator of a Separable Penalty
 
-Closed forms for the Gaussian, the Laplace (in both parametrizations)
-and the elastic net, and for every other parent with a differentiable
-log-density the stationary point of smallest objective, coordinate by
-coordinate. A diagonal map is handled by rescaling, and any other map is
-rejected.
+Computes closed forms for the Gaussian, the Laplace (in both
+parametrizations) and the elastic net, and for every other parent with a
+differentiable log-density it computes the stationary point of smallest
+objective, coordinate by coordinate. A diagonal map is handled by
+rescaling, and any other map is rejected.
 
 ## Arguments
 

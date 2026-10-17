@@ -19,7 +19,7 @@ last three."><meta property="og:image" content="https://statmodels7.github.io/pe
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +79,7 @@ it.</p></dd>
 <code>pen@n_coef</code>; <code>logpdet</code>, a single number; <code>dlog</code>, a numeric vector of
 \(\operatorname{tr}(S^{+}P_k)\) in <code>pen@params</code> order; and <code>d2log</code>, the
 square matrix of \(\operatorname{tr}(S^{+}P_kS^{+}P_l)\). The last
-three are <code>NaN</code> at a setting the transformation cannot resolve.</p>
+three are <code>NaN</code> at a setting that the transformation cannot resolve.</p>
     </div>
     <div class="section level2">
     <h2 id="a-single-decomposition-of-the-sum">A single decomposition of the sum<a class="anchor" aria-label="anchor" href="#a-single-decomposition-of-the-sum"></a></h2>
@@ -89,18 +89,18 @@ eigendecomposition computes its eigenvalues with an absolute accuracy of
 order \(d\,\epsilon\lVert S\rVert_{2}\), so the smallest eigenvalue on the
 range can fall below that resolution and carry no significant digit. The
 sum of logarithms is then <code>NaN</code> if that eigenvalue is computed as negative
-and an inaccurate number if it is computed as positive, and neither case
-raises a warning.</p>
+and an inaccurate number if it is computed as positive, and the computation
+raises no warning in either case.</p>
     </div>
     <div class="section level2">
     <h2 id="the-similarity-transformation">The similarity transformation<a class="anchor" aria-label="anchor" href="#the-similarity-transformation"></a></h2>
     <p><code><a href="additive_stable.html">additive_stable()</a></code> partitions the components by the size of their
 contributions, \(\lambda_k\max_{ij}\lvert(P_k)_{ij}\rvert\), and rotates
 onto the eigenvectors of the dominant group, the components whose
-contribution is at least <code><a href="additive_tol.html">additive_tol()</a></code> times the largest. With
-\(U_{+}\) spanning the range of that group and \(U_{0}\) its kernel,
+contribution is at least <code><a href="additive_tol.html">additive_tol()</a></code> times the largest. Let
+\(U_{+}\) span the range of that group and \(U_{0}\) its kernel, and let
 \(A = U_{+}^{\top}SU_{+}\), \(C = U_{+}^{\top}SU_{0}\),
-\(F = A^{-1}C\) and \(M = U_{0}^{\top}SU_{0} - C^{\top}F\),</p>
+\(F = A^{-1}C\) and \(M = U_{0}^{\top}SU_{0} - C^{\top}F\). Then</p>
 <p>$$\log\mathrm{pdet}\,S = \log\lvert A\rvert + \log\mathrm{pdet}\,M,
   \qquad S^{+} = U_{+}A^{-1}U_{+}^{\top} + GM^{+}G^{\top},
   \qquad G = U_{0} - U_{+}F.$$</p>
@@ -118,8 +118,8 @@ remaining component joins the dominant group, or where the rank of the
 dominant group is zero or reaches the rank left, and that level takes one
 eigendecomposition.</p>
 <p>Two quantities are exactly zero and are dropped instead of computed. The
-dominant group vanishes on \(U_{0}\), that subspace being its kernel, so
-a computed value there would consist of rounding errors of order
+dominant group vanishes on \(U_{0}\), because that subspace is its kernel,
+so a computed value there would consist of rounding errors of order
 \(\lambda_{\mathrm{dom}}\epsilon\), which would swamp the subordinate
 terms; the blocks of each dominant component on \(U_{0}\) vanish for the
 same reason. The part of \(M\) that the next level does not carry as

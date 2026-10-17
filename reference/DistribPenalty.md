@@ -1,13 +1,13 @@
 # S7 Class for the Separable Penalty
 
-The class of the penalties that
+`DistribPenalty` is the class of the penalties that
 [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md)
-builds: a penalty formed by applying a distributions7 log-density to the
-successive blocks of \\D\beta\\. Beyond the seven properties that every
-penalty carries, the class stores the parent distribution, the points
-where the parent's log-density has a kink, the block width (one for a
-univariate parent and the dimension for a multivariate one) and the
-log-Jacobian of the map.
+builds. Such a penalty is formed by applying a distributions7
+log-density to the successive blocks of \\D\beta\\. Beyond the seven
+properties that every penalty carries, the class stores the parent
+distribution, the points where the parent's log-density has a kink, the
+block width (one for a univariate parent and the dimension for a
+multivariate one) and the log-Jacobian of the map.
 
 ## Usage
 
@@ -39,23 +39,23 @@ DistribPenalty(
 
   The matrix \\D\\, of \\m\\ rows and \\q\\ columns, or `NULL` for the
   identity. A Matrix object is kept in its own storage, so a diagonal
-  map, which is what standardization produces, is recognized as diagonal
-  by its class.
+  map, such as the map that standardization produces, is recognized as
+  diagonal by its class.
 
 - n_coef:
 
-  The number of coefficients \\q\\. A single whole number.
+  The number of coefficients \\q\\. The value is a single whole number.
 
 - params:
 
-  The hyperparameter names, in the order every derivative list is keyed
-  by. `character(0)` for a penalty with none.
+  The hyperparameter names, in the order by which every derivative list
+  is keyed. The value is `character(0)` for a penalty with none.
 
 - params_bounds:
 
-  A named list, one entry per hyperparameter, each a numeric pair giving
-  an **open** interval. A value at either endpoint is rejected, so
-  `(0, Inf)` excludes zero.
+  A named list with one entry per hyperparameter, and each entry is a
+  numeric pair giving an open interval. A value at either endpoint is
+  rejected, so `(0, Inf)` excludes zero.
 
 - link_params:
 
@@ -110,7 +110,8 @@ their bounds, their links and their smoothness are those of the parent.
 
 ## Methods
 
-The methods registered on this class, by the page that documents each.
+The list below gives the methods registered on this class, by the page
+that documents each.
 
 - The value and its coefficient derivatives:
   [penalty_value()](https://statmodels7.github.io/penalties7/reference/penalty_value.DistribPenalty.md),

@@ -11,7 +11,7 @@ compare the result with penalty_prox()."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,7 +81,7 @@ and MCP at a step close to its limit the table is less accurate than
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="penalty_prox_spec.html">penalty_prox_spec()</a></code> for the table, <code><a href="penalty_prox.html">penalty_prox()</a></code> for the
-operator it stands in for.</p></div>
+operator in whose place the table is used.</p></div>
     </div>
 
     <div class="section level2">
@@ -95,7 +95,7 @@ operator it stands in for.</p></div>
 <span class="r-in"><span><span class="fu">prox_apply</span><span class="op">(</span><span class="va">sp</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">2.9</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0 0</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Which is exactly what the operator gives, coordinate by coordinate.</span></span></span>
+<span class="r-in"><span><span class="co"># This is exactly what the operator gives, coordinate by coordinate.</span></span></span>
 <span class="r-in"><span><span class="va">one</span> <span class="op">&lt;-</span> <span class="fu"><a href="ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="penalty_prox.html">penalty_prox</a></span><span class="op">(</span><span class="va">one</span>, <span class="fl">2</span>, <span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  <span class="fu"><a href="penalty_prox.html">penalty_prox</a></span><span class="op">(</span><span class="va">one</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>

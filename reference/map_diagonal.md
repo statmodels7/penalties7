@@ -33,8 +33,8 @@ sparsity of a block is kept. A general \\D\\ mixes the coordinates and
 turns the problem into the generalized-lasso problem, which requires a
 different algorithm.
 
-The map is recognized by its **class**, without inspecting its entries:
-a Matrix diagonal object stores \\q\\ numbers, while testing a dense
+The map is recognized by its class, without inspecting its entries: a
+Matrix diagonal object stores \\q\\ numbers, while testing a dense
 matrix for diagonality would cost \\q^2\\ operations at every call. A
 base matrix that is diagonal in value therefore gives `NULL`.
 [`distrib_penalty()`](https://statmodels7.github.io/penalties7/reference/distrib_penalty.md),

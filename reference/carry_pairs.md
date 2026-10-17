@@ -37,5 +37,5 @@ names, so a key of one is a key of the other. Each pair is looked up by
 name, first in `pen@params` order and then in the reversed order, and
 not by position or by splitting a key, since a hyperparameter whose own
 name contains the separator could not be split back into its two names.
-If neither name is present, the function signals an error that names the
-pair.
+If the pair is absent in both orders, the function signals an error that
+names the pair.

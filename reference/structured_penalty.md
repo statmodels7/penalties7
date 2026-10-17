@@ -28,7 +28,7 @@ structured_penalty(structure)
   pseudo-determinant. A rank-deficient structure can be used only on the
   precision side, because
   [`parameters7::inverse_of()`](https://statmodels7.github.io/parameters7/reference/inverse_of.html)
-  rejects it, a singular matrix having no inverse.
+  rejects it: a singular matrix has no inverse.
 
 ## Value
 
@@ -53,7 +53,7 @@ direct evaluation of that density.
 
 ## The structure is the precision
 
-The matrix that the structure supplies is the prior's **precision**:
+The matrix that the structure supplies is the prior's precision:
 \\\Omega = M(\eta)\\. This follows from the construction and is not an
 option, because \\\rho\\ is a negative log-density and the matrix that
 enters its quadratic form is the precision.
@@ -88,9 +88,9 @@ structure supplies. The hyperparameter gradient is
 \\\tfrac{1}{2}\beta'A_k\beta -
 \tfrac{1}{2}\partial_k\log\mathrm{pdet}\\\Omega\\, with \\A_k =
 \partial_k\Omega\\ the structure's `param_d1`; the Hessian uses
-`param_d2`, and the mixed block is \\A_k\beta\\. No conversion between
-covariance and precision happens in this package: a structure meant for
-the covariance side is a different structure, and it supplies its own
+`param_d2`, and the mixed block is \\A_k\beta\\. The package does not
+convert between covariance and precision: a structure meant for the
+covariance side is a different structure, and it supplies its own
 arrays.
 
 ## No map

@@ -1,9 +1,9 @@
 # Is a Penalty Quadratic in the Coefficients?
 
-`TRUE` when \\\partial^3\rho/\partial\beta^3\\ is exactly zero, so that
-a consumer can skip that third derivative. The value comes from a method
-of the class of the penalty, so a consumer does not have to test the
-property numerically.
+Returns `TRUE` when \\\partial^3\rho/\partial\beta^3\\ is exactly zero,
+so that a consumer can skip that third derivative. The value comes from
+a method of the class of the penalty, so a consumer does not have to
+test the property numerically.
 
 ## Usage
 
@@ -32,7 +32,7 @@ beta_quadratic(pen, theta, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
@@ -66,8 +66,8 @@ therefore evaluates
 [`distributions7::distrib_hess_y()`](https://statmodels7.github.io/distributions7/reference/distrib_hess_y.html)
 of the parent at four points and tests whether the values agree across
 the points with [`all.equal()`](https://rdrr.io/r/base/all.equal.html)
-at a tolerance of `1e-12`, which is a relative tolerance. No third
-derivative is computed. The page
+at a tolerance of `1e-12`, which is a relative tolerance. The method
+does not compute a third derivative. The page
 [`beta_quadratic.DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.DistribPenalty.md)
 describes the points and the multivariate case.
 
@@ -78,8 +78,8 @@ lasso gives `TRUE`, because its log-density is linear in the response
 away from the kink, and
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
 still signals an error for it: the third derivative is zero where it
-exists and undefined at the kink, which is where a selecting fit places
-its coefficients.
+exists and undefined at the kink, and a selecting fit places its
+coefficients at the kink.
 
 ## See also
 
@@ -93,7 +93,7 @@ for the Hessian that is then constant in the coefficients.
 ## Examples
 
 ``` r
-# Two of the three branches that give TRUE for both predicates.
+# These are two of the three branches that give TRUE for both predicates.
 beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
 #> [1] TRUE
 beta_quadratic(structured_penalty(

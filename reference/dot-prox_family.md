@@ -1,9 +1,9 @@
 # The Family Name Under a Separable Penalty's Wrappers
 
 Returns the bare name of the distribution on which a separable penalty
-is built, with a `fixed()` wrapper and any bracketed parameter list
-removed, so that the closed-form branches can be recognized by the
-family underneath.
+is built. The function removes a `fixed()` wrapper and any bracketed
+parameter list, so that the closed-form branches can be recognized by
+the family underneath.
 
 ## Usage
 

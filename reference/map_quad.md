@@ -25,12 +25,13 @@ map_quad_full(pen, m)
 
 - h:
 
-  A numeric vector of length \\m\\, the diagonal entries. `map_quad()`
-  only.
+  A numeric vector of length \\m\\, the diagonal entries. Only
+  `map_quad()` takes this argument.
 
 - m:
 
-  A symmetric \\m \times m\\ matrix. `map_quad_full()` only.
+  A symmetric \\m \times m\\ matrix. Only `map_quad_full()` takes this
+  argument.
 
 ## Value
 
@@ -42,6 +43,6 @@ Both return a base matrix even when the map is a Matrix object. The
 crossproduct of a Matrix map would otherwise be a Matrix object, whereas
 the result for a `NULL` map is a base matrix and
 [`map_back()`](https://statmodels7.github.io/penalties7/reference/map_apply.md)
-returns a plain vector. The conversion is made here so that the caller
-receives a base matrix from every branch and can write it into a block
-of a base information matrix.
+returns a plain vector. `map_quad()` and `map_quad_full()` convert the
+result, so that the caller receives a base matrix from every branch and
+can write it into a block of a base information matrix.

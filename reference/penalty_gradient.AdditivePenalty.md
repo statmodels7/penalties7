@@ -4,8 +4,8 @@
 returns \\S(\lambda)\beta\\ and
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 returns \\S(\lambda)\\. Both assemble the weighted sum directly and take
-no eigendecomposition, the normalizing constant not depending on the
-coefficients.
+no eigendecomposition, because the normalizing constant does not depend
+on the coefficients.
 
 ## Arguments
 
@@ -30,7 +30,7 @@ coefficients.
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-a numeric vector of length `pen@n_coef`;
+returns a numeric vector of length `pen@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 a symmetric base matrix of that side.
 

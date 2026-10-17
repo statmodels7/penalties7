@@ -1,7 +1,7 @@
 # Hyperparameter Derivatives of a Structured Penalty
 
-The three blocks in the structure's free values, all assembled from the
-structure's own derivative arrays.
+The three blocks in the structure's free values are all assembled from
+the structure's own derivative arrays.
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns one number per free value,
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
@@ -38,12 +38,12 @@ one coefficient vector per free value.
 ## Value
 
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one number per free value, named by `pen@params`.
+returns a list of one number per free value, named by `pen@params`.
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one number per unordered pair, keyed diagonals first.
+returns a list of one number per unordered pair, keyed diagonals first.
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one numeric vector of length `pen@n_coef` per free value,
-named by `pen@params`.
+returns a list of one numeric vector of length `pen@n_coef` per free
+value, named by `pen@params`.
 
 ## Details
 
@@ -63,9 +63,10 @@ depend on the coefficients.
 The second-order components are keyed by pairs as
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 keys them, diagonals first and then the upper off-diagonal pairs joined
-by an underscore. Internally they are looked up in the keying of the
-structure, the two free names joined by a colon and sorted by position,
-and the key is constructed from the pair, not parsed out of a name.
+by an underscore. Internally they are looked up by the structure's own
+keys, each of which joins the two free names with a colon after sorting
+them by position, and the key is constructed from the pair, not parsed
+out of a name.
 
 ## See also
 

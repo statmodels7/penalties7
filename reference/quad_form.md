@@ -31,7 +31,8 @@ A single number, non-negative for a positive semidefinite \\P\\.
 ## Details
 
 Uses \\P\\ and the map, not the cached \\D'PD\\, so the intermediate is
-the \\m\\-vector \\D\beta\\ and no \\q \times q\\ product is formed.
+the \\m\\-vector \\D\beta\\ and the function does not form a \\q \times
+q\\ product.
 
 ## See also
 

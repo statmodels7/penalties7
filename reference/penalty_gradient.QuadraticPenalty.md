@@ -3,9 +3,9 @@
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 returns \\\lambda D'PD\beta\\ and
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-returns \\\lambda D'PD\\. Both read the cached \\D'PD\\, so neither
-applies the map at call time, and the Hessian does not depend on
-\\\beta\\, the value being a quadratic form.
+returns \\\lambda D'PD\\. Both read the cached \\D'PD\\, so they do not
+apply the map at call time, and the Hessian does not depend on \\\beta\\
+because the value is a quadratic form.
 
 ## Arguments
 
@@ -30,7 +30,7 @@ applies the map at call time, and the Hessian does not depend on
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-a numeric vector of length `pen@n_coef`;
+returns a numeric vector of length `pen@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 a symmetric matrix of that order, a base matrix for an ordinary penalty
 and a `dgCMatrix` when the penalty was built with `blocks > 1`.

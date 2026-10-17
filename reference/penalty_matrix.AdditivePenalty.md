@@ -1,6 +1,7 @@
 # Marginal Quantities of an Additive Penalty
 
-The four quantities that a marginal criterion reads.
+These methods return the four quantities that a marginal criterion
+reads.
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns the weighted sum \\S(\lambda) = \sum_k \lambda_k P_k\\,
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
@@ -21,11 +22,11 @@ the log pseudo-determinant with its first two derivatives.
 
 - theta:
 
-  A named list of `lambda1`, `lambda2`, ...
+  A named list of `lambda1`, `lambda2`, ... Only
   [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
   and
   [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-  only.
+  read it.
 
 - ...:
 
@@ -34,15 +35,15 @@ the log pseudo-determinant with its first two derivatives.
 ## Value
 
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-a symmetric base matrix of side `pen@n_coef`.
+returns a symmetric base matrix of side `pen@n_coef`.
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-a single integer, and
+returns a single integer, and
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 an orthonormal basis of the null space shared by the components, a
 matrix with `pen@n_coef` rows and `pen@n_coef - penalty_rank(pen)`
 columns.
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-a list of `value` (a single number), `grad` (a list keyed by
+returns a list of `value` (a single number), `grad` (a list keyed by
 `pen@params`) and `hess` (a list keyed by the pairs that
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 uses). Every entry of it is `NaN` at a setting that

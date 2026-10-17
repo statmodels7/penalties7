@@ -31,7 +31,7 @@ penalty_prox(pen, v, step, theta, ...)
 - v:
 
   A numeric vector of length `pen@n_coef`, the point of the quadratic
-  pull. Coerced with
+  pull. The vector is coerced with
   [`as.numeric()`](https://rdrr.io/r/base/numeric.html).
 
 - step:
@@ -97,12 +97,12 @@ not hold at a kink and the minimizer of such a penalty can lie there.
 
 ## Under a map
 
-The quadratic branch takes **any** map, because the objective stays
+The quadratic branch takes any map, because the objective stays
 quadratic, and a structured penalty has no map. The separable, SCAD and
 MCP branches need the identity map or a diagonal one. Under a diagonal
 map with entries \\d_j\\, the operator is the operator without the map
 evaluated at \\d_j v_j\\ with the step \\t d_j^2\\, and then divided by
-\\d_j\\; this is how the standardization of a column is carried into the
+\\d_j\\; in this way the standardization of a column enters the
 operator. A general \\D\\ mixes the coordinates and turns the problem
 into the generalized-lasso problem, which requires an algorithm of its
 own, so such a penalty is rejected with a message naming it. A diagonal
@@ -132,9 +132,9 @@ describes.
   between \\v\\ and the mode of the parent nor in a widened bracket;
 
 - SCAD where \\t c_j \ge a - 1\\ and MCP where \\t c_j \ge \gamma\\ in
-  some coordinate, with \\c_j\\ the curvature `curv` of the penalty and
-  \\t\\ multiplied by \\d_j^2\\ under a diagonal map; the subproblem is
-  then not convex and the operator is set-valued;
+  some coordinate, where \\c_j\\ is the curvature `curv` of the penalty
+  and \\t\\ is multiplied by \\d_j^2\\ under a diagonal map; the
+  subproblem is then not convex and the operator is set-valued;
 
 - a `step` that is not a single positive finite number, or a `v` whose
   length is not `pen@n_coef`.
@@ -200,7 +200,7 @@ penalty_prox(ridge_penalty(n_coef = 3), v, 1, list(lambda = 1.5))
 v / (1 + 1 * 1.5)
 #> [1]  0.80  0.12 -0.56
 
-# The elastic net: the soft threshold followed by the shrinkage.
+# The elastic net applies the soft threshold and then the shrinkage.
 penalty_prox(elasticnet_penalty(n_coef = 3), v, 1,
              list(lambda = 1, alpha = 0.6))
 #> [1]  1.0000000  0.0000000 -0.5714286
@@ -215,8 +215,8 @@ penalty_prox(heavy_penalty(n_coef = 3), v2, 1, list(sigma = 1, nu = 4))
 penalty_prox(ridge_penalty(n_coef = 3), v2, 1, list(lambda = 1))
 #> [1] 1.00 0.15 5.00
 
-# Each operator minimizes the defining objective. For the first coordinate
-# of the lasso:
+# Each operator minimizes the defining objective. The next call finds the
+# minimizer for the first coordinate of the lasso.
 rho <- lasso_penalty(n_coef = 3)
 obj <- function(b1) {
   x <- v; x[1] <- b1

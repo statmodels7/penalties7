@@ -1,6 +1,6 @@
 # Hyperparameter Derivatives of a Quadratic Penalty
 
-The three blocks in \\\lambda\\, all closed form.
+The three blocks in \\\lambda\\ are all closed form.
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns \\\tfrac{1}{2}(D\beta)'P(D\beta) - r/(2\lambda)\\,
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
@@ -38,7 +38,7 @@ out.
 ## Value
 
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one number named `lambda`;
+returns a list of one number named `lambda`;
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 a list of one number named `lambda_lambda`;
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)

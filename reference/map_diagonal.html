@@ -11,7 +11,7 @@ class, or when a diagonal entry is zero or missing."><meta property="og:image" c
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,7 @@ penalizing a column divided by its own spread \(s_j\) is penalizing
 sparsity of a block is kept. A general \(D\) mixes the coordinates and
 turns the problem into the generalized-lasso problem, which requires a
 different algorithm.</p>
-<p>The map is recognized by its <strong>class</strong>, without inspecting its entries: a
+<p>The map is recognized by its class, without inspecting its entries: a
 <span class="pkg">Matrix</span> diagonal object stores \(q\) numbers, while testing a dense
 matrix for diagonality would cost \(q^2\) operations at every call. A base
 matrix that is diagonal in value therefore gives <code>NULL</code>. <code><a href="distrib_penalty.html">distrib_penalty()</a></code>,

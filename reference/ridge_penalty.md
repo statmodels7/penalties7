@@ -1,11 +1,11 @@
 # The Named Penalties
 
-The four penalties that a modeling layer names directly:
-`ridge_penalty()`, `lasso_penalty()`, `elasticnet_penalty()` and
-`heavy_penalty()`. Each is a prior centered at zero. In the first three
-the hyperparameter `lambda` is a precision or a rate, and a larger value
-shrinks harder. In `heavy_penalty()` the hyperparameter `sigma` is a
-scale, and a larger value shrinks less.
+These functions construct the four penalties that a modeling layer names
+directly: `ridge_penalty()`, `lasso_penalty()`, `elasticnet_penalty()`
+and `heavy_penalty()`. Each is a prior centered at zero. In the first
+three the hyperparameter `lambda` is a precision or a rate, and a larger
+value shrinks harder. In `heavy_penalty()` the hyperparameter `sigma` is
+a scale, and a larger value shrinks less.
 
 ## Usage
 
@@ -24,33 +24,33 @@ heavy_penalty(map = NULL, n_coef = 1L)
 - map:
 
   The matrix \\D\\, with one column per coefficient, or `NULL` (the
-  default) for the identity. Given a map, the number of coefficients is
-  `ncol(map)` and `n_coef` is ignored.
+  default) for the identity. If a map is given, the number of
+  coefficients is `ncol(map)` and `n_coef` is ignored.
 
 - n_coef:
 
-  The number of coefficients when `map` is `NULL`. A single whole
-  number, `1L` by default.
+  The number of coefficients when `map` is `NULL`. It is a single whole
+  number, and the default is `1L`.
 
 ## Value
 
-`ridge_penalty()` a
+`ridge_penalty()` returns a
 [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
 with the hyperparameter `lambda`, a precision, on \\(0, \infty)\\.
-`lasso_penalty()` a
+`lasso_penalty()` returns a
 [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
 with `lambda`, a rate, on \\(0, \infty)\\ and a kink at zero.
-`elasticnet_penalty()` a
+`elasticnet_penalty()` returns a
 [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
 with `lambda` on \\(0, \infty)\\ and `alpha` on \\(0, 1)\\, and a kink
-at zero. `heavy_penalty()` a
+at zero. `heavy_penalty()` returns a
 [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
 with `sigma` and `nu` both on \\(0, \infty)\\, and no kink.
 
 ## Ridge
 
 `ridge_penalty()` is the Gaussian prior at zero written by its
-**precision**, which is
+precision, which is
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
 at the identity matrix: its value agrees with that of the separable
 Gaussian prior at \\\sigma = \lambda^{-1/2}\\ up to rounding. It is
@@ -67,8 +67,8 @@ form to use when a standard deviation is the quantity to be reported.
 
 ## Lasso
 
-The Laplace in location and rate (`laplace2`) held at zero, so the free
-hyperparameter is the rate \\\lambda\\ and
+The lasso is the Laplace in location and rate (`laplace2`) held at zero,
+so the free hyperparameter is the rate \\\lambda\\ and
 
 \$\$\rho(\beta;\lambda) = \lambda\lVert D\beta\rVert_1 -
 m\log(\lambda/2),\$\$
@@ -86,7 +86,8 @@ gives the soft threshold.
 
 ## Elastic net
 
-The product of the Laplace and the Gaussian at zero, normalized
+The elastic net is the product of the Laplace and the Gaussian at zero,
+normalized
 ([`distributions7::enet_distrib()`](https://statmodels7.github.io/distributions7/reference/enet_distrib.html)),
 so the hyperparameters are the overall rate \\\lambda\\ and the mixing
 weight \\\alpha\\ on \\(0, 1)\\:
@@ -98,18 +99,19 @@ m\\c(\lambda, \alpha),\$\$
 where \\m\\ is as above and \\c(\lambda,\alpha) = \log\int
 \exp\[-\lambda\\\alpha\lvert x\rvert + (1-\alpha)x^2/2\\\]\\dx\\ is the
 constant of one coordinate. The same Jacobian term is added under a
-square nonsingular map. The constant depends on **both**
-hyperparameters, and this is what allows a marginal criterion to
-estimate them; without it neither hyperparameter would be identified.
+square nonsingular map. The constant depends on both hyperparameters, so
+a marginal criterion can estimate them. Without the constant, both
+hyperparameters would be unidentified.
 
 ## Heavy-tailed prior
 
-The Student t at zero, with a free scale \\\sigma\\ and free degrees of
-freedom \\\nu\\. The normalizing constant is kept, which makes \\\nu\\
-estimable by a marginal criterion. With a small \\\nu\\ the prior
-shrinks small coefficients as a Gaussian prior does and leaves large
-ones nearly unchanged, which a Gaussian prior does not do at any scale.
-Like the ridge, it has no kink, so it does not produce exact zeros.
+The heavy-tailed prior is the Student t at zero, with a free scale
+\\\sigma\\ and free degrees of freedom \\\nu\\. The normalizing constant
+is kept, which makes \\\nu\\ estimable by a marginal criterion. With a
+small \\\nu\\ the prior shrinks small coefficients as a Gaussian prior
+does and leaves large ones nearly unchanged, which a Gaussian prior does
+not do at any scale. Like the ridge, it has no kink, so it does not
+produce exact zeros.
 
 ## References
 

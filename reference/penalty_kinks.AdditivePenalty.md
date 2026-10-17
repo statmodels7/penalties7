@@ -1,8 +1,8 @@
 # Smoothness and Properness of an Additive Penalty
 
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-returns `numeric(0)`, the value being a quadratic form and smooth
-everywhere.
+returns `numeric(0)`, because the value is a quadratic form and is
+smooth everywhere.
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
 returns `TRUE` when the stored rank equals the number of coefficients.
 
@@ -16,9 +16,9 @@ returns `TRUE` when the stored rank equals the number of coefficients.
 
 - theta:
 
-  A named list of `lambda1`, `lambda2`, ... Accepted by
-  [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md),
-  whose result does not depend on it.
+  A named list of `lambda1`, `lambda2`, ...
+  [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
+  accepts it, and its result does not depend on it.
 
 - ...:
 
@@ -27,9 +27,9 @@ returns `TRUE` when the stored rank equals the number of coefficients.
 ## Value
 
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-a numeric vector of length zero.
+returns a numeric vector of length zero.
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
-a single logical.
+returns a single logical.
 
 ## Details
 

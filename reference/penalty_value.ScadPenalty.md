@@ -1,8 +1,8 @@
 # Value of a SCAD Penalty
 
 Returns the closed antiderivative of SCAD's defining \\\rho'\\, summed
-over the coordinates of \\D\beta\\ and anchored at \\\rho(0) = 0\\. No
-constant is added, since SCAD is improper.
+over the coordinates of \\D\beta\\ and anchored at \\\rho(0) = 0\\. It
+adds no constant, since SCAD is improper.
 
 ## Arguments
 
@@ -29,9 +29,9 @@ constant is added, since SCAD is improper.
 ## Value
 
 A single number, the sum over coordinates. It is bounded above by
-\\\sum_j (a+1)\lambda^2/(2c_j)\\, the sum running over the coordinates
-of \\D\beta\\, which is `pen@n_coef * (a + 1) * lambda^2 / 2` under the
-identity map at unit curvature.
+\\\sum_j (a+1)\lambda^2/(2c_j)\\, where the sum runs over the
+coordinates of \\D\beta\\; under the identity map at unit curvature the
+bound is `pen@n_coef * (a + 1) * lambda^2 / 2`.
 
 ## Details
 
@@ -42,19 +42,19 @@ With unit curvature and \\u = \lvert t\rvert\\ on each coordinate,
 a\lambda), \qquad \rho(u) = \frac{(a+1)\lambda^2}{2} \\\\ (u \>
 a\lambda),\$\$
 
-the three pieces meeting continuously at \\\lambda\\ and \\a\lambda\\.
-With curvature \\c_j\\ (the `curv` property), coordinate \\j\\
-contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, the same formula with
-\\\lambda/c_j\\ in place of \\\lambda\\ and multiplied by \\c_j\\. The
-value saturates, which leaves a large coefficient unshrunk and makes the
-penalty improper.
+where the three pieces meet continuously at \\\lambda\\ and
+\\a\lambda\\. With curvature \\c_j\\ (the `curv` property), coordinate
+\\j\\ contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, the same formula
+with \\\lambda/c_j\\ in place of \\\lambda\\ and multiplied by \\c_j\\.
+The value saturates, so a large coefficient receives no shrinkage and
+the penalty is improper.
 
 ## See also
 
 [`scad_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
 for the construction,
 [`penalty_gradient.ScadPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.ScadPenalty.md)
-for the derivative it integrates,
+for the derivative that it integrates,
 [`penalty_value.McpPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_value.McpPenalty.md)
 for the sibling family.
 
@@ -64,7 +64,7 @@ for the sibling family.
 pen <- scad_penalty(n_coef = 1)
 th <- list(lambda = 1, a = 3.7)
 
-# One coordinate in each region: linear, tapering, flat.
+# One coordinate is evaluated in each region: linear, tapering, flat.
 sapply(c(0.5, 2, 100), function(t) penalty_value(pen, t, th))
 #> [1] 0.500000 1.814815 2.350000
 

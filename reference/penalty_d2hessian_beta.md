@@ -1,6 +1,6 @@
 # Second Derivatives of the Coefficient Hessian in the Coefficients and the Hyperparameters
 
-The two derivatives of
+These two functions return the derivatives of
 [`penalty_dhessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian_beta.md)
 that the second derivative of a marginal criterion contains.
 `penalty_d2hessian_beta()` is \\\partial^2 S/\partial\beta^2\\\[v,
@@ -43,13 +43,13 @@ penalty_dhessian_beta_theta(pen, beta, theta, v, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
-`penalty_d2hessian_beta()` a square base matrix of side `pen@n_coef`;
-`penalty_dhessian_beta_theta()` a list of such matrices, one per
-hyperparameter, keyed by `pen@params`.
+`penalty_d2hessian_beta()` returns a square base matrix of side
+`pen@n_coef`; `penalty_dhessian_beta_theta()` a list of such matrices,
+one per hyperparameter, keyed by `pen@params`.
 
 ## Details
 
@@ -120,8 +120,8 @@ v <- c(0.2, 0.1, -0.4)
 w <- c(-0.3, 0.5, 0.1)
 th <- list(sigma = 1, nu = 4)
 
-# The second derivative along two directions, against a difference of the
-# first along one of them.
+# The second derivative along two directions is compared with a difference
+# of the first derivative along one of them.
 eps <- 1e-6
 D2 <- penalty_d2hessian_beta(h, b, th, v, w)
 num <- (penalty_dhessian_beta(h, b + eps * w, th, v) -
@@ -129,7 +129,8 @@ num <- (penalty_dhessian_beta(h, b + eps * w, th, v) -
 max(abs(D2 - num))
 #> [1] 2.504424e-11
 
-# The movement in the degrees of freedom.
+# The movement in the degrees of freedom is compared with a central
+# difference.
 Dnu <- penalty_dhessian_beta_theta(h, b, th, v)$nu
 num <- (penalty_dhessian_beta(h, b, list(sigma = 1, nu = 4 + eps), v) -
         penalty_dhessian_beta(h, b, list(sigma = 1, nu = 4 - eps), v)) /
@@ -137,7 +138,7 @@ num <- (penalty_dhessian_beta(h, b, list(sigma = 1, nu = 4 + eps), v) -
 max(abs(Dnu - num))
 #> [1] 7.828853e-11
 
-# Zero for a quadratic penalty.
+# The result is zero for a quadratic penalty.
 penalty_d2hessian_beta(quadratic_penalty(diag(3)), b, list(lambda = 2), v, w)
 #>      [,1] [,2] [,3]
 #> [1,]    0    0    0

@@ -17,7 +17,7 @@ on each other while the blocks stay independent."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,22 +76,23 @@ nor <code>"multivariate"</code> is rejected.</p></dd>
 <dt id="arg-map">map<a class="anchor" aria-label="anchor" href="#arg-map"></a></dt>
 <dd><p>The matrix \(D\), with one column per coefficient, or <code>NULL</code>
 (the default) for the identity. A <span class="pkg">Matrix</span> object keeps its storage,
-so a diagonal or sparse map is not densified, and a square map whose
-off-diagonal entries are all zero is stored as a <code><a href="https://rdrr.io/pkg/Matrix/man/Diagonal.html" class="external-link">Matrix::Diagonal()</a></code>.</p></dd>
+so a diagonal or sparse map is not converted to a dense matrix, and a
+square map whose off-diagonal entries are all zero is stored as a
+<code><a href="https://rdrr.io/pkg/Matrix/man/Diagonal.html" class="external-link">Matrix::Diagonal()</a></code>.</p></dd>
 
 
 <dt id="arg-n-coef">n_coef<a class="anchor" aria-label="anchor" href="#arg-n-coef"></a></dt>
 <dd><p>The number of coefficients. It is required when <code>map</code> is
-<code>NULL</code> and ignored otherwise, the count being <code>ncol(map)</code>.</p></dd>
+<code>NULL</code>; otherwise it is ignored, because the count is <code>ncol(map)</code>.</p></dd>
 
 
 <dt id="arg-kinks">kinks<a class="anchor" aria-label="anchor" href="#arg-kinks"></a></dt>
 <dd><p>The points where the parent's log-density is not
 differentiable in its argument. With <code>NULL</code>, the default, they are
 derived by <code><a href="distrib_kinks.html">distrib_kinks()</a></code> for a univariate parent and set to
-<code>numeric(0)</code> for a multivariate one, a kink being a point of a scalar
-argument. A numeric vector is used as given, and <code>numeric(0)</code> declares
-that there are none.</p></dd>
+<code>numeric(0)</code> for a multivariate one, because a kink is a point of a scalar
+argument. A numeric vector is used as given, and <code>numeric(0)</code> sets the
+penalty to have no kinks.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -118,8 +119,8 @@ from <code><a href="https://statmodels7.github.io/distributions7/reference/distr
     <h2 id="normalizing-constant-and-jacobian">Normalizing constant and Jacobian<a class="anchor" aria-label="anchor" href="#normalizing-constant-and-jacobian"></a></h2>
     <p>The normalizing constant of the density is kept, so the value is the
 negative log prior density. This makes a free scale or a free \(\nu\)
-estimable by a marginal criterion. With the constant dropped, the value of
-a Gaussian prior would decrease toward zero as its scale grows, and a
+estimable by a marginal criterion. If the constant were dropped, the value
+of a Gaussian prior would decrease toward zero as its scale grows, and a
 criterion would send the scale to infinity.</p>
 <p>Under a square nonsingular map the value also carries the Jacobian of
 \(\beta \mapsto D\beta\): it is
@@ -149,7 +150,7 @@ not on the class in which it was supplied.</p>
 the dependence within a block. The number of values at which the penalty
 is read must divide into whole blocks; otherwise the constructor signals an
 error that names the block width and the count.</p>
-<p>A blockwise penalty has <strong>no proximal operator</strong>, because that operator
+<p>A blockwise penalty has no proximal operator, because that operator
 acts one coordinate at a time and the coordinates of a block do not
 separate. <code><a href="has_prox.html">has_prox()</a></code> returns <code>FALSE</code> and <code><a href="penalty_prox.html">penalty_prox()</a></code> signals an
 error.</p>
@@ -165,7 +166,7 @@ branches, <code><a href="distrib_kinks.html">distrib_kinks()</a></code> for how 
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A Gaussian prior at zero: the separable form of the ridge, written by</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A Gaussian prior at zero is the separable form of the ridge, written by</span></span></span>
 <span class="r-in"><span><span class="co"># its standard deviation instead of a precision.</span></span></span>
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">fixed</a></span><span class="op">(</span><span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/gaussian1_distrib.html" class="external-link">gaussian1_distrib</a></span><span class="op">(</span><span class="op">)</span>, mu <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu">distrib_penalty</span><span class="op">(</span><span class="va">d</span>, n_coef <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
@@ -174,12 +175,12 @@ branches, <code><a href="distrib_kinks.html">distrib_kinks()</a></code> for how 
 <span class="r-in"><span><span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="va">pen</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5.086257</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># The same number from stats::dnorm().</span></span></span>
+<span class="r-in"><span><span class="co"># The same number comes from stats::dnorm().</span></span></span>
 <span class="r-in"><span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fl">2</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5.086257</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A correlated prior over two coefficients per block, three blocks. The</span></span></span>
-<span class="r-in"><span><span class="co"># hyperparameters are the matrix parameter's free values.</span></span></span>
+<span class="r-in"><span><span class="co"># A correlated prior is built over two coefficients per block and three</span></span></span>
+<span class="r-in"><span><span class="co"># blocks. The hyperparameters are the matrix parameter's free values.</span></span></span>
 <span class="r-in"><span><span class="va">mv</span> <span class="op">&lt;-</span> <span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">fixed</a></span><span class="op">(</span><span class="fu">distributions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/distributions7/reference/mvgaussian1_distrib.html" class="external-link">mvgaussian1_distrib</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                            mu1 <span class="op">=</span> <span class="fl">0</span>, mu2 <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pen2</span> <span class="op">&lt;-</span> <span class="fu">distrib_penalty</span><span class="op">(</span><span class="va">mv</span>, n_coef <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
@@ -197,8 +198,8 @@ branches, <code><a href="distrib_kinks.html">distrib_kinks()</a></code> for how 
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># A count that does not divide into blocks is rejected.</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">distrib_penalty</span><span class="op">(</span><span class="va">mv</span>, n_coef <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Error : 'fixed multivariate gaussian [2d, sigma=log_cholesky] [mu1=0,mu2=0]' is 2-variate, so the 5 values it is read at must divide into</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   whole blocks; 5 does not.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error : 'fixed multivariate gaussian [2d, sigma=log_cholesky] [mu1=0,mu2=0]' is 2-variate, so the 5 values at which it is read must divide</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   into whole blocks; 5 does not.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># A square nonsingular map adds -log|det D| to the value, and a diagonal</span></span></span>
 <span class="r-in"><span><span class="co"># base matrix is stored as a Matrix::Diagonal.</span></span></span>

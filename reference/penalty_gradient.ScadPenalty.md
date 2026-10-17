@@ -3,9 +3,9 @@
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 returns SCAD's defining derivative carried back through the map, and
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-its second derivative carried back through the map. At unit curvature
-the second derivative is \\-1/(a-1)\\ in the tapering region and zero
-elsewhere.
+returns its second derivative carried back through the map. At unit
+curvature the second derivative is \\-1/(a-1)\\ in the tapering region
+and zero elsewhere.
 
 ## Arguments
 
@@ -30,7 +30,7 @@ elsewhere.
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-a numeric vector of length `pen@n_coef`;
+returns a numeric vector of length `pen@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 a symmetric `pen@n_coef` by `pen@n_coef` base matrix, diagonal under the
 identity map and negative semidefinite always.
@@ -51,9 +51,9 @@ With curvature \\c_j\\ the regions end at \\\lambda/c_j\\ and
 \\\lambda/c_j\\ and \\s\\(a\lambda - c_j u)/(a-1)\\ over the taper, and
 the second derivative over the taper is \\-c_j/(a-1)\\.
 
-The Hessian is **negative** where it is not zero, so the penalty is
-concave over the taper. A penalized objective stays convex only while
-the curvature of the likelihood in each coordinate exceeds \\1/(a-1)\\
+The Hessian is negative where it is not zero, so the penalty is concave
+over the taper. A penalized objective stays convex only while the
+curvature of the likelihood in each coordinate exceeds \\1/(a-1)\\
 (\\c_j/(a-1)\\ with `curv`), and outside that condition a solver that
 assumes convexity has no guarantee of convergence.
 
@@ -79,11 +79,12 @@ for the step that produces exact zeros.
 pen <- scad_penalty(n_coef = 3)
 th <- list(lambda = 1, a = 3.7)
 
-# Linear, tapering, flat: the gradient falls to zero as u grows.
+# The coordinates lie in the linear, tapering and flat regions, and the
+# gradient falls to zero as u grows.
 penalty_gradient(pen, c(0.5, 2, 5), th)
 #> [1] 1.0000000 0.6296296 0.0000000
 
-# The Hessian is -1/(a - 1) on the tapering coordinate alone.
+# The Hessian is -1/(a - 1) on the tapering coordinate and zero elsewhere.
 diag(penalty_hessian(pen, c(0.5, 2, 5), th))
 #> [1]  0.0000000 -0.3703704  0.0000000
 -1 / (3.7 - 1)

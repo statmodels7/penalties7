@@ -1,6 +1,6 @@
 # Marginal Derivatives of a Separable Penalty
 
-The methods of the separable branch for the four generics that a
+The methods of the separable branch cover the four generics that a
 marginal criterion requires beyond the second order. With \\\rho =
 -\sum_j \log f((D\beta)\_j;\theta)\\ the Hessian is
 \\-D'\mathrm{diag}(\ell^{(yy)})D\\, so its \\\theta\\-derivatives are
@@ -16,8 +16,8 @@ the higher components of the parent carried through the same map.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`. Read by all three derivative
-  methods, because the components of the parent depend on it.
+  A numeric vector of length `pen@n_coef`. All three derivative methods
+  read it, because the components of the parent depend on it.
 
 - theta:
 
@@ -30,13 +30,16 @@ the higher components of the parent carried through the same map.
 ## Value
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-a list of one base matrix of side `pen@n_coef` per hyperparameter.
+returns a list of one base matrix of side `pen@n_coef` per
+hyperparameter.
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
-a list of one such matrix per unordered pair, keyed diagonals first.
+returns a list of one such matrix per unordered pair, keyed diagonals
+first.
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
-a list of one numeric vector of length `pen@n_coef` per unordered pair.
+returns a list of one numeric vector of length `pen@n_coef` per
+unordered pair.
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
-a single logical.
+returns a single logical.
 
 ## The component of the parent behind each method
 
@@ -49,9 +52,9 @@ a single logical.
 
 Each component is evaluated at \\D\beta\\ and at `theta` on the
 parameter scale of the parent, so the derivatives are in \\\theta\\
-itself and no link is applied.
+itself, without a link.
 
-Nothing is differentiated here. A parent with closed forms for these
+This branch does not differentiate. A parent with closed forms for these
 components, such as the Gaussian and therefore every Gaussian random
 effect, makes this branch exact. A parent without them takes the
 fallback of distributions7, which applies one stencil to the
@@ -76,12 +79,12 @@ and
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md),
 with the penalty named (see
 [`reject_kinked()`](https://statmodels7.github.io/penalties7/reference/reject_kinked.md)).
-The third derivative does not exist at the kink, and the mode at which a
-marginal criterion is expanded is where a kinked penalty places
-coefficients.
+The third derivative does not exist at the kink, and a kinked penalty
+places coefficients at the mode at which a marginal criterion is
+expanded.
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
-signals no error and returns `TRUE` for the lasso, whose log-density is
-linear in the response away from the kink.
+does not signal an error and returns `TRUE` for the lasso, whose
+log-density is linear in the response away from the kink.
 
 ## The test of [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
 
@@ -95,11 +98,11 @@ with [`all.equal()`](https://rdrr.io/r/base/all.equal.html) at a
 relative tolerance of `1e-12` whether the values agree across the
 points. A multivariate parent returns one \\p \times p\\ matrix per
 point, or a single matrix when that matrix does not depend on the
-response, and the comparison is made between the matrices of different
-points, not between the entries of one matrix. A single value or a
-single matrix, which carries no dimension for the points, gives `TRUE`.
-If the parent signals an error, or returns a number of values that is
-not a multiple of `pen@block^2`, the method returns `FALSE`.
+response, and the method compares the matrices of different points with
+one another, not the entries of one matrix. A single value or a single
+matrix, which carries no dimension for the points, gives `TRUE`. If the
+parent signals an error, or returns a number of values that is not a
+multiple of `pen@block^2`, the method returns `FALSE`.
 
 ## See also
 

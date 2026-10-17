@@ -1,9 +1,9 @@
 # Proximal Operator of a Quadratic or Structured Penalty
 
-One linear solve, \\(I + tS)^{-1}v\\, with \\S\\ the penalty's Hessian:
-\\\lambda D'PD\\ for a quadratic penalty and \\\Omega(\theta)\\ for a
-structured one. The two methods have the same body, because the
-objective is quadratic in both.
+Computes the proximal point with one linear solve, \\(I + tS)^{-1}v\\,
+with \\S\\ the penalty's Hessian: \\\lambda D'PD\\ for a quadratic
+penalty and \\\Omega(\theta)\\ for a structured one. The two methods
+have the same body, because the objective is quadratic in both.
 
 ## Arguments
 
@@ -56,7 +56,7 @@ factorization of Matrix.
 [`penalty_prox()`](https://statmodels7.github.io/penalties7/reference/penalty_prox.md)
 for the generic and the other branches,
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-for the matrix solved against.
+for the matrix against which the system is solved.
 
 ## Examples
 

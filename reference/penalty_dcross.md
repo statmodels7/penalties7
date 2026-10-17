@@ -36,7 +36,7 @@ penalty_dcross(pen, beta, theta, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
@@ -50,9 +50,9 @@ moves with the hyperparameters. The second derivative of the criterion
 therefore contains the second derivative of the mode, and this quantity
 is the contribution of the penalty to it.
 
-It is **exactly zero** wherever the penalty is quadratic in the
-coefficients with a Hessian linear in the hyperparameters, which covers
-the quadratic and additive branches. The structured branch returns
+It is exactly zero wherever the penalty is quadratic in the coefficients
+with a Hessian linear in the hyperparameters, which covers the quadratic
+and additive branches. The structured branch returns
 \\(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta\\, computed
 from
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md),
@@ -79,14 +79,14 @@ for the other two quantities that a marginal criterion requires.
 ``` r
 b <- c(1, -0.5, 0.3)
 
-# Zero on the quadratic branch.
+# The derivative is zero on the quadratic branch.
 penalty_dcross(quadratic_penalty(diag(3)), b, list(lambda = 2))
 #> $lambda_lambda
 #> [1] 0 0 0
 #> 
 
-# And not on the structured one, where it is d2 Omega / dtheta^2 times
-# the coefficients.
+# It is not zero on the structured branch, where it equals
+# d2 Omega / dtheta^2 times the coefficients.
 s <- structured_penalty(parameters7::log_cholesky(2))
 th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
 bb <- c(1, -0.5)

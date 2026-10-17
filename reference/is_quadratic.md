@@ -1,6 +1,6 @@
 # Is a Penalty a Quadratic Form?
 
-`TRUE` for
+Returns `TRUE` for
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
 (and
 [`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md),
@@ -12,9 +12,10 @@ the branches whose value is the quadratic form \\\tfrac{1}{2}\beta^\top
 S(\theta)\beta\\ plus a normalizing constant, with a matrix
 \\S(\theta)\\ that
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-returns. `FALSE` for every other branch. The predicate determines how a
-marginal likelihood criterion treats the penalty: where it is `TRUE` the
-penalty's contribution to the criterion is a log pseudo-determinant, and
+returns. Returns `FALSE` for every other branch. The predicate
+determines how a marginal likelihood criterion treats the penalty: where
+it is `TRUE` the penalty's contribution to the criterion is a log
+pseudo-determinant, and
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
@@ -27,7 +28,7 @@ and
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 signal an error, and
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-answers only for a separable penalty.
+returns a value only for a separable penalty.
 
 ## Usage
 
@@ -103,7 +104,7 @@ for the branches.
 ## Examples
 
 ``` r
-# The quadratic and structured branches.
+# The quadratic and structured branches return TRUE.
 is_quadratic(quadratic_penalty(diag(2)))
 #> [1] TRUE
 is_quadratic(ridge_penalty())
@@ -112,8 +113,8 @@ is_quadratic(structured_penalty(
   parameters7::log_cholesky(2)))
 #> [1] TRUE
 
-# The additive branch, whose matrix moves with one hyperparameter per
-# component.
+# The additive branch is also quadratic, and its matrix moves with one
+# hyperparameter per component.
 add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
 c(quadratic = is_quadratic(add), rank = penalty_rank(add))
 #> quadratic      rank 

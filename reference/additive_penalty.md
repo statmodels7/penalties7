@@ -37,7 +37,7 @@ additive_penalty(
 
   The matrix \\D\\, with as many rows as each component has and one
   column per coefficient, or `NULL` (the default) for the identity. A
-  map is absorbed at construction, each component becoming \\D^\top
+  map is absorbed at construction, and each component becomes \\D^\top
   P_kD\\, so the stored `map` is always `NULL` and `n_coef` is the
   number of columns of the map. A map with an entry that is not finite
   is rejected, and so is a map that carries a component to the zero
@@ -66,8 +66,9 @@ additive_penalty(
 
   The relative eigenvalue tolerance, `1e-10` by default. It is used to
   reject a component whose smallest eigenvalue is below `-tol` times its
-  largest, and to count the rank of the sum of the components, each
-  divided by its largest absolute entry. The object stores `tol`, and
+  largest, and to count the rank of the sum of the components after each
+  has been divided by its largest absolute entry. The object stores
+  `tol`, and
   [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
   passes it to
   [`additive_stable()`](https://statmodels7.github.io/penalties7/reference/additive_stable.md)
@@ -80,7 +81,7 @@ additive_penalty(
 An
 [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
 object with one hyperparameter per component, named `lambda1`,
-`lambda2`, ..., each bounded on \\(0, \infty)\\.
+`lambda2`, ... The hyperparameters are bounded on \\(0, \infty)\\.
 
 ## The value
 
@@ -113,15 +114,16 @@ and never forms \\S^{+}\\ itself.
 ## The rank of the sum
 
 The rank and the null basis are computed once, at construction, from the
-sum of the components, each divided by its largest absolute entry, and
-the rank is the number of eigenvalues of that sum above `tol` times the
-largest. Both are then fixed: the null space of \\S(\lambda)\\ is the
-intersection of the null spaces of the components at every positive
-\\\lambda\\. An eigenvalue count of the assembled \\S(\lambda)\\ itself
-is correct only while the parameters are comparable. Once they differ by
-many orders of magnitude, the smaller contributions fall below any fixed
-relative tolerance and the count drops, although the stored null basis
-still annihilates the sum to rounding error.
+sum of the components after each has been divided by its largest
+absolute entry, and the rank is the number of eigenvalues of that sum
+above `tol` times the largest. Both are then fixed: the null space of
+\\S(\lambda)\\ is the intersection of the null spaces of the components
+at every positive \\\lambda\\. An eigenvalue count of the assembled
+\\S(\lambda)\\ itself is correct only while the parameters are
+comparable. Once they differ by many orders of magnitude, the smaller
+contributions fall below any fixed relative tolerance and the count
+drops, although the stored null basis still annihilates the sum to
+rounding error.
 
 ## Parameters that differ by many orders of magnitude
 
@@ -142,12 +144,12 @@ transforms by similarity, so that each decomposition resolves only the
 spread within one group of components. The sum is decomposed as a whole
 only when every contribution is at least
 [`additive_tol()`](https://statmodels7.github.io/penalties7/reference/additive_tol.md)
-times the largest, or when the dominant group alone has the rank of the
-sum. The identities of the transformation are exact, and the accuracy of
-the value and of both derivative blocks is limited by the conditioning
-of the dominant group at each level of the partition rather than by the
-spread of the parameters. Where the weighted sum or one of its
-reductions overflows, or where the rank identity that
+times the largest, or when the dominant group by itself has the rank of
+the sum. The identities of the transformation are exact, and the
+accuracy of the value and of both derivative blocks is limited by the
+conditioning of the dominant group at each level of the partition rather
+than by the spread of the parameters. Where the weighted sum or one of
+its reductions overflows, or where the rank identity that
 [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
 checks at every call is violated or cannot be evaluated, the log
 pseudo-determinant and its derivatives are `NaN`, without an error. Such
@@ -157,7 +159,7 @@ grow.
 ## The quantities of a marginal criterion
 
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-returns `TRUE`, a sum of quadratic forms being a quadratic form, so
+returns `TRUE`, because a sum of quadratic forms is a quadratic form, so
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md),
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
@@ -196,8 +198,8 @@ return. `blocks` cannot be combined with `map`.
 
 ## The readable quantities
 
-`readable = "sd"` declares the smoothing parameters to be precisions of
-a prior, and
+Setting `readable = "sd"` declares the smoothing parameters to be
+precisions of a prior, and
 [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
 then reports the standard deviations \\\sigma_k = \lambda_k^{-1/2}\\,
 named `sigma1`, `sigma2` and so on, in place of the parameters. The
@@ -217,8 +219,8 @@ for the computation that they share.
 ## Examples
 
 ``` r
-# An anisotropic tensor smooth over a 4 x 4 grid: curvature along each
-# margin, penalized separately.
+# This is an anisotropic tensor smooth over a 4 x 4 grid, and the curvature
+# along each margin is penalized separately.
 P <- crossprod(diff(diag(4), differences = 2))
 pen <- additive_penalty(list(kronecker(diag(4), P), kronecker(P, diag(4))))
 pen@params
@@ -240,7 +242,7 @@ P2 <- crossprod(diff(diag(5), differences = 2))
 bb <- c(0.4, -1.1, 0.7, 0.2, -0.3)
 penalty_value(additive_penalty(list(P2)), bb, list(lambda1 = 3)) -
   penalty_value(quadratic_penalty(P2), bb, list(lambda = 3))
-#> [1] 3.552714e-15
+#> [1] 7.105427e-15
 
 # The stored rank stays fixed as the parameters spread apart, while an
 # eigenvalue count of the assembled sum drops.

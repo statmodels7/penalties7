@@ -2,8 +2,8 @@
 
 Returns the negative log-density of the Gaussian prior with precision
 \\\lambda D'PD\\, evaluated by adding the constant to the quadratic
-form. Every term is closed form in \\\lambda\\, the rank and the log
-pseudo-determinant of \\D'PD\\ having been fixed at construction.
+form. Every term is closed form in \\\lambda\\, because the rank and the
+log pseudo-determinant of \\D'PD\\ are fixed at construction.
 
 ## Arguments
 
@@ -60,7 +60,8 @@ all.equal(penalty_value(pen, b, list(lambda = 2)),
           -sum(stats::dnorm(b, sd = 1 / sqrt(2), log = TRUE)))
 #> [1] TRUE
 
-# The constant alone, at the origin, at three values of lambda.
+# At the origin the value is the constant alone, shown at three values of
+# lambda.
 sapply(c(0.5, 2, 8),
        function(l) penalty_value(pen, c(0, 0, 0), list(lambda = l)))
 #> [1]  3.7965364  1.7170948 -0.3623467

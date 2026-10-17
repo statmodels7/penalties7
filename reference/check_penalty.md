@@ -9,10 +9,10 @@ numerical derivative of the value in that hyperparameter, each entry of
 the hyperparameter Hessian, diagonal or off-diagonal, with a numerical
 derivative of the analytic hyperparameter gradient, and each mixed block
 with a numerical Jacobian of the analytic coefficient gradient, so that
-no reference is a difference of another difference. A quadratic penalty
-also has its three-point identity, its log pseudo-determinant, its rank
-and its null basis tested. The function serves to verify the derivatives
-of a penalty written by the user.
+a reference is never a difference of another difference. For a quadratic
+penalty, the function also tests the three-point identity, the log
+pseudo-determinant, the rank and the null basis. The function serves to
+verify the derivatives of a penalty written by the user.
 
 ## Usage
 
@@ -50,10 +50,10 @@ check_penalty(pen, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
 
 - tol:
 
-  The scaled error at or above which a row is reported as `FAILED`. A
-  single positive number, `1e-6` by default. A row whose error is not
-  finite is also reported as `FAILED`, and so is a row whose numerical
-  reference cannot be computed.
+  The scaled error at or above which a row is reported as `FAILED`. It
+  is a single positive number, `1e-6` by default. A row whose error is
+  not finite is also reported as `FAILED`, and so is a row whose
+  numerical reference cannot be computed.
 
 - verbose:
 
@@ -64,18 +64,18 @@ check_penalty(pen, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
 
 A data frame with one row per check and three columns: `check`
 (character, the row's name as tabulated above), `max_error` (numeric)
-and `status` (character, `"OK"` or `"FAILED"`). Returned invisibly. For
-the rows that compare with a numerical reference, `max_error` is the
-worst absolute difference divided by `max(1, max(abs(reference)))`. For
-the three-point identity it is the absolute value of the combination
-divided by `max(1, abs(rho(beta)))`; for the slope of the log
-pseudo-determinant, the absolute difference between the increase and the
-rank; for the rank and for the width of the null basis, the absolute
-difference between the two counts; for the annihilation by the null
-basis, the largest absolute entry of \\S(\theta)N\\ divided by
-`max(1, max(abs(S)))`. A row whose reference signals an error, a
-numerical derivative or the eigenvalues of the rank row, has `max_error`
-equal to `NaN`.
+and `status` (character, `"OK"` or `"FAILED"`). The data frame is
+returned invisibly. For the rows that compare with a numerical
+reference, `max_error` is the worst absolute difference divided by
+`max(1, max(abs(reference)))`. For the three-point identity it is the
+absolute value of the combination divided by `max(1, abs(rho(beta)))`;
+for the slope of the log pseudo-determinant, the absolute difference
+between the increase and the rank; for the rank and for the width of the
+null basis, the absolute difference between the two counts; for the
+annihilation by the null basis, the largest absolute entry of
+\\S(\theta)N\\ divided by `max(1, max(abs(S)))`. A row whose reference
+signals an error, a numerical derivative or the eigenvalues of the rank
+row, has `max_error` equal to `NaN`.
 
 ## The rows
 
@@ -132,8 +132,8 @@ The row of the rank counts the eigenvalues that exceed a relative
 tolerance times the largest. For a quadratic or a structured penalty
 they are the eigenvalues of \\S(\theta)\\ at the `theta` of the check.
 For an additive penalty they are the eigenvalues of the sum of the
-components, each divided by its largest absolute entry, so that the row
-reproduces the count of
+components after each has been divided by its largest absolute entry, so
+that the row reproduces the count of
 [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md):
 a count on \\S(\theta)\\ drops the smaller components once their scales
 differ by more than the tolerance, as that function's page describes.
@@ -172,10 +172,10 @@ to place the coefficients but does not test the kinks themselves.
 ## Where the coefficients are placed
 
 A penalty with a kink has no derivative there, so a numerical reference
-that straddles one measures the kink and not the formula. With `beta`
-left at `NULL`, `0.033` is added to every coefficient, up to fifty
-times, until every coordinate of \\D\beta\\ lies more than `0.05` from
-every kink that
+that straddles one measures the kink and not the formula. If `beta` is
+`NULL`, `0.033` is added to every coefficient, up to fifty times, until
+every coordinate of \\D\beta\\ lies more than `0.05` from every kink
+that
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
 returns. A draw that already clears the kinks is used unchanged, and
 after fifty steps the last draw is used whether or not it clears them.
@@ -192,10 +192,10 @@ outside the numerical references, so an error in
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md),
 the hyperparameter derivatives or the quadratic quantities is signaled
 as it arises. An error inside a numerical reference is not signaled:
-numDeriv stops when the function it differentiates returns a value that
-is not finite, and the row whose reference stopped is then reported with
-`max_error` equal to `NaN` and status `FAILED`, while the other rows are
-computed as usual.
+numDeriv stops when the function that it differentiates returns a value
+that is not finite, and the row whose reference stopped is then reported
+with `max_error` equal to `NaN` and status `FAILED`, while the other
+rows are computed as usual.
 
 ## See also
 
@@ -215,20 +215,21 @@ for the corresponding checks of a link and of a distribution.
 ## Examples
 
 ``` r
-# First differences over five coefficients: rank 4, one null direction.
+# The penalty over first differences of five coefficients has rank 4 and one
+# null direction.
 pen <- quadratic_penalty(crossprod(diff(diag(5))))
 res <- check_penalty(pen)
 #>                                        check    max_error status
 #>                         gradient vs numDeriv 4.007727e-11     OK
-#>          hessian vs numDeriv on the gradient 7.080910e-12     OK
+#>          hessian vs numDeriv on the gradient 7.928288e-12     OK
 #>               grad_theta[lambda] vs numDeriv 1.851376e-11     OK
 #>        hess_theta[lambda_lambda] vs numDeriv 1.488393e-11     OK
-#>  cross[lambda] vs Richardson on the gradient 1.291093e-11     OK
+#>  cross[lambda] vs Richardson on the gradient 1.291110e-11     OK
 #>               quadratic three-point identity 2.296653e-16     OK
 #>    logpdet linear in log lambda with slope r 4.440892e-16     OK
 #>            rank vs eigenvalues of the matrix 0.000000e+00     OK
 #>        null basis width vs n_coef minus rank 0.000000e+00     OK
-#>            null basis annihilates the matrix 2.395716e-16     OK
+#>            null basis annihilates the matrix 2.775558e-16     OK
 all(res$status == "OK")
 #> [1] TRUE
 

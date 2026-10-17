@@ -101,8 +101,8 @@ for the same distinction on a matrix parameter.
 ## Examples
 
 ``` r
-# A bivariate Gaussian prior on three pairs of effects. Its hyperparameters
-# are log-Cholesky coordinates.
+# The prior is a bivariate Gaussian on three pairs of effects. Its
+# hyperparameters are log-Cholesky coordinates.
 pen <- distrib_penalty(
   distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                         mu1 = 0, mu2 = 0), n_coef = 6)

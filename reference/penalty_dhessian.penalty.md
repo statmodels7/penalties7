@@ -1,6 +1,6 @@
 # Base Class Methods of the Marginal Generics
 
-The methods of the base class for the four generics that a marginal
+The methods of the base class cover the four generics that a marginal
 criterion requires beyond the second order.
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md),
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
@@ -24,11 +24,11 @@ register none of the four and reach these methods.
 
 - beta:
 
-  A numeric vector of coefficients. Unused.
+  A numeric vector of coefficients. The methods do not use it.
 
 - theta:
 
-  A named list of hyperparameter values. Unused.
+  A named list of hyperparameter values. The methods do not use it.
 
 - ...:
 

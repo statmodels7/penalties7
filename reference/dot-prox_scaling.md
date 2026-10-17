@@ -1,4 +1,4 @@
-# The Diagonal a Proximal Operator Rescales By
+# The Diagonal by Which a Proximal Operator Rescales
 
 Returns the diagonal of the map when the map is a Matrix diagonal object
 with nonzero entries, `NULL` when there is no map, and signals an error
@@ -43,7 +43,7 @@ does not reach the error.
 
 ## Errors
 
-A message naming the penalty and stating that its map is not a Matrix
+The message names the penalty and states that its map is not a Matrix
 diagonal object with nonzero entries, and that the operator is available
 only under the identity map and such a diagonal map, because under a
 general map it does not split by coordinate.

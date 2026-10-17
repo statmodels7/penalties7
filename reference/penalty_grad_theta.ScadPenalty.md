@@ -1,6 +1,6 @@
 # Hyperparameter Derivatives of a SCAD Penalty
 
-The three blocks in \\(\lambda, a)\\, each a closed piecewise form
+The three blocks in \\(\lambda, a)\\ are each a closed piecewise form
 summed over the coordinates.
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns the two first derivatives,
@@ -38,12 +38,12 @@ the mixed block, one coefficient vector per hyperparameter.
 ## Value
 
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of two numbers, `lambda` and `a`.
+returns a list of two numbers, `lambda` and `a`.
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of three numbers, `lambda_lambda`, `a_a` and `lambda_a`.
+returns a list of three numbers, `lambda_lambda`, `a_a` and `lambda_a`.
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of two numeric vectors of length `pen@n_coef`, named `lambda` and
-`a`.
+returns a list of two numeric vectors of length `pen@n_coef`, named
+`lambda` and `a`.
 
 ## Details
 
@@ -54,10 +54,10 @@ shape does not enter; over the taper \\\partial\rho/\partial\lambda =
 (au - \lambda)/(a-1)\\ and \\\partial\rho/\partial a = (u -
 \lambda)^2/(2(a-1)^2)\\; beyond \\a\lambda\\ the value is
 \\(a+1)\lambda^2/2\\, so \\\partial\rho/\partial\lambda = (a+1)\lambda\\
-and \\\partial\rho/\partial a = \lambda^2/2\\, and neither depends on
-the coefficient. With curvature \\c_j\\ the coordinate contributes
-\\c_j\\\rho(u_j;\\ \lambda/c_j)\\, and each derivative follows by the
-chain rule through \\\lambda/c_j\\.
+and \\\partial\rho/\partial a = \lambda^2/2\\, and these two derivatives
+do not depend on the coefficient. With curvature \\c_j\\ the coordinate
+contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, and each derivative
+follows by the chain rule through \\\lambda/c_j\\.
 
 A marginal criterion cannot use these derivatives: a Laplace expansion
 requires the penalty to be twice differentiable at the mode, and a mode

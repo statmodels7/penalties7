@@ -1,8 +1,8 @@
 # Proximal Operator of SCAD
 
-The closed piecewise operator of Fan and Li (2001): a soft threshold
-near zero, a rescaled threshold over the tapering region, and the
-identity beyond \\a\lambda\\, so a large coefficient passes through
+Computes the closed piecewise operator of Fan and Li (2001): a soft
+threshold near zero, a rescaled threshold over the tapering region, and
+the identity beyond \\a\lambda\\, so a large coefficient passes through
 untouched.
 
 ## Arguments
@@ -84,7 +84,8 @@ for the same operator as a table.
 ``` r
 th <- list(lambda = 1, a = 3.7)
 
-# One point in each region: thresholded, rescaled, untouched.
+# The three points lie one in each region: the first is thresholded, the
+# second rescaled and the third untouched.
 penalty_prox(scad_penalty(n_coef = 3), c(1.5, 3, 6), 1, th)
 #> [1] 0.500000 2.588235 6.000000
 
@@ -98,8 +99,9 @@ penalty_prox(lasso_penalty(n_coef = 1), 6, 1, list(lambda = 1))
 # At the convexity bound the operator is set-valued, and the call signals
 # an error.
 try(penalty_prox(scad_penalty(n_coef = 1), 2, 2.7, th))
-#> Error : the SCAD proximal operator needs step < a - 1 (2.7 here), with the step
-#>   multiplied by the curvature and, under a diagonal map, by the squared
-#>   diagonal entry; the largest scaled step is 2.7. Beyond that bound the
-#>   subproblem is not convex and the operator is set-valued.
+#> Error : the SCAD proximal operator needs step < a - 1 (2.7 here), where the
+#>   step is multiplied by the curvature and, under a diagonal map, by
+#>   the squared diagonal entry; the largest scaled step is 2.7. Beyond
+#>   that bound the subproblem is not convex and the operator is
+#>   set-valued.
 ```

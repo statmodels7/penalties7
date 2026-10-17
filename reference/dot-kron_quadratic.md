@@ -2,9 +2,9 @@
 
 Builds the penalty of \\I_m \otimes P\\ from \\P\\ alone, and returns a
 [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
-whose stored matrix is sparse. Called by
+whose stored matrix is sparse.
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
-when `blocks` is above one.
+calls it when `blocks` is above one.
 
 ## Usage
 

@@ -1,7 +1,7 @@
 # Coefficient Derivatives of a Separable Penalty
 
-The response derivatives of the parent, negated and carried back through
-the map.
+These methods return the response derivatives of the parent, negated and
+carried back through the map.
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 returns \\-D'\ell^{(y)}\\ and
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
@@ -31,7 +31,7 @@ is block diagonal instead of diagonal when the parent is multivariate.
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-a numeric vector of length `pen@n_coef`;
+returns a numeric vector of length `pen@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 a symmetric base matrix of that side, diagonal under the identity map
 with a univariate parent and block diagonal with a multivariate one.
@@ -44,7 +44,8 @@ and
 [`distributions7::distrib_hess_y()`](https://statmodels7.github.io/distributions7/reference/distrib_hess_y.html),
 which are in closed form for the continuous families that distributions7
 ships; for a family that supplies only its density, distributions7
-differentiates numerically. No derivative is taken in these methods.
+differentiates numerically. These methods do not compute any derivative
+themselves.
 
 The `+ 0 * a` in both bodies is a recycling guard: if a family returns a
 single number where a vector is expected, adding zero times the argument
@@ -88,8 +89,9 @@ diag(penalty_hessian(pen, b, list(sigma = 2)))
 penalty_gradient(lasso_penalty(n_coef = 3), b, list(lambda = 1.5))
 #> [1]  1.5  0.0 -1.5
 
-# A multivariate parent gives a block-diagonal Hessian: dependence within
-# a block, none between blocks.
+# A multivariate parent gives a block-diagonal Hessian, because the
+# coordinates depend on each other within a block and are independent
+# between blocks.
 mv <- distrib_penalty(
   distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                         mu1 = 0, mu2 = 0), n_coef = 4)

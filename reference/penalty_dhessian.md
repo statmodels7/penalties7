@@ -36,7 +36,7 @@ penalty_dhessian(pen, beta, theta, ...)
 
 - ...:
 
-  Passed to methods. No shipped method reads it.
+  Passed to methods. The shipped methods do not read it.
 
 ## Value
 
@@ -53,8 +53,8 @@ differentiating a Laplace approximation, whose determinant is \\\lvert
 H + S\rvert\\ with \\S\\ the Hessian of the penalty in the coefficients.
 The derivative of \\\log\lvert H+S\rvert\\ in \\\theta_m\\ contains
 \\\partial S/\partial\theta_m\\, which is a third derivative of
-\\\rho\\. The derivatives are taken in \\\theta\\ on its own scale, and
-no link is applied.
+\\\rho\\. The derivatives are taken in \\\theta\\ on its own scale,
+without a link.
 
 ## The value on each branch
 
@@ -80,10 +80,10 @@ criterion only if it supplies `penalty_dhessian()`,
 and
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md).
 
-A separable penalty with a **kink** signals an error as well, whatever
-its parent. The third derivative does not exist at the kink, and the
-mode at which a marginal criterion is expanded is where a kinked penalty
-places coefficients.
+A separable penalty with a kink signals an error as well, whatever its
+parent. The third derivative does not exist at the kink, and a kinked
+penalty places coefficients at the mode at which a marginal criterion is
+expanded.
 
 ## See also
 

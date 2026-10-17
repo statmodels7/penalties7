@@ -13,7 +13,7 @@ that declares none."><meta property="og:image" content="https://statmodels7.gith
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,12 +65,12 @@ that declares none.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>NULL</code> when the structure declares no quantities. Otherwise a list
-of four: <code>value</code>, a numeric vector of the quantities, each name the
-structure's own with the prefix <code>precision_</code>; <code>jacobian</code>,
-their derivatives, one row per quantity and one column per
-hyperparameter, with row names from <code>value</code> and column names from
-<code>pen@params</code>; <code>transform</code>, a character vector named like <code>value</code> that
+    <p><code>NULL</code> when the structure declares no quantities. Otherwise the
+function returns a list of four: <code>value</code>, a numeric vector of the
+quantities, in which each name is the structure's own name with the prefix
+<code>precision_</code>; <code>jacobian</code>, their derivatives, one row per quantity and one
+column per hyperparameter, with row names from <code>value</code> and column names
+from <code>pen@params</code>; <code>transform</code>, a character vector named like <code>value</code> that
 names the scale on which each interval is built; and <code>block</code>, the
 structure's label for every quantity, named like <code>value</code>.</p>
     </div>
@@ -114,8 +114,8 @@ declares.</p></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># An AR(1) precision on four coefficients: the scale and the correlation</span></span></span>
-<span class="r-in"><span><span class="co"># of the precision, named precision_scale and precision_rho.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The scale and the correlation of an AR(1) precision on four coefficients</span></span></span>
+<span class="r-in"><span><span class="co"># are named precision_scale and precision_rho.</span></span></span>
 <span class="r-in"><span><span class="va">pen</span> <span class="op">&lt;-</span> <span class="fu"><a href="structured_penalty.html">structured_penalty</a></span><span class="op">(</span><span class="fu">parameters7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/parameters7/reference/ar1.html" class="external-link">ar1</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="penalty_readable.html">penalty_readable</a></span><span class="op">(</span><span class="va">pen</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>log_scale <span class="op">=</span> <span class="fl">0.2</span>, z_rho <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">r</span><span class="op">$</span><span class="va">value</span></span></span>

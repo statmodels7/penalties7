@@ -3,11 +3,11 @@
 \(\rho\) is discontinuous, so that a numerical reference straddling one of
 them would measure the break instead of the formula. check_penalty()
 places its grids clear of these points, and a fitting routine can read them
-to decide whether a block can be passed to a gradient method."><meta property="og:description" content="Returns the values of \(t = D\beta\) at which some derivative of
+to determine whether a block can be passed to a gradient method."><meta property="og:description" content="Returns the values of \(t = D\beta\) at which some derivative of
 \(\rho\) is discontinuous, so that a numerical reference straddling one of
 them would measure the break instead of the formula. check_penalty()
 places its grids clear of these points, and a fitting routine can read them
-to decide whether a block can be passed to a gradient method."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
+to determine whether a block can be passed to a gradient method."><meta property="og:image" content="https://statmodels7.github.io/penalties7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -15,7 +15,7 @@ to decide whether a block can be passed to a gradient method."><meta property="o
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ to decide whether a block can be passed to a gradient method."><meta property="o
 \(\rho\) is discontinuous, so that a numerical reference straddling one of
 them would measure the break instead of the formula. <code><a href="check_penalty.html">check_penalty()</a></code>
 places its grids clear of these points, and a fitting routine can read them
-to decide whether a block can be passed to a gradient method.</p>
+to determine whether a block can be passed to a gradient method.</p>
     </div>
 
     <div class="section level2">
@@ -64,8 +64,8 @@ to decide whether a block can be passed to a gradient method.</p>
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
 <dd><p>A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in <code>pen@params</code>. Required
-even for a smooth penalty, whose result does not depend on it.</p></dd>
+vector carrying the same, holding every name in <code>pen@params</code>. The argument
+is required even for a smooth penalty, whose result does not depend on it.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -75,8 +75,8 @@ even for a smooth penalty, whose result does not depend on it.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A numeric vector of the points, unsorted and possibly empty, in the
-units of \(t = D\beta\). <code>numeric(0)</code> for a penalty that is smooth
-everywhere.</p>
+units of \(t = D\beta\). The result is <code>numeric(0)</code> for a penalty that is
+smooth everywhere.</p>
     </div>
     <div class="section level2">
     <h2 id="kinks-and-the-other-breaks">Kinks and the other breaks<a class="anchor" aria-label="anchor" href="#kinks-and-the-other-breaks"></a></h2>
@@ -96,8 +96,8 @@ and its second derivative jumps there from \(-1/\gamma\) to \(0\).</p>
     <h2 id="dependence-on-the-hyperparameters">Dependence on the hyperparameters<a class="anchor" aria-label="anchor" href="#dependence-on-the-hyperparameters"></a></h2>
     <p>For a separable penalty the points are fixed when the penalty is built,
 from the parameters of the parent that <code><a href="https://statmodels7.github.io/distributions7/reference/fixed.html" class="external-link">distributions7::fixed()</a></code> holds at a
-value: the lasso has its kink at \(0\), and a Laplace parent with its
-location fixed at \(2\) has its kink at \(2\). For SCAD and MCP only
+value: the lasso has its kink at \(0\), and a Laplace parent whose
+location is fixed at \(2\) has its kink at \(2\). For SCAD and MCP only
 \(0\) is fixed. Their other points are at \(\pm\lambda/c_j\) and
 \(\pm a\lambda/c_j\) for SCAD and at \(\pm\gamma\lambda/c_j\) for MCP,
 where \(c_j\) is the curvature of coordinate \(j\) (one by default), so
@@ -117,7 +117,7 @@ kink, <code><a href="penalty_prox.html">penalty_prox()</a></code> for the operat
 <span class="r-in"><span><span class="fu">penalty_kinks</span><span class="op">(</span><span class="fu"><a href="quadratic_penalty.html">quadratic_penalty</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> numeric(0)</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># The lasso breaks at the origin alone.</span></span></span>
+<span class="r-in"><span><span class="co"># The lasso breaks only at the origin.</span></span></span>
 <span class="r-in"><span><span class="fu">penalty_kinks</span><span class="op">(</span><span class="fu"><a href="ridge_penalty.html">lasso_penalty</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-in"><span></span></span>

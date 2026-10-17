@@ -75,9 +75,9 @@ the object is built.
 
 A sum of quadratic penalties with a smoothing parameter on each, which
 is the penalty of an anisotropic tensor-product smooth. The rank is
-computed at construction from the sum of the components, each divided by
-its largest absolute entry, because the null space of the sum does not
-depend on the smoothing parameters.
+computed at construction from the sum of the components after each
+component is divided by its largest absolute entry, because the null
+space of the sum does not depend on the smoothing parameters.
 
 - [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
   : Construct a Sum of Quadratic Penalties
@@ -89,8 +89,8 @@ depend on the smoothing parameters.
 The negative log-density of a continuous distributions7 family at the
 coordinates of the mapped coefficients, one coordinate at a time for a
 univariate family and one block at a time for a multivariate one. The
-lasso is a Laplace at zero, the elastic net the product of a Laplace and
-a Gaussian, and the heavy-tailed prior a Student t. The ridge,
+lasso is a Laplace at zero, the elastic net is the product of a Laplace
+and a Gaussian, and the heavy-tailed prior is a Student t. The ridge,
 documented with them, is the Gaussian at zero written by its precision
 and is built on the quadratic branch.
 

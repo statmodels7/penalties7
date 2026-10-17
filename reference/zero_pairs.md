@@ -33,15 +33,15 @@ zero_pairs(pen, z)
 
 A named list of \\p(p+1)/2\\ entries, keyed as
 [`ptheta_pairs()`](https://statmodels7.github.io/penalties7/reference/ptheta_pairs.md)
-keys them, each holding `z`.
+keys them; every entry holds `z`.
 
 ## Details
 
 The quadratic and additive branches use it for both
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
 and
-[`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md),
-the two differing only in the shape of the zero.
+[`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md);
+the two uses differ only in the shape of the zero.
 
 ## See also
 

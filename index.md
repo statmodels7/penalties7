@@ -10,7 +10,8 @@ not smooth, the proximal operator where one exists, and, for the
 quadratic branches, the rank, the null basis and the log
 pseudo-determinant that a marginal criterion uses.
 
-Part of the [statmodels7](https://statmodels7.github.io) toolkit.
+The package is part of the [statmodels7](https://statmodels7.github.io)
+toolkit.
 
 ## Installation
 
@@ -63,8 +64,8 @@ $`S(\lambda) = \sum_k \lambda_k P_k`$, which is the penalty of an
 anisotropic tensor-product smooth. The null space of a sum of positive
 semidefinite matrices is the intersection of their null spaces and does
 not depend on the smoothing parameters, so the rank is computed once, at
-construction, from the sum of the components with each one divided by
-its largest absolute entry. A count of the nonzero eigenvalues of
+construction, from the sum of the components after each one is divided
+by its largest absolute entry. A count of the nonzero eigenvalues of
 $`S(\lambda)`$ itself would fall as the smoothing parameters spread
 apart.
 
@@ -87,9 +88,9 @@ multivariate family.
 [`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
 is a Laplace at zero,
 [`elasticnet_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
-the product of a Laplace and a Gaussian, and
+is the product of a Laplace and a Gaussian, and
 [`heavy_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
-a Student t, whose degrees of freedom can be estimated because the
+is a Student t, whose degrees of freedom can be estimated because the
 normalizing constant is part of the value.
 
 ``` r

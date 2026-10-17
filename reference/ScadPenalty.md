@@ -50,23 +50,23 @@ McpPenalty(
 
   The matrix \\D\\, of \\m\\ rows and \\q\\ columns, or `NULL` for the
   identity. A Matrix object is kept in its own storage, so a diagonal
-  map, which is what standardization produces, is recognized as diagonal
-  by its class.
+  map, such as the map that standardization produces, is recognized as
+  diagonal by its class.
 
 - n_coef:
 
-  The number of coefficients \\q\\. A single whole number.
+  The number of coefficients \\q\\. The value is a single whole number.
 
 - params:
 
-  The hyperparameter names, in the order every derivative list is keyed
-  by. `character(0)` for a penalty with none.
+  The hyperparameter names, in the order by which every derivative list
+  is keyed. The value is `character(0)` for a penalty with none.
 
 - params_bounds:
 
-  A named list, one entry per hyperparameter, each a numeric pair giving
-  an **open** interval. A value at either endpoint is rejected, so
-  `(0, Inf)` excludes zero.
+  A named list with one entry per hyperparameter, and each entry is a
+  numeric pair giving an open interval. A value at either endpoint is
+  rejected, so `(0, Inf)` excludes zero.
 
 - link_params:
 
@@ -113,8 +113,8 @@ The two classes differ in the shape parameter and its bound: SCAD's is
 
 ## Methods
 
-The two classes register methods for the same generics. For
-`ScadPenalty`:
+The two classes register methods for the same generics. The methods of
+`ScadPenalty` are:
 
 - value and coefficient derivatives:
   [penalty_value()](https://statmodels7.github.io/penalties7/reference/penalty_value.ScadPenalty.md),
@@ -134,7 +134,7 @@ The two classes register methods for the same generics. For
   [penalty_prox()](https://statmodels7.github.io/penalties7/reference/penalty_prox.ScadPenalty.md),
   [penalty_prox_spec()](https://statmodels7.github.io/penalties7/reference/penalty_prox_spec.md).
 
-For `McpPenalty`:
+The methods of `McpPenalty` are:
 
 - value and coefficient derivatives:
   [penalty_value()](https://statmodels7.github.io/penalties7/reference/penalty_value.McpPenalty.md),

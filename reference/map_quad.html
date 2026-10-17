@@ -15,7 +15,7 @@ first returns diag(h) and the second returns \(M\)."><meta property="og:image" c
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,12 +66,13 @@ and \(q\) columns, or <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-h">h<a class="anchor" aria-label="anchor" href="#arg-h"></a></dt>
-<dd><p>A numeric vector of length \(m\), the diagonal entries.
-<code>map_quad()</code> only.</p></dd>
+<dd><p>A numeric vector of length \(m\), the diagonal entries. Only
+<code>map_quad()</code> takes this argument.</p></dd>
 
 
 <dt id="arg-m">m<a class="anchor" aria-label="anchor" href="#arg-m"></a></dt>
-<dd><p>A symmetric \(m \times m\) matrix. <code>map_quad_full()</code> only.</p></dd>
+<dd><p>A symmetric \(m \times m\) matrix. Only <code>map_quad_full()</code> takes
+this argument.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -83,9 +84,9 @@ and \(q\) columns, or <code>NULL</code>.</p></dd>
     <p>Both return a base matrix even when the map is a <span class="pkg">Matrix</span> object. The
 crossproduct of a <span class="pkg">Matrix</span> map would otherwise be a <span class="pkg">Matrix</span>
 object, whereas the result for a <code>NULL</code> map is a base matrix and
-<code><a href="map_apply.html">map_back()</a></code> returns a plain vector. The conversion is made here so that
-the caller receives a base matrix from every branch and can write it into
-a block of a base information matrix.</p>
+<code><a href="map_apply.html">map_back()</a></code> returns a plain vector. <code>map_quad()</code> and <code>map_quad_full()</code>
+convert the result, so that the caller receives a base matrix from every
+branch and can write it into a block of a base information matrix.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

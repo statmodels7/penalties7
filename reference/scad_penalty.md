@@ -1,10 +1,10 @@
 # Construct the SCAD and MCP Penalties
 
-The two non-convex selection penalties that shrink small coefficients
-like the lasso and leave large ones unshrunk. Both are defined by their
-derivative on \\t \ge 0\\ and extended evenly, and `scad_penalty()` and
-`mcp_penalty()` build objects whose value is the closed antiderivative
-anchored at \\\rho(0) = 0\\.
+`scad_penalty()` and `mcp_penalty()` build the two non-convex selection
+penalties, which shrink small coefficients like the lasso and leave
+large ones unshrunk. Both are defined by their derivative on \\t \ge 0\\
+and extended evenly, and the value of each object is the closed
+antiderivative anchored at \\\rho(0) = 0\\.
 
 ## Usage
 
@@ -31,29 +31,30 @@ mcp_penalty(
 - map:
 
   The matrix \\D\\, with one column per coefficient, or `NULL` (the
-  default) for the identity. Given a map, `n_coef` is taken from its
-  column count and the argument is ignored. A Matrix object keeps its
-  storage, and a square map whose off-diagonal entries are all zero is
-  stored as a
+  default) for the identity. If a map is given, `n_coef` is taken from
+  its column count and the argument is ignored. A Matrix object keeps
+  its storage, and a square map whose off-diagonal entries are all zero
+  is stored as a
   [`Matrix::Diagonal()`](https://rdrr.io/pkg/Matrix/man/Diagonal.html),
   so that a diagonal map has a proximal operator whatever its class.
 
 - n_coef:
 
-  The number of coefficients when `map` is `NULL`. A single whole
-  number, `1L` by default.
+  The number of coefficients when `map` is `NULL`. It is a single whole
+  number and defaults to `1L`.
 
 - link_lambda:
 
   The linkfunctions7 link carrying \\\lambda\\ onto the whole real line.
-  [`linkfunctions7::log_link()`](https://statmodels7.github.io/linkfunctions7/reference/log_link.html)
-  by default, \\\lambda\\ being positive.
+  The default is
+  [`linkfunctions7::log_link()`](https://statmodels7.github.io/linkfunctions7/reference/log_link.html),
+  because \\\lambda\\ is positive.
 
 - link_a:
 
-  The link carrying SCAD's shape parameter, bounded below at 2.
-  `linkfunctions7::bounded_link(lwr = 2)` by default. `scad_penalty()`
-  only.
+  The link carrying SCAD's shape parameter, bounded below at 2. The
+  default is `linkfunctions7::bounded_link(lwr = 2)`. The argument
+  belongs to `scad_penalty()` only.
 
 - curv:
 
@@ -64,15 +65,15 @@ mcp_penalty(
 
   The link carrying MCP's shape parameter, bounded below at
 
-  1.  `linkfunctions7::bounded_link(lwr = 1)` by default.
-      `mcp_penalty()` only.
+  1.  The default is `linkfunctions7::bounded_link(lwr = 1)`. The
+      argument belongs to `mcp_penalty()` only.
 
 ## Value
 
-`scad_penalty()` a
+`scad_penalty()` returns a
 [`ScadPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
 object with hyperparameters `lambda` on \\(0, \infty)\\ and `a` on \\(2,
-\infty)\\. `mcp_penalty()` an
+\infty)\\. `mcp_penalty()` returns an
 [`McpPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
 object with `lambda` on \\(0, \infty)\\ and `gamma` on \\(1, \infty)\\.
 
@@ -104,8 +105,8 @@ of the lasso. The shape parameter sets how quickly the transition
 happens: \\a \to \infty\\ and \\\gamma \to \infty\\ recover the lasso,
 smaller values make the transition more abrupt, and MCP approaches hard
 thresholding as \\\gamma \to 1\\. The values used in the literature are
-\\a = 3.7\\ and \\\gamma = 3\\. Neither constructor supplies a value,
-which the caller sets or a path sweeps.
+\\a = 3.7\\ and \\\gamma = 3\\. The constructors do not supply a value
+for the shape parameter, which the caller sets or a path sweeps.
 
 ## Points of non-smoothness
 
@@ -140,8 +141,8 @@ The proximal operator with step \\s\\ is the unscaled operator at step
 \\s c_j\\ and rate \\\lambda/c_j\\, so it is single-valued while \\s c_j
 \< a - 1\\ for SCAD and \\s c_j \< \gamma\\ for MCP. At the step \\s =
 1/c_j\\ these conditions are \\a \> 2\\ and \\\gamma \> 1\\ for any
-data. By default `curv` is `NULL`, no curvature is stored, and every
-coordinate has \\c_j = 1\\.
+data. By default `curv` is `NULL`, the penalty stores no curvature, and
+every coordinate has \\c_j = 1\\.
 
 ## Improper penalties
 
@@ -183,8 +184,9 @@ for the property that excludes a marginal criterion.
 ## Examples
 
 ``` r
-# SCAD at the shape used in the literature. A small coefficient is
-# penalized at the rate of the lasso, a large one by a constant.
+# SCAD is evaluated at the shape that the literature uses. A small
+# coefficient is penalized at the rate of the lasso, a large one by a
+# constant.
 pen <- scad_penalty(n_coef = 3)
 th <- list(lambda = 1, a = 3.7)
 penalty_value(pen, c(0.5, 2, 5), th)
@@ -208,7 +210,7 @@ penalty_value(mcp, c(0.5, 2, 5), list(lambda = 1, gamma = 3))
 penalty_gradient(mcp, c(0.5, 2, 5), list(lambda = 1, gamma = 3))
 #> [1] 0.8333333 0.3333333 0.0000000
 
-# Both are bounded, so neither is a density.
+# Both are bounded, so they are not densities.
 c(scad = is_proper(pen), mcp = is_proper(mcp))
 #>  scad   mcp 
 #> FALSE FALSE 

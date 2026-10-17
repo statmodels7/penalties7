@@ -1,9 +1,9 @@
 # Smoothness and Kind of a Quadratic Penalty
 
-The three predicates that a consumer evaluates before choosing how to
-fit a quadratic block.
+This page documents the three predicates that a consumer evaluates
+before choosing how to fit a quadratic block.
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-returns `numeric(0)`, the value being a polynomial and smooth
+returns `numeric(0)`, because the value is a polynomial and smooth
 everywhere.
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
 returns `TRUE`, so the four marginal quantities are available.
@@ -20,7 +20,7 @@ returns `TRUE` only when the penalty has full rank.
 
 - theta:
 
-  A list holding `lambda`. Accepted by
+  A list holding `lambda`. It is accepted by
   [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md),
   whose result does not depend on it.
 
@@ -31,12 +31,12 @@ returns `TRUE` only when the penalty has full rank.
 ## Value
 
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-a numeric vector of length zero.
+returns a numeric vector of length zero.
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
-the single logical `TRUE`.
+returns the single logical `TRUE`.
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
-a single logical, `TRUE` when the rank equals the number of coefficients
-and the null basis has no columns.
+returns a single logical, `TRUE` when the rank equals the number of
+coefficients and the null basis has no columns.
 
 ## Details
 
@@ -46,7 +46,7 @@ there is no null direction. A ridge over \\q\\ coefficients is proper;
 second differences over \\q\\ coefficients leave the level and the slope
 unpenalized, have rank \\q - 2\\, and give an improper prior. Both can
 be used, and the difference appears in the normalizing constant, which
-is taken over the range alone.
+is taken only over the range.
 
 Because there are no kinks, a fit can treat a quadratic block with any
 method for smooth objectives, and
@@ -61,7 +61,7 @@ and
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
 for the generics,
 [`penalty_matrix.QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.md)
-for the quantities
+for the quantities that
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
 gates.
 

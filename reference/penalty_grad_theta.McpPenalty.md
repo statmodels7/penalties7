@@ -1,7 +1,7 @@
 # Hyperparameter Derivatives of an MCP Penalty
 
-The three blocks in \\(\lambda, \gamma)\\, each a closed piecewise form
-summed over the coordinates.
+The three blocks in \\(\lambda, \gamma)\\ are each a closed piecewise
+form summed over the coordinates.
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns the two first derivatives,
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
@@ -38,13 +38,13 @@ the mixed block, one coefficient vector per hyperparameter.
 ## Value
 
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of two numbers, `lambda` and `gamma`.
+returns a list of two numbers, `lambda` and `gamma`.
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of three numbers, `lambda_lambda`, `gamma_gamma` and
+returns a list of three numbers, `lambda_lambda`, `gamma_gamma` and
 `lambda_gamma`.
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of two numeric vectors of length `pen@n_coef`, named `lambda` and
-`gamma`.
+returns a list of two numeric vectors of length `pen@n_coef`, named
+`lambda` and `gamma`.
 
 ## Details
 
@@ -52,11 +52,12 @@ At unit curvature, inside the taper the value is \\\lambda u -
 u^2/(2\gamma)\\, so \\\partial\rho/\partial\lambda = u\\ and
 \\\partial\rho/\partial\gamma = u^2/(2\gamma^2)\\; beyond it the value
 is \\\gamma\lambda^2/2\\ and the two derivatives are \\\gamma\lambda\\
-and \\\lambda^2/2\\, and neither depends on the coefficient. The second
-derivative in \\\lambda\\ is therefore zero inside the taper, where the
-value is linear in \\\lambda\\. With curvature \\c_j\\ the coordinate
-contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, and each derivative
-follows by the chain rule through \\\lambda/c_j\\.
+and \\\lambda^2/2\\, and these two derivatives do not depend on the
+coefficient. The second derivative in \\\lambda\\ is therefore zero
+inside the taper, where the value is linear in \\\lambda\\. With
+curvature \\c_j\\ the coordinate contributes \\c_j\\\rho(u_j;\\
+\lambda/c_j)\\, and each derivative follows by the chain rule through
+\\\lambda/c_j\\.
 
 As for SCAD, a marginal criterion cannot use these derivatives: the
 expansion on which such a criterion rests requires a mode at which the

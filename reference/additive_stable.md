@@ -56,8 +56,8 @@ diagnostic).
 ## Details
 
 The rank of a group of components is counted on the sum of its
-components, each divided by its largest absolute entry, and never on the
-weighted sum.
+components after each has been divided by its largest absolute entry,
+and never on the weighted sum.
 [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
 counts the rank of the whole penalty in the same way and at the same
 tolerance. The null space of a sum of positive semidefinite matrices is
