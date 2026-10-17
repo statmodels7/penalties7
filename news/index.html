@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,11 @@
       <small>Source: <a href="https://github.com/statmodels7/penalties7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.33.0" id="penalties7-0330">penalties7 0.33.0<a class="anchor" aria-label="anchor" href="#penalties7-0330"></a></h2>
+<ul><li>
+<code><a href="../reference/penalty_readable.html">penalty_readable()</a></code> of a structured penalty reads the <code>inverse</code> mark that <code><a href="https://statmodels7.github.io/parameters7/reference/param_readable.html" class="external-link">parameters7::param_readable()</a></code> (parameters7 0.26.0) sets for <code>inverse_of()</code>, <code>ar1_inv()</code> and <code>autoregressive_inv()</code>. The quantities of an inverse structure describe the prior’s covariance and are named with the prefix <code>covariance_</code>: <code>inverse_of(ar1(4))</code> reports <code>covariance_scale</code> and <code>covariance_rho</code>, the variance and the lag-one correlation of the coefficients. Under parameters7 0.25 the method returned <code>NULL</code> for these structures; under 0.26.0 without this change it labelled them <code>precision_scale</code> and <code>precision_rho</code>. parameters7 0.26.0 is now required.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.32.1" id="penalties7-0321">penalties7 0.32.1<a class="anchor" aria-label="anchor" href="#penalties7-0321"></a></h2>
 <ul><li>Documentation and messages: relative clauses without a relative pronoun, stranded prepositions, absolute constructions, sentences without a verb (example captions and later sentences of <code>@return</code> included), emphasis in bold, negated subjects and personified descriptions of the code rewritten as plain clauses. The error messages for a hyperparameter missing from <code>theta</code>, for <code>blocks</code> combined with <code>map</code> in <code><a href="../reference/additive_penalty.html">additive_penalty()</a></code>, for a blockwise multivariate parent in <code><a href="../reference/distrib_penalty.html">distrib_penalty()</a></code>, for a missing second-derivative component of a structured penalty and for the step bound of the SCAD and MCP proximal operators are reworded.</li>

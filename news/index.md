@@ -1,5 +1,20 @@
 # Changelog
 
+## penalties7 0.33.0
+
+- [`penalty_readable()`](https://statmodels7.github.io/penalties7/reference/penalty_readable.md)
+  of a structured penalty reads the `inverse` mark that
+  [`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html)
+  (parameters7 0.26.0) sets for `inverse_of()`, `ar1_inv()` and
+  `autoregressive_inv()`. The quantities of an inverse structure
+  describe the prior’s covariance and are named with the prefix
+  `covariance_`: `inverse_of(ar1(4))` reports `covariance_scale` and
+  `covariance_rho`, the variance and the lag-one correlation of the
+  coefficients. Under parameters7 0.25 the method returned `NULL` for
+  these structures; under 0.26.0 without this change it labelled them
+  `precision_scale` and `precision_rho`. parameters7 0.26.0 is now
+  required.
+
 ## penalties7 0.32.1
 
 - Documentation and messages: relative clauses without a relative

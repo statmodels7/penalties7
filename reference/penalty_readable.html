@@ -15,7 +15,7 @@ reported as they stand."><meta property="og:image" content="https://statmodels7.
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.32.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,7 +106,7 @@ separable penalty with a univariate parent, whose hyperparameters (a
 smoothing parameter, a rate, a scale, a shape) are interpretable on their
 own scale. A structured penalty returns <code>NULL</code> when its structure declares
 no quantities through <code><a href="https://statmodels7.github.io/parameters7/reference/param_readable.html" class="external-link">parameters7::param_readable()</a></code>, as
-<code><a href="https://statmodels7.github.io/parameters7/reference/log_cholesky.html" class="external-link">parameters7::log_cholesky()</a></code> and <code><a href="https://statmodels7.github.io/parameters7/reference/inverse_of.html" class="external-link">parameters7::inverse_of()</a></code> do.</p>
+<code><a href="https://statmodels7.github.io/parameters7/reference/log_cholesky.html" class="external-link">parameters7::log_cholesky()</a></code> does.</p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
@@ -118,8 +118,8 @@ result of <code><a href="https://statmodels7.github.io/distributions7/reference/
 <code>NULL</code> for a univariate one. A structured penalty registers
 <code><a href="penalty_readable.StructuredPenalty.html">penalty_readable.StructuredPenalty()</a></code>, which returns the quantities that
 <code><a href="https://statmodels7.github.io/parameters7/reference/param_readable.html" class="external-link">parameters7::param_readable()</a></code> declares for its structure, in the same
-shape and under names prefixed with <code>precision_</code>, and <code>NULL</code> for a
-structure that declares none.</p>
+shape and under names prefixed with <code>precision_</code>, or with <code>covariance_</code>
+for an inverse structure, and <code>NULL</code> for a structure that declares none.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

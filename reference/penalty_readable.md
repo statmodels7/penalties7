@@ -70,9 +70,7 @@ declares no quantities through
 [`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html),
 as
 [`parameters7::log_cholesky()`](https://statmodels7.github.io/parameters7/reference/log_cholesky.html)
-and
-[`parameters7::inverse_of()`](https://statmodels7.github.io/parameters7/reference/inverse_of.html)
-do.
+does.
 
 ## Methods
 
@@ -88,7 +86,8 @@ penalty registers
 which returns the quantities that
 [`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html)
 declares for its structure, in the same shape and under names prefixed
-with `precision_`, and `NULL` for a structure that declares none.
+with `precision_`, or with `covariance_` for an inverse structure, and
+`NULL` for a structure that declares none.
 
 ## See also
 
