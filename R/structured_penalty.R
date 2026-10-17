@@ -729,21 +729,28 @@ S7::method(penalty_logpdet, StructuredPenalty) <- function(pen, theta, ...) {
 #' [parameters7::compound_symmetry()] declare a scale and a correlation,
 #' [parameters7::scaled_matrix()] its multiplier, and
 #' [parameters7::autoregressive()] the scale, the partial autocorrelations
-#' and the autoregressive coefficients. The other structures, among them
-#' [parameters7::log_cholesky()], [parameters7::inverse_of()],
-#' [parameters7::ar1_inv()] and the composition wrappers, declare nothing, and
-#' the method then returns `NULL`.
+#' and the autoregressive coefficients. [parameters7::inverse_of()],
+#' [parameters7::ar1_inv()] and [parameters7::autoregressive_inv()] declare
+#' the quantities, if any, of the structure that they invert. The other
+#' structures, among them [parameters7::log_cholesky()] and the composition
+#' wrappers, declare nothing, and the method then returns `NULL`.
 #'
-#' The quantities describe the matrix of the structure, and that matrix is
-#' the prior's precision. For `structured_penalty(parameters7::ar1(4))` the
-#' scale is the diagonal entry of the precision and the correlation is the
-#' ratio of an entry next to the diagonal to the diagonal entry; they are not
-#' the variance and the correlation of the coefficients. For this reason the
-#' method prefixes every name that [parameters7::param_readable()] gives with
-#' `precision_`, so that `scale` and `rho` are reported as `precision_scale`
-#' and `precision_rho`. A structure placed on the covariance side through
-#' [parameters7::inverse_of()] declares nothing, so the method returns `NULL`
-#' for it.
+#' The quantities describe the matrix of the structure, and for a structure
+#' that is not an inverse that matrix is the prior's precision. For
+#' `structured_penalty(parameters7::ar1(4))` the scale is the diagonal entry
+#' of the precision and the correlation is the ratio of an entry next to the
+#' diagonal to the diagonal entry; they are not the variance and the
+#' correlation of the coefficients. For this reason the method prefixes every
+#' name that [parameters7::param_readable()] gives with `precision_`, so that
+#' `scale` and `rho` are reported as `precision_scale` and `precision_rho`.
+#'
+#' For an inverse structure [parameters7::param_readable()] marks the
+#' declaration with `inverse = TRUE`, and the quantities describe the inverse
+#' of the precision, which is the prior's covariance. For
+#' `structured_penalty(parameters7::inverse_of(parameters7::ar1(4)))` they are
+#' the variance and the lag-one correlation of the coefficients, and the
+#' method prefixes them with `covariance_`, so that they are reported as
+#' `covariance_scale` and `covariance_rho`.
 #'
 #' Every link of the branch is the identity, so the hyperparameters are the
 #' free values themselves, and the Jacobian that
@@ -759,9 +766,10 @@ S7::method(penalty_logpdet, StructuredPenalty) <- function(pen, theta, ...) {
 #' @return `NULL` when the structure declares no quantities. Otherwise the
 #'   function returns a list of four: `value`, a numeric vector of the
 #'   quantities, in which each name is the structure's own name with the prefix
-#'   `precision_`; `jacobian`, their derivatives, one row per quantity and one
-#'   column per hyperparameter, with row names from `value` and column names
-#'   from `pen@params`; `transform`, a character vector named like `value` that
+#'   `precision_`, or `covariance_` for an inverse structure; `jacobian`,
+#'   their derivatives, one row per quantity and one column per
+#'   hyperparameter, with row names from `value` and column names from
+#'   `pen@params`; `transform`, a character vector named like `value` that
 #'   names the scale on which each interval is built; and `block`, the
 #'   structure's label for every quantity, named like `value`.
 #'
@@ -778,6 +786,17 @@ S7::method(penalty_logpdet, StructuredPenalty) <- function(pen, theta, ...) {
 #' Om <- penalty_matrix(pen, list(log_scale = 0.2, z_rho = 0.5))
 #' c(Om[1, 1], Om[1, 2] / Om[1, 1])
 #'
+#' # On the covariance side the same free values give the variance and the
+#' # correlation of the coefficients, named covariance_scale and
+#' # covariance_rho.
+#' cov <- structured_penalty(parameters7::inverse_of(parameters7::ar1(4)))
+#' rc <- penalty_readable(cov, list(log_scale = 0.2, z_rho = 0.5))
+#' rc$value
+#'
+#' # They are read off the inverse of the precision.
+#' Sigma <- solve(penalty_matrix(cov, list(log_scale = 0.2, z_rho = 0.5)))
+#' c(Sigma[1, 1], Sigma[1, 2] / Sigma[1, 1])
+#'
 #' # A log-Cholesky structure declares nothing.
 #' lc <- structured_penalty(parameters7::log_cholesky(2))
 #' penalty_readable(lc, list(log_L1 = 0, log_L2 = 0, L2.1 = 0.3))
@@ -789,8 +808,10 @@ S7::method(penalty_logpdet, StructuredPenalty) <- function(pen, theta, ...) {
 S7::method(penalty_readable, StructuredPenalty) <- function(pen, theta, ...) {
   rd <- parameters7::param_readable(pen@structure, struct_eta(pen, theta))
   if (is.null(rd)) return(NULL)
-  # the quantities describe the precision, not the coefficients' covariance
-  nm <- paste0("precision_", names(rd$value))
+  # the quantities describe the precision, or, for an inverse structure, its
+  # inverse, which is the prior's covariance
+  side <- if (isTRUE(rd$inverse)) "covariance_" else "precision_"
+  nm <- paste0(side, names(rd$value))
   jac <- rd$jacobian
   dimnames(jac) <- list(nm, pen@params)
   list(value = stats::setNames(rd$value, nm), jacobian = jac,

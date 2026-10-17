@@ -104,10 +104,43 @@ test_that("a structured penalty's quantities have the separable branch's shape",
   # theta as a named numeric vector gives the same answer
   expect_identical(penalty_readable(pen, unlist(th)), rd)
 
-  # a structure that declares nothing gives NULL, on either side
+  # a structure that declares nothing gives NULL
   lc <- structured_penalty(parameters7::log_cholesky(2))
   expect_null(penalty_readable(lc, list(log_L1 = 0.1, log_L2 = -0.1,
                                         L2.1 = 0.3)))
+  expect_null(penalty_readable(
+    structured_penalty(parameters7::inverse_of(parameters7::log_cholesky(2))),
+    list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)))
+})
+
+
+test_that("an inverse structure reports the quantities of the covariance", {
+  th <- list(log_scale = 0.2, z_rho = 0.5)
   inv <- structured_penalty(parameters7::inverse_of(parameters7::ar1(4)))
-  expect_null(penalty_readable(inv, th))
+  ri <- penalty_readable(inv, th)
+  expect_identical(names(ri$value), c("covariance_scale", "covariance_rho"))
+  expect_identical(dimnames(ri$jacobian), list(names(ri$value), inv@params))
+  expect_identical(names(ri$transform), names(ri$value))
+  expect_identical(names(ri$block), names(ri$value))
+
+  # the covariance is the inverse of the precision that the penalty uses:
+  # the variance is its diagonal entry, the correlation the ratio of an entry
+  # next to the diagonal to it, and at lag two the square
+  Sig <- solve(as.matrix(penalty_matrix(inv, th)))
+  sc <- unname(ri$value[["covariance_scale"]])
+  rho <- unname(ri$value[["covariance_rho"]])
+  expect_equal(sc, Sig[1, 1], tolerance = 1e-12)
+  expect_equal(sc, Sig[4, 4], tolerance = 1e-12)
+  expect_equal(rho, Sig[1, 2] / Sig[1, 1], tolerance = 1e-12)
+  expect_equal(rho^2, Sig[1, 3] / Sig[1, 1], tolerance = 1e-12)
+  expect_equal(c(sc, rho), c(exp(0.2), tanh(0.5)), tolerance = 1e-14)
+
+  # the dedicated constructors read the same way
+  ai <- structured_penalty(parameters7::ar1_inv(4))
+  ra <- penalty_readable(ai, stats::setNames(list(0.2, 0.5), ai@params))
+  expect_identical(ra$value, ri$value)
+  ci <- structured_penalty(parameters7::inverse_of(
+    parameters7::compound_symmetry(3)))
+  rc <- penalty_readable(ci, stats::setNames(list(-0.3, 0.4), ci@params))
+  expect_true(all(startsWith(names(rc$value), "covariance_")))
 })

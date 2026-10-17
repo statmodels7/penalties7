@@ -56,7 +56,7 @@ separable penalty with a univariate parent, whose hyperparameters (a
 smoothing parameter, a rate, a scale, a shape) are interpretable on their
 own scale. A structured penalty returns \code{NULL} when its structure declares
 no quantities through \code{\link[parameters7:param_readable]{parameters7::param_readable()}}, as
-\code{\link[parameters7:log_cholesky]{parameters7::log_cholesky()}} and \code{\link[parameters7:inverse_of]{parameters7::inverse_of()}} do.
+\code{\link[parameters7:log_cholesky]{parameters7::log_cholesky()}} does.
 }
 
 \section{Methods}{
@@ -67,8 +67,8 @@ result of \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} 
 \code{NULL} for a univariate one. A structured penalty registers
 \code{\link[=penalty_readable.StructuredPenalty]{penalty_readable.StructuredPenalty()}}, which returns the quantities that
 \code{\link[parameters7:param_readable]{parameters7::param_readable()}} declares for its structure, in the same
-shape and under names prefixed with \code{precision_}, and \code{NULL} for a
-structure that declares none.
+shape and under names prefixed with \code{precision_}, or with \code{covariance_}
+for an inverse structure, and \code{NULL} for a structure that declares none.
 }
 
 \examples{

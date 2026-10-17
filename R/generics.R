@@ -741,7 +741,7 @@ S7::method(penalty_logpdet, penalty) <- function(pen, theta, ...) {
 #' smoothing parameter, a rate, a scale, a shape) are interpretable on their
 #' own scale. A structured penalty returns `NULL` when its structure declares
 #' no quantities through [parameters7::param_readable()], as
-#' [parameters7::log_cholesky()] and [parameters7::inverse_of()] do.
+#' [parameters7::log_cholesky()] does.
 #'
 #' @param pen A [penalty()] object of any branch.
 #' @param theta A named list of hyperparameter values, or a named numeric
@@ -781,8 +781,8 @@ S7::method(penalty_logpdet, penalty) <- function(pen, theta, ...) {
 #' `NULL` for a univariate one. A structured penalty registers
 #' [penalty_readable.StructuredPenalty()], which returns the quantities that
 #' [parameters7::param_readable()] declares for its structure, in the same
-#' shape and under names prefixed with `precision_`, and `NULL` for a
-#' structure that declares none.
+#' shape and under names prefixed with `precision_`, or with `covariance_`
+#' for an inverse structure, and `NULL` for a structure that declares none.
 #'
 #' @aliases penalty_readable.penalty
 #'

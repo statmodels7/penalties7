@@ -14,9 +14,10 @@
 \code{NULL} when the structure declares no quantities. Otherwise the
 function returns a list of four: \code{value}, a numeric vector of the
 quantities, in which each name is the structure's own name with the prefix
-\code{precision_}; \code{jacobian}, their derivatives, one row per quantity and one
-column per hyperparameter, with row names from \code{value} and column names
-from \code{pen@params}; \code{transform}, a character vector named like \code{value} that
+\code{precision_}, or \code{covariance_} for an inverse structure; \code{jacobian},
+their derivatives, one row per quantity and one column per
+hyperparameter, with row names from \code{value} and column names from
+\code{pen@params}; \code{transform}, a character vector named like \code{value} that
 names the scale on which each interval is built; and \code{block}, the
 structure's label for every quantity, named like \code{value}.
 }
@@ -35,21 +36,28 @@ structure declares. Among the shipped structures, \code{\link[parameters7:ar1]{p
 \code{\link[parameters7:compound_symmetry]{parameters7::compound_symmetry()}} declare a scale and a correlation,
 \code{\link[parameters7:scaled_matrix]{parameters7::scaled_matrix()}} its multiplier, and
 \code{\link[parameters7:autoregressive]{parameters7::autoregressive()}} the scale, the partial autocorrelations
-and the autoregressive coefficients. The other structures, among them
-\code{\link[parameters7:log_cholesky]{parameters7::log_cholesky()}}, \code{\link[parameters7:inverse_of]{parameters7::inverse_of()}},
-\code{\link[parameters7:ar1_inv]{parameters7::ar1_inv()}} and the composition wrappers, declare nothing, and
-the method then returns \code{NULL}.
+and the autoregressive coefficients. \code{\link[parameters7:inverse_of]{parameters7::inverse_of()}},
+\code{\link[parameters7:ar1_inv]{parameters7::ar1_inv()}} and \code{\link[parameters7:autoregressive_inv]{parameters7::autoregressive_inv()}} declare
+the quantities, if any, of the structure that they invert. The other
+structures, among them \code{\link[parameters7:log_cholesky]{parameters7::log_cholesky()}} and the composition
+wrappers, declare nothing, and the method then returns \code{NULL}.
 
-The quantities describe the matrix of the structure, and that matrix is
-the prior's precision. For \code{structured_penalty(parameters7::ar1(4))} the
-scale is the diagonal entry of the precision and the correlation is the
-ratio of an entry next to the diagonal to the diagonal entry; they are not
-the variance and the correlation of the coefficients. For this reason the
-method prefixes every name that \code{\link[parameters7:param_readable]{parameters7::param_readable()}} gives with
-\code{precision_}, so that \code{scale} and \code{rho} are reported as \code{precision_scale}
-and \code{precision_rho}. A structure placed on the covariance side through
-\code{\link[parameters7:inverse_of]{parameters7::inverse_of()}} declares nothing, so the method returns \code{NULL}
-for it.
+The quantities describe the matrix of the structure, and for a structure
+that is not an inverse that matrix is the prior's precision. For
+\code{structured_penalty(parameters7::ar1(4))} the scale is the diagonal entry
+of the precision and the correlation is the ratio of an entry next to the
+diagonal to the diagonal entry; they are not the variance and the
+correlation of the coefficients. For this reason the method prefixes every
+name that \code{\link[parameters7:param_readable]{parameters7::param_readable()}} gives with \code{precision_}, so that
+\code{scale} and \code{rho} are reported as \code{precision_scale} and \code{precision_rho}.
+
+For an inverse structure \code{\link[parameters7:param_readable]{parameters7::param_readable()}} marks the
+declaration with \code{inverse = TRUE}, and the quantities describe the inverse
+of the precision, which is the prior's covariance. For
+\code{structured_penalty(parameters7::inverse_of(parameters7::ar1(4)))} they are
+the variance and the lag-one correlation of the coefficients, and the
+method prefixes them with \code{covariance_}, so that they are reported as
+\code{covariance_scale} and \code{covariance_rho}.
 
 Every link of the branch is the identity, so the hyperparameters are the
 free values themselves, and the Jacobian that
@@ -70,6 +78,17 @@ r$jacobian
 # of an entry next to the diagonal to the diagonal entry.
 Om <- penalty_matrix(pen, list(log_scale = 0.2, z_rho = 0.5))
 c(Om[1, 1], Om[1, 2] / Om[1, 1])
+
+# On the covariance side the same free values give the variance and the
+# correlation of the coefficients, named covariance_scale and
+# covariance_rho.
+cov <- structured_penalty(parameters7::inverse_of(parameters7::ar1(4)))
+rc <- penalty_readable(cov, list(log_scale = 0.2, z_rho = 0.5))
+rc$value
+
+# They are read off the inverse of the precision.
+Sigma <- solve(penalty_matrix(cov, list(log_scale = 0.2, z_rho = 0.5)))
+c(Sigma[1, 1], Sigma[1, 2] / Sigma[1, 1])
 
 # A log-Cholesky structure declares nothing.
 lc <- structured_penalty(parameters7::log_cholesky(2))
