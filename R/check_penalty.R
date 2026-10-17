@@ -12,12 +12,11 @@ NULL
 #' numerical derivative of the value in that hyperparameter, each entry of
 #' the hyperparameter Hessian, diagonal or off-diagonal, with a numerical
 #' derivative of the analytic hyperparameter gradient, and each mixed block
-#' with a numerical Jacobian of the analytic coefficient gradient, so that no
-#' reference is a difference of another difference. A quadratic penalty also has its
-#' three-point identity, its log pseudo-determinant, its rank and its null
-#' basis tested.
-#' The function serves to verify the derivatives of a penalty written by the
-#' user.
+#' with a numerical Jacobian of the analytic coefficient gradient, so that a
+#' reference is never a difference of another difference. For a quadratic
+#' penalty, the function also tests the three-point identity, the log
+#' pseudo-determinant, the rank and the null basis. The function serves to
+#' verify the derivatives of a penalty written by the user.
 #'
 #' @details
 #' # The rows
@@ -71,18 +70,17 @@ NULL
 #' The row of the rank counts the eigenvalues that exceed a relative
 #' tolerance times the largest. For a quadratic or a structured penalty they
 #' are the eigenvalues of \eqn{S(\theta)} at the `theta` of the check. For an
-#' additive penalty they are the eigenvalues of the sum of the components,
-#' each divided by its largest absolute entry, so that the row reproduces the
-#' count of [additive_penalty()]: a count on \eqn{S(\theta)} drops the
-#' smaller components once their scales differ by more than the tolerance,
-#' as that function's page describes. The tolerance is the `tol` stored in a
-#' quadratic or an additive penalty, the one given to its constructor, and
-#' `1e-10` for a structured penalty, which stores none. The row's
-#' `max_error` is the absolute difference between that count and
-#' [penalty_rank()]. A stored rank that differs from the
-#' count by one or more therefore fails the row of the rank, and a null
-#' basis whose number of columns differs from `pen@n_coef` minus the stored
-#' rank fails the row of the width.
+#' additive penalty they are the eigenvalues of the sum of the components
+#' after each has been divided by its largest absolute entry, so that the row
+#' reproduces the count of [additive_penalty()]: a count on \eqn{S(\theta)}
+#' drops the smaller components once their scales differ by more than the
+#' tolerance, as that function's page describes. The tolerance is the `tol`
+#' stored in a quadratic or an additive penalty, the one given to its
+#' constructor, and `1e-10` for a structured penalty, which stores none. The
+#' row's `max_error` is the absolute difference between that count and
+#' [penalty_rank()]. A stored rank that differs from the count by one or more
+#' therefore fails the row of the rank, and a null basis whose number of columns
+#' differs from `pen@n_coef` minus the stored rank fails the row of the width.
 #'
 #' # What is not checked
 #'
@@ -99,8 +97,8 @@ NULL
 #' # Where the coefficients are placed
 #'
 #' A penalty with a kink has no derivative there, so a numerical reference
-#' that straddles one measures the kink and not the formula. With `beta` left
-#' at `NULL`, `0.033` is added to every coefficient, up to fifty times, until
+#' that straddles one measures the kink and not the formula. If `beta` is
+#' `NULL`, `0.033` is added to every coefficient, up to fifty times, until
 #' every coordinate of \eqn{D\beta} lies more than `0.05` from every kink that
 #' [penalty_kinks()] returns. A draw that already clears the kinks is used
 #' unchanged, and after fifty steps the last draw is used whether or not it
@@ -122,15 +120,16 @@ NULL
 #'   \eqn{(0, \infty)}, `alpha = 0.6` for the elastic net, `a = 3.2` for SCAD
 #'   and `gamma = 2.2` for MCP.
 #' @param tol The scaled error at or above which a row is reported as
-#'   `FAILED`. A single positive number, `1e-6` by default. A row whose error
-#'   is not finite is also reported as `FAILED`, and so is a row whose
+#'   `FAILED`. It is a single positive number, `1e-6` by default. A row whose
+#'   error is not finite is also reported as `FAILED`, and so is a row whose
 #'   numerical reference cannot be computed.
 #' @param verbose `TRUE`, the default, prints the table without row names.
 #'   The result is returned invisibly either way.
 #'
 #' @return A data frame with one row per check and three columns: `check`
 #'   (character, the row's name as tabulated above), `max_error` (numeric) and
-#'   `status` (character, `"OK"` or `"FAILED"`). Returned invisibly. For the
+#'   `status` (character, `"OK"` or `"FAILED"`). The data frame is returned
+#'   invisibly. For the
 #'   rows that compare with a numerical reference, `max_error` is the worst
 #'   absolute difference divided by `max(1, max(abs(reference)))`. For the
 #'   three-point identity it is the absolute value of the combination divided
@@ -151,12 +150,13 @@ NULL
 #' [penalty_gradient()], [penalty_hessian()], the hyperparameter derivatives
 #' or the quadratic quantities is signaled as it arises. An error inside a
 #' numerical reference is not signaled: \pkg{numDeriv} stops when the
-#' function it differentiates returns a value that is not finite, and the
+#' function that it differentiates returns a value that is not finite, and the
 #' row whose reference stopped is then reported with `max_error` equal to
 #' `NaN` and status `FAILED`, while the other rows are computed as usual.
 #'
 #' @examples
-#' # First differences over five coefficients: rank 4, one null direction.
+#' # The penalty over first differences of five coefficients has rank 4 and one
+#' # null direction.
 #' pen <- quadratic_penalty(crossprod(diff(diag(5))))
 #' res <- check_penalty(pen)
 #' all(res$status == "OK")

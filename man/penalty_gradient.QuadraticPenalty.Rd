@@ -14,16 +14,16 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} a numeric vector of length \code{pen@n_coef};
+\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
 \code{penalty_hessian()} a symmetric matrix of that order, a base matrix for an
 ordinary penalty and a \code{dgCMatrix} when the penalty was built with
 \code{blocks > 1}.
 }
 \description{
 \code{penalty_gradient()} returns \eqn{\lambda D'PD\beta} and \code{penalty_hessian()}
-returns \eqn{\lambda D'PD}. Both read the cached \eqn{D'PD}, so neither
-applies the map at call time, and the Hessian does not depend on
-\eqn{\beta}, the value being a quadratic form.
+returns \eqn{\lambda D'PD}. Both read the cached \eqn{D'PD}, so they do not
+apply the map at call time, and the Hessian does not depend on \eqn{\beta}
+because the value is a quadratic form.
 }
 \details{
 Because the Hessian is constant, the gradient is exactly the Hessian applied

@@ -21,12 +21,13 @@ every coefficient or one value per coefficient. Every entry must be finite
 and positive, and any other length or value is rejected with an error
 naming \code{step}.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 A list of three matrices, \code{cut}, \code{slope} and \code{icept}, each with
-\code{pen@n_coef} rows and one column per piece, the last column of \code{cut} being
-\code{Inf}. \code{NULL} where the operator has no piecewise linear description.
+\code{pen@n_coef} rows and one column per piece. The last column of \code{cut} is
+\code{Inf}. The value is \code{NULL} where the operator has no piecewise linear
+description.
 }
 \description{
 Returns the scalar proximal operator of a separable penalty as an odd
@@ -81,9 +82,10 @@ scaled step \eqn{t_j c_j d_j^2} described below.
 \section{Why a table rather than the operator}{
 A coordinate descent applies the operator once per coordinate per sweep, at
 a point that moves every time, so a compiled loop that called back into R
-for it would lose its gain to the calls. Passing the numbers keeps the loop
-compiled. The table holds the mathematics of the penalty, and the compiled
-kernel evaluates any map of this shape without reference to the family.
+for each application would lose the speed gained by compiling it. Passing
+the numbers keeps the loop compiled. The table holds the mathematics of the
+penalty, and the compiled kernel evaluates any map of this shape without
+reference to the family.
 }
 
 \section{Why the step is a vector}{
@@ -91,7 +93,7 @@ In a coordinate descent the step of coordinate \eqn{j} is \eqn{1/v_j} with
 \eqn{v_j = \sum_i w_i x_{ij}^2}, which does not change while the working
 weights are held fixed. The whole table is therefore built once per
 weighted least squares iteration and read by every sweep. \code{\link[=penalty_prox]{penalty_prox()}},
-by contrast, takes a \strong{single} step.
+by contrast, takes a single step.
 }
 
 \section{Under a diagonal map}{

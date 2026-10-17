@@ -33,17 +33,19 @@ and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
 \code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
-storage, so a diagonal map, which is what standardization produces, is
-recognized as diagonal by its class.}
+storage, so a diagonal map, such as the map that standardization
+produces, is recognized as diagonal by its class.}
 
-\item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
+\item{n_coef}{The number of coefficients \eqn{q}. The value is a single
+whole number.}
 
-\item{params}{The hyperparameter names, in the order every derivative list
-is keyed by. \code{character(0)} for a penalty with none.}
+\item{params}{The hyperparameter names, in the order by which every
+derivative list is keyed. The value is \code{character(0)} for a penalty with
+none.}
 
-\item{params_bounds}{A named list, one entry per hyperparameter, each a
-numeric pair giving an \strong{open} interval. A value at either endpoint is
-rejected, so \verb{(0, Inf)} excludes zero.}
+\item{params_bounds}{A named list with one entry per hyperparameter, and
+each entry is a numeric pair giving an open interval. A value at either
+endpoint is rejected, so \verb{(0, Inf)} excludes zero.}
 
 \item{link_params}{A named list, one \pkg{linkfunctions7} link per
 hyperparameter, carrying that hyperparameter's own interval onto the whole
@@ -85,7 +87,8 @@ on \eqn{(2, \infty)}, and MCP's is \code{gamma}, on \eqn{(1, \infty)}.
 }
 \section{Methods}{
 
-The two classes register methods for the same generics. For \code{ScadPenalty}:
+The two classes register methods for the same generics. The methods of
+\code{ScadPenalty} are:
 \itemize{
 \item value and coefficient derivatives:
 \link[=penalty_value.ScadPenalty]{penalty_value()},
@@ -102,7 +105,7 @@ The two classes register methods for the same generics. For \code{ScadPenalty}:
 \link[=penalty_prox_spec.ScadPenalty]{penalty_prox_spec()}.
 }
 
-For \code{McpPenalty}:
+The methods of \code{McpPenalty} are:
 \itemize{
 \item value and coefficient derivatives:
 \link[=penalty_value.McpPenalty]{penalty_value()},

@@ -41,7 +41,7 @@ sp <- penalty_prox_spec(pen, list(lambda = 1.5), step = c(0.5, 2))
 prox_apply(sp, c(2, 2))
 prox_apply(sp, c(0.5, 2.9))
 
-# Which is exactly what the operator gives, coordinate by coordinate.
+# This is exactly what the operator gives, coordinate by coordinate.
 one <- lasso_penalty(n_coef = 1)
 c(penalty_prox(one, 2, 0.5, list(lambda = 1.5)),
   penalty_prox(one, 2, 2, list(lambda = 1.5)))
@@ -52,5 +52,5 @@ prox_apply(sp, c(-2, -2))
 }
 \seealso{
 \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} for the table, \code{\link[=penalty_prox]{penalty_prox()}} for the
-operator it stands in for.
+operator in whose place the table is used.
 }

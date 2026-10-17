@@ -27,7 +27,7 @@ sparsity of a block is kept. A general \eqn{D} mixes the coordinates and
 turns the problem into the generalized-lasso problem, which requires a
 different algorithm.
 
-The map is recognized by its \strong{class}, without inspecting its entries: a
+The map is recognized by its class, without inspecting its entries: a
 \pkg{Matrix} diagonal object stores \eqn{q} numbers, while testing a dense
 matrix for diagonality would cost \eqn{q^2} operations at every call. A base
 matrix that is diagonal in value therefore gives \code{NULL}. \code{\link[=distrib_penalty]{distrib_penalty()}},

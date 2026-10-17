@@ -18,7 +18,7 @@ additive and structured branches ignore them.}
 vector carrying the same. The generic checks that every hyperparameter is
 present as a single number inside its bounds.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 A named list of one matrix per hyperparameter, each of side
@@ -40,8 +40,8 @@ Laplace approximation, whose determinant is \eqn{\lvert H + S\rvert} with
 \eqn{S} the Hessian of the penalty in the coefficients. The derivative of
 \eqn{\log\lvert H+S\rvert} in \eqn{\theta_m} contains
 \eqn{\partial S/\partial\theta_m}, which is a third derivative of
-\eqn{\rho}. The derivatives are taken in \eqn{\theta} on its own scale, and
-no link is applied.
+\eqn{\rho}. The derivatives are taken in \eqn{\theta} on its own scale,
+without a link.
 }
 
 \section{The value on each branch}{
@@ -65,10 +65,10 @@ penalty class written later is usable in a marginal criterion only if it
 supplies \code{penalty_dhessian()}, \code{\link[=penalty_d2hessian]{penalty_d2hessian()}} and
 \code{\link[=penalty_dcross]{penalty_dcross()}}.
 
-A separable penalty with a \strong{kink} signals an error as well, whatever its
-parent. The third derivative does not exist at the kink, and the mode at
-which a marginal criterion is expanded is where a kinked penalty places
-coefficients.
+A separable penalty with a kink signals an error as well, whatever its
+parent. The third derivative does not exist at the kink, and a kinked
+penalty places coefficients at the mode at which a marginal criterion is
+expanded.
 }
 
 \examples{

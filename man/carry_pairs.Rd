@@ -26,7 +26,7 @@ The two enumerations of pairs are built the same way from the same names, so
 a key of one is a key of the other. Each pair is looked up by name, first in
 \code{pen@params} order and then in the reversed order, and not by position or
 by splitting a key, since a hyperparameter whose own name contains the
-separator could not be split back into its two names. If neither name is
-present, the function signals an error that names the pair.
+separator could not be split back into its two names. If the pair is absent
+in both orders, the function signals an error that names the pair.
 }
 \keyword{internal}

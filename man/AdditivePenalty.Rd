@@ -27,17 +27,19 @@ and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
 \code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
-storage, so a diagonal map, which is what standardization produces, is
-recognized as diagonal by its class.}
+storage, so a diagonal map, such as the map that standardization
+produces, is recognized as diagonal by its class.}
 
-\item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
+\item{n_coef}{The number of coefficients \eqn{q}. The value is a single
+whole number.}
 
-\item{params}{The hyperparameter names, in the order every derivative list
-is keyed by. \code{character(0)} for a penalty with none.}
+\item{params}{The hyperparameter names, in the order by which every
+derivative list is keyed. The value is \code{character(0)} for a penalty with
+none.}
 
-\item{params_bounds}{A named list, one entry per hyperparameter, each a
-numeric pair giving an \strong{open} interval. A value at either endpoint is
-rejected, so \verb{(0, Inf)} excludes zero.}
+\item{params_bounds}{A named list with one entry per hyperparameter, and
+each entry is a numeric pair giving an open interval. A value at either
+endpoint is rejected, so \verb{(0, Inf)} excludes zero.}
 
 \item{link_params}{A named list, one \pkg{linkfunctions7} link per
 hyperparameter, carrying that hyperparameter's own interval onto the whole
@@ -78,11 +80,11 @@ the smoothing parameters themselves or the standard deviations
 \value{
 An S7 object of class \code{AdditivePenalty}, inheriting from \code{\link[=penalty]{penalty()}},
 with the seven inherited properties and the seven above. Its \code{map} is
-always \code{NULL}, a map given to the constructor having been absorbed into
+always \code{NULL}, because a map given to the constructor is absorbed into
 \code{mats}.
 }
 \description{
-The class of the objects that \code{\link[=additive_penalty]{additive_penalty()}} builds: several
+This class holds the objects that \code{\link[=additive_penalty]{additive_penalty()}} builds: several
 quadratic penalties added together, each with a smoothing parameter of its
 own. Beyond the seven properties that every \code{\link[=penalty]{penalty()}} carries, an object
 of this class stores the list of component matrices, already carried
@@ -90,10 +92,10 @@ through the map, the rank and null basis of the sum, and the eigenvalue
 tolerance at which ranks are counted.
 }
 \details{
-The rank and the null basis are stored because both are properties of the
-components alone. The null space of a sum of positive semidefinite
+The rank and the null basis are stored because both depend only on the
+components. The null space of a sum of positive semidefinite
 matrices with positive weights is the intersection of the null spaces of
-the components, so neither the rank nor the null basis changes with the
+the components, so the rank and the null basis do not change with the
 smoothing parameters. A rank counted on the assembled \eqn{S(\lambda)}
 would fall as the parameters spread apart, because the smaller
 contributions drop below any fixed relative eigenvalue tolerance; the last
@@ -101,7 +103,8 @@ example of \code{\link[=additive_penalty]{additive_penalty()}} shows this.
 }
 \section{Methods}{
 
-The methods registered on this class, by the page that documents each.
+The list below gives the methods registered on this class, by the page that
+documents each.
 \itemize{
 \item The value and its coefficient derivatives:
 \link[=penalty_value.AdditivePenalty]{penalty_value()},
@@ -128,8 +131,9 @@ The methods registered on this class, by the page that documents each.
 \link[=penalty_dhessian_beta.AdditivePenalty]{penalty_dhessian_beta()},
 \link[=penalty_d2hessian_beta.penalty]{penalty_d2hessian_beta()} and
 \link[=penalty_dhessian_beta_theta.penalty]{penalty_dhessian_beta_theta()}.
-The last two return zero matrices, the Hessian being free of the
-coefficients, and are documented on the page of the base-class methods.
+The last two return zero matrices, because the Hessian does not depend on
+the coefficients, and are documented on the page of the base-class
+methods.
 }
 
 The class registers no \code{\link[=penalty_prox]{penalty_prox()}} or \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} method,
@@ -142,7 +146,8 @@ methods.
 pen <- additive_penalty(list(diag(3), diag(c(1, 0, 0))))
 S7::S7_inherits(pen, AdditivePenalty)
 
-# One hyperparameter per component, and a rank fixed at construction.
+# The penalty has one hyperparameter per component and a rank fixed at
+# construction.
 pen@params
 c(rank = pen@p_rank, null_width = ncol(pen@null_basis))
 length(pen@mats)

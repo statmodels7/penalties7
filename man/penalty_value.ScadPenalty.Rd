@@ -16,14 +16,14 @@ bound-checked by the generic.}
 }
 \value{
 A single number, the sum over coordinates. It is bounded above by
-\eqn{\sum_j (a+1)\lambda^2/(2c_j)}, the sum running over the coordinates
-of \eqn{D\beta}, which is \code{pen@n_coef * (a + 1) * lambda^2 / 2} under
-the identity map at unit curvature.
+\eqn{\sum_j (a+1)\lambda^2/(2c_j)}, where the sum runs over the
+coordinates of \eqn{D\beta}; under the identity map at unit curvature the
+bound is \code{pen@n_coef * (a + 1) * lambda^2 / 2}.
 }
 \description{
 Returns the closed antiderivative of SCAD's defining \eqn{\rho'}, summed
-over the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. No
-constant is added, since SCAD is improper.
+over the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. It
+adds no constant, since SCAD is improper.
 }
 \details{
 With unit curvature and \eqn{u = \lvert t\rvert} on each coordinate,
@@ -33,18 +33,19 @@ With unit curvature and \eqn{u = \lvert t\rvert} on each coordinate,
     \;\; (\lambda < u \le a\lambda), \qquad
   \rho(u) = \frac{(a+1)\lambda^2}{2} \;\; (u > a\lambda),}
 
-the three pieces meeting continuously at \eqn{\lambda} and \eqn{a\lambda}.
+where the three pieces meet continuously at \eqn{\lambda} and
+\eqn{a\lambda}.
 With curvature \eqn{c_j} (the \code{curv} property), coordinate \eqn{j}
 contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, the same formula with
 \eqn{\lambda/c_j} in place of \eqn{\lambda} and multiplied by \eqn{c_j}.
-The value saturates, which leaves a large coefficient unshrunk and makes
-the penalty improper.
+The value saturates, so a large coefficient receives no shrinkage and the
+penalty is improper.
 }
 \examples{
 pen <- scad_penalty(n_coef = 1)
 th <- list(lambda = 1, a = 3.7)
 
-# One coordinate in each region: linear, tapering, flat.
+# One coordinate is evaluated in each region: linear, tapering, flat.
 sapply(c(0.5, 2, 100), function(t) penalty_value(pen, t, th))
 
 # The flat value is (a + 1) lambda^2 / 2.
@@ -53,7 +54,7 @@ sapply(c(0.5, 2, 100), function(t) penalty_value(pen, t, th))
 }
 \seealso{
 \code{\link[=scad_penalty]{scad_penalty()}} for the construction,
-\code{\link[=penalty_gradient.ScadPenalty]{penalty_gradient.ScadPenalty()}} for the derivative it integrates,
+\code{\link[=penalty_gradient.ScadPenalty]{penalty_gradient.ScadPenalty()}} for the derivative that it integrates,
 \code{\link[=penalty_value.McpPenalty]{penalty_value.McpPenalty()}} for the sibling family.
 }
 \keyword{internal}

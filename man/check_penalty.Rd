@@ -26,8 +26,8 @@ gives \code{lambda = 1.2} for a hyperparameter bounded on
 and \code{gamma = 2.2} for MCP.}
 
 \item{tol}{The scaled error at or above which a row is reported as
-\code{FAILED}. A single positive number, \code{1e-6} by default. A row whose error
-is not finite is also reported as \code{FAILED}, and so is a row whose
+\code{FAILED}. It is a single positive number, \code{1e-6} by default. A row whose
+error is not finite is also reported as \code{FAILED}, and so is a row whose
 numerical reference cannot be computed.}
 
 \item{verbose}{\code{TRUE}, the default, prints the table without row names.
@@ -36,7 +36,8 @@ The result is returned invisibly either way.}
 \value{
 A data frame with one row per check and three columns: \code{check}
 (character, the row's name as tabulated above), \code{max_error} (numeric) and
-\code{status} (character, \code{"OK"} or \code{"FAILED"}). Returned invisibly. For the
+\code{status} (character, \code{"OK"} or \code{"FAILED"}). The data frame is returned
+invisibly. For the
 rows that compare with a numerical reference, \code{max_error} is the worst
 absolute difference divided by \code{max(1, max(abs(reference)))}. For the
 three-point identity it is the absolute value of the combination divided
@@ -57,12 +58,11 @@ analytic gradient. Each hyperparameter gradient is compared with a
 numerical derivative of the value in that hyperparameter, each entry of
 the hyperparameter Hessian, diagonal or off-diagonal, with a numerical
 derivative of the analytic hyperparameter gradient, and each mixed block
-with a numerical Jacobian of the analytic coefficient gradient, so that no
-reference is a difference of another difference. A quadratic penalty also has its
-three-point identity, its log pseudo-determinant, its rank and its null
-basis tested.
-The function serves to verify the derivatives of a penalty written by the
-user.
+with a numerical Jacobian of the analytic coefficient gradient, so that a
+reference is never a difference of another difference. For a quadratic
+penalty, the function also tests the three-point identity, the log
+pseudo-determinant, the rank and the null basis. The function serves to
+verify the derivatives of a penalty written by the user.
 }
 \section{The rows}{
 Two rows are produced for every penalty, three more for each
@@ -114,18 +114,17 @@ annihilation is absent and the count is 13.
 The row of the rank counts the eigenvalues that exceed a relative
 tolerance times the largest. For a quadratic or a structured penalty they
 are the eigenvalues of \eqn{S(\theta)} at the \code{theta} of the check. For an
-additive penalty they are the eigenvalues of the sum of the components,
-each divided by its largest absolute entry, so that the row reproduces the
-count of \code{\link[=additive_penalty]{additive_penalty()}}: a count on \eqn{S(\theta)} drops the
-smaller components once their scales differ by more than the tolerance,
-as that function's page describes. The tolerance is the \code{tol} stored in a
-quadratic or an additive penalty, the one given to its constructor, and
-\code{1e-10} for a structured penalty, which stores none. The row's
-\code{max_error} is the absolute difference between that count and
-\code{\link[=penalty_rank]{penalty_rank()}}. A stored rank that differs from the
-count by one or more therefore fails the row of the rank, and a null
-basis whose number of columns differs from \code{pen@n_coef} minus the stored
-rank fails the row of the width.
+additive penalty they are the eigenvalues of the sum of the components
+after each has been divided by its largest absolute entry, so that the row
+reproduces the count of \code{\link[=additive_penalty]{additive_penalty()}}: a count on \eqn{S(\theta)}
+drops the smaller components once their scales differ by more than the
+tolerance, as that function's page describes. The tolerance is the \code{tol}
+stored in a quadratic or an additive penalty, the one given to its
+constructor, and \code{1e-10} for a structured penalty, which stores none. The
+row's \code{max_error} is the absolute difference between that count and
+\code{\link[=penalty_rank]{penalty_rank()}}. A stored rank that differs from the count by one or more
+therefore fails the row of the rank, and a null basis whose number of columns
+differs from \code{pen@n_coef} minus the stored rank fails the row of the width.
 }
 
 \section{What is not checked}{
@@ -142,8 +141,8 @@ kinks themselves.
 
 \section{Where the coefficients are placed}{
 A penalty with a kink has no derivative there, so a numerical reference
-that straddles one measures the kink and not the formula. With \code{beta} left
-at \code{NULL}, \code{0.033} is added to every coefficient, up to fifty times, until
+that straddles one measures the kink and not the formula. If \code{beta} is
+\code{NULL}, \code{0.033} is added to every coefficient, up to fifty times, until
 every coordinate of \eqn{D\beta} lies more than \code{0.05} from every kink that
 \code{\link[=penalty_kinks]{penalty_kinks()}} returns. A draw that already clears the kinks is used
 unchanged, and after fifty steps the last draw is used whether or not it
@@ -160,13 +159,14 @@ outside the numerical references, so an error in \code{\link[=penalty_value]{pen
 \code{\link[=penalty_gradient]{penalty_gradient()}}, \code{\link[=penalty_hessian]{penalty_hessian()}}, the hyperparameter derivatives
 or the quadratic quantities is signaled as it arises. An error inside a
 numerical reference is not signaled: \pkg{numDeriv} stops when the
-function it differentiates returns a value that is not finite, and the
+function that it differentiates returns a value that is not finite, and the
 row whose reference stopped is then reported with \code{max_error} equal to
 \code{NaN} and status \code{FAILED}, while the other rows are computed as usual.
 }
 
 \examples{
-# First differences over five coefficients: rank 4, one null direction.
+# The penalty over first differences of five coefficients has rank 4 and one
+# null direction.
 pen <- quadratic_penalty(crossprod(diff(diag(5))))
 res <- check_penalty(pen)
 all(res$status == "OK")

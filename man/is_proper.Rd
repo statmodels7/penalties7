@@ -15,10 +15,11 @@ is_proper(pen, ...)
 A single logical.
 }
 \description{
-\code{TRUE} when \eqn{\exp(-\rho)} integrates to one over the coefficients, so
-the value returned by \code{\link[=penalty_value]{penalty_value()}} is exactly the negative log-density
-of a prior in \eqn{\beta} and may be added to a negative log-likelihood as
-it stands. \code{FALSE} when it does not. In that case the value keeps the
+Returns \code{TRUE} when \eqn{\exp(-\rho)} integrates to one over the
+coefficients, so the value returned by \code{\link[=penalty_value]{penalty_value()}} is exactly the
+negative log-density of a prior in \eqn{\beta} and may be added to a
+negative log-likelihood as it stands. Returns \code{FALSE} when it does not. In
+that case the value keeps the
 constant that its branch defines, if any: a rank-deficient quadratic,
 additive or structured penalty keeps its pseudo-determinant term, a
 separable penalty keeps the parent's own constant without a Jacobian term,
@@ -28,23 +29,23 @@ and SCAD and MCP carry no constant.
 Three situations make a penalty improper, and they arise from different
 causes.
 
-A \strong{rank-deficient quadratic} puts no cost at all on its null directions,
+A rank-deficient quadratic puts no cost at all on its null directions,
 so \eqn{\exp(-\rho)} is flat along them and its integral diverges. This is
 the ordinary case for a smoothing penalty: second differences over
 \eqn{q} coefficients leave the level and the slope unpenalized and have
 rank \eqn{q - 2}. The penalty is still usable, because the likelihood
 supplies the missing curvature, and its normalizing constant is the log
-\strong{pseudo}-determinant over the range, which \code{\link[=penalty_logpdet]{penalty_logpdet()}} returns.
+pseudo-determinant over the range, which \code{\link[=penalty_logpdet]{penalty_logpdet()}} returns.
 The same holds for a rank-deficient additive or structured penalty.
 
-A \strong{separable penalty} is a density in \eqn{t = D\beta}. It is proper
+A separable penalty is a density in \eqn{t = D\beta}. It is proper
 without a map, and under a square nonsingular map, where the value carries
 the Jacobian term \eqn{-\log\lvert\det D\rvert} and is a density in
 \eqn{\beta}. Under a map with fewer rows than columns, or a singular square
 map (a diagonal map with a zero entry, for instance), \eqn{\exp(-\rho)} is
 flat along the null space of the map, and the predicate is \code{FALSE}.
 
-\strong{SCAD and MCP} are improper for a third reason. Both are defined by their
+SCAD and MCP are improper for a third reason. Both are defined by their
 derivative, which is exactly zero beyond \eqn{a\lambda} and
 \eqn{\gamma\lambda}, so \eqn{\rho} is constant in every direction far from
 the origin and \eqn{\exp(-\rho)} is not integrable for any constant. They

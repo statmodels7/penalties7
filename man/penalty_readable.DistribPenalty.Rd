@@ -11,9 +11,9 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{NULL} when \code{pen@block} is \code{1L}. Otherwise the list that
-\code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} returns, with the elements \code{value},
-\code{jacobian}, \code{transform} and \code{block}.
+\code{NULL} when \code{pen@block} is \code{1L}. Otherwise the method returns the
+list that \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} produces, with the elements
+\code{value}, \code{jacobian}, \code{transform} and \code{block}.
 }
 \description{
 Returns \code{NULL} for a univariate parent, whose hyperparameters are already
@@ -27,14 +27,15 @@ a rate or a shape, each on its own scale, so there is nothing to derive and
 the method returns \code{NULL}. Those of a multivariate parent are coordinates
 such as log-Cholesky entries, which are not directly interpretable; the
 interpretable quantities are the standard deviations and the correlations
-of the effects within a block, and the parent declares them through
+of the effects within a block, and the parent provides them through
 \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}}.
 }
 \examples{
-# A univariate parent: the rate is the quantity, so nothing is derived.
+# For a univariate parent the rate is already the quantity of interest, so
+# the result is NULL.
 penalty_readable(lasso_penalty(n_coef = 3), list(lambda = 1))
 
-# A bivariate Gaussian prior: two standard deviations and a correlation.
+# A bivariate Gaussian prior has two standard deviations and a correlation.
 mv <- distrib_penalty(
   distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                         mu1 = 0, mu2 = 0), n_coef = 6)
@@ -47,6 +48,6 @@ r$transform
 \seealso{
 \code{\link[=penalty_readable]{penalty_readable()}} for the generic,
 \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} for the quantities that a multivariate
-family declares.
+family provides.
 }
 \keyword{internal}

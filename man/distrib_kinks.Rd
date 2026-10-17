@@ -9,11 +9,11 @@ distrib_kinks(d)
 \arguments{
 \item{d}{A univariate \pkg{distributions7} object. An object without
 \code{parent_distrib}, or whose chain of parents has no level carrying
-\code{fixed_params}, gets \code{numeric(0)} without further inspection.}
+\code{fixed_params}, yields \code{numeric(0)} without further inspection.}
 }
 \value{
-A numeric vector of the confirmed kink points, possibly empty, with
-duplicates removed.
+A numeric vector of the confirmed kink points, without duplicates
+and possibly empty.
 }
 \description{
 Returns the points at which a separable penalty built on this distribution
@@ -21,7 +21,8 @@ is not differentiable, derived from the distribution itself, or
 \code{numeric(0)} when there are none. Among the families that
 \pkg{distributions7} ships, only the two Laplace parametrizations and the
 elastic net have a location in which the log-density is not smooth, so only
-these, with the location held by \code{\link[distributions7:fixed]{distributions7::fixed()}}, give a kink.
+these give a kink, and only when \code{\link[distributions7:fixed]{distributions7::fixed()}} holds the
+location.
 }
 \section{How a candidate is found}{
 A distribution records in \code{params_smooth} the parameters in which its
@@ -33,7 +34,7 @@ puts the kink at that value: \code{fixed(laplace_distrib(), mu = 0)} is a
 Laplace prior at zero and has a kink at zero, while
 \code{fixed(laplace_distrib(), mu = 2)} has one at two.
 
-A \strong{free} parameter gives no candidate, because its value is set by the
+A free parameter gives no candidate, because its value is set by the
 hyperparameters at the time of each evaluation. A Laplace with a free
 location therefore has no reported kink.
 
@@ -48,8 +49,8 @@ so that \code{truncated(fixed(laplace2_distrib(), mu = 0), lower = -1, upper = 3
 
 \section{How a candidate is confirmed}{
 A candidate is dropped when it is not finite or when it does not lie
-strictly inside the support of the outermost object, a point at the edge of
-the support not being a kink of the density on its support: a
+strictly inside the support of the outermost object, because a point at the
+edge of the support is not a kink of the density on its support: a
 \code{folded()} Laplace held at zero has no kink at zero. Each remaining
 candidate is then tested by comparing the one-sided derivatives of the
 log-density across it at a probe point (\code{\link[=probe_theta]{probe_theta()}}, \code{\link[=has_jump]{has_jump()}}),
@@ -62,7 +63,7 @@ point drops the candidate.
 }
 
 \examples{
-# A Laplace held at a location: a kink at that location.
+# A Laplace held at a location has a kink at that location.
 distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),
                                     mu = 0))
 distrib_kinks(distributions7::fixed(distributions7::laplace_distrib(),

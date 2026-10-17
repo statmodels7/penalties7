@@ -19,18 +19,19 @@ nor \code{"multivariate"} is rejected.}
 
 \item{map}{The matrix \eqn{D}, with one column per coefficient, or \code{NULL}
 (the default) for the identity. A \pkg{Matrix} object keeps its storage,
-so a diagonal or sparse map is not densified, and a square map whose
-off-diagonal entries are all zero is stored as a \code{\link[Matrix:Diagonal]{Matrix::Diagonal()}}.}
+so a diagonal or sparse map is not converted to a dense matrix, and a
+square map whose off-diagonal entries are all zero is stored as a
+\code{\link[Matrix:Diagonal]{Matrix::Diagonal()}}.}
 
 \item{n_coef}{The number of coefficients. It is required when \code{map} is
-\code{NULL} and ignored otherwise, the count being \code{ncol(map)}.}
+\code{NULL}; otherwise it is ignored, because the count is \code{ncol(map)}.}
 
 \item{kinks}{The points where the parent's log-density is not
 differentiable in its argument. With \code{NULL}, the default, they are
 derived by \code{\link[=distrib_kinks]{distrib_kinks()}} for a univariate parent and set to
-\code{numeric(0)} for a multivariate one, a kink being a point of a scalar
-argument. A numeric vector is used as given, and \code{numeric(0)} declares
-that there are none.}
+\code{numeric(0)} for a multivariate one, because a kink is a point of a scalar
+argument. A numeric vector is used as given, and \code{numeric(0)} sets the
+penalty to have no kinks.}
 }
 \value{
 A \code{\link[=DistribPenalty]{DistribPenalty()}} object whose hyperparameters, bounds, links
@@ -64,8 +65,8 @@ from \code{\link[distributions7:distrib_cross_y]{distributions7::distrib_cross_y
 \section{Normalizing constant and Jacobian}{
 The normalizing constant of the density is kept, so the value is the
 negative log prior density. This makes a free scale or a free \eqn{\nu}
-estimable by a marginal criterion. With the constant dropped, the value of
-a Gaussian prior would decrease toward zero as its scale grows, and a
+estimable by a marginal criterion. If the constant were dropped, the value
+of a Gaussian prior would decrease toward zero as its scale grows, and a
 criterion would send the scale to infinity.
 
 Under a square nonsingular map the value also carries the Jacobian of
@@ -98,25 +99,25 @@ the dependence within a block. The number of values at which the penalty
 is read must divide into whole blocks; otherwise the constructor signals an
 error that names the block width and the count.
 
-A blockwise penalty has \strong{no proximal operator}, because that operator
+A blockwise penalty has no proximal operator, because that operator
 acts one coordinate at a time and the coordinates of a block do not
 separate. \code{\link[=has_prox]{has_prox()}} returns \code{FALSE} and \code{\link[=penalty_prox]{penalty_prox()}} signals an
 error.
 }
 
 \examples{
-# A Gaussian prior at zero: the separable form of the ridge, written by
+# A Gaussian prior at zero is the separable form of the ridge, written by
 # its standard deviation instead of a precision.
 d <- distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0)
 pen <- distrib_penalty(d, n_coef = 3)
 pen@params
 penalty_value(pen, c(1, 0, -1), list(sigma = 2))
 
-# The same number from stats::dnorm().
+# The same number comes from stats::dnorm().
 -sum(stats::dnorm(c(1, 0, -1), sd = 2, log = TRUE))
 
-# A correlated prior over two coefficients per block, three blocks. The
-# hyperparameters are the matrix parameter's free values.
+# A correlated prior is built over two coefficients per block and three
+# blocks. The hyperparameters are the matrix parameter's free values.
 mv <- distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                             mu1 = 0, mu2 = 0)
 pen2 <- distrib_penalty(mv, n_coef = 6)

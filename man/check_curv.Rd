@@ -18,9 +18,9 @@ curv_of(pen, n)
 \item{pen}{A \code{\link[=ScadPenalty]{ScadPenalty()}} or \code{\link[=McpPenalty]{McpPenalty()}}.}
 }
 \value{
-\code{check_curv()} a numeric vector of length \code{n}, or \code{numeric(0)}
-for \code{NULL}; \code{curv_of()} the stored numeric vector, or a vector of \code{n}
-ones.
+\code{check_curv()} returns a numeric vector of length \code{n}, or
+\code{numeric(0)} for \code{NULL}; \code{curv_of()} the stored numeric vector, or a vector
+of \code{n} ones.
 }
 \description{
 \code{check_curv()} validates the curvature by which a SCAD or MCP penalty is
@@ -39,7 +39,7 @@ the knee to \eqn{\lambda/c_j} is the shape parameter in every coordinate.
 \code{check_curv()} signals an error for an empty vector, a missing, infinite,
 zero or negative value, and a length other than one or \code{n}; a single value
 is repeated \code{n} times. \code{curv_of()} returns the stored curvature, or \code{n}
-ones where none is stored, which is the penalty as defined without this
-scaling. A stored curvature is returned whatever \code{n} is.
+ones where the curvature is not stored, which is the penalty as defined
+without this scaling. A stored curvature is returned whatever \code{n} is.
 }
 \keyword{internal}

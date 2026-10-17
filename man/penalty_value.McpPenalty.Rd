@@ -16,14 +16,14 @@ bound-checked by the generic.}
 }
 \value{
 A single number, the sum over coordinates. It is bounded above by
-\eqn{\sum_j \gamma\lambda^2/(2c_j)}, the sum running over the coordinates
-of \eqn{D\beta}, which is \code{pen@n_coef * gamma * lambda^2 / 2} under the
-identity map at unit curvature.
+\eqn{\sum_j \gamma\lambda^2/(2c_j)}, where the sum runs over the
+coordinates of \eqn{D\beta}; under the identity map at unit curvature the
+bound is \code{pen@n_coef * gamma * lambda^2 / 2}.
 }
 \description{
 Returns the closed antiderivative of MCP's defining \eqn{\rho'}, summed over
-the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. No
-constant is added, since MCP is improper.
+the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. It adds
+no constant, since MCP is improper.
 }
 \details{
 With unit curvature and \eqn{u = \lvert t\rvert} on each coordinate,
@@ -32,7 +32,7 @@ With unit curvature and \eqn{u = \lvert t\rvert} on each coordinate,
     (u \le \gamma\lambda), \qquad
   \rho(u) = \frac{\gamma\lambda^2}{2} \;\; (u > \gamma\lambda),}
 
-the two pieces meeting continuously at \eqn{\gamma\lambda}. SCAD keeps the
+where the two pieces meet continuously at \eqn{\gamma\lambda}. SCAD keeps the
 slope of the lasso over an interval before it tapers, while MCP tapers from
 the origin, so its value is a downward parabola up to \eqn{\gamma\lambda}.
 With curvature \eqn{c_j} (the \code{curv} property), coordinate \eqn{j}
@@ -43,7 +43,7 @@ contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, the same formula with
 pen <- mcp_penalty(n_coef = 1)
 th <- list(lambda = 1, gamma = 3)
 
-# Inside the taper and beyond it.
+# The coordinate is evaluated twice inside the taper and once beyond it.
 sapply(c(0.5, 2, 100), function(t) penalty_value(pen, t, th))
 
 # The flat value is gamma lambda^2 / 2.
@@ -52,7 +52,7 @@ sapply(c(0.5, 2, 100), function(t) penalty_value(pen, t, th))
 }
 \seealso{
 \code{\link[=mcp_penalty]{mcp_penalty()}} for the construction,
-\code{\link[=penalty_gradient.McpPenalty]{penalty_gradient.McpPenalty()}} for the derivative it integrates,
+\code{\link[=penalty_gradient.McpPenalty]{penalty_gradient.McpPenalty()}} for the derivative that it integrates,
 \code{\link[=penalty_value.ScadPenalty]{penalty_value.ScadPenalty()}} for the sibling family.
 }
 \keyword{internal}

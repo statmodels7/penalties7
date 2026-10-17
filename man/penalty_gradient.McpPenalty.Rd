@@ -14,15 +14,15 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} a numeric vector of length \code{pen@n_coef};
+\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
 \code{penalty_hessian()} a symmetric \code{pen@n_coef} by \code{pen@n_coef} base matrix,
 diagonal under the identity map and negative semidefinite always.
 }
 \description{
 \code{penalty_gradient()} returns MCP's defining derivative carried back through
-the map, and \code{penalty_hessian()} its second derivative carried back through
-the map. At unit curvature the second derivative is \eqn{-1/\gamma} inside
-the taper and zero beyond it.
+the map, and \code{penalty_hessian()} returns its second derivative carried back
+through the map. At unit curvature the second derivative is
+\eqn{-1/\gamma} inside the taper and zero beyond it.
 }
 \details{
 With unit curvature, on each coordinate, with \eqn{u = \lvert t\rvert} and
@@ -38,7 +38,7 @@ With curvature \eqn{c_j} the taper ends at \eqn{\gamma\lambda/c_j}, the
 first derivative is \eqn{s\,(\lambda - c_j u/\gamma)_{+}}, and the second
 derivative inside the taper is \eqn{-c_j/\gamma}.
 
-The Hessian is \strong{negative} wherever the penalty is not constant, which is
+The Hessian is negative wherever the penalty is not constant, which is
 the non-convexity in the name of MCP, and it is constant there. Among the
 penalties whose derivative is \eqn{\lambda} at the origin and zero beyond
 \eqn{\gamma\lambda}, MCP has the smallest maximum concavity, the supremum

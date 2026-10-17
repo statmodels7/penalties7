@@ -13,14 +13,16 @@ map_back(pen, g)
 \item{pen}{A \code{\link[=penalty]{penalty()}} object, whose \code{map} is \eqn{D} with \eqn{m} rows
 and \eqn{q} columns, or \code{NULL}.}
 
-\item{beta}{A numeric vector of length \eqn{q}. \code{map_apply()} only.}
+\item{beta}{A numeric vector of length \eqn{q}. Only \code{map_apply()} takes
+this argument.}
 
-\item{g}{A numeric vector of length \eqn{m}. \code{map_back()} only.}
+\item{g}{A numeric vector of length \eqn{m}. Only \code{map_back()} takes this
+argument.}
 }
 \value{
-\code{map_apply()} a numeric vector of length \eqn{m}; \code{map_back()} a
-numeric vector of length \eqn{q}. Both are plain numeric vectors even
-when the map is a \pkg{Matrix} object, rather than one-column
+\code{map_apply()} returns a numeric vector of length \eqn{m};
+\code{map_back()} a numeric vector of length \eqn{q}. Both are plain numeric
+vectors even when the map is a \pkg{Matrix} object, rather than one-column
 \pkg{Matrix} objects.
 }
 \description{

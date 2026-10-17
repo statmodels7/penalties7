@@ -33,7 +33,7 @@ same results for the two. \code{\link[=penalty_prox]{penalty_prox()}} therefore 
 }
 \section{Errors}{
 
-A message naming the penalty and the parameter when the parameter is
+The message names the penalty and the parameter when the parameter is
 neither a free hyperparameter nor held by \code{\link[distributions7:fixed]{distributions7::fixed()}}.
 }
 

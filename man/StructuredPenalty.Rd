@@ -21,17 +21,19 @@ and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
 \code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
-storage, so a diagonal map, which is what standardization produces, is
-recognized as diagonal by its class.}
+storage, so a diagonal map, such as the map that standardization
+produces, is recognized as diagonal by its class.}
 
-\item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
+\item{n_coef}{The number of coefficients \eqn{q}. The value is a single
+whole number.}
 
-\item{params}{The hyperparameter names, in the order every derivative list
-is keyed by. \code{character(0)} for a penalty with none.}
+\item{params}{The hyperparameter names, in the order by which every
+derivative list is keyed. The value is \code{character(0)} for a penalty with
+none.}
 
-\item{params_bounds}{A named list, one entry per hyperparameter, each a
-numeric pair giving an \strong{open} interval. A value at either endpoint is
-rejected, so \verb{(0, Inf)} excludes zero.}
+\item{params_bounds}{A named list with one entry per hyperparameter, and
+each entry is a numeric pair giving an open interval. A value at either
+endpoint is rejected, so \verb{(0, Inf)} excludes zero.}
 
 \item{link_params}{A named list, one \pkg{linkfunctions7} link per
 hyperparameter, carrying that hyperparameter's own interval onto the whole
@@ -49,10 +51,10 @@ An S7 object of class \code{StructuredPenalty}, inheriting from
 \code{\link[=penalty]{penalty()}}, with the seven inherited properties and \code{structure}.
 }
 \description{
-The class of the objects that \code{\link[=structured_penalty]{structured_penalty()}} builds: the Gaussian
-prior whose precision is a \pkg{parameters7} matrix parameter. It adds one
-property to \code{\link[=penalty]{penalty()}}, the structure itself, and every quantity of the
-branch is computed from the methods of the structure.
+\code{StructuredPenalty} is the class of the objects that \code{\link[=structured_penalty]{structured_penalty()}}
+builds: the Gaussian prior whose precision is a \pkg{parameters7} matrix
+parameter. It adds one property to \code{\link[=penalty]{penalty()}}, the structure itself, and
+every quantity of the branch is computed from the methods of the structure.
 }
 \details{
 The hyperparameters are the structure's free vector, so \code{params} is its
@@ -63,7 +65,8 @@ link cannot express it. \code{map} is always \code{NULL}.
 }
 \section{Methods}{
 
-The methods registered on this class, by the page that documents each.
+This section lists the methods registered on this class, by the page that
+documents each.
 \itemize{
 \item The value and its coefficient derivatives:
 \link[=penalty_value.StructuredPenalty]{penalty_value()},
@@ -90,8 +93,9 @@ The methods registered on this class, by the page that documents each.
 \link[=penalty_dhessian_beta.StructuredPenalty]{penalty_dhessian_beta()},
 \link[=penalty_d2hessian_beta.penalty]{penalty_d2hessian_beta()} and
 \link[=penalty_dhessian_beta_theta.penalty]{penalty_dhessian_beta_theta()}.
-The last two return zero matrices, the Hessian being free of the
-coefficients, and are documented on the page of the base-class methods.
+The last two return zero matrices because the Hessian does not depend on
+the coefficients, and are documented on the page of the base-class
+methods.
 \item The proximal operator:
 \link[=penalty_prox.StructuredPenalty]{penalty_prox()}, documented on the page
 of the quadratic branch.
@@ -101,8 +105,8 @@ those that the structure declares through
 \code{\link[parameters7:param_readable]{parameters7::param_readable()}}.
 }
 
-The class registers no \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} or \code{\link[=penalty_draw]{penalty_draw()}} method, so
-the methods of the base class \code{\link[=penalty]{penalty()}} answer those generics.
+The class has no \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} or \code{\link[=penalty_draw]{penalty_draw()}} method of its own,
+so those generics dispatch to the methods of the base class \code{\link[=penalty]{penalty()}}.
 }
 
 \examples{

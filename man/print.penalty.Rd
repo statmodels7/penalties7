@@ -20,7 +20,7 @@ shows the same number twice.
 \examples{
 quadratic_penalty(diag(3))
 
-# A first-difference map: three coefficients, two differences.
+# A first-difference map over three coefficients gives two differences.
 quadratic_penalty(diag(2), map = diff(diag(3)))
 
 # A penalty with no hyperparameters prints "(none)".

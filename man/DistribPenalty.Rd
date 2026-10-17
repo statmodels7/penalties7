@@ -24,17 +24,19 @@ and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
 \code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
-storage, so a diagonal map, which is what standardization produces, is
-recognized as diagonal by its class.}
+storage, so a diagonal map, such as the map that standardization
+produces, is recognized as diagonal by its class.}
 
-\item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
+\item{n_coef}{The number of coefficients \eqn{q}. The value is a single
+whole number.}
 
-\item{params}{The hyperparameter names, in the order every derivative list
-is keyed by. \code{character(0)} for a penalty with none.}
+\item{params}{The hyperparameter names, in the order by which every
+derivative list is keyed. The value is \code{character(0)} for a penalty with
+none.}
 
-\item{params_bounds}{A named list, one entry per hyperparameter, each a
-numeric pair giving an \strong{open} interval. A value at either endpoint is
-rejected, so \verb{(0, Inf)} excludes zero.}
+\item{params_bounds}{A named list with one entry per hyperparameter, and
+each entry is a numeric pair giving an open interval. A value at either
+endpoint is rejected, so \verb{(0, Inf)} excludes zero.}
 
 \item{link_params}{A named list, one \pkg{linkfunctions7} link per
 hyperparameter, carrying that hyperparameter's own interval onto the whole
@@ -64,8 +66,9 @@ An S7 object of class \code{DistribPenalty}, inheriting from \code{\link[=penalt
 with the seven inherited properties and the four above.
 }
 \description{
-The class of the penalties that \code{\link[=distrib_penalty]{distrib_penalty()}} builds: a penalty formed
-by applying a \pkg{distributions7} log-density to the successive blocks of
+\code{DistribPenalty} is the class of the penalties that \code{\link[=distrib_penalty]{distrib_penalty()}}
+builds. Such a penalty is formed by applying a \pkg{distributions7}
+log-density to the successive blocks of
 \eqn{D\beta}. Beyond the seven properties that every penalty carries, the
 class stores the parent distribution, the points where the parent's
 log-density has a kink, the block width (one for a univariate parent and
@@ -79,7 +82,8 @@ bounds, their links and their smoothness are those of the parent.
 }
 \section{Methods}{
 
-The methods registered on this class, by the page that documents each.
+The list below gives the methods registered on this class, by the page that
+documents each.
 \itemize{
 \item The value and its coefficient derivatives:
 \link[=penalty_value.DistribPenalty]{penalty_value()},

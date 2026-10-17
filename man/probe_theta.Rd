@@ -2,7 +2,7 @@
 % Please edit documentation in R/distrib_penalty.R
 \name{probe_theta}
 \alias{probe_theta}
-\title{A Point to Read the Parent At}
+\title{A Point at Which to Read the Parent}
 \usage{
 probe_theta(d)
 }
@@ -11,19 +11,19 @@ probe_theta(d)
 }
 \value{
 A named list of one number per element of \code{d@params}, in that order.
-\code{list()} for a distribution with no free parameters.
+The value is \code{list()} for a distribution with no free parameters.
 }
 \description{
 Returns one value per free parameter, at which the parent can be evaluated
-when no hyperparameters are given. \code{\link[=distrib_kinks]{distrib_kinks()}} uses it to
+when the hyperparameters are not given. \code{\link[=distrib_kinks]{distrib_kinks()}} uses it to
 differentiate the log-density before any penalty exists.
 }
 \details{
 The value of a parameter is the midpoint of its bounds where both are
 finite, one above the lower bound where only that bound is finite, one
 below the upper bound where only that bound is finite, and \code{1} where
-neither is. A scale on \eqn{(0, \infty)} is therefore probed at 1 and a
-mixing weight on \eqn{(0, 1)} at 0.5.
+both bounds are infinite. A scale on \eqn{(0, \infty)} is therefore probed at
+1 and a mixing weight on \eqn{(0, 1)} at 0.5.
 
 The rule assumes that whether a point is a kink does not depend on the
 values of the other parameters, so that any admissible point serves.

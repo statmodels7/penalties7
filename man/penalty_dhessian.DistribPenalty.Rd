@@ -9,24 +9,23 @@
 \arguments{
 \item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}. Read by all three
-derivative methods, because the components of the parent depend on it.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. All three derivative
+methods read it, because the components of the parent depend on it.}
 
 \item{theta}{A named list of the free parameters of the parent.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_dhessian()} a list of one base matrix of side \code{pen@n_coef}
-per hyperparameter.
-\code{penalty_d2hessian()} a list of one such matrix per unordered pair, keyed
-diagonals first.
-\code{penalty_dcross()} a list of one numeric vector of length \code{pen@n_coef} per
-unordered pair.
-\code{beta_quadratic()} a single logical.
+\code{penalty_dhessian()} returns a list of one base matrix of side
+\code{pen@n_coef} per hyperparameter. \code{penalty_d2hessian()} returns a list of
+one such matrix per unordered pair, keyed diagonals first.
+\code{penalty_dcross()} returns a list of one numeric vector of length
+\code{pen@n_coef} per unordered pair. \code{beta_quadratic()} returns a single
+logical.
 }
 \description{
-The methods of the separable branch for the four generics that a marginal
+The methods of the separable branch cover the four generics that a marginal
 criterion requires beyond the second order. With
 \eqn{\rho = -\sum_j \log f((D\beta)_j;\theta)} the Hessian is
 \eqn{-D'\mathrm{diag}(\ell^{(yy)})D}, so its \eqn{\theta}-derivatives are
@@ -42,10 +41,10 @@ the higher components of the parent carried through the same map.
 
 
 Each component is evaluated at \eqn{D\beta} and at \code{theta} on the parameter
-scale of the parent, so the derivatives are in \eqn{\theta} itself and no
-link is applied.
+scale of the parent, so the derivatives are in \eqn{\theta} itself, without
+a link.
 
-Nothing is differentiated here. A parent with closed forms for these
+This branch does not differentiate. A parent with closed forms for these
 components, such as the Gaussian and therefore every Gaussian random
 effect, makes this branch exact. A parent without them takes the fallback
 of \pkg{distributions7}, which applies one stencil to the highest-order
@@ -61,10 +60,10 @@ block-diagonal matrix by \code{\link[=dp_blockdiag]{dp_blockdiag()}} and carried
 A penalty whose parent declares a kink, which is the lasso and the elastic
 net, signals an error in \code{penalty_dhessian()}, \code{penalty_d2hessian()} and
 \code{penalty_dcross()}, with the penalty named (see \code{\link[=reject_kinked]{reject_kinked()}}). The
-third derivative does not exist at the kink, and the mode at which a
-marginal criterion is expanded is where a kinked penalty places
-coefficients. \code{beta_quadratic()} signals no error and returns \code{TRUE} for
-the lasso, whose log-density is linear in the response away from the kink.
+third derivative does not exist at the kink, and a kinked penalty places
+coefficients at the mode at which a marginal criterion is expanded.
+\code{beta_quadratic()} does not signal an error and returns \code{TRUE} for the
+lasso, whose log-density is linear in the response away from the kink.
 }
 
 \section{The test of \code{beta_quadratic()}}{
@@ -76,8 +75,8 @@ evaluates \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hes
 tolerance of \code{1e-12} whether the values agree across the points. A
 multivariate parent returns one \eqn{p \times p} matrix per point, or a
 single matrix when that matrix does not depend on the response, and the
-comparison is made between the matrices of different points, not between
-the entries of one matrix. A single value or a single matrix, which carries
+method compares the matrices of different points with one another, not the
+entries of one matrix. A single value or a single matrix, which carries
 no dimension for the points, gives \code{TRUE}. If the parent signals an error,
 or returns a number of values that is not a multiple of \code{pen@block^2}, the
 method returns \code{FALSE}.

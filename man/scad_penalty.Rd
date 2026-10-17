@@ -23,42 +23,43 @@ mcp_penalty(
 }
 \arguments{
 \item{map}{The matrix \eqn{D}, with one column per coefficient, or \code{NULL}
-(the default) for the identity. Given a map, \code{n_coef} is taken from its
-column count and the argument is ignored. A \pkg{Matrix} object keeps
-its storage, and a square map whose off-diagonal entries are all zero is
-stored as a \code{\link[Matrix:Diagonal]{Matrix::Diagonal()}}, so that a diagonal map has a proximal
+(the default) for the identity. If a map is given, \code{n_coef} is taken
+from its column count and the argument is ignored. A \pkg{Matrix} object
+keeps its storage, and a square map whose off-diagonal entries are all zero
+is stored as a \code{\link[Matrix:Diagonal]{Matrix::Diagonal()}}, so that a diagonal map has a proximal
 operator whatever its class.}
 
-\item{n_coef}{The number of coefficients when \code{map} is \code{NULL}. A single
-whole number, \code{1L} by default.}
+\item{n_coef}{The number of coefficients when \code{map} is \code{NULL}. It is a
+single whole number and defaults to \code{1L}.}
 
 \item{link_lambda}{The \pkg{linkfunctions7} link carrying \eqn{\lambda} onto
-the whole real line. \code{linkfunctions7::log_link()} by default,
-\eqn{\lambda} being positive.}
+the whole real line. The default is \code{linkfunctions7::log_link()}, because
+\eqn{\lambda} is positive.}
 
 \item{link_a}{The link carrying SCAD's shape parameter, bounded below at 2.
-\code{linkfunctions7::bounded_link(lwr = 2)} by default. \code{scad_penalty()} only.}
+The default is \code{linkfunctions7::bounded_link(lwr = 2)}. The argument
+belongs to \code{scad_penalty()} only.}
 
 \item{curv}{\code{NULL} (the default) for unit curvature, or positive finite
 numbers, one per coordinate of \eqn{D\beta} or a single value repeated.}
 
 \item{link_gamma}{The link carrying MCP's shape parameter, bounded below at
 \enumerate{
-\item \code{linkfunctions7::bounded_link(lwr = 1)} by default. \code{mcp_penalty()}
-only.
+\item The default is \code{linkfunctions7::bounded_link(lwr = 1)}. The argument
+belongs to \code{mcp_penalty()} only.
 }}
 }
 \value{
-\code{scad_penalty()} a \code{\link[=ScadPenalty]{ScadPenalty()}} object with hyperparameters
-\code{lambda} on \eqn{(0, \infty)} and \code{a} on \eqn{(2, \infty)}.
-\code{mcp_penalty()} an \code{\link[=McpPenalty]{McpPenalty()}} object with \code{lambda} on
-\eqn{(0, \infty)} and \code{gamma} on \eqn{(1, \infty)}.
+\code{scad_penalty()} returns a \code{\link[=ScadPenalty]{ScadPenalty()}} object with
+hyperparameters \code{lambda} on \eqn{(0, \infty)} and \code{a} on
+\eqn{(2, \infty)}. \code{mcp_penalty()} returns an \code{\link[=McpPenalty]{McpPenalty()}} object with
+\code{lambda} on \eqn{(0, \infty)} and \code{gamma} on \eqn{(1, \infty)}.
 }
 \description{
-The two non-convex selection penalties that shrink small coefficients like
-the lasso and leave large ones unshrunk. Both are defined by their
-derivative on \eqn{t \ge 0} and extended evenly, and \code{scad_penalty()} and
-\code{mcp_penalty()} build objects whose value is the closed antiderivative
+\code{scad_penalty()} and \code{mcp_penalty()} build the two non-convex selection
+penalties, which shrink small coefficients like the lasso and leave large
+ones unshrunk. Both are defined by their derivative on \eqn{t \ge 0} and
+extended evenly, and the value of each object is the closed antiderivative
 anchored at \eqn{\rho(0) = 0}.
 }
 \section{The two derivatives}{
@@ -88,8 +89,8 @@ lasso. The shape parameter sets how quickly the transition happens:
 \eqn{a \to \infty} and \eqn{\gamma \to \infty} recover the lasso, smaller
 values make the transition more abrupt, and MCP approaches hard
 thresholding as \eqn{\gamma \to 1}. The values used in the literature are
-\eqn{a = 3.7} and \eqn{\gamma = 3}. Neither constructor supplies a value,
-which the caller sets or a path sweeps.
+\eqn{a = 3.7} and \eqn{\gamma = 3}. The constructors do not supply a value
+for the shape parameter, which the caller sets or a path sweeps.
 }
 
 \section{Points of non-smoothness}{
@@ -120,7 +121,8 @@ the unscaled operator at step \eqn{s c_j} and rate \eqn{\lambda/c_j}, so it
 is single-valued while \eqn{s c_j < a - 1} for SCAD and
 \eqn{s c_j < \gamma} for MCP. At the step \eqn{s = 1/c_j} these conditions
 are \eqn{a > 2} and \eqn{\gamma > 1} for any data. By default \code{curv} is
-\code{NULL}, no curvature is stored, and every coordinate has \eqn{c_j = 1}.
+\code{NULL}, the penalty stores no curvature, and every coordinate has
+\eqn{c_j = 1}.
 }
 
 \section{Improper penalties}{
@@ -132,8 +134,9 @@ hyperparameters, which are chosen along a path or by cross-validation.
 }
 
 \examples{
-# SCAD at the shape used in the literature. A small coefficient is
-# penalized at the rate of the lasso, a large one by a constant.
+# SCAD is evaluated at the shape that the literature uses. A small
+# coefficient is penalized at the rate of the lasso, a large one by a
+# constant.
 pen <- scad_penalty(n_coef = 3)
 th <- list(lambda = 1, a = 3.7)
 penalty_value(pen, c(0.5, 2, 5), th)
@@ -151,7 +154,7 @@ mcp <- mcp_penalty(n_coef = 3)
 penalty_value(mcp, c(0.5, 2, 5), list(lambda = 1, gamma = 3))
 penalty_gradient(mcp, c(0.5, 2, 5), list(lambda = 1, gamma = 3))
 
-# Both are bounded, so neither is a density.
+# Both are bounded, so they are not densities.
 c(scad = is_proper(pen), mcp = is_proper(mcp))
 
 # As the shape grows, the value at 2 approaches the lasso's value 2.

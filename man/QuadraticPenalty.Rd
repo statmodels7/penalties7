@@ -26,17 +26,19 @@ and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
 \code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
-storage, so a diagonal map, which is what standardization produces, is
-recognized as diagonal by its class.}
+storage, so a diagonal map, such as the map that standardization
+produces, is recognized as diagonal by its class.}
 
-\item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
+\item{n_coef}{The number of coefficients \eqn{q}. The value is a single
+whole number.}
 
-\item{params}{The hyperparameter names, in the order every derivative list
-is keyed by. \code{character(0)} for a penalty with none.}
+\item{params}{The hyperparameter names, in the order by which every
+derivative list is keyed. The value is \code{character(0)} for a penalty with
+none.}
 
-\item{params_bounds}{A named list, one entry per hyperparameter, each a
-numeric pair giving an \strong{open} interval. A value at either endpoint is
-rejected, so \verb{(0, Inf)} excludes zero.}
+\item{params_bounds}{A named list with one entry per hyperparameter, and
+each entry is a numeric pair giving an open interval. A value at either
+endpoint is rejected, so \verb{(0, Inf)} excludes zero.}
 
 \item{link_params}{A named list, one \pkg{linkfunctions7} link per
 hyperparameter, carrying that hyperparameter's own interval onto the whole
@@ -47,7 +49,7 @@ where the value is differentiable in it.}
 
 \item{P}{The symmetric positive semidefinite matrix of the quadratic form,
 with as many rows as the map has, or as many as there are coefficients
-when the map is \code{NULL}. A \code{dgCMatrix} under \code{blocks > 1}.}
+when the map is \code{NULL}. It is a \code{dgCMatrix} under \code{blocks > 1}.}
 
 \item{p_rank}{The rank of \eqn{D'PD}, a single whole number, counted at
 construction by a relative eigenvalue rule. Without a map it is the rank
@@ -58,8 +60,8 @@ of \eqn{P}.}
 penalty is full rank.}
 
 \item{logpdet_DPD}{The log pseudo-determinant of \eqn{D'PD}: the sum of the
-logarithms of its non-zero eigenvalues. A single number. Without a map it
-is the log pseudo-determinant of \eqn{P}.}
+logarithms of its non-zero eigenvalues. It is a single number. Without a
+map it is the log pseudo-determinant of \eqn{P}.}
 
 \item{DPD}{The assembled \eqn{D'PD}, an \code{n_coef} by \code{n_coef} matrix, cached
 so that the gradient and the Hessian never re-form it.}
@@ -74,26 +76,27 @@ An S7 object of class \code{QuadraticPenalty}, inheriting from
 \code{\link[=penalty]{penalty()}}, with the seven inherited properties and the six above.
 }
 \description{
-The class of the objects that \code{\link[=quadratic_penalty]{quadratic_penalty()}} builds. Beyond the
-seven properties that every penalty carries, it stores the matrix \eqn{P},
-the rank of \eqn{D'PD}, an orthonormal basis of the null space of
-\eqn{D'PD}, the log pseudo-determinant of \eqn{D'PD} and the assembled
-\eqn{D'PD}. All five are computed once at construction and none of them
-depends on the hyperparameter, so every quantity of the branch is closed
+\code{QuadraticPenalty} is the class of the objects that \code{\link[=quadratic_penalty]{quadratic_penalty()}}
+builds. Beyond the seven properties that every penalty carries, it stores
+the matrix \eqn{P}, the rank of \eqn{D'PD}, an orthonormal basis of the null
+space of \eqn{D'PD}, the log pseudo-determinant of \eqn{D'PD} and the
+assembled \eqn{D'PD}. All five are computed once at construction and are
+independent of the hyperparameter, so every quantity of the branch is closed
 form in \eqn{\lambda}.
 }
 \details{
 Construct through \code{\link[=quadratic_penalty]{quadratic_penalty()}}, which computes the five
 properties and checks that \eqn{P} is symmetric and positive semidefinite.
-This raw constructor takes them as given and checks none of them. A wrong
-rank passed here enters the value, the hyperparameter derivatives,
+This raw constructor takes them as given and does not check any of them. A
+wrong rank passed here enters the value, the hyperparameter derivatives,
 \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_logpdet]{penalty_logpdet()}} and \code{\link[=is_proper]{is_proper()}}, and
 \code{\link[=check_penalty]{check_penalty()}} does not detect it, because every one of its rows reads
 the same stored rank.
 }
 \section{Methods}{
 
-The methods registered on this class, by the page that documents each.
+This section lists the methods registered on this class, by the page that
+documents each.
 \itemize{
 \item The value and its coefficient derivatives:
 \link[=penalty_value.QuadraticPenalty]{penalty_value()},
@@ -120,22 +123,23 @@ The methods registered on this class, by the page that documents each.
 \link[=penalty_dhessian_beta.QuadraticPenalty]{penalty_dhessian_beta()},
 \link[=penalty_d2hessian_beta.penalty]{penalty_d2hessian_beta()} and
 \link[=penalty_dhessian_beta_theta.penalty]{penalty_dhessian_beta_theta()}.
-The last two return zero matrices, the Hessian being free of the
-coefficients, and are documented on the page of the base-class methods.
+The last two return zero matrices because the Hessian does not depend on
+the coefficients, and are documented on the page of the base-class
+methods.
 \item The proximal operator:
 \link[=penalty_prox.QuadraticPenalty]{penalty_prox()}.
 }
 
-The class registers no \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=penalty_draw]{penalty_draw()}} or
-\code{\link[=penalty_readable]{penalty_readable()}} method, so the methods of the base class \code{\link[=penalty]{penalty()}}
-answer those generics.
+The class has no \code{\link[=penalty_prox_spec]{penalty_prox_spec()}}, \code{\link[=penalty_draw]{penalty_draw()}} or
+\code{\link[=penalty_readable]{penalty_readable()}} method of its own, so those generics dispatch to the
+methods of the base class \code{\link[=penalty]{penalty()}}.
 }
 
 \examples{
 pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
 S7::S7_inherits(pen, QuadraticPenalty)
 
-# Three of the six properties, computed at construction.
+# These are three of the six properties, all computed at construction.
 pen@p_rank
 dim(pen@null_basis)
 pen@logpdet_DPD

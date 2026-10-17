@@ -9,21 +9,21 @@ penalty_value(pen, beta, theta, ...)
 \arguments{
 \item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{beta}{A finite numeric vector of length \code{pen@n_coef}. Coerced with
-\code{as.numeric()} in the generic, so an integer vector or a one-column
+\item{beta}{A finite numeric vector of length \code{pen@n_coef}. The generic
+coerces it with \code{as.numeric()}, so an integer vector or a one-column
 matrix is accepted. A vector of another length signals an error.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in \code{pen@params}. Reordered
-and checked against the penalty's open bounds before dispatch. Pass
-\code{list()} for a penalty with no hyperparameters.}
+vector carrying the same, holding every name in \code{pen@params}. The generic
+reorders it and checks it against the penalty's open bounds before
+dispatch. Pass \code{list()} for a penalty with no hyperparameters.}
 
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 A single number, which is not \code{NA} when \code{beta} is finite and
-\code{theta} lies inside the bounds. The value is defined for a finite \code{beta}
-only: at an infinite coefficient a quadratic penalty returns \code{NaN}.
+\code{theta} lies inside the bounds. The value is defined only for a finite
+\code{beta}: at an infinite coefficient a quadratic penalty returns \code{NaN}.
 }
 \description{
 Returns the scalar \eqn{\rho(D\beta; \theta)}, the amount by which a set of
@@ -31,40 +31,42 @@ coefficients is penalized. The normalizing constant is included whenever
 the penalty is proper, so the value is exactly the negative log-density of
 the prior and can be added to a negative log-likelihood without a further
 term. \code{\link[=is_proper]{is_proper()}} reports whether this is the case. An improper penalty
-keeps whatever constant its branch defines: a rank-deficient quadratic,
-additive or structured penalty keeps the constant taken over the range of
-its matrix (a log pseudo-determinant), a separable penalty under a map that
-is not square, or is singular, returns \eqn{-\sum_i \log f(t_i; \theta)}
-without a Jacobian term, and SCAD and MCP return the bare \eqn{\rho}.
+keeps the constant, if any, that its branch defines. A rank-deficient
+quadratic, additive or structured penalty keeps a log pseudo-determinant,
+which is taken over the range of its matrix. A separable penalty under a map
+that is not square, or is singular, returns \eqn{-\sum_i \log f(t_i; \theta)}
+without a Jacobian term. SCAD and MCP return the bare \eqn{\rho}.
 }
 \section{The normalizing constant}{
 Dropping the normalizing constant makes no difference to a fit at a fixed
 hyperparameter, since it does not depend on \eqn{\beta}. It does make the
-hyperparameter itself unestimable: with the constant dropped, driving
-\eqn{\lambda} to zero drives the penalty to zero and the joint maximum runs
-away. With the constant kept, a proper penalty is a density in \eqn{\beta}
-for every \eqn{\lambda}, so the joint objective has an interior maximum and
-a marginal criterion has a mode to expand around. The degrees of freedom of
-a heavy-tailed prior are estimable for the same reason.
+hyperparameter itself impossible to estimate: if the constant is dropped,
+driving \eqn{\lambda} to zero drives the penalty to zero and the joint
+maximum runs away. If the constant is kept, a proper penalty is a density
+in \eqn{\beta} for every \eqn{\lambda}, so the joint objective has an
+interior maximum, and a marginal criterion has a mode around which it can
+be expanded. The degrees of freedom of a heavy-tailed prior are estimable
+for the same reason.
 }
 
 \section{The map}{
-\eqn{\rho} is evaluated at \eqn{t = D\beta}, not at \eqn{\beta}. With the
-map \code{NULL}, which is the default of every constructor that takes a map,
-\eqn{t = \beta} and no arithmetic is done. A map of \eqn{m} rows gives
+\eqn{\rho} is evaluated at \eqn{t = D\beta}, not at \eqn{\beta}. If the
+map is \code{NULL}, which is the default of every constructor that takes a map,
+then \eqn{t = \beta} and the function does not apply the map. A map of
+\eqn{m} rows gives
 \eqn{\rho} an argument of length \eqn{m}, so a second-difference map
 penalizes curvature and leaves the level and the slope unpenalized.
 }
 
 \examples{
-# A ridge over three coefficients, with the Gaussian constant kept.
+# A ridge over three coefficients includes the Gaussian constant.
 pen <- quadratic_penalty(diag(3))
 penalty_value(pen, c(1, 0, -1), list(lambda = 2))
 
-# Which is exactly the negative log-density of a N(0, 1/lambda) prior.
+# This value is exactly the negative log-density of a N(0, 1/lambda) prior.
 -sum(stats::dnorm(c(1, 0, -1), sd = 1 / sqrt(2), log = TRUE))
 
-# The constant is why the value moves with lambda even at beta = 0.
+# Because of the constant, the value moves with lambda even at beta = 0.
 sapply(c(0.5, 1, 2, 8),
        function(l) penalty_value(pen, c(0, 0, 0), list(lambda = l)))
 

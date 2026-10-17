@@ -9,28 +9,28 @@
 \arguments{
 \item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{theta}{A list holding \code{lambda}. \code{penalty_matrix()} and
-\code{penalty_logpdet()} only.}
+\item{theta}{A list holding \code{lambda}. Only \code{penalty_matrix()} and
+\code{penalty_logpdet()} read it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_matrix()} a symmetric matrix of side \code{pen@n_coef}, a base
-matrix ordinarily and a \code{dgCMatrix} when the penalty was built with
-\code{blocks > 1}.
-\code{penalty_rank()} a single integer.
-\code{penalty_null_basis()} a matrix with \code{pen@n_coef} rows and
+\code{penalty_matrix()} returns a symmetric matrix of side \code{pen@n_coef},
+a base matrix ordinarily and a \code{dgCMatrix} when the penalty was built with
+\code{blocks > 1}. \code{penalty_rank()} returns a single integer.
+\code{penalty_null_basis()} returns a matrix with \code{pen@n_coef} rows and
 \code{pen@n_coef - penalty_rank(pen)} orthonormal columns, sparse under
-\code{blocks > 1}.
-\code{penalty_logpdet()} a list of \code{value} (a number), \code{grad} (a list of one
-number, \code{lambda}) and \code{hess} (a list of one number, \code{lambda_lambda}).
+\code{blocks > 1}. \code{penalty_logpdet()} returns a list of \code{value} (a number),
+\code{grad} (a list of one number, \code{lambda}) and \code{hess} (a list of one number,
+\code{lambda_lambda}).
 }
 \description{
-The four quantities that a REML or marginal likelihood criterion reads.
-\code{penalty_matrix()} returns \eqn{\lambda D'PD}, \code{penalty_rank()} the rank of
-\eqn{D'PD} fixed at construction, \code{penalty_null_basis()} the stored
-orthonormal basis of its null space, and \code{penalty_logpdet()} the log
-pseudo-determinant with its first two derivatives in \eqn{\lambda}.
+This page documents the four quantities that a REML or marginal likelihood
+criterion reads. \code{penalty_matrix()} returns \eqn{\lambda D'PD},
+\code{penalty_rank()} returns the rank of \eqn{D'PD} fixed at construction,
+\code{penalty_null_basis()} returns the stored orthonormal basis of its null
+space, and \code{penalty_logpdet()} returns the log pseudo-determinant with its
+first two derivatives in \eqn{\lambda}.
 }
 \details{
 Since \eqn{S(\lambda) = \lambda D'PD} and only the range contributes,
@@ -38,9 +38,9 @@ Since \eqn{S(\lambda) = \lambda D'PD} and only the range contributes,
 \deqn{\log^{+}\lvert S(\lambda) \rvert = r\log\lambda
   + \log\mathrm{pdet}(D'PD), \qquad
   \frac{\partial}{\partial\lambda} = \frac{r}{\lambda}, \qquad
-  \frac{\partial^2}{\partial\lambda^2} = -\frac{r}{\lambda^2},}
+  \frac{\partial^2}{\partial\lambda^2} = -\frac{r}{\lambda^2}.}
 
-all three exact and computed without a decomposition at call time. The
+All three are exact and computed without a decomposition at call time. The
 rank and the null basis do not depend on \eqn{\lambda} and their generics
 take no \code{theta}.
 }

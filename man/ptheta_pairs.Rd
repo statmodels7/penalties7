@@ -8,27 +8,28 @@ ptheta_pairs(params)
 }
 \arguments{
 \item{params}{A character vector of hyperparameter names, in the order in
-which the penalty holds them. May be empty.}
+which the penalty holds them. The vector may be empty.}
 }
 \value{
 A named list of length \eqn{p(p+1)/2}, empty when \code{params} is. Each
 element is a character pair naming the two hyperparameters of the
-derivative, and each name is those two joined by an underscore.
+derivative, and each name joins those two with an underscore.
 }
 \description{
-The keys of a penalty's second hyperparameter derivatives, and the pairs
-they stand for: the \eqn{p} diagonals first, in \code{params} order, then the
-\eqn{p(p-1)/2} upper off-diagonal pairs, each joined by an underscore. For
+Returns the keys of a penalty's second hyperparameter derivatives and the
+pairs that the keys represent. The \eqn{p} diagonal keys come first, in
+\code{params} order, the \eqn{p(p-1)/2} upper off-diagonal pairs follow, and
+each key joins the two names with an underscore. For
 \code{c("lambda", "alpha")} the keys are \code{lambda_lambda}, \code{alpha_alpha},
-\code{lambda_alpha}. This is the order \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} returns and the
-order \code{\link[=ptheta_to_link]{ptheta_to_link()}} reads.
+\code{lambda_alpha}. This is the order that \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} returns and
+that \code{\link[=ptheta_to_link]{ptheta_to_link()}} reads.
 }
 \details{
 The diagonals come first, rather than in lexicographic order, so that the
 first \eqn{p} entries are the diagonal of the Hessian. The same convention
 names the Hessian components of \pkg{distributions7}.
 
-\code{character(0)} gives an empty \strong{named} list. A penalty with no free
+\code{character(0)} gives an empty named list. A penalty with no free
 hyperparameters has no pair in which to differentiate, and the named empty
 list is the shape that \code{\link[=penalty_grad_theta]{penalty_grad_theta()}} and \code{\link[=penalty_cross]{penalty_cross()}} return
 in that case. The function treats this case separately, because

@@ -13,22 +13,21 @@
 \item{theta}{A named list of the parent's free parameters.}
 
 \item{scale}{Read by the generic, which applies the chain rule to the
-unconstrained scale after dispatch, with the links copied from the
+unconstrained scale after dispatch and uses the links copied from the
 parent. These methods always return derivatives on the parameter scale.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_grad_theta()} a list of one number per hyperparameter,
-named by \code{pen@params}.
-\code{penalty_hess_theta()} a list of one number per unordered pair, keyed
-diagonals first.
-\code{penalty_cross()} a list of one numeric vector of length \code{pen@n_coef} per
-hyperparameter.
+\code{penalty_grad_theta()} returns a list of one number per
+hyperparameter, named by \code{pen@params}. \code{penalty_hess_theta()} returns a
+list of one number per unordered pair, keyed diagonals first.
+\code{penalty_cross()} returns a list of one numeric vector of length
+\code{pen@n_coef} per hyperparameter.
 }
 \description{
-The parent's own score and information in its parameters, negated and summed
-over the blocks, plus the mixed block.
+These methods return the parent's own score and information in its
+parameters, negated and summed over the blocks, plus the mixed block.
 \code{penalty_grad_theta()} returns \eqn{-\sum_i \ell^{(\theta_k)}},
 \code{penalty_hess_theta()} returns \eqn{-\sum_i \ell^{(\theta_k\theta_l)}}, and
 \code{penalty_cross()} returns \eqn{-D'\ell^{(y\theta_k)}}, one coefficient
@@ -62,8 +61,8 @@ sum(abs(b)) - 3 / 0.5
 penalty_hess_theta(pen, b, list(lambda = 0.5))
 3 / 0.5^2
 
-# The mixed block is the sign vector, the value being lambda times the L1
-# norm in every coefficient direction.
+# The mixed block is the sign vector, because the value is lambda times the
+# L1 norm in every coefficient direction.
 penalty_cross(pen, b, list(lambda = 0.5))
 
 # An elastic net has two hyperparameters, so three Hessian keys.

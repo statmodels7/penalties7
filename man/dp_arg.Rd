@@ -13,15 +13,16 @@ dp_flat(pen, g)
 \item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
 \item{t}{The mapped coefficient vector \eqn{D\beta}, of length a multiple of
-\code{pen@block}. \code{dp_arg()} only.}
+\code{pen@block}. This argument belongs to \code{dp_arg()} only.}
 
 \item{g}{The result of the parent: a vector for a univariate parent, a
-matrix of one row per block for a multivariate one. \code{dp_flat()} only.}
+matrix of one row per block for a multivariate one. This argument belongs
+to \code{dp_flat()} only.}
 }
 \value{
-\code{dp_arg()} the vector unchanged when \code{pen@block} is \code{1L}, and
+\code{dp_arg()} returns the vector unchanged when \code{pen@block} is \code{1L}, and
 otherwise a matrix with \code{pen@block} columns filled by row.
-\code{dp_flat()} a numeric vector, in coefficient order.
+\code{dp_flat()} returns a numeric vector, in coefficient order.
 }
 \description{
 \code{dp_arg()} reshapes \eqn{D\beta} into the argument of the parent: the
@@ -30,7 +31,7 @@ a multivariate one. \code{dp_flat()} undoes the reshaping, carrying the result
 of the parent back to a vector in coefficient order.
 }
 \details{
-The blocks are the \strong{successive} stretches of \eqn{D\beta}, so the
+The blocks are the successive stretches of \eqn{D\beta}, so the
 reshaping fills by row: block \eqn{i} occupies positions
 \eqn{(i-1)p+1, \dots, ip}. This is the order in which a grouped design
 assembles its coefficients and the order that \eqn{I_m \otimes \Sigma}

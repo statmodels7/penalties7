@@ -12,11 +12,11 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_kinks()} a numeric vector of distinct points: \code{0}, then
-\eqn{-\gamma\lambda/c_j} and \eqn{\gamma\lambda/c_j} over the distinct
-rates \eqn{\lambda/c_j}. At unit curvature these are the three points
-\code{0}, \eqn{-\gamma\lambda}, \eqn{\gamma\lambda}, in this order.
-\code{is_proper()} the single logical \code{FALSE}.
+\code{penalty_kinks()} returns a numeric vector of distinct points: \code{0},
+then \eqn{-\gamma\lambda/c_j} and \eqn{\gamma\lambda/c_j} over the
+distinct rates \eqn{\lambda/c_j}. At unit curvature these are the three
+points \code{0}, \eqn{-\gamma\lambda}, \eqn{\gamma\lambda}, in this order.
+\code{is_proper()} returns the single logical \code{FALSE}.
 }
 \description{
 \code{penalty_kinks()} returns the points where MCP changes branch, and
@@ -28,7 +28,7 @@ At unit curvature the points are \code{0} and \eqn{\pm\gamma\lambda}, and they
 differ in the order of the derivative that jumps. At the origin the first
 derivative jumps from \eqn{-\lambda} to \eqn{\lambda}, which is the kink
 that produces exact zeros. At \eqn{\pm\gamma\lambda} the first derivative
-is continuous, both branches giving zero, and the second jumps from
+is continuous, because both branches give zero, and the second jumps from
 \eqn{-1/\gamma} to \eqn{0} (from \eqn{-c_j/\gamma} with curvature
 \eqn{c_j}). MCP has one pair of outer points where SCAD has two, because its
 taper starts at the origin instead of at \eqn{\lambda}.

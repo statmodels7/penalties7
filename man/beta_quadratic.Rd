@@ -16,7 +16,7 @@ hyperparameter or a value outside its open bounds is an error on every
 branch. The separable branch evaluates the parent at it, and the other
 branches return a constant without reading its values.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 A single logical. The base class returns \code{FALSE}, so a penalty
@@ -24,9 +24,9 @@ class without a method of its own is treated as needing the third
 derivative.
 }
 \description{
-\code{TRUE} when \eqn{\partial^3\rho/\partial\beta^3} is exactly zero, so that a
-consumer can skip that third derivative. The value comes from a method of
-the class of the penalty, so a consumer does not have to test the property
+Returns \code{TRUE} when \eqn{\partial^3\rho/\partial\beta^3} is exactly zero, so
+that a consumer can skip that third derivative. The value comes from a method
+of the class of the penalty, so a consumer does not have to test the property
 numerically.
 }
 \section{Three independent properties}{
@@ -49,8 +49,8 @@ The log-density is quadratic in the response exactly when its second
 derivative in the response does not depend on the response. The method
 therefore evaluates \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}} of the parent at four
 points and tests whether the values agree across the points with
-\code{\link[=all.equal]{all.equal()}} at a tolerance of \code{1e-12}, which is a relative tolerance. No
-third derivative is computed. The page
+\code{\link[=all.equal]{all.equal()}} at a tolerance of \code{1e-12}, which is a relative tolerance. The
+method does not compute a third derivative. The page
 \code{\link[=beta_quadratic.DistribPenalty]{beta_quadratic.DistribPenalty()}} describes the points and the multivariate
 case.
 }
@@ -59,12 +59,12 @@ case.
 \code{TRUE} does not imply that the marginal derivatives are available. A lasso
 gives \code{TRUE}, because its log-density is linear in the response away from
 the kink, and \code{\link[=penalty_dhessian]{penalty_dhessian()}} still signals an error for it: the third
-derivative is zero where it exists and undefined at the kink, which is where
-a selecting fit places its coefficients.
+derivative is zero where it exists and undefined at the kink, and a
+selecting fit places its coefficients at the kink.
 }
 
 \examples{
-# Two of the three branches that give TRUE for both predicates.
+# These are two of the three branches that give TRUE for both predicates.
 beta_quadratic(quadratic_penalty(diag(3)), list(lambda = 1))
 beta_quadratic(structured_penalty(
   parameters7::log_cholesky(2)),

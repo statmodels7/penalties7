@@ -51,9 +51,9 @@ test_that("check_penalty() has one passing row per pair of hyperparameters", {
 test_that("beta_quadratic() checks theta on every branch", {
   q <- quadratic_penalty(diag(3))
   expect_error(beta_quadratic(q, list(lambda = -1)), "open interval")
-  expect_error(beta_quadratic(q, list()), "Missing parameter")
+  expect_error(beta_quadratic(q, list()), "lacks the parameter")
   a <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
-  expect_error(beta_quadratic(a, list(lambda1 = 1)), "Missing parameter")
+  expect_error(beta_quadratic(a, list(lambda1 = 1)), "lacks the parameter")
   s <- structured_penalty(parameters7::log_cholesky(2))
   expect_error(beta_quadratic(s, list(log_L1 = 0, log_L2 = 0, L2.1 = Inf)),
                "open interval")

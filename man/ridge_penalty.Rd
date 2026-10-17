@@ -17,25 +17,25 @@ heavy_penalty(map = NULL, n_coef = 1L)
 }
 \arguments{
 \item{map}{The matrix \eqn{D}, with one column per coefficient, or \code{NULL}
-(the default) for the identity. Given a map, the number of coefficients is
-\code{ncol(map)} and \code{n_coef} is ignored.}
+(the default) for the identity. If a map is given, the number of
+coefficients is \code{ncol(map)} and \code{n_coef} is ignored.}
 
-\item{n_coef}{The number of coefficients when \code{map} is \code{NULL}. A single
-whole number, \code{1L} by default.}
+\item{n_coef}{The number of coefficients when \code{map} is \code{NULL}. It is a
+single whole number, and the default is \code{1L}.}
 }
 \value{
-\code{ridge_penalty()} a \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} with the hyperparameter
-\code{lambda}, a precision, on \eqn{(0, \infty)}.
-\code{lasso_penalty()} a \code{\link[=DistribPenalty]{DistribPenalty()}} with \code{lambda}, a rate, on
-\eqn{(0, \infty)} and a kink at zero.
-\code{elasticnet_penalty()} a \code{\link[=DistribPenalty]{DistribPenalty()}} with \code{lambda} on
-\eqn{(0, \infty)} and \code{alpha} on \eqn{(0, 1)}, and a kink at zero.
-\code{heavy_penalty()} a \code{\link[=DistribPenalty]{DistribPenalty()}} with \code{sigma} and \code{nu} both on
-\eqn{(0, \infty)}, and no kink.
+\code{ridge_penalty()} returns a \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} with the
+hyperparameter \code{lambda}, a precision, on \eqn{(0, \infty)}.
+\code{lasso_penalty()} returns a \code{\link[=DistribPenalty]{DistribPenalty()}} with \code{lambda}, a rate, on
+\eqn{(0, \infty)} and a kink at zero. \code{elasticnet_penalty()} returns a
+\code{\link[=DistribPenalty]{DistribPenalty()}} with \code{lambda} on \eqn{(0, \infty)} and \code{alpha} on
+\eqn{(0, 1)}, and a kink at zero. \code{heavy_penalty()} returns a
+\code{\link[=DistribPenalty]{DistribPenalty()}} with \code{sigma} and \code{nu} both on \eqn{(0, \infty)}, and no
+kink.
 }
 \description{
-The four penalties that a modeling layer names directly:
-\code{ridge_penalty()}, \code{lasso_penalty()}, \code{elasticnet_penalty()} and
+These functions construct the four penalties that a modeling layer names
+directly: \code{ridge_penalty()}, \code{lasso_penalty()}, \code{elasticnet_penalty()} and
 \code{heavy_penalty()}. Each is a prior centered at zero. In the first three the
 hyperparameter \code{lambda} is a precision or a rate, and a larger value
 shrinks harder. In \code{heavy_penalty()} the hyperparameter \code{sigma} is a scale,
@@ -43,7 +43,7 @@ and a larger value shrinks less.
 }
 \section{Ridge}{
 \code{ridge_penalty()} is the Gaussian prior at zero written by its
-\strong{precision}, which is \code{\link[=quadratic_penalty]{quadratic_penalty()}} at the identity matrix: its
+precision, which is \code{\link[=quadratic_penalty]{quadratic_penalty()}} at the identity matrix: its
 value agrees with that of the separable Gaussian prior at
 \eqn{\sigma = \lambda^{-1/2}} up to rounding. It is therefore built on the
 quadratic branch, and its hyperparameter is the \code{lambda} of that branch. It
@@ -57,8 +57,8 @@ form to use when a standard deviation is the quantity to be reported.
 }
 
 \section{Lasso}{
-The Laplace in location and rate (\code{laplace2}) held at zero, so the free
-hyperparameter is the rate \eqn{\lambda} and
+The lasso is the Laplace in location and rate (\code{laplace2}) held at zero, so
+the free hyperparameter is the rate \eqn{\lambda} and
 
 \deqn{\rho(\beta;\lambda) = \lambda\lVert D\beta\rVert_1
   - m\log(\lambda/2),}
@@ -72,9 +72,10 @@ kink at zero is declared, so \code{\link[=penalty_kinks]{penalty_kinks()}} repor
 }
 
 \section{Elastic net}{
-The product of the Laplace and the Gaussian at zero, normalized
-(\code{\link[distributions7:enet_distrib]{distributions7::enet_distrib()}}), so the hyperparameters are the overall
-rate \eqn{\lambda} and the mixing weight \eqn{\alpha} on \eqn{(0, 1)}:
+The elastic net is the product of the Laplace and the Gaussian at zero,
+normalized (\code{\link[distributions7:enet_distrib]{distributions7::enet_distrib()}}), so the hyperparameters are
+the overall rate \eqn{\lambda} and the mixing weight \eqn{\alpha} on \eqn{(0,
+1)}:
 
 \deqn{\rho(\beta;\lambda,\alpha) = \lambda\left\{
   \alpha\lVert D\beta\rVert_1
@@ -84,18 +85,18 @@ where \eqn{m} is as above and
 \eqn{c(\lambda,\alpha) = \log\int \exp[-\lambda\{\alpha\lvert x\rvert +
 (1-\alpha)x^2/2\}]\,dx} is the constant of one coordinate. The same
 Jacobian term is added under a square nonsingular map. The constant
-depends on \strong{both} hyperparameters, and this is what allows a marginal
-criterion to estimate them; without it neither hyperparameter would be
-identified.
+depends on both hyperparameters, so a marginal criterion can estimate them.
+Without the constant, both hyperparameters would be unidentified.
 }
 
 \section{Heavy-tailed prior}{
-The Student t at zero, with a free scale \eqn{\sigma} and free degrees of
-freedom \eqn{\nu}. The normalizing constant is kept, which makes \eqn{\nu}
-estimable by a marginal criterion. With a small \eqn{\nu} the prior
-shrinks small coefficients as a Gaussian prior does and leaves large ones
-nearly unchanged, which a Gaussian prior does not do at any scale. Like the
-ridge, it has no kink, so it does not produce exact zeros.
+The heavy-tailed prior is the Student t at zero, with a free scale
+\eqn{\sigma} and free degrees of freedom \eqn{\nu}. The normalizing constant
+is kept, which makes \eqn{\nu} estimable by a marginal criterion. With a
+small \eqn{\nu} the prior shrinks small coefficients as a Gaussian prior does
+and leaves large ones nearly unchanged, which a Gaussian prior does not do at
+any scale. Like the ridge, it has no kink, so it does not produce exact
+zeros.
 }
 
 \examples{

@@ -22,7 +22,8 @@ quantity.
 }
 \details{
 Uses \eqn{P} and the map, not the cached \eqn{D'PD}, so the intermediate is
-the \eqn{m}-vector \eqn{D\beta} and no \eqn{q \times q} product is formed.
+the \eqn{m}-vector \eqn{D\beta} and the function does not form a
+\eqn{q \times q} product.
 }
 \seealso{
 \code{\link[=penalty_value.QuadraticPenalty]{penalty_value.QuadraticPenalty()}}

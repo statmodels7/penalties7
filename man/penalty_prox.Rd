@@ -12,7 +12,7 @@ penalty_prox(pen, v, step, theta, ...)
 operator.}
 
 \item{v}{A numeric vector of length \code{pen@n_coef}, the point of the quadratic
-pull. Coerced with \code{as.numeric()}.}
+pull. The vector is coerced with \code{as.numeric()}.}
 
 \item{step}{The step length \eqn{t}, a single positive finite number. A
 vector is rejected; \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} takes one step per coefficient.}
@@ -77,12 +77,12 @@ of such a penalty can lie there.
 }
 
 \section{Under a map}{
-The quadratic branch takes \strong{any} map, because the objective stays
+The quadratic branch takes any map, because the objective stays
 quadratic, and a structured penalty has no map. The separable, SCAD and MCP
 branches need the identity map or a diagonal one. Under a diagonal map with
 entries \eqn{d_j}, the operator is the operator without the map evaluated at
 \eqn{d_j v_j} with the step \eqn{t d_j^2}, and then divided by \eqn{d_j};
-this is how the standardization of a column is carried into the operator.
+in this way the standardization of a column enters the operator.
 A general \eqn{D} mixes the coordinates and turns the problem into the
 generalized-lasso problem, which requires an algorithm of its own, so such
 a penalty is rejected with a message naming it. A diagonal map is recognized
@@ -103,9 +103,9 @@ closed form is written for a parent centered at zero;
 \item a stationary condition that changes sign neither on the segment between
 \eqn{v} and the mode of the parent nor in a widened bracket;
 \item SCAD where \eqn{t c_j \ge a - 1} and MCP where \eqn{t c_j \ge \gamma} in
-some coordinate, with \eqn{c_j} the curvature \code{curv} of the penalty and
-\eqn{t} multiplied by \eqn{d_j^2} under a diagonal map; the subproblem is
-then not convex and the operator is set-valued;
+some coordinate, where \eqn{c_j} is the curvature \code{curv} of the penalty
+and \eqn{t} is multiplied by \eqn{d_j^2} under a diagonal map; the
+subproblem is then not convex and the operator is set-valued;
 \item a \code{step} that is not a single positive finite number, or a \code{v} whose
 length is not \code{pen@n_coef}.
 }
@@ -140,7 +140,7 @@ penalty_prox(lasso_penalty(n_coef = 3), v, 1, list(lambda = 1))
 penalty_prox(ridge_penalty(n_coef = 3), v, 1, list(lambda = 1.5))
 v / (1 + 1 * 1.5)
 
-# The elastic net: the soft threshold followed by the shrinkage.
+# The elastic net applies the soft threshold and then the shrinkage.
 penalty_prox(elasticnet_penalty(n_coef = 3), v, 1,
              list(lambda = 1, alpha = 0.6))
 
@@ -152,8 +152,8 @@ v2 <- c(2, 0.3, 10)
 penalty_prox(heavy_penalty(n_coef = 3), v2, 1, list(sigma = 1, nu = 4))
 penalty_prox(ridge_penalty(n_coef = 3), v2, 1, list(lambda = 1))
 
-# Each operator minimizes the defining objective. For the first coordinate
-# of the lasso:
+# Each operator minimizes the defining objective. The next call finds the
+# minimizer for the first coordinate of the lasso.
 rho <- lasso_penalty(n_coef = 3)
 obj <- function(b1) {
   x <- v; x[1] <- b1

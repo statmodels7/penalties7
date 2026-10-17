@@ -27,12 +27,13 @@ improper separable prior only the directions that the prior leaves free,
 and this basis supplies them. The rank of a non-diagonal map is the rank
 that \code{\link[=qr]{qr()}} reports at its default tolerance, and the basis is formed by the
 right singular vectors of the map beyond that rank. For a square map this
-is the same rank test that decides \code{\link[=is_proper]{is_proper()}}. A map with more rows than
+is the same rank test that \code{\link[=is_proper]{is_proper()}} uses. A map with more rows than
 columns and full column rank has an empty basis, although \code{\link[=is_proper]{is_proper()}}
 returns \code{FALSE} for it.
 }
 \examples{
-# No map, and a diagonal map with a zero at the second coordinate.
+# The first call has no map, and the second has a diagonal map with a zero
+# at the second coordinate.
 penalty_null_basis(lasso_penalty(n_coef = 3))
 penalty_null_basis(lasso_penalty(map = Matrix::Diagonal(x = c(1, 0, 2))))
 

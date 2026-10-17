@@ -19,8 +19,8 @@ A single number.
 }
 \description{
 Returns the negative log-density of the Gaussian prior whose precision is
-the weighted sum \eqn{S(\lambda) = \sum_k \lambda_k P_k}, with the
-normalizing constant taken over the range of the sum.
+the weighted sum \eqn{S(\lambda) = \sum_k \lambda_k P_k}. The normalizing
+constant is taken over the range of the sum.
 }
 \details{
 \deqn{\rho(\beta;\lambda) = \tfrac{1}{2}\beta^\top S(\lambda)\beta
@@ -31,7 +31,7 @@ with \eqn{r} the stored rank. \code{\link[=additive_sum]{additive_sum()}} assemb
 \eqn{S(\lambda)} of the quadratic form and evaluates the log
 pseudo-determinant by a similarity transformation, which decomposes the
 assembled sum as a whole only when every component joins the dominant
-group or when the dominant group alone has the rank of the sum. The
+group or when the dominant group by itself has the rank of the sum. The
 accuracy of the log pseudo-determinant is therefore limited by
 the conditioning of the dominant group of components at each level of the
 transformation, and not by the spread of the parameters.

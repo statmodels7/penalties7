@@ -25,7 +25,8 @@ proximal operator where one exists, and, for the quadratic branches, the
 rank, the null basis and the log pseudo-determinant that a marginal
 criterion uses.
 
-Part of the [statmodels7](https://statmodels7.github.io) toolkit.
+The package is part of the [statmodels7](https://statmodels7.github.io)
+toolkit.
 
 ## Installation
 
@@ -73,9 +74,9 @@ parameter on each, $S(\lambda) = \sum_k \lambda_k P_k$, which is the
 penalty of an anisotropic tensor-product smooth. The null space of a sum
 of positive semidefinite matrices is the intersection of their null
 spaces and does not depend on the smoothing parameters, so the rank is
-computed once, at construction, from the sum of the components with each
-one divided by its largest absolute entry. A count of the nonzero
-eigenvalues of $S(\lambda)$ itself would fall as the smoothing
+computed once, at construction, from the sum of the components after
+each one is divided by its largest absolute entry. A count of the
+nonzero eigenvalues of $S(\lambda)$ itself would fall as the smoothing
 parameters spread apart.
 
 ``` r
@@ -92,9 +93,9 @@ The value is the negative log-density of the family at the coordinates
 of $D\beta$, taken one coordinate at a time for a univariate family,
 which gives a separable penalty, and one block at a time for a
 multivariate family. `lasso_penalty()` is a Laplace at zero,
-`elasticnet_penalty()` the product of a Laplace and a Gaussian, and
-`heavy_penalty()` a Student t, whose degrees of freedom can be estimated
-because the normalizing constant is part of the value.
+`elasticnet_penalty()` is the product of a Laplace and a Gaussian, and
+`heavy_penalty()` is a Student t, whose degrees of freedom can be
+estimated because the normalizing constant is part of the value.
 
 ``` r
 lasso <- lasso_penalty(n_coef = 3)

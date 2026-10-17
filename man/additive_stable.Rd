@@ -35,14 +35,14 @@ complement, so it handles any number of components.
 }
 \details{
 The rank of a group of components is counted on the sum of its
-components, each divided by its largest absolute entry, and never on the
-weighted sum. \code{\link[=additive_penalty]{additive_penalty()}} counts the rank of the whole penalty in
-the same way and at the same tolerance. The null space of a sum of positive semidefinite matrices is
-the intersection of their null spaces, so the rank of a group is a
-property of that group and is counted without the spread of the
-parameters. The rank passed to the next level is the current rank less the
-rank of the dominant group, so it is obtained by subtraction and never
-counted again.
+components after each has been divided by its largest absolute entry, and
+never on the weighted sum. \code{\link[=additive_penalty]{additive_penalty()}} counts the rank of the whole
+penalty in the same way and at the same tolerance. The null space of a sum
+of positive semidefinite matrices is the intersection of their null spaces,
+so the rank of a group is a property of that group and is counted without
+the spread of the parameters. The rank passed to the next level is the
+current rank less the rank of the dominant group, so it is obtained by
+subtraction and never counted again.
 
 A level returns \code{NaN} for the value and for both derivative blocks when its
 weighted sum or reduction is not finite, when the Cholesky factorization of

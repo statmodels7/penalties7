@@ -13,8 +13,8 @@ dp_is_multinomial(d)
 \item{d}{A \pkg{distributions7} object.}
 }
 \value{
-\code{dp_params_smooth()} a named logical vector, one entry per element
-of \code{d@params}. \code{dp_is_multinomial()} a single logical.
+\code{dp_params_smooth()} returns a named logical vector, one entry per
+element of \code{d@params}. \code{dp_is_multinomial()} returns a single logical.
 }
 \description{
 \code{dp_params_smooth()} returns the parent's \code{params_smooth} aligned to its

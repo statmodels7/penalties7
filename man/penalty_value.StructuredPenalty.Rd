@@ -10,7 +10,8 @@
 generic.}
 
 \item{theta}{A named list of the structure's free values, already aligned by
-the generic. The bounds are the whole line, so no value is rejected here.}
+the generic. The bounds are the whole line, so this method rejects no
+value.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }

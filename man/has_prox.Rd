@@ -14,9 +14,10 @@ error.}
 A single logical.
 }
 \description{
-\code{TRUE} when \code{\link[=penalty_prox]{penalty_prox()}} has an operator for this penalty, so that a
-caller can route a block to a proximal method. \code{FALSE} when the penalty has
-none, and the block then goes to a smooth method or to a scheme of its own.
+Returns \code{TRUE} when \code{\link[=penalty_prox]{penalty_prox()}} has an operator for this penalty, so
+that a caller can route a block to a proximal method. Returns \code{FALSE} when
+the penalty has none, and the block then goes to a smooth method or to a
+scheme of its own.
 }
 \section{What it tests}{
 The predicate tests four conditions in turn: whether the class registers a
@@ -32,10 +33,10 @@ The value for each shipped branch is:\tabular{ll}{
    quadratic, at any map \tab \code{TRUE} \cr
    structured \tab \code{TRUE} \cr
    ridge, lasso, elastic net, heavy-tailed, with no map \tab \code{TRUE} \cr
-   a separable penalty under a \strong{diagonal} map with nonzero entries \tab \code{TRUE} \cr
-   SCAD, MCP, with no map or a \strong{diagonal} map with nonzero entries \tab \code{TRUE} \cr
-   \strong{additive} \tab \code{FALSE} \cr
-   a separable, SCAD or MCP penalty under a \strong{general} map \tab \code{FALSE} \cr
+   a separable penalty under a diagonal map with nonzero entries \tab \code{TRUE} \cr
+   SCAD, MCP, with no map or a diagonal map with nonzero entries \tab \code{TRUE} \cr
+   additive \tab \code{FALSE} \cr
+   a separable, SCAD or MCP penalty under a general map \tab \code{FALSE} \cr
    a separable penalty read in blocks \tab \code{FALSE} \cr
 }
 }
@@ -44,11 +45,12 @@ The value for each shipped branch is:\tabular{ll}{
 A \code{TRUE} value means that the penalty has an operator; a call can still
 signal an error for some steps and some parents. SCAD and MCP return \code{TRUE}
 and reject a step for which \eqn{t c_j} reaches \eqn{a - 1} or
-\eqn{\gamma} in some coordinate (with \eqn{c_j} the curvature and \eqn{t}
-multiplied by \eqn{d_j^2} under a diagonal map), because the subproblem is
-then not convex and the operator is set-valued. A Laplace or elastic-net
-parent that is not centered at zero, and a separable parent that declares a
-kink and has no closed form, return \code{TRUE}, and the call signals an error.
+\eqn{\gamma} in some coordinate (where \eqn{c_j} is the curvature and
+\eqn{t} is multiplied by \eqn{d_j^2} under a diagonal map), because the
+subproblem is then not convex and the operator is set-valued. A Laplace or
+elastic-net parent that is not centered at zero, and a separable parent that
+declares a kink and has no closed form, return \code{TRUE}, and the call signals
+an error.
 }
 
 \examples{

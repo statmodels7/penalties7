@@ -21,7 +21,7 @@ deviations \eqn{\sigma_k = \lambda_k^{-1/2}} for one built with
 \code{readable = "sd"}.
 }
 \details{
-Each standard deviation depends on its own parameter alone, so the Jacobian
+Each standard deviation depends only on its own parameter, so the Jacobian
 is diagonal, with entries \eqn{-\tfrac{1}{2}\lambda_k^{-3/2}}, and each
 interval is built on the log scale.
 }

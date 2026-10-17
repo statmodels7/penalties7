@@ -58,9 +58,10 @@ NULL
 #'
 #' A coordinate descent applies the operator once per coordinate per sweep, at
 #' a point that moves every time, so a compiled loop that called back into R
-#' for it would lose its gain to the calls. Passing the numbers keeps the loop
-#' compiled. The table holds the mathematics of the penalty, and the compiled
-#' kernel evaluates any map of this shape without reference to the family.
+#' for each application would lose the speed gained by compiling it. Passing
+#' the numbers keeps the loop compiled. The table holds the mathematics of the
+#' penalty, and the compiled kernel evaluates any map of this shape without
+#' reference to the family.
 #'
 #' # Why the step is a vector
 #'
@@ -68,7 +69,7 @@ NULL
 #' \eqn{v_j = \sum_i w_i x_{ij}^2}, which does not change while the working
 #' weights are held fixed. The whole table is therefore built once per
 #' weighted least squares iteration and read by every sweep. [penalty_prox()],
-#' by contrast, takes a **single** step.
+#' by contrast, takes a single step.
 #'
 #' # Under a diagonal map
 #'
@@ -116,11 +117,12 @@ NULL
 #'   every coefficient or one value per coefficient. Every entry must be finite
 #'   and positive, and any other length or value is rejected with an error
 #'   naming `step`.
-#' @param ... Passed to methods. No shipped method reads it.
+#' @param ... Passed to methods. The shipped methods do not read it.
 #'
 #' @return A list of three matrices, `cut`, `slope` and `icept`, each with
-#'   `pen@n_coef` rows and one column per piece, the last column of `cut` being
-#'   `Inf`. `NULL` where the operator has no piecewise linear description.
+#'   `pen@n_coef` rows and one column per piece. The last column of `cut` is
+#'   `Inf`. The value is `NULL` where the operator has no piecewise linear
+#'   description.
 #'
 #' @examples
 #' # A lasso at two different steps: the threshold is t * lambda.
@@ -175,10 +177,11 @@ S7::method(penalty_prox_spec, penalty) <- function(pen, theta, step, ...) {
 #' @description
 #' Builds the three matrices that [penalty_prox_spec()] returns from a
 #' function that gives one column per piece for a single coefficient.
-#' `prox_table()` takes a function of the step alone, for a family whose
-#' pieces are the same in every coordinate; `prox_table_j()` takes a function
-#' of the step and the coordinate index, for a family whose rate can differ
-#' by coordinate, as the rate \eqn{\lambda/c_j} of SCAD and MCP does.
+#' `prox_table()` takes a function whose only argument is the step, for a
+#' family whose pieces are the same in every coordinate; `prox_table_j()`
+#' takes a function of the step and the coordinate index, for a family whose
+#' rate can differ by coordinate, as the rate \eqn{\lambda/c_j} of SCAD and
+#' MCP does.
 #'
 #' @details
 #' The step vector is recycled to `n_coef`, and the function is called once
@@ -235,10 +238,10 @@ prox_table_j <- function(step, n_coef, pieces) {
 #' \eqn{\lvert w\rvert \le \mathrm{cut}} to
 #' \eqn{\mathrm{sign}(w)(\mathrm{slope}\,\lvert w\rvert + \mathrm{icept})} at
 #' \eqn{w = dv}, so a cut on \eqn{\lvert w\rvert} is a cut on
-#' \eqn{\lvert v\rvert} divided by \eqn{\lvert d\rvert}, the intercept divides
-#' by the same, and the slope does not move, multiplying a point that was
-#' scaled and then divided back. The operator is odd, so only the magnitude of
-#' \eqn{d} enters.
+#' \eqn{\lvert v\rvert} divided by \eqn{\lvert d\rvert}, the intercept is
+#' divided by the same, and the slope does not move, because it multiplies a
+#' point that was scaled and then divided back. The operator is odd, so only the
+#' magnitude of \eqn{d} enters.
 #'
 #' The step passed to the builder is \eqn{t d^2}, and the step limit of SCAD
 #' and MCP is tested on it, so a standardized penalty takes shorter steps and
@@ -254,7 +257,7 @@ prox_table_j <- function(step, n_coef, pieces) {
 #' @param step A numeric vector of step lengths, of length one or
 #'   `pen@n_coef`, recycled to `pen@n_coef`.
 #' @param build A function of a penalty and a step returning the table, or
-#'   `NULL`. It is called on the penalty with its map removed.
+#'   `NULL`. It is called on the penalty after the map has been removed.
 #'
 #' @return The list that [penalty_prox_spec()] returns, or `NULL` when the
 #'   map is not recognized as diagonal or the builder returns `NULL`.
@@ -398,7 +401,7 @@ S7::method(penalty_prox_spec, McpPenalty) <- function(pen, theta, step, ...) {
 #' prox_apply(sp, c(2, 2))
 #' prox_apply(sp, c(0.5, 2.9))
 #'
-#' # Which is exactly what the operator gives, coordinate by coordinate.
+#' # This is exactly what the operator gives, coordinate by coordinate.
 #' one <- lasso_penalty(n_coef = 1)
 #' c(penalty_prox(one, 2, 0.5, list(lambda = 1.5)),
 #'   penalty_prox(one, 2, 2, list(lambda = 1.5)))
@@ -407,7 +410,7 @@ S7::method(penalty_prox_spec, McpPenalty) <- function(pen, theta, step, ...) {
 #' prox_apply(sp, c(-2, -2))
 #'
 #' @seealso [penalty_prox_spec()] for the table, [penalty_prox()] for the
-#'   operator it stands in for.
+#'   operator in whose place the table is used.
 #'
 #' @export
 prox_apply <- function(spec, u) {

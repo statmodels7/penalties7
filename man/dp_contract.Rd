@@ -27,8 +27,9 @@ last direction.}
 \item{theta}{A named list of the free parameters of the parent.}
 }
 \value{
-\code{dp_contract()} a \eqn{p \times p \times n} numeric array.
-\code{dp_parent_or_reject()} the value returned by \code{fun}, or an error.
+\code{dp_contract()} returns a \eqn{p \times p \times n} numeric array.
+\code{dp_parent_or_reject()} returns the value that \code{fun} returns, or signals an
+error.
 }
 \description{
 \code{dp_contract()} contracts the trailing response indices of a per-block
@@ -39,8 +40,8 @@ whose slice \eqn{i} is
 \eqn{\sum_{c_1 \dots c_m} A_{ab c_1 \dots c_m i}\,v_{1,ic_1}\cdots
 v_{m,ic_m}}. That is the derivative of the response Hessian of block
 \eqn{i} along the coordinates of the block in the directions, which
-\code{\link[=dp_blockdiag]{dp_blockdiag()}} then places on the diagonal. Arrays of four and five
-dimensions are handled, that is one or two directions.
+\code{\link[=dp_blockdiag]{dp_blockdiag()}} then places on the diagonal. The function handles arrays
+of four and five dimensions, that is one or two directions.
 
 \code{dp_parent_or_reject()} calls the generic \code{fun} of the parent. If that call
 signals an error of any kind, it signals in its place an error that names

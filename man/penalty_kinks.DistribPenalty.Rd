@@ -13,8 +13,8 @@ by \code{penalty_kinks()}, whose result does not depend on it.}
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_kinks()} a numeric vector, \code{pen@kinks} as it stands.
-\code{is_proper()} a single logical.
+\code{penalty_kinks()} returns a numeric vector, \code{pen@kinks} as it stands.
+\code{is_proper()} returns a single logical.
 }
 \description{
 \code{penalty_kinks()} returns the kinks recorded on the object at construction,
@@ -49,9 +49,9 @@ penalty_kinks(lasso_penalty(n_coef = 3), list(lambda = 20))
 # A Student t prior has none.
 penalty_kinks(heavy_penalty(n_coef = 3), list(sigma = 1, nu = 4))
 
-# Proper without a map and with a square nonsingular map; improper with a
-# map that has more rows than columns, with a singular one, and with one
-# that has fewer rows than columns.
+# The penalty is proper without a map and with a square nonsingular map. It
+# is improper with a map that has more rows than columns, with a singular
+# one, and with one that has fewer rows than columns.
 c(none     = is_proper(lasso_penalty(n_coef = 3)),
   square   = is_proper(lasso_penalty(map = matrix(c(2, 1, 0, 3), 2))),
   tall     = is_proper(lasso_penalty(map = rbind(diag(2), c(1, 1)))),

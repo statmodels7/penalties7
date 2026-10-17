@@ -20,9 +20,10 @@ curvature).}
 A numeric vector of the same length as \code{v}.
 }
 \description{
-The closed piecewise operator of Fan and Li (2001): a soft threshold near
-zero, a rescaled threshold over the tapering region, and the identity beyond
-\eqn{a\lambda}, so a large coefficient passes through untouched.
+Computes the closed piecewise operator of Fan and Li (2001): a soft
+threshold near zero, a rescaled threshold over the tapering region, and the
+identity beyond \eqn{a\lambda}, so a large coefficient passes through
+untouched.
 }
 \details{
 With \eqn{u = \lvert v\rvert} and \eqn{s} its sign,
@@ -58,7 +59,8 @@ stricter than \eqn{t < a - 1} where \eqn{c_j d_j^2 > 1} and looser where
 \examples{
 th <- list(lambda = 1, a = 3.7)
 
-# One point in each region: thresholded, rescaled, untouched.
+# The three points lie one in each region: the first is thresholded, the
+# second rescaled and the third untouched.
 penalty_prox(scad_penalty(n_coef = 3), c(1.5, 3, 6), 1, th)
 
 # Past a * lambda the operator is the identity, so a large coefficient is

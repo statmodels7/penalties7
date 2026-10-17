@@ -10,22 +10,22 @@ penalty_kinks(pen, theta, ...)
 \item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in \code{pen@params}. Required
-even for a smooth penalty, whose result does not depend on it.}
+vector carrying the same, holding every name in \code{pen@params}. The argument
+is required even for a smooth penalty, whose result does not depend on it.}
 
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 A numeric vector of the points, unsorted and possibly empty, in the
-units of \eqn{t = D\beta}. \code{numeric(0)} for a penalty that is smooth
-everywhere.
+units of \eqn{t = D\beta}. The result is \code{numeric(0)} for a penalty that is
+smooth everywhere.
 }
 \description{
 Returns the values of \eqn{t = D\beta} at which some derivative of
 \eqn{\rho} is discontinuous, so that a numerical reference straddling one of
 them would measure the break instead of the formula. \code{\link[=check_penalty]{check_penalty()}}
 places its grids clear of these points, and a fitting routine can read them
-to decide whether a block can be passed to a gradient method.
+to determine whether a block can be passed to a gradient method.
 }
 \section{Kinks and the other breaks}{
 A kink in the strict sense is a point where the value is continuous and the
@@ -54,8 +54,8 @@ and its second derivative jumps there from \eqn{-1/\gamma} to \eqn{0}.
 \section{Dependence on the hyperparameters}{
 For a separable penalty the points are fixed when the penalty is built,
 from the parameters of the parent that \code{\link[distributions7:fixed]{distributions7::fixed()}} holds at a
-value: the lasso has its kink at \eqn{0}, and a Laplace parent with its
-location fixed at \eqn{2} has its kink at \eqn{2}. For SCAD and MCP only
+value: the lasso has its kink at \eqn{0}, and a Laplace parent whose
+location is fixed at \eqn{2} has its kink at \eqn{2}. For SCAD and MCP only
 \eqn{0} is fixed. Their other points are at \eqn{\pm\lambda/c_j} and
 \eqn{\pm a\lambda/c_j} for SCAD and at \eqn{\pm\gamma\lambda/c_j} for MCP,
 where \eqn{c_j} is the curvature of coordinate \eqn{j} (one by default), so
@@ -66,7 +66,7 @@ the result depends on \code{theta} and the argument is required.
 # Smooth penalties return nothing.
 penalty_kinks(quadratic_penalty(diag(2)), list(lambda = 1))
 
-# The lasso breaks at the origin alone.
+# The lasso breaks only at the origin.
 penalty_kinks(lasso_penalty(), list(lambda = 1))
 
 # SCAD returns five points: the kink at zero and the two pairs where its

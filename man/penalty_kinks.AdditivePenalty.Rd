@@ -7,19 +7,19 @@
 \arguments{
 \item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... Accepted by
-\code{penalty_kinks()}, whose result does not depend on it.}
+\item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... \code{penalty_kinks()}
+accepts it, and its result does not depend on it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_kinks()} a numeric vector of length zero.
-\code{is_proper()} a single logical.
+\code{penalty_kinks()} returns a numeric vector of length zero.
+\code{is_proper()} returns a single logical.
 }
 \description{
-\code{penalty_kinks()} returns \code{numeric(0)}, the value being a quadratic form and
-smooth everywhere. \code{is_proper()} returns \code{TRUE} when the stored rank equals
-the number of coefficients.
+\code{penalty_kinks()} returns \code{numeric(0)}, because the value is a quadratic
+form and is smooth everywhere. \code{is_proper()} returns \code{TRUE} when the stored
+rank equals the number of coefficients.
 }
 \details{
 The value is a quadratic form, so \code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE} as well.

@@ -14,8 +14,8 @@ side instead.
 It may be rank deficient, giving an improper prior: \code{\link[=is_proper]{is_proper()}} then
 returns \code{FALSE} and the constant uses the rank and the log
 pseudo-determinant. A rank-deficient structure can be used only on the
-precision side, because \code{parameters7::inverse_of()} rejects it, a
-singular matrix having no inverse.}
+precision side, because \code{parameters7::inverse_of()} rejects it: a
+singular matrix has no inverse.}
 }
 \value{
 A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object whose hyperparameters are the
@@ -45,7 +45,7 @@ evaluation of that density.
 }
 
 \section{The structure is the precision}{
-The matrix that the structure supplies is the prior's \strong{precision}:
+The matrix that the structure supplies is the prior's precision:
 \eqn{\Omega = M(\eta)}. This follows from the construction and is not an
 option, because \eqn{\rho} is a negative log-density and the matrix that
 enters its quadratic form is the precision.
@@ -76,10 +76,9 @@ supplies. The hyperparameter gradient is
 \eqn{\tfrac{1}{2}\beta'A_k\beta
   - \tfrac{1}{2}\partial_k\log\mathrm{pdet}\,\Omega},
 with \eqn{A_k = \partial_k\Omega} the structure's \code{param_d1}; the Hessian
-uses \code{param_d2}, and the mixed block is \eqn{A_k\beta}. No conversion
-between covariance and precision happens in this package: a structure
-meant for the covariance side is a different structure, and it supplies
-its own arrays.
+uses \code{param_d2}, and the mixed block is \eqn{A_k\beta}. The package does not
+convert between covariance and precision: a structure meant for the
+covariance side is a different structure, and it supplies its own arrays.
 }
 
 \section{No map}{

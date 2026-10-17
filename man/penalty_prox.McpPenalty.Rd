@@ -20,9 +20,9 @@ curvature).}
 A numeric vector of the same length as \code{v}.
 }
 \description{
-The closed piecewise operator of Zhang (2010): a rescaled soft threshold
-below \eqn{\gamma\lambda} and the identity beyond it, so a large coefficient
-passes through untouched.
+Computes the closed piecewise operator of Zhang (2010): a rescaled soft
+threshold below \eqn{\gamma\lambda} and the identity beyond it, so a large
+coefficient passes through untouched.
 }
 \details{
 With \eqn{u = \lvert v\rvert} and \eqn{s} its sign,

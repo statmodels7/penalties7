@@ -223,7 +223,7 @@ test_that("a named vector of hyperparameters is read like the list", {
                penalty_value(p, beta, list(lambda = 1.2, a = 3.7)),
                tolerance = 1e-14)
   # a missing hyperparameter is still reported, whichever shape it arrives in
-  expect_error(penalty_value(p, beta, c(lambda = 1.2)), "Missing parameter")
+  expect_error(penalty_value(p, beta, c(lambda = 1.2)), "lacks the parameter")
 })
 
 

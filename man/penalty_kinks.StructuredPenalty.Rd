@@ -8,20 +8,20 @@
 \arguments{
 \item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{theta}{A named list of the structure's free values. Accepted by
-\code{penalty_kinks()}, whose result does not depend on it.}
+\item{theta}{A named list of the structure's free values. It is
+accepted by \code{penalty_kinks()}, whose result does not depend on it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_kinks()} a numeric vector of length zero.
-\code{is_quadratic()} the single logical \code{TRUE}.
-\code{is_proper()} a single logical, \code{TRUE} when the structure's rank equals
-its dimension.
+\code{penalty_kinks()} returns a numeric vector of length zero.
+\code{is_quadratic()} returns the single logical \code{TRUE}.
+\code{is_proper()} returns a single logical, \code{TRUE} when the structure's rank
+equals its dimension.
 }
 \description{
-\code{penalty_kinks()} returns \code{numeric(0)}, the value being a quadratic form and
-smooth everywhere. \code{is_quadratic()} returns \code{TRUE}, so the four marginal
+\code{penalty_kinks()} returns \code{numeric(0)}, because the value is a quadratic form
+and smooth everywhere. \code{is_quadratic()} returns \code{TRUE}, so the four marginal
 quantities are available. \code{is_proper()} returns \code{TRUE} when the structure
 has full rank.
 }
@@ -42,7 +42,7 @@ c(penalty_rank(pen), pen@n_coef)
 }
 \seealso{
 \code{\link[=penalty_kinks]{penalty_kinks()}}, \code{\link[=is_proper]{is_proper()}} and \code{\link[=is_quadratic]{is_quadratic()}} for the
-generics, \code{\link[=penalty_matrix.StructuredPenalty]{penalty_matrix.StructuredPenalty()}} for the quantities
+generics, \code{\link[=penalty_matrix.StructuredPenalty]{penalty_matrix.StructuredPenalty()}} for the quantities that
 \code{is_quadratic()} gates.
 }
 \keyword{internal}

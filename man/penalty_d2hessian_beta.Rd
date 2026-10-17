@@ -23,16 +23,17 @@ vector carrying the same, checked by the generics as in
 \item{v, w}{Numeric vectors of length \code{pen@n_coef}, the directions; the
 generics signal an error for any other length.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
-\code{penalty_d2hessian_beta()} a square base matrix of side
+\code{penalty_d2hessian_beta()} returns a square base matrix of side
 \code{pen@n_coef}; \code{penalty_dhessian_beta_theta()} a list of such matrices, one
 per hyperparameter, keyed by \code{pen@params}.
 }
 \description{
-The two derivatives of \code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}} that the second derivative
-of a marginal criterion contains. \code{penalty_d2hessian_beta()} is
+These two functions return the derivatives of \code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}} that
+the second derivative of a marginal criterion contains.
+\code{penalty_d2hessian_beta()} is
 \eqn{\partial^2 S/\partial\beta^2\,[v, w]}, the second derivative of the
 Hessian in the coefficients contracted along two directions.
 \code{penalty_dhessian_beta_theta()} is
@@ -94,22 +95,23 @@ v <- c(0.2, 0.1, -0.4)
 w <- c(-0.3, 0.5, 0.1)
 th <- list(sigma = 1, nu = 4)
 
-# The second derivative along two directions, against a difference of the
-# first along one of them.
+# The second derivative along two directions is compared with a difference
+# of the first derivative along one of them.
 eps <- 1e-6
 D2 <- penalty_d2hessian_beta(h, b, th, v, w)
 num <- (penalty_dhessian_beta(h, b + eps * w, th, v) -
         penalty_dhessian_beta(h, b - eps * w, th, v)) / (2 * eps)
 max(abs(D2 - num))
 
-# The movement in the degrees of freedom.
+# The movement in the degrees of freedom is compared with a central
+# difference.
 Dnu <- penalty_dhessian_beta_theta(h, b, th, v)$nu
 num <- (penalty_dhessian_beta(h, b, list(sigma = 1, nu = 4 + eps), v) -
         penalty_dhessian_beta(h, b, list(sigma = 1, nu = 4 - eps), v)) /
   (2 * eps)
 max(abs(Dnu - num))
 
-# Zero for a quadratic penalty.
+# The result is zero for a quadratic penalty.
 penalty_d2hessian_beta(quadratic_penalty(diag(3)), b, list(lambda = 2), v, w)
 
 }

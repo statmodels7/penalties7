@@ -14,24 +14,24 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} a numeric vector of length \code{pen@n_coef};
+\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
 \code{penalty_hessian()} a symmetric base matrix of that side, diagonal under
 the identity map with a univariate parent and block diagonal with a
 multivariate one.
 }
 \description{
-The response derivatives of the parent, negated and carried back through
-the map. \code{penalty_gradient()} returns \eqn{-D'\ell^{(y)}} and
-\code{penalty_hessian()} returns \eqn{-D'\,\mathrm{diag}(\ell^{(yy)})\,D}, where
-the middle matrix is block diagonal instead of diagonal when the parent is
-multivariate.
+These methods return the response derivatives of the parent, negated and
+carried back through the map. \code{penalty_gradient()} returns
+\eqn{-D'\ell^{(y)}} and \code{penalty_hessian()} returns
+\eqn{-D'\,\mathrm{diag}(\ell^{(yy)})\,D}, where the middle matrix is block
+diagonal instead of diagonal when the parent is multivariate.
 }
 \details{
 The derivatives come from \code{\link[distributions7:distrib_grad_y]{distributions7::distrib_grad_y()}} and
 \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}}, which are in closed form for the
 continuous families that \pkg{distributions7} ships; for a family that
 supplies only its density, \pkg{distributions7} differentiates
-numerically. No derivative is taken in these methods.
+numerically. These methods do not compute any derivative themselves.
 
 The \code{+ 0 * a} in both bodies is a recycling guard: if a family returns a
 single number where a vector is expected, adding zero times the argument
@@ -57,8 +57,9 @@ diag(penalty_hessian(pen, b, list(sigma = 2)))
 # The lasso's gradient is lambda times a sign, and 0 at the kink.
 penalty_gradient(lasso_penalty(n_coef = 3), b, list(lambda = 1.5))
 
-# A multivariate parent gives a block-diagonal Hessian: dependence within
-# a block, none between blocks.
+# A multivariate parent gives a block-diagonal Hessian, because the
+# coordinates depend on each other within a block and are independent
+# between blocks.
 mv <- distrib_penalty(
   distributions7::fixed(distributions7::mvgaussian1_distrib(2),
                         mu1 = 0, mu2 = 0), n_coef = 4)

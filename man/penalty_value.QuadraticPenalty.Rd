@@ -20,8 +20,8 @@ A single number.
 \description{
 Returns the negative log-density of the Gaussian prior with precision
 \eqn{\lambda D'PD}, evaluated by adding the constant to the quadratic form.
-Every term is closed form in \eqn{\lambda}, the rank and the log
-pseudo-determinant of \eqn{D'PD} having been fixed at construction.
+Every term is closed form in \eqn{\lambda}, because the rank and the log
+pseudo-determinant of \eqn{D'PD} are fixed at construction.
 }
 \details{
 \deqn{\rho(\beta; \lambda) = \frac{\lambda}{2}\,(D\beta)'P(D\beta)
@@ -39,7 +39,8 @@ b <- c(0.4, -1.1, 0.7)
 all.equal(penalty_value(pen, b, list(lambda = 2)),
           -sum(stats::dnorm(b, sd = 1 / sqrt(2), log = TRUE)))
 
-# The constant alone, at the origin, at three values of lambda.
+# At the origin the value is the constant alone, shown at three values of
+# lambda.
 sapply(c(0.5, 2, 8),
        function(l) penalty_value(pen, c(0, 0, 0), list(lambda = l)))
 

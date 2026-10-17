@@ -10,9 +10,10 @@
 \item{pen}{A \code{\link[=penalty]{penalty()}} object of a class that registers none of these
 methods.}
 
-\item{beta}{A numeric vector of coefficients. Unused.}
+\item{beta}{A numeric vector of coefficients. The methods do not use it.}
 
-\item{theta}{A named list of hyperparameter values. Unused.}
+\item{theta}{A named list of hyperparameter values. The methods do not use
+it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
@@ -21,7 +22,7 @@ methods.}
 signal an error. \code{beta_quadratic()} returns the single logical \code{FALSE}.
 }
 \description{
-The methods of the base class for the four generics that a marginal
+The methods of the base class cover the four generics that a marginal
 criterion requires beyond the second order. \code{penalty_dhessian()},
 \code{penalty_d2hessian()} and \code{penalty_dcross()} each signal an error that
 names the penalty and the generic; \code{beta_quadratic()} returns \code{FALSE}.

@@ -18,13 +18,14 @@
 \arguments{
 \item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object with no map and a block width of one.}
 
-\item{v}{A numeric vector, the points pulled towards.}
+\item{v}{A numeric vector, the points towards which the operator pulls.}
 
 \item{step}{The step length \eqn{t}, a single positive finite number.}
 
 \item{theta}{The aligned hyperparameter list.}
 
-\item{n_grid}{The number of grid points on each segment, ends included.}
+\item{n_grid}{The number of grid points on each segment, including both
+ends.}
 
 \item{ly}{The function \eqn{\ell^{(y)}} of the parent, vectorized.}
 
@@ -71,17 +72,17 @@ are the same for every coordinate: when \eqn{\ell^{(y)}(0)} is exactly
 zero the mode is taken as zero, and otherwise the root is bracketed by
 doubling a step from zero in the direction in which \eqn{\ell^{(y)}}
 points, up to \eqn{2^{60}}, and refined by \code{uniroot()} to full relative
-precision. When no change of sign is found, or \eqn{\ell^{(y)}} is not
-finite, the mode is taken as zero and the segment is the one between zero
-and \eqn{v}. The search moves away from zero only while \eqn{\ell^{(y)}}
-keeps its sign, so the root it finds is a local mode, which is the mode
-when the parent is unimodal.
+precision. When the search finds no change of sign, or \eqn{\ell^{(y)}} is
+not finite, the mode is taken as zero and the segment is the one between
+zero and \eqn{v}. The search moves away from zero only while
+\eqn{\ell^{(y)}} keeps its sign, so the root that it finds is a local mode,
+which is the mode when the parent is unimodal.
 
-The segment is scanned on \code{n_grid} equally spaced points, both ends
-included, with \eqn{h} evaluated for every coordinate in one call. Every
-interval over which \eqn{h} changes sign is refined by \code{uniroot()}, a grid
-point where \eqn{h} is exactly zero is kept as it is, and the candidate of
-smallest objective is returned, with the log-density computed by
+The function scans the segment on \code{n_grid} equally spaced points that
+include both ends, and evaluates \eqn{h} for every coordinate in one call.
+It refines by \code{uniroot()} every interval over which \eqn{h} changes sign,
+keeps as it is a grid point where \eqn{h} is exactly zero, and returns the
+candidate of smallest objective, computing the log-density with
 \code{\link[distributions7:distrib_pdf]{distributions7::distrib_pdf()}}.
 
 When the segment shows no change of sign, the bracket starts one unit
@@ -100,8 +101,8 @@ accuracy whatever its magnitude.
 }
 \section{Errors}{
 
-A message naming the penalty where neither the segment nor the widened
-bracket shows a change of sign.
+The message names the penalty where the stationary condition changes sign
+neither on the segment nor in the widened bracket.
 }
 
 \seealso{

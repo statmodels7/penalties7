@@ -56,12 +56,12 @@ NULL
 #'
 #' # Under a map
 #'
-#' The quadratic branch takes **any** map, because the objective stays
+#' The quadratic branch takes any map, because the objective stays
 #' quadratic, and a structured penalty has no map. The separable, SCAD and MCP
 #' branches need the identity map or a diagonal one. Under a diagonal map with
 #' entries \eqn{d_j}, the operator is the operator without the map evaluated at
 #' \eqn{d_j v_j} with the step \eqn{t d_j^2}, and then divided by \eqn{d_j};
-#' this is how the standardization of a column is carried into the operator.
+#' in this way the standardization of a column enters the operator.
 #' A general \eqn{D} mixes the coordinates and turns the problem into the
 #' generalized-lasso problem, which requires an algorithm of its own, so such
 #' a penalty is rejected with a message naming it. A diagonal map is recognized
@@ -81,16 +81,16 @@ NULL
 #' - a stationary condition that changes sign neither on the segment between
 #'   \eqn{v} and the mode of the parent nor in a widened bracket;
 #' - SCAD where \eqn{t c_j \ge a - 1} and MCP where \eqn{t c_j \ge \gamma} in
-#'   some coordinate, with \eqn{c_j} the curvature `curv` of the penalty and
-#'   \eqn{t} multiplied by \eqn{d_j^2} under a diagonal map; the subproblem is
-#'   then not convex and the operator is set-valued;
+#'   some coordinate, where \eqn{c_j} is the curvature `curv` of the penalty
+#'   and \eqn{t} is multiplied by \eqn{d_j^2} under a diagonal map; the
+#'   subproblem is then not convex and the operator is set-valued;
 #' - a `step` that is not a single positive finite number, or a `v` whose
 #'   length is not `pen@n_coef`.
 #'
 #' @param pen A [penalty()] object. [has_prox()] tests whether it has an
 #'   operator.
 #' @param v A numeric vector of length `pen@n_coef`, the point of the quadratic
-#'   pull. Coerced with `as.numeric()`.
+#'   pull. The vector is coerced with `as.numeric()`.
 #' @param step The step length \eqn{t}, a single positive finite number. A
 #'   vector is rejected; [penalty_prox_spec()] takes one step per coefficient.
 #' @param theta A named list of hyperparameter values, or a named numeric
@@ -117,7 +117,7 @@ NULL
 #' penalty_prox(ridge_penalty(n_coef = 3), v, 1, list(lambda = 1.5))
 #' v / (1 + 1 * 1.5)
 #'
-#' # The elastic net: the soft threshold followed by the shrinkage.
+#' # The elastic net applies the soft threshold and then the shrinkage.
 #' penalty_prox(elasticnet_penalty(n_coef = 3), v, 1,
 #'              list(lambda = 1, alpha = 0.6))
 #'
@@ -129,8 +129,8 @@ NULL
 #' penalty_prox(heavy_penalty(n_coef = 3), v2, 1, list(sigma = 1, nu = 4))
 #' penalty_prox(ridge_penalty(n_coef = 3), v2, 1, list(lambda = 1))
 #'
-#' # Each operator minimizes the defining objective. For the first coordinate
-#' # of the lasso:
+#' # Each operator minimizes the defining objective. The next call finds the
+#' # minimizer for the first coordinate of the lasso.
 #' rho <- lasso_penalty(n_coef = 3)
 #' obj <- function(b1) {
 #'   x <- v; x[1] <- b1
@@ -193,9 +193,10 @@ S7::method(penalty_prox, penalty) <- function(pen, v, step, theta, ...) {
 #' @title Does a Penalty Supply a Proximal Operator?
 #'
 #' @description
-#' `TRUE` when [penalty_prox()] has an operator for this penalty, so that a
-#' caller can route a block to a proximal method. `FALSE` when the penalty has
-#' none, and the block then goes to a smooth method or to a scheme of its own.
+#' Returns `TRUE` when [penalty_prox()] has an operator for this penalty, so
+#' that a caller can route a block to a proximal method. Returns `FALSE` when
+#' the penalty has none, and the block then goes to a smooth method or to a
+#' scheme of its own.
 #'
 #' @details
 #' # What it tests
@@ -215,10 +216,10 @@ S7::method(penalty_prox, penalty) <- function(pen, v, step, theta, ...) {
 #' | quadratic, at any map | `TRUE` |
 #' | structured | `TRUE` |
 #' | ridge, lasso, elastic net, heavy-tailed, with no map | `TRUE` |
-#' | a separable penalty under a **diagonal** map with nonzero entries | `TRUE` |
-#' | SCAD, MCP, with no map or a **diagonal** map with nonzero entries | `TRUE` |
-#' | **additive** | `FALSE` |
-#' | a separable, SCAD or MCP penalty under a **general** map | `FALSE` |
+#' | a separable penalty under a diagonal map with nonzero entries | `TRUE` |
+#' | SCAD, MCP, with no map or a diagonal map with nonzero entries | `TRUE` |
+#' | additive | `FALSE` |
+#' | a separable, SCAD or MCP penalty under a general map | `FALSE` |
 #' | a separable penalty read in blocks | `FALSE` |
 #'
 #' # Conditions on the step and on the parent
@@ -226,11 +227,12 @@ S7::method(penalty_prox, penalty) <- function(pen, v, step, theta, ...) {
 #' A `TRUE` value means that the penalty has an operator; a call can still
 #' signal an error for some steps and some parents. SCAD and MCP return `TRUE`
 #' and reject a step for which \eqn{t c_j} reaches \eqn{a - 1} or
-#' \eqn{\gamma} in some coordinate (with \eqn{c_j} the curvature and \eqn{t}
-#' multiplied by \eqn{d_j^2} under a diagonal map), because the subproblem is
-#' then not convex and the operator is set-valued. A Laplace or elastic-net
-#' parent that is not centered at zero, and a separable parent that declares a
-#' kink and has no closed form, return `TRUE`, and the call signals an error.
+#' \eqn{\gamma} in some coordinate (where \eqn{c_j} is the curvature and
+#' \eqn{t} is multiplied by \eqn{d_j^2} under a diagonal map), because the
+#' subproblem is then not convex and the operator is set-valued. A Laplace or
+#' elastic-net parent that is not centered at zero, and a separable parent that
+#' declares a kink and has no closed form, return `TRUE`, and the call signals
+#' an error.
 #'
 #' @param pen A [penalty()] object of any branch. Any other object signals an
 #'   error.
@@ -293,7 +295,7 @@ has_prox <- function(pen) {
 #' turns the problem into the generalized-lasso problem, which requires a
 #' different algorithm.
 #'
-#' The map is recognized by its **class**, without inspecting its entries: a
+#' The map is recognized by its class, without inspecting its entries: a
 #' \pkg{Matrix} diagonal object stores \eqn{q} numbers, while testing a dense
 #' matrix for diagonality would cost \eqn{q^2} operations at every call. A base
 #' matrix that is diagonal in value therefore gives `NULL`. [distrib_penalty()],
@@ -357,7 +359,7 @@ map_diagonal <- function(pen) {
   pen
 }
 
-#' The Diagonal a Proximal Operator Rescales By
+#' The Diagonal by Which a Proximal Operator Rescales
 #'
 #' @description
 #' Returns the diagonal of the map when the map is a \pkg{Matrix} diagonal
@@ -386,7 +388,7 @@ map_diagonal <- function(pen) {
 #'   absent.
 #'
 #' @section Errors:
-#' A message naming the penalty and stating that its map is not a \pkg{Matrix}
+#' The message names the penalty and states that its map is not a \pkg{Matrix}
 #' diagonal object with nonzero entries, and that the operator is available
 #' only under the identity map and such a diagonal map, because under a
 #' general map it does not split by coordinate.
@@ -412,10 +414,10 @@ map_diagonal <- function(pen) {
 #' @name penalty_prox.QuadraticPenalty
 #'
 #' @description
-#' One linear solve, \eqn{(I + tS)^{-1}v}, with \eqn{S} the penalty's Hessian:
-#' \eqn{\lambda D'PD} for a quadratic penalty and \eqn{\Omega(\theta)} for a
-#' structured one. The two methods have the same body, because the objective
-#' is quadratic in both.
+#' Computes the proximal point with one linear solve, \eqn{(I + tS)^{-1}v},
+#' with \eqn{S} the penalty's Hessian: \eqn{\lambda D'PD} for a quadratic
+#' penalty and \eqn{\Omega(\theta)} for a structured one. The two methods have
+#' the same body, because the objective is quadratic in both.
 #'
 #' @details
 #' The subproblem is
@@ -459,7 +461,7 @@ map_diagonal <- function(pen) {
 #'              as.list(stats::setNames(rep(0, 6), s@params)))
 #'
 #' @seealso [penalty_prox()] for the generic and the other branches,
-#'   [penalty_hessian()] for the matrix solved against.
+#'   [penalty_hessian()] for the matrix against which the system is solved.
 #' @keywords internal
 S7::method(penalty_prox, QuadraticPenalty) <- function(pen, v, step, theta, ...) {
   S <- penalty_hessian(pen, v, theta)
@@ -480,8 +482,9 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #'
 #' @description
 #' Returns the bare name of the distribution on which a separable penalty is
-#' built, with a `fixed()` wrapper and any bracketed parameter list removed, so
-#' that the closed-form branches can be recognized by the family underneath.
+#' built. The function removes a `fixed()` wrapper and any bracketed parameter
+#' list, so that the closed-form branches can be recognized by the family
+#' underneath.
 #'
 #' @details
 #' The parent of a separable penalty is usually wrapped: the lasso's parent is
@@ -534,7 +537,7 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' @return A single number.
 #'
 #' @section Errors:
-#' A message naming the penalty and the parameter when the parameter is
+#' The message names the penalty and the parameter when the parameter is
 #' neither a free hyperparameter nor held by [distributions7::fixed()].
 #'
 #' @seealso [penalty_prox.DistribPenalty()], [penalty_prox_spec()]
@@ -554,11 +557,11 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' @name penalty_prox.DistribPenalty
 #'
 #' @description
-#' Closed forms for the Gaussian, the Laplace (in both parametrizations) and
-#' the elastic net, and for every other parent with a differentiable
-#' log-density the stationary point of smallest objective, coordinate by
-#' coordinate. A diagonal map is handled by rescaling, and any other map is
-#' rejected.
+#' Computes closed forms for the Gaussian, the Laplace (in both
+#' parametrizations) and the elastic net, and for every other parent with a
+#' differentiable log-density it computes the stationary point of smallest
+#' objective, coordinate by coordinate. A diagonal map is handled by rescaling,
+#' and any other map is rejected.
 #'
 #' @details
 #' # The closed forms
@@ -728,17 +731,17 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' zero the mode is taken as zero, and otherwise the root is bracketed by
 #' doubling a step from zero in the direction in which \eqn{\ell^{(y)}}
 #' points, up to \eqn{2^{60}}, and refined by `uniroot()` to full relative
-#' precision. When no change of sign is found, or \eqn{\ell^{(y)}} is not
-#' finite, the mode is taken as zero and the segment is the one between zero
-#' and \eqn{v}. The search moves away from zero only while \eqn{\ell^{(y)}}
-#' keeps its sign, so the root it finds is a local mode, which is the mode
-#' when the parent is unimodal.
+#' precision. When the search finds no change of sign, or \eqn{\ell^{(y)}} is
+#' not finite, the mode is taken as zero and the segment is the one between
+#' zero and \eqn{v}. The search moves away from zero only while
+#' \eqn{\ell^{(y)}} keeps its sign, so the root that it finds is a local mode,
+#' which is the mode when the parent is unimodal.
 #'
-#' The segment is scanned on `n_grid` equally spaced points, both ends
-#' included, with \eqn{h} evaluated for every coordinate in one call. Every
-#' interval over which \eqn{h} changes sign is refined by `uniroot()`, a grid
-#' point where \eqn{h} is exactly zero is kept as it is, and the candidate of
-#' smallest objective is returned, with the log-density computed by
+#' The function scans the segment on `n_grid` equally spaced points that
+#' include both ends, and evaluates \eqn{h} for every coordinate in one call.
+#' It refines by `uniroot()` every interval over which \eqn{h} changes sign,
+#' keeps as it is a grid point where \eqn{h} is exactly zero, and returns the
+#' candidate of smallest objective, computing the log-density with
 #' [distributions7::distrib_pdf()].
 #'
 #' When the segment shows no change of sign, the bracket starts one unit
@@ -756,10 +759,11 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' accuracy whatever its magnitude.
 #'
 #' @param pen A [DistribPenalty()] object with no map and a block width of one.
-#' @param v A numeric vector, the points pulled towards.
+#' @param v A numeric vector, the points towards which the operator pulls.
 #' @param step The step length \eqn{t}, a single positive finite number.
 #' @param theta The aligned hyperparameter list.
-#' @param n_grid The number of grid points on each segment, ends included.
+#' @param n_grid The number of grid points on each segment, including both
+#'   ends.
 #'
 #' @return A numeric vector of the same length as `v`.
 #'
@@ -767,8 +771,8 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #'   zero.
 #'
 #' @section Errors:
-#' A message naming the penalty where neither the segment nor the widened
-#' bracket shows a change of sign.
+#' The message names the penalty where the stationary condition changes sign
+#' neither on the segment nor in the widened bracket.
 #'
 #' @seealso [penalty_prox.DistribPenalty()]
 #'
@@ -889,9 +893,10 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' @name penalty_prox.ScadPenalty
 #'
 #' @description
-#' The closed piecewise operator of Fan and Li (2001): a soft threshold near
-#' zero, a rescaled threshold over the tapering region, and the identity beyond
-#' \eqn{a\lambda}, so a large coefficient passes through untouched.
+#' Computes the closed piecewise operator of Fan and Li (2001): a soft
+#' threshold near zero, a rescaled threshold over the tapering region, and the
+#' identity beyond \eqn{a\lambda}, so a large coefficient passes through
+#' untouched.
 #'
 #' @details
 #' With \eqn{u = \lvert v\rvert} and \eqn{s} its sign,
@@ -942,7 +947,8 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' @examples
 #' th <- list(lambda = 1, a = 3.7)
 #'
-#' # One point in each region: thresholded, rescaled, untouched.
+#' # The three points lie one in each region: the first is thresholded, the
+#' # second rescaled and the third untouched.
 #' penalty_prox(scad_penalty(n_coef = 3), c(1.5, 3, 6), 1, th)
 #'
 #' # Past a * lambda the operator is the identity, so a large coefficient is
@@ -970,10 +976,11 @@ S7::method(penalty_prox, ScadPenalty) <- function(pen, v, step, theta, ...) {
   step <- step * cv
   if (any(step >= a - 1)) {
     stop(sprintf(paste0(
-      "the SCAD proximal operator needs step < a - 1 (%g here), with the step\n",
-      "  multiplied by the curvature and, under a diagonal map, by the squared\n",
-      "  diagonal entry; the largest scaled step is %g. Beyond that bound the\n",
-      "  subproblem is not convex and the operator is set-valued."),
+      "the SCAD proximal operator needs step < a - 1 (%g here), where the\n",
+      "  step is multiplied by the curvature and, under a diagonal map, by\n",
+      "  the squared diagonal entry; the largest scaled step is %g. Beyond\n",
+      "  that bound the subproblem is not convex and the operator is\n",
+      "  set-valued."),
       a - 1, max(step)),
       call. = FALSE)
   }
@@ -992,9 +999,9 @@ S7::method(penalty_prox, ScadPenalty) <- function(pen, v, step, theta, ...) {
 #' @name penalty_prox.McpPenalty
 #'
 #' @description
-#' The closed piecewise operator of Zhang (2010): a rescaled soft threshold
-#' below \eqn{\gamma\lambda} and the identity beyond it, so a large coefficient
-#' passes through untouched.
+#' Computes the closed piecewise operator of Zhang (2010): a rescaled soft
+#' threshold below \eqn{\gamma\lambda} and the identity beyond it, so a large
+#' coefficient passes through untouched.
 #'
 #' @details
 #' With \eqn{u = \lvert v\rvert} and \eqn{s} its sign,
@@ -1072,10 +1079,11 @@ S7::method(penalty_prox, McpPenalty) <- function(pen, v, step, theta, ...) {
   step <- step * cv
   if (any(step >= gam)) {
     stop(sprintf(paste0(
-      "the MCP proximal operator needs step < gamma (%g here), with the step\n",
-      "  multiplied by the curvature and, under a diagonal map, by the squared\n",
-      "  diagonal entry; the largest scaled step is %g. Beyond that bound the\n",
-      "  subproblem is not convex and the operator is set-valued."),
+      "the MCP proximal operator needs step < gamma (%g here), where the\n",
+      "  step is multiplied by the curvature and, under a diagonal map, by\n",
+      "  the squared diagonal entry; the largest scaled step is %g. Beyond\n",
+      "  that bound the subproblem is not convex and the operator is\n",
+      "  set-valued."),
       gam, max(step)),
       call. = FALSE)
   }

@@ -31,22 +31,21 @@ hyperparameter's standard error is built.}
 }
 \value{
 All three return a named list.
-\code{penalty_grad_theta()} has one element per hyperparameter, each a single
-number, named by \code{pen@params}.
-\code{penalty_hess_theta()} has \eqn{p(p+1)/2} elements, each a single number,
-keyed by pairs as described above.
-\code{penalty_cross()} has one element per hyperparameter, each a numeric
-vector of length \code{pen@n_coef}.
+\code{penalty_grad_theta()} has one element per hyperparameter; each element
+is a single number, and the elements are named by \code{pen@params}.
+\code{penalty_hess_theta()} has \eqn{p(p+1)/2} elements; each element is a
+single number, and the elements are keyed by pairs as described above.
+\code{penalty_cross()} has one element per hyperparameter; each element is a
+numeric vector of length \code{pen@n_coef}.
 }
 \description{
-The three blocks of derivatives in the hyperparameters.
-\code{penalty_grad_theta()} returns \eqn{\partial\rho/\partial\theta_k},
-\code{penalty_hess_theta()} returns
-\eqn{\partial^2\rho/\partial\theta_k\partial\theta_l}, and
-\code{penalty_cross()} returns the mixed block
-\eqn{\partial^2\rho/\partial\beta\,\partial\theta_k}, one coefficient vector
-per hyperparameter. Each is returned on the parameter scale or on the
-unconstrained scale, as selected by \code{scale}.
+The three functions return the three blocks of derivatives in the
+hyperparameters. \code{penalty_grad_theta()} returns
+\eqn{\partial\rho/\partial\theta_k}, \code{penalty_hess_theta()} returns
+\eqn{\partial^2\rho/\partial\theta_k\partial\theta_l}, and \code{penalty_cross()}
+returns the mixed block \eqn{\partial^2\rho/\partial\beta\,\partial\theta_k},
+one coefficient vector per hyperparameter. Each is returned on the parameter
+scale or on the unconstrained scale, as selected by \code{scale}.
 }
 \section{Uses of the three blocks}{
 The gradient and the Hessian in \eqn{\theta} are the steps of a joint
@@ -61,7 +60,7 @@ criterion computed at the mode requires it.
 
 \section{The two scales}{
 Each hyperparameter carries a link \eqn{g} that maps its open interval
-onto the whole line. With \code{scale = "link"} the derivatives are taken in
+onto the whole line. If \code{scale = "link"}, the derivatives are taken in
 \eqn{\eta = g(\theta)}, the coordinates that an unconstrained optimizer
 moves. The chain rule is applied in the generic body, so a method always
 returns the parameter scale and a branch written by a user obtains both
@@ -81,10 +80,11 @@ the coefficient direction.
 
 \section{Names of the elements}{
 The gradient and the mixed block are keyed by \code{pen@params}. The Hessian is
-keyed by pairs, \strong{diagonals first} in \code{params} order and then the upper
-off-diagonal pairs, each joined by an underscore: for an elastic net the
-keys are \code{lambda_lambda}, \code{alpha_alpha}, \code{lambda_alpha}. Only the upper
-triangle is returned, since the matrix is symmetric.
+keyed by pairs. The diagonal entries come first, in \code{params} order, the
+upper off-diagonal pairs follow, and each key joins the two names with an
+underscore. For an elastic net the keys are \code{lambda_lambda}, \code{alpha_alpha},
+\code{lambda_alpha}. Only the upper triangle is returned, since the matrix is
+symmetric.
 }
 
 \examples{

@@ -4,25 +4,26 @@ NULL
 #' @title S7 Class for the Quadratic Penalty
 #'
 #' @description
-#' The class of the objects that [quadratic_penalty()] builds. Beyond the
-#' seven properties that every penalty carries, it stores the matrix \eqn{P},
-#' the rank of \eqn{D'PD}, an orthonormal basis of the null space of
-#' \eqn{D'PD}, the log pseudo-determinant of \eqn{D'PD} and the assembled
-#' \eqn{D'PD}. All five are computed once at construction and none of them
-#' depends on the hyperparameter, so every quantity of the branch is closed
+#' `QuadraticPenalty` is the class of the objects that [quadratic_penalty()]
+#' builds. Beyond the seven properties that every penalty carries, it stores
+#' the matrix \eqn{P}, the rank of \eqn{D'PD}, an orthonormal basis of the null
+#' space of \eqn{D'PD}, the log pseudo-determinant of \eqn{D'PD} and the
+#' assembled \eqn{D'PD}. All five are computed once at construction and are
+#' independent of the hyperparameter, so every quantity of the branch is closed
 #' form in \eqn{\lambda}.
 #'
 #' @details
 #' Construct through [quadratic_penalty()], which computes the five
 #' properties and checks that \eqn{P} is symmetric and positive semidefinite.
-#' This raw constructor takes them as given and checks none of them. A wrong
-#' rank passed here enters the value, the hyperparameter derivatives,
+#' This raw constructor takes them as given and does not check any of them. A
+#' wrong rank passed here enters the value, the hyperparameter derivatives,
 #' [penalty_rank()], [penalty_logpdet()] and [is_proper()], and
 #' [check_penalty()] does not detect it, because every one of its rows reads
 #' the same stored rank.
 #'
 #' @section Methods:
-#' The methods registered on this class, by the page that documents each.
+#' This section lists the methods registered on this class, by the page that
+#' documents each.
 #'
 #' * The value and its coefficient derivatives:
 #'   [penalty_value()][penalty_value.QuadraticPenalty],
@@ -49,19 +50,20 @@ NULL
 #'   [penalty_dhessian_beta()][penalty_dhessian_beta.QuadraticPenalty],
 #'   [penalty_d2hessian_beta()][penalty_d2hessian_beta.penalty] and
 #'   [penalty_dhessian_beta_theta()][penalty_dhessian_beta_theta.penalty].
-#'   The last two return zero matrices, the Hessian being free of the
-#'   coefficients, and are documented on the page of the base-class methods.
+#'   The last two return zero matrices because the Hessian does not depend on
+#'   the coefficients, and are documented on the page of the base-class
+#'   methods.
 #' * The proximal operator:
 #'   [penalty_prox()][penalty_prox.QuadraticPenalty].
 #'
-#' The class registers no [penalty_prox_spec()], [penalty_draw()] or
-#' [penalty_readable()] method, so the methods of the base class [penalty()]
-#' answer those generics.
+#' The class has no [penalty_prox_spec()], [penalty_draw()] or
+#' [penalty_readable()] method of its own, so those generics dispatch to the
+#' methods of the base class [penalty()].
 #'
 #' @inheritParams penalty
 #' @param P The symmetric positive semidefinite matrix of the quadratic form,
 #'   with as many rows as the map has, or as many as there are coefficients
-#'   when the map is `NULL`. A `dgCMatrix` under `blocks > 1`.
+#'   when the map is `NULL`. It is a `dgCMatrix` under `blocks > 1`.
 #' @param p_rank The rank of \eqn{D'PD}, a single whole number, counted at
 #'   construction by a relative eigenvalue rule. Without a map it is the rank
 #'   of \eqn{P}.
@@ -69,8 +71,8 @@ NULL
 #'   `n_coef` rows and `n_coef - p_rank` columns, and no columns when the
 #'   penalty is full rank.
 #' @param logpdet_DPD The log pseudo-determinant of \eqn{D'PD}: the sum of the
-#'   logarithms of its non-zero eigenvalues. A single number. Without a map it
-#'   is the log pseudo-determinant of \eqn{P}.
+#'   logarithms of its non-zero eigenvalues. It is a single number. Without a
+#'   map it is the log pseudo-determinant of \eqn{P}.
 #' @param DPD The assembled \eqn{D'PD}, an `n_coef` by `n_coef` matrix, cached
 #'   so that the gradient and the Hessian never re-form it.
 #' @param tol The relative eigenvalue tolerance, a single positive number,
@@ -90,7 +92,7 @@ NULL
 #' pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
 #' S7::S7_inherits(pen, QuadraticPenalty)
 #'
-#' # Three of the six properties, computed at construction.
+#' # These are three of the six properties, all computed at construction.
 #' pen@p_rank
 #' dim(pen@null_basis)
 #' pen@logpdet_DPD
@@ -129,8 +131,8 @@ QuadraticPenalty <- S7::new_class(
 #'   - \tfrac{r}{2}\log\lambda + \tfrac{r}{2}\log 2\pi
 #'   - \tfrac{1}{2}\log\mathrm{pdet}(D'PD).}
 #'
-#' The last three terms are the normalizing constant of the prior, taken over
-#' the range of \eqn{D'PD} alone when that matrix is rank deficient. The
+#' The last three terms are the normalizing constant of the prior, taken only
+#' over the range of \eqn{D'PD} when that matrix is rank deficient. The
 #' constant is the one of the matrix applied to \eqn{\beta}, so it carries the
 #' map. For a diagonal map with non-zero entries \eqn{d_j} and a full-rank
 #' \eqn{P},
@@ -170,8 +172,8 @@ QuadraticPenalty <- S7::new_class(
 #' \eqn{D'PD} is a rounding error relative to \eqn{P}, is therefore not
 #' detected: the largest of those rounding errors passes the rule, and the
 #' penalty is built with a positive rank and a log pseudo-determinant made of
-#' rounding errors. The constructor rejects the map only when no eigenvalue of
-#' \eqn{D'PD} is positive, as when \eqn{D'PD} is exactly the zero matrix.
+#' rounding errors. The constructor rejects the map only when \eqn{D'PD} has no
+#' positive eigenvalue, as when \eqn{D'PD} is exactly the zero matrix.
 #'
 #' # Blockwise repetition
 #'
@@ -185,7 +187,7 @@ QuadraticPenalty <- S7::new_class(
 #' gradient, Hessian, rank, null basis and log pseudo-determinant as the
 #' penalty built from the assembled \eqn{I_m \otimes P}, up to rounding.
 #'
-#' **Under `blocks > 1` the matrix-valued returns are `dgCMatrix`**, not base
+#' Under `blocks > 1` the matrix-valued returns are `dgCMatrix`, not base
 #' matrices: [penalty_hessian()], [penalty_matrix()], [penalty_null_basis()]
 #' and the matrices of [penalty_dhessian()] all keep the sparse storage, so the
 #' assembled matrix is never densified. A consumer that writes these results
@@ -214,8 +216,8 @@ QuadraticPenalty <- S7::new_class(
 #'   of at least 1. `1L`, the default, is the ordinary single-block penalty.
 #'   Above 1 it must be given without a `map`.
 #' @param link_lambda The \pkg{linkfunctions7} link carrying \eqn{\lambda} onto
-#'   the whole real line. `linkfunctions7::log_link()` by default, \eqn{\lambda}
-#'   being positive.
+#'   the whole real line. The default is `linkfunctions7::log_link()`, because
+#'   \eqn{\lambda} is positive.
 #' @param tol The relative eigenvalue tolerance of the rank rule, `1e-10` by
 #'   default. An eigenvalue of \eqn{D'PD} at or below `tol` times the largest
 #'   counts as zero, so its direction joins the null space and is not
@@ -361,8 +363,8 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
 #'
 #' @description
 #' Builds the penalty of \eqn{I_m \otimes P} from \eqn{P} alone, and returns a
-#' [QuadraticPenalty()] whose stored matrix is sparse. Called by
-#' [quadratic_penalty()] when `blocks` is above one.
+#' [QuadraticPenalty()] whose stored matrix is sparse.
+#' [quadratic_penalty()] calls it when `blocks` is above one.
 #'
 #' @details
 #' Three quantities of a quadratic penalty come from its matrix: the rank, the
@@ -428,7 +430,8 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
 #'
 #' @details
 #' Uses \eqn{P} and the map, not the cached \eqn{D'PD}, so the intermediate is
-#' the \eqn{m}-vector \eqn{D\beta} and no \eqn{q \times q} product is formed.
+#' the \eqn{m}-vector \eqn{D\beta} and the function does not form a
+#' \eqn{q \times q} product.
 #'
 #' @param pen A [QuadraticPenalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`.
@@ -449,8 +452,8 @@ quad_form <- function(pen, beta) {
 #' @description
 #' Returns the negative log-density of the Gaussian prior with precision
 #' \eqn{\lambda D'PD}, evaluated by adding the constant to the quadratic form.
-#' Every term is closed form in \eqn{\lambda}, the rank and the log
-#' pseudo-determinant of \eqn{D'PD} having been fixed at construction.
+#' Every term is closed form in \eqn{\lambda}, because the rank and the log
+#' pseudo-determinant of \eqn{D'PD} are fixed at construction.
 #'
 #' @details
 #' \deqn{\rho(\beta; \lambda) = \frac{\lambda}{2}\,(D\beta)'P(D\beta)
@@ -477,7 +480,8 @@ quad_form <- function(pen, beta) {
 #' all.equal(penalty_value(pen, b, list(lambda = 2)),
 #'           -sum(stats::dnorm(b, sd = 1 / sqrt(2), log = TRUE)))
 #'
-#' # The constant alone, at the origin, at three values of lambda.
+#' # At the origin the value is the constant alone, shown at three values of
+#' # lambda.
 #' sapply(c(0.5, 2, 8),
 #'        function(l) penalty_value(pen, c(0, 0, 0), list(lambda = l)))
 #'
@@ -497,9 +501,9 @@ S7::method(penalty_value, QuadraticPenalty) <- function(pen, beta, theta, ...) {
 #'
 #' @description
 #' `penalty_gradient()` returns \eqn{\lambda D'PD\beta} and `penalty_hessian()`
-#' returns \eqn{\lambda D'PD}. Both read the cached \eqn{D'PD}, so neither
-#' applies the map at call time, and the Hessian does not depend on
-#' \eqn{\beta}, the value being a quadratic form.
+#' returns \eqn{\lambda D'PD}. Both read the cached \eqn{D'PD}, so they do not
+#' apply the map at call time, and the Hessian does not depend on \eqn{\beta}
+#' because the value is a quadratic form.
 #'
 #' @details
 #' Because the Hessian is constant, the gradient is exactly the Hessian applied
@@ -513,7 +517,7 @@ S7::method(penalty_value, QuadraticPenalty) <- function(pen, beta, theta, ...) {
 #' @param theta A list holding `lambda`.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_gradient()` a numeric vector of length `pen@n_coef`;
+#' @return `penalty_gradient()` returns a numeric vector of length `pen@n_coef`;
 #'   `penalty_hessian()` a symmetric matrix of that order, a base matrix for an
 #'   ordinary penalty and a `dgCMatrix` when the penalty was built with
 #'   `blocks > 1`.
@@ -549,7 +553,7 @@ S7::method(penalty_hessian, QuadraticPenalty) <- function(pen, beta, theta, ...)
 #' @name penalty_grad_theta.QuadraticPenalty
 #'
 #' @description
-#' The three blocks in \eqn{\lambda}, all closed form. `penalty_grad_theta()`
+#' The three blocks in \eqn{\lambda} are all closed form. `penalty_grad_theta()`
 #' returns \eqn{\tfrac{1}{2}(D\beta)'P(D\beta) - r/(2\lambda)},
 #' `penalty_hess_theta()` returns \eqn{r/(2\lambda^2)}, and `penalty_cross()`
 #' returns \eqn{D'PD\beta}, which is the gradient with \eqn{\lambda} divided
@@ -576,7 +580,7 @@ S7::method(penalty_hessian, QuadraticPenalty) <- function(pen, beta, theta, ...)
 #'   parameter scale.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_grad_theta()` a list of one number named `lambda`;
+#' @return `penalty_grad_theta()` returns a list of one number named `lambda`;
 #'   `penalty_hess_theta()` a list of one number named `lambda_lambda`;
 #'   `penalty_cross()` a list of one numeric vector of length `pen@n_coef`,
 #'   named `lambda`.
@@ -625,9 +629,10 @@ S7::method(penalty_cross, QuadraticPenalty) <-
 #' @name penalty_kinks.QuadraticPenalty
 #'
 #' @description
-#' The three predicates that a consumer evaluates before choosing how to fit
-#' a quadratic block. `penalty_kinks()` returns `numeric(0)`, the value being
-#' a polynomial and smooth everywhere. `is_quadratic()` returns `TRUE`, so the
+#' This page documents the three predicates that a consumer evaluates before
+#' choosing how to fit a quadratic block. `penalty_kinks()` returns
+#' `numeric(0)`, because the value is a polynomial and smooth everywhere.
+#' `is_quadratic()` returns `TRUE`, so the
 #' four marginal quantities are available. `is_proper()` returns `TRUE` only
 #' when the penalty has full rank.
 #'
@@ -638,21 +643,21 @@ S7::method(penalty_cross, QuadraticPenalty) <-
 #' second differences over \eqn{q} coefficients leave the level and the slope
 #' unpenalized, have rank \eqn{q - 2}, and give an improper prior. Both can be
 #' used, and the difference appears in the normalizing constant, which is
-#' taken over the range alone.
+#' taken only over the range.
 #'
 #' Because there are no kinks, a fit can treat a quadratic block with any
 #' method for smooth objectives, and [penalty_prox()] is a linear solve and
 #' not a threshold.
 #'
 #' @param pen A [QuadraticPenalty()] object.
-#' @param theta A list holding `lambda`. Accepted by `penalty_kinks()`, whose
-#'   result does not depend on it.
+#' @param theta A list holding `lambda`. It is accepted by `penalty_kinks()`,
+#'   whose result does not depend on it.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_kinks()` a numeric vector of length zero.
-#'   `is_quadratic()` the single logical `TRUE`.
-#'   `is_proper()` a single logical, `TRUE` when the rank equals the number of
-#'   coefficients and the null basis has no columns.
+#' @return `penalty_kinks()` returns a numeric vector of length zero.
+#'   `is_quadratic()` returns the single logical `TRUE`.
+#'   `is_proper()` returns a single logical, `TRUE` when the rank equals the
+#'   number of coefficients and the null basis has no columns.
 #'
 #' @examples
 #' ridge <- quadratic_penalty(diag(4))
@@ -664,7 +669,7 @@ S7::method(penalty_cross, QuadraticPenalty) <-
 #' c(penalty_rank(ridge), penalty_rank(curve))
 #'
 #' @seealso [penalty_kinks()], [is_proper()] and [is_quadratic()] for the
-#'   generics, [penalty_matrix.QuadraticPenalty()] for the quantities
+#'   generics, [penalty_matrix.QuadraticPenalty()] for the quantities that
 #'   `is_quadratic()` gates.
 #' @keywords internal
 S7::method(penalty_kinks, QuadraticPenalty) <- function(pen, theta, ...) {
@@ -687,11 +692,12 @@ S7::method(is_quadratic, QuadraticPenalty) <- function(pen, ...) TRUE
 #' @name penalty_matrix.QuadraticPenalty
 #'
 #' @description
-#' The four quantities that a REML or marginal likelihood criterion reads.
-#' `penalty_matrix()` returns \eqn{\lambda D'PD}, `penalty_rank()` the rank of
-#' \eqn{D'PD} fixed at construction, `penalty_null_basis()` the stored
-#' orthonormal basis of its null space, and `penalty_logpdet()` the log
-#' pseudo-determinant with its first two derivatives in \eqn{\lambda}.
+#' This page documents the four quantities that a REML or marginal likelihood
+#' criterion reads. `penalty_matrix()` returns \eqn{\lambda D'PD},
+#' `penalty_rank()` returns the rank of \eqn{D'PD} fixed at construction,
+#' `penalty_null_basis()` returns the stored orthonormal basis of its null
+#' space, and `penalty_logpdet()` returns the log pseudo-determinant with its
+#' first two derivatives in \eqn{\lambda}.
 #'
 #' @details
 #' Since \eqn{S(\lambda) = \lambda D'PD} and only the range contributes,
@@ -699,26 +705,25 @@ S7::method(is_quadratic, QuadraticPenalty) <- function(pen, ...) TRUE
 #' \deqn{\log^{+}\lvert S(\lambda) \rvert = r\log\lambda
 #'   + \log\mathrm{pdet}(D'PD), \qquad
 #'   \frac{\partial}{\partial\lambda} = \frac{r}{\lambda}, \qquad
-#'   \frac{\partial^2}{\partial\lambda^2} = -\frac{r}{\lambda^2},}
+#'   \frac{\partial^2}{\partial\lambda^2} = -\frac{r}{\lambda^2}.}
 #'
-#' all three exact and computed without a decomposition at call time. The
+#' All three are exact and computed without a decomposition at call time. The
 #' rank and the null basis do not depend on \eqn{\lambda} and their generics
 #' take no `theta`.
 #'
 #' @param pen A [QuadraticPenalty()] object.
-#' @param theta A list holding `lambda`. `penalty_matrix()` and
-#'   `penalty_logpdet()` only.
+#' @param theta A list holding `lambda`. Only `penalty_matrix()` and
+#'   `penalty_logpdet()` read it.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_matrix()` a symmetric matrix of side `pen@n_coef`, a base
-#'   matrix ordinarily and a `dgCMatrix` when the penalty was built with
-#'   `blocks > 1`.
-#'   `penalty_rank()` a single integer.
-#'   `penalty_null_basis()` a matrix with `pen@n_coef` rows and
+#' @return `penalty_matrix()` returns a symmetric matrix of side `pen@n_coef`,
+#'   a base matrix ordinarily and a `dgCMatrix` when the penalty was built with
+#'   `blocks > 1`. `penalty_rank()` returns a single integer.
+#'   `penalty_null_basis()` returns a matrix with `pen@n_coef` rows and
 #'   `pen@n_coef - penalty_rank(pen)` orthonormal columns, sparse under
-#'   `blocks > 1`.
-#'   `penalty_logpdet()` a list of `value` (a number), `grad` (a list of one
-#'   number, `lambda`) and `hess` (a list of one number, `lambda_lambda`).
+#'   `blocks > 1`. `penalty_logpdet()` returns a list of `value` (a number),
+#'   `grad` (a list of one number, `lambda`) and `hess` (a list of one number,
+#'   `lambda_lambda`).
 #'
 #' @examples
 #' pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))

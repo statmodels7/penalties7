@@ -14,8 +14,8 @@
 A numeric vector of length \code{pen@n_coef}.
 }
 \description{
-One draw from the Gaussian prior with precision \eqn{S(\lambda)}, block by
-block where the penalty is repeated blockwise.
+Returns one draw from the Gaussian prior with precision \eqn{S(\lambda)},
+block by block where the penalty is repeated blockwise.
 }
 \details{
 With one block the draw is the base method's. Repeated blockwise, the

@@ -14,15 +14,15 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} a numeric vector of length \code{pen@n_coef};
+\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
 \code{penalty_hessian()} a symmetric \code{pen@n_coef} by \code{pen@n_coef} base matrix,
 diagonal under the identity map and negative semidefinite always.
 }
 \description{
 \code{penalty_gradient()} returns SCAD's defining derivative carried back through
-the map, and \code{penalty_hessian()} its second derivative carried back through
-the map. At unit curvature the second derivative is \eqn{-1/(a-1)} in the
-tapering region and zero elsewhere.
+the map, and \code{penalty_hessian()} returns its second derivative carried back
+through the map. At unit curvature the second derivative is
+\eqn{-1/(a-1)} in the tapering region and zero elsewhere.
 }
 \details{
 With unit curvature, on each coordinate, with \eqn{u = \lvert t\rvert} and
@@ -41,7 +41,7 @@ With curvature \eqn{c_j} the regions end at \eqn{\lambda/c_j} and
 \eqn{\lambda/c_j} and \eqn{s\,(a\lambda - c_j u)/(a-1)} over the taper,
 and the second derivative over the taper is \eqn{-c_j/(a-1)}.
 
-The Hessian is \strong{negative} where it is not zero, so the penalty is concave
+The Hessian is negative where it is not zero, so the penalty is concave
 over the taper. A penalized objective stays convex only while the curvature
 of the likelihood in each coordinate exceeds \eqn{1/(a-1)}
 (\eqn{c_j/(a-1)} with \code{curv}), and outside that condition a solver that
@@ -56,10 +56,11 @@ with which a smooth method can take a step. Exact zeros are produced by
 pen <- scad_penalty(n_coef = 3)
 th <- list(lambda = 1, a = 3.7)
 
-# Linear, tapering, flat: the gradient falls to zero as u grows.
+# The coordinates lie in the linear, tapering and flat regions, and the
+# gradient falls to zero as u grows.
 penalty_gradient(pen, c(0.5, 2, 5), th)
 
-# The Hessian is -1/(a - 1) on the tapering coordinate alone.
+# The Hessian is -1/(a - 1) on the tapering coordinate and zero elsewhere.
 diag(penalty_hessian(pen, c(0.5, 2, 5), th))
 -1 / (3.7 - 1)
 

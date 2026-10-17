@@ -12,12 +12,12 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_kinks()} a numeric vector of distinct points: \code{0}, then
-\eqn{-\lambda/c_j} and \eqn{\lambda/c_j} over the distinct rates, then
-\eqn{-a\lambda/c_j} and \eqn{a\lambda/c_j} over the same rates. At unit
-curvature these are the five points \code{0}, \eqn{-\lambda}, \eqn{\lambda},
-\eqn{-a\lambda}, \eqn{a\lambda}, in this order.
-\code{is_proper()} the single logical \code{FALSE}.
+\code{penalty_kinks()} returns a numeric vector of distinct points: \code{0},
+then \eqn{-\lambda/c_j} and \eqn{\lambda/c_j} over the distinct rates,
+then \eqn{-a\lambda/c_j} and \eqn{a\lambda/c_j} over the same rates. At
+unit curvature these are the five points \code{0}, \eqn{-\lambda},
+\eqn{\lambda}, \eqn{-a\lambda}, \eqn{a\lambda}, in this order.
+\code{is_proper()} returns the single logical \code{FALSE}.
 }
 \description{
 \code{penalty_kinks()} returns the points where SCAD changes branch, and

@@ -9,28 +9,27 @@
 \arguments{
 \item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... \code{penalty_matrix()}
-and \code{penalty_logpdet()} only.}
+\item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... Only
+\code{penalty_matrix()} and \code{penalty_logpdet()} read it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_matrix()} a symmetric base matrix of side \code{pen@n_coef}.
-\code{penalty_rank()} a single integer, and \code{penalty_null_basis()} an
-orthonormal basis of the null space shared by the components, a matrix
-with \code{pen@n_coef} rows and \code{pen@n_coef - penalty_rank(pen)} columns.
-\code{penalty_logpdet()} a list of \code{value} (a single number), \code{grad} (a list
-keyed by \code{pen@params}) and \code{hess} (a list keyed by the pairs that
-\code{penalty_hess_theta()} uses). Every entry of it is \code{NaN} at a setting
-that \code{\link[=additive_sum]{additive_sum()}} reports as not resolvable.
+\code{penalty_matrix()} returns a symmetric base matrix of side
+\code{pen@n_coef}. \code{penalty_rank()} returns a single integer, and
+\code{penalty_null_basis()} an orthonormal basis of the null space shared by the
+components, a matrix with \code{pen@n_coef} rows and \code{pen@n_coef - penalty_rank(pen)} columns. \code{penalty_logpdet()} returns a list of \code{value}
+(a single number), \code{grad} (a list keyed by \code{pen@params}) and \code{hess} (a list
+keyed by the pairs that \code{penalty_hess_theta()} uses). Every entry of it is
+\code{NaN} at a setting that \code{\link[=additive_sum]{additive_sum()}} reports as not resolvable.
 }
 \description{
-The four quantities that a marginal criterion reads. \code{penalty_matrix()}
-returns the weighted sum \eqn{S(\lambda) = \sum_k \lambda_k P_k},
-\code{penalty_rank()} the rank and \code{penalty_null_basis()} an orthonormal basis
-of the null space shared by the components, both fixed at construction,
-and \code{penalty_logpdet()} the log pseudo-determinant with its first two
-derivatives.
+These methods return the four quantities that a marginal criterion reads.
+\code{penalty_matrix()} returns the weighted sum \eqn{S(\lambda) = \sum_k
+\lambda_k P_k}, \code{penalty_rank()} the rank and \code{penalty_null_basis()} an
+orthonormal basis of the null space shared by the components, both fixed at
+construction, and \code{penalty_logpdet()} the log pseudo-determinant with its
+first two derivatives.
 }
 \details{
 With \eqn{S^{+}} the pseudo-inverse over the stored rank,

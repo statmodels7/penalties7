@@ -124,7 +124,7 @@ test_that("beta_quadratic() signals an invalid theta", {
   expect_error(beta_quadratic(h, list(sigma = -1, nu = 4)),
                "Parameter 'sigma' must lie in the open interval", fixed = TRUE)
   expect_error(beta_quadratic(h, list(sigma = 1)),
-               "Missing parameter(s) in 'theta': nu", fixed = TRUE)
+               "'theta' lacks the parameter(s) nu;", fixed = TRUE)
   expect_error(beta_quadratic(h, list(sigma = c(1, 2), nu = 4)),
                "Parameter 'sigma' must be a single number.", fixed = TRUE)
   # a valid theta still gets the answer: a Student t prior is not quadratic in

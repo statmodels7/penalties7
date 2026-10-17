@@ -35,8 +35,8 @@ of at least 1. \code{1L}, the default, is the ordinary single-block penalty.
 Above 1 it must be given without a \code{map}.}
 
 \item{link_lambda}{The \pkg{linkfunctions7} link carrying \eqn{\lambda} onto
-the whole real line. \code{linkfunctions7::log_link()} by default, \eqn{\lambda}
-being positive.}
+the whole real line. The default is \code{linkfunctions7::log_link()}, because
+\eqn{\lambda} is positive.}
 
 \item{tol}{The relative eigenvalue tolerance of the rank rule, \code{1e-10} by
 default. An eigenvalue of \eqn{D'PD} at or below \code{tol} times the largest
@@ -64,8 +64,8 @@ With \eqn{r} the rank of \eqn{D'PD},
   - \tfrac{r}{2}\log\lambda + \tfrac{r}{2}\log 2\pi
   - \tfrac{1}{2}\log\mathrm{pdet}(D'PD).}
 
-The last three terms are the normalizing constant of the prior, taken over
-the range of \eqn{D'PD} alone when that matrix is rank deficient. The
+The last three terms are the normalizing constant of the prior, taken only
+over the range of \eqn{D'PD} when that matrix is rank deficient. The
 constant is the one of the matrix applied to \eqn{\beta}, so it carries the
 map. For a diagonal map with non-zero entries \eqn{d_j} and a full-rank
 \eqn{P},
@@ -105,8 +105,8 @@ that annihilates \eqn{P} only up to rounding, so that every entry of
 \eqn{D'PD} is a rounding error relative to \eqn{P}, is therefore not
 detected: the largest of those rounding errors passes the rule, and the
 penalty is built with a positive rank and a log pseudo-determinant made of
-rounding errors. The constructor rejects the map only when no eigenvalue of
-\eqn{D'PD} is positive, as when \eqn{D'PD} is exactly the zero matrix.
+rounding errors. The constructor rejects the map only when \eqn{D'PD} has no
+positive eigenvalue, as when \eqn{D'PD} is exactly the zero matrix.
 }
 
 \section{Blockwise repetition}{
@@ -120,7 +120,7 @@ large matrix is stored in sparse form. The result has the same value,
 gradient, Hessian, rank, null basis and log pseudo-determinant as the
 penalty built from the assembled \eqn{I_m \otimes P}, up to rounding.
 
-\strong{Under \code{blocks > 1} the matrix-valued returns are \code{dgCMatrix}}, not base
+Under \code{blocks > 1} the matrix-valued returns are \code{dgCMatrix}, not base
 matrices: \code{\link[=penalty_hessian]{penalty_hessian()}}, \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}}
 and the matrices of \code{\link[=penalty_dhessian]{penalty_dhessian()}} all keep the sparse storage, so the
 assembled matrix is never densified. A consumer that writes these results

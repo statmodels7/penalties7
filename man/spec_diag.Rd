@@ -13,7 +13,7 @@ spec_diag(pen, step, build)
 \code{pen@n_coef}, recycled to \code{pen@n_coef}.}
 
 \item{build}{A function of a penalty and a step returning the table, or
-\code{NULL}. It is called on the penalty with its map removed.}
+\code{NULL}. It is called on the penalty after the map has been removed.}
 }
 \value{
 The list that \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns, or \code{NULL} when the
@@ -35,10 +35,10 @@ carries the table across. The identity-map table reads
 \eqn{\lvert w\rvert \le \mathrm{cut}} to
 \eqn{\mathrm{sign}(w)(\mathrm{slope}\,\lvert w\rvert + \mathrm{icept})} at
 \eqn{w = dv}, so a cut on \eqn{\lvert w\rvert} is a cut on
-\eqn{\lvert v\rvert} divided by \eqn{\lvert d\rvert}, the intercept divides
-by the same, and the slope does not move, multiplying a point that was
-scaled and then divided back. The operator is odd, so only the magnitude of
-\eqn{d} enters.
+\eqn{\lvert v\rvert} divided by \eqn{\lvert d\rvert}, the intercept is
+divided by the same, and the slope does not move, because it multiplies a
+point that was scaled and then divided back. The operator is odd, so only the
+magnitude of \eqn{d} enters.
 
 The step passed to the builder is \eqn{t d^2}, and the step limit of SCAD
 and MCP is tested on it, so a standardized penalty takes shorter steps and

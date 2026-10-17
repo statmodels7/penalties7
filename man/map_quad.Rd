@@ -13,10 +13,11 @@ map_quad_full(pen, m)
 \item{pen}{A \code{\link[=penalty]{penalty()}} object, whose \code{map} is \eqn{D} with \eqn{m} rows
 and \eqn{q} columns, or \code{NULL}.}
 
-\item{h}{A numeric vector of length \eqn{m}, the diagonal entries.
-\code{map_quad()} only.}
+\item{h}{A numeric vector of length \eqn{m}, the diagonal entries. Only
+\code{map_quad()} takes this argument.}
 
-\item{m}{A symmetric \eqn{m \times m} matrix. \code{map_quad_full()} only.}
+\item{m}{A symmetric \eqn{m \times m} matrix. Only \code{map_quad_full()} takes
+this argument.}
 }
 \value{
 A \eqn{q \times q} symmetric base matrix, from both.
@@ -32,8 +33,8 @@ first returns \code{diag(h)} and the second returns \eqn{M}.
 Both return a base matrix even when the map is a \pkg{Matrix} object. The
 crossproduct of a \pkg{Matrix} map would otherwise be a \pkg{Matrix}
 object, whereas the result for a \code{NULL} map is a base matrix and
-\code{\link[=map_back]{map_back()}} returns a plain vector. The conversion is made here so that
-the caller receives a base matrix from every branch and can write it into
-a block of a base information matrix.
+\code{\link[=map_back]{map_back()}} returns a plain vector. \code{map_quad()} and \code{map_quad_full()}
+convert the result, so that the caller receives a base matrix from every
+branch and can write it into a block of a base information matrix.
 }
 \keyword{internal}

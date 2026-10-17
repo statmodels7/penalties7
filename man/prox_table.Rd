@@ -26,10 +26,11 @@ by the piece count.
 \description{
 Builds the three matrices that \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} returns from a
 function that gives one column per piece for a single coefficient.
-\code{prox_table()} takes a function of the step alone, for a family whose
-pieces are the same in every coordinate; \code{prox_table_j()} takes a function
-of the step and the coordinate index, for a family whose rate can differ
-by coordinate, as the rate \eqn{\lambda/c_j} of SCAD and MCP does.
+\code{prox_table()} takes a function whose only argument is the step, for a
+family whose pieces are the same in every coordinate; \code{prox_table_j()}
+takes a function of the step and the coordinate index, for a family whose
+rate can differ by coordinate, as the rate \eqn{\lambda/c_j} of SCAD and
+MCP does.
 }
 \details{
 The step vector is recycled to \code{n_coef}, and the function is called once

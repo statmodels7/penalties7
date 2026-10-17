@@ -19,17 +19,16 @@ parameter scale.}
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_grad_theta()} a list of one number per component, named
-\code{lambda1}, \code{lambda2}, ...
-\code{penalty_hess_theta()} a list of one number per unordered pair, keyed
-diagonals first.
-\code{penalty_cross()} a list of one numeric vector of length \code{pen@n_coef} per
-component.
+\code{penalty_grad_theta()} returns a list of one number per component,
+named \code{lambda1}, \code{lambda2}, ... \code{penalty_hess_theta()} returns a list of
+one number per unordered pair, keyed diagonals first. \code{penalty_cross()}
+returns a list of one numeric vector of length \code{pen@n_coef} per component.
 }
 \description{
-The three blocks in the smoothing parameters. \code{penalty_grad_theta()} returns
-one number per component, \code{penalty_hess_theta()} one per unordered pair, and
-\code{penalty_cross()} one coefficient vector per component.
+These methods return the three blocks of derivatives in the smoothing
+parameters. \code{penalty_grad_theta()} returns one number per component,
+\code{penalty_hess_theta()} one per unordered pair, and \code{penalty_cross()} one
+coefficient vector per component.
 }
 \details{
 Each parameter enters the value linearly through the quadratic form and

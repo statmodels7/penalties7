@@ -19,15 +19,14 @@ dispatch. Every link here is the identity, so the two scales coincide and
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_grad_theta()} a list of one number per free value, named by
+\code{penalty_grad_theta()} returns a list of one number per free value,
+named by \code{pen@params}. \code{penalty_hess_theta()} returns a list of one number
+per unordered pair, keyed diagonals first. \code{penalty_cross()} returns a list
+of one numeric vector of length \code{pen@n_coef} per free value, named by
 \code{pen@params}.
-\code{penalty_hess_theta()} a list of one number per unordered pair, keyed
-diagonals first.
-\code{penalty_cross()} a list of one numeric vector of length \code{pen@n_coef} per
-free value, named by \code{pen@params}.
 }
 \description{
-The three blocks in the structure's free values, all assembled from the
+The three blocks in the structure's free values are all assembled from the
 structure's own derivative arrays. \code{penalty_grad_theta()} returns one number
 per free value, \code{penalty_hess_theta()} one per unordered pair, and
 \code{penalty_cross()} one coefficient vector per free value.
@@ -49,9 +48,10 @@ depend on the coefficients.
 
 The second-order components are keyed by pairs as \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}
 keys them, diagonals first and then the upper off-diagonal pairs joined by
-an underscore. Internally they are looked up in the keying of the
-structure, the two free names joined by a colon and sorted by position, and
-the key is constructed from the pair, not parsed out of a name.
+an underscore. Internally they are looked up by the structure's own keys,
+each of which joins the two free names with a colon after sorting them by
+position, and the key is constructed from the pair, not parsed out of a
+name.
 }
 \examples{
 pen <- structured_penalty(parameters7::ar1(4))

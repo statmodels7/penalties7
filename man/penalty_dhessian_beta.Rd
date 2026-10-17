@@ -19,7 +19,7 @@ vector carrying the same, checked by the generic as in
 \item{v}{A numeric vector of length \code{pen@n_coef}, the direction; the
 generic signals an error for any other length.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 A square base matrix of side \code{pen@n_coef}.
@@ -84,7 +84,8 @@ parent is not computed.
 b <- c(1, -0.5, 0.3)
 v <- c(0.2, 0.1, -0.4)
 
-# Zero for a quadratic penalty, whose Hessian does not change with beta.
+# The derivative is zero for a quadratic penalty, whose Hessian does not
+# change with beta.
 penalty_dhessian_beta(quadratic_penalty(diag(3)), b, list(lambda = 2), v)
 
 # The Hessian of a Student t prior changes with beta, and this is its

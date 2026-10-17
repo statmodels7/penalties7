@@ -20,45 +20,46 @@ struct_logdet(pen, eta, order = 2L)
 
 \item{eta}{The structure's free vector, as \code{\link[=struct_eta]{struct_eta()}} returns it.}
 
-\item{omega}{Accepted and unused; no call in the package passes it.
-\code{struct_d1()} and \code{struct_d2()} only.}
+\item{omega}{Accepted and unused; the calls in this package never pass it.
+Only \code{struct_d1()} and \code{struct_d2()} take it.}
 
 \item{order}{The highest log-determinant derivative wanted: \code{0}, \code{1} or
-\code{2}. \code{struct_logdet()} only, \code{2L} by default.}
+\code{2}. Only \code{struct_logdet()} takes it, and its default is \code{2L}.}
 }
 \value{
-\code{struct_omega()} a symmetric base matrix of side
+\code{struct_omega()} returns a symmetric base matrix of side
 \code{pen@structure@dimension}.
-\code{struct_d1()} a list of such matrices, one per free value, in
+\code{struct_d1()} returns a list of such matrices, one per free value, in
 \code{pen@params} order.
-\code{struct_d2()} a list of such matrices, one per unordered pair, keyed by
-the colon-joined sorted names.
-\code{struct_logdet()} a list with \code{value} (a single number) and, according to
-\code{order}, \code{d1} (a named numeric vector, one per free value) and \code{d2} (a
-named list, one number per pair, keyed as \code{struct_d2()} is).
+\code{struct_d2()} returns a list of such matrices, one per unordered pair,
+keyed by the colon-joined sorted names. \code{struct_logdet()} returns a list
+with \code{value} (a single number) and, according to \code{order}, \code{d1} (a named
+numeric vector, one per free value) and \code{d2} (a named list, one number per
+pair, keyed as \code{struct_d2()} is).
 }
 \description{
-The four helpers that read the prior's precision and its derivatives off the
-structure. \code{struct_omega()} returns \eqn{\Omega}, \code{struct_d1()} its first
-derivatives, \code{struct_d2()} its second, and \code{struct_logdet()} the
-log-determinant with its derivatives up to the requested order.
+This page documents the four helpers that read the prior's precision and its
+derivatives off the structure. \code{struct_omega()} returns \eqn{\Omega},
+\code{struct_d1()} its first derivatives, \code{struct_d2()} its second, and
+\code{struct_logdet()} the log-determinant with its derivatives up to the
+requested order.
 }
 \details{
-The structure is the precision, so each helper returns the structure's own
-result with its class removed, and no conversion between covariance and
-precision happens here. To read a structure \code{s} as a covariance, pass
+The structure is the precision, so each helper removes the class from the
+structure's own result, returns that result and does not convert between
+covariance and precision. To read a structure \code{s} as a covariance, pass
 \code{parameters7::inverse_of(s)}, which carries
 \eqn{\partial_k\Omega = -\Omega B_k \Omega}, with \eqn{B_k} the derivative
 of the covariance, and its higher orders inside the structure, where the
 log-determinant stays exact.
 
-Second-order components are keyed as \pkg{parameters7} keys them: the two
-free names joined by a colon, the pair sorted by position in \code{free_names}.
-The key is constructed from the pair, never parsed out of a name, since a
-free name may itself contain a colon.
+Second-order components are keyed as \pkg{parameters7} keys them: a key
+joins the two free names with a colon, and the pair is sorted by position in
+\code{free_names}. The key is constructed from the pair, never parsed out of a
+name, since a free name may itself contain a colon.
 }
 \seealso{
-\code{\link[=structured_penalty]{structured_penalty()}} for the prior these serve,
+\code{\link[=structured_penalty]{structured_penalty()}} for the prior that these serve,
 \code{\link[parameters7:param_d1]{parameters7::param_d1()}} and \code{\link[parameters7:param_dlogdet]{parameters7::param_dlogdet()}} for the
 generics that they call.
 }

@@ -15,7 +15,7 @@ zero_pairs(pen, z)
 }
 \value{
 A named list of \eqn{p(p+1)/2} entries, keyed as
-\code{\link[=ptheta_pairs]{ptheta_pairs()}} keys them, each holding \code{z}.
+\code{\link[=ptheta_pairs]{ptheta_pairs()}} keys them; every entry holds \code{z}.
 }
 \description{
 Returns a list holding the same zero object under every hyperparameter-pair
@@ -25,8 +25,8 @@ coefficients.
 }
 \details{
 The quadratic and additive branches use it for both
-\code{\link[=penalty_d2hessian]{penalty_d2hessian()}} and \code{\link[=penalty_dcross]{penalty_dcross()}}, the two differing only in the
-shape of the zero.
+\code{\link[=penalty_d2hessian]{penalty_d2hessian()}} and \code{\link[=penalty_dcross]{penalty_dcross()}}; the two uses differ only in
+the shape of the zero.
 }
 \seealso{
 \code{\link[=penalty_d2hessian]{penalty_d2hessian()}}, \code{\link[=penalty_dcross]{penalty_dcross()}}, \code{\link[=ptheta_pairs]{ptheta_pairs()}}

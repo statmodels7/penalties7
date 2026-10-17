@@ -24,26 +24,28 @@ penalty_logpdet(pen, theta, ...)
 a separable penalty for \code{penalty_null_basis()}.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same. \code{penalty_matrix()} and \code{penalty_logpdet()} only.}
+vector carrying the same. Only \code{penalty_matrix()} and \code{penalty_logpdet()}
+take this argument.}
 
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
-\code{penalty_matrix()} a symmetric \verb{q x q} matrix, where \code{q} is
+\code{penalty_matrix()} returns a symmetric \verb{q x q} matrix, where \code{q} is
 \code{pen@n_coef}.
-\code{penalty_rank()} a single integer, fixed at construction.
-\code{penalty_null_basis()} a \verb{q x (q - r)} matrix with orthonormal columns
-spanning the null space, and a \verb{q x 0} matrix when there is none.
-The two matrices are base matrices ordinarily, and \code{dgCMatrix} objects
-for a penalty built by \code{\link[=quadratic_penalty]{quadratic_penalty()}} with \code{blocks > 1}.
-\code{penalty_logpdet()} a list of three: \code{value}, a single number; \code{grad}, a
-named list of one number per hyperparameter; and \code{hess}, a named list of
-one number per hyperparameter pair, keyed diagonals first as
-\code{\link[=penalty_hess_theta]{penalty_hess_theta()}} is.
+\code{penalty_rank()} returns a single integer, fixed at construction.
+\code{penalty_null_basis()} returns a \verb{q x (q - r)} matrix with orthonormal
+columns spanning the null space, and a \verb{q x 0} matrix when there is none.
+The two matrices are base matrices ordinarily, and \code{dgCMatrix} objects for
+a penalty built by \code{\link[=quadratic_penalty]{quadratic_penalty()}} with \code{blocks > 1}.
+\code{penalty_logpdet()} returns a list of three: \code{value}, a single number;
+\code{grad}, a named list of one number per hyperparameter; and \code{hess}, a named
+list of one number per hyperparameter pair, keyed as in
+\code{\link[=penalty_hess_theta]{penalty_hess_theta()}}, with the diagonal pairs first.
 }
 \description{
-The four quantities that a REML or marginal likelihood criterion requires
-from a quadratic penalty. \code{penalty_matrix()} returns the matrix
+These functions return the four quantities that a REML or marginal
+likelihood criterion requires from a quadratic penalty.
+\code{penalty_matrix()} returns the matrix
 \eqn{S(\theta)} of the quadratic form, \code{penalty_rank()} its rank,
 \code{penalty_null_basis()} an orthonormal basis of the directions that the
 penalty leaves unpenalized, and \code{penalty_logpdet()} the log
@@ -54,16 +56,16 @@ A marginal criterion integrates the coefficients out under the prior that
 the penalty defines, and a Laplace expansion at the penalized mode leaves
 \eqn{\tfrac{1}{2}\log^{+}\lvert S(\theta)\rvert -
 \tfrac{1}{2}\log\lvert H + S(\theta)\rvert}. These generics supply the
-first term. It is a \strong{pseudo}-determinant, taken over the range of
-\eqn{S} alone, because a smoothing penalty is rank deficient by design and
+first term. It is a pseudo-determinant, taken only over the range of
+\eqn{S}, because a smoothing penalty is rank deficient by design and
 its ordinary determinant is zero.
 
 The rank and the null basis are fixed at construction and do not move with
-\code{theta}, which is why neither function takes it. A count of the
-eigenvalues of the assembled \eqn{S(\theta)} above a tolerance would fall
-as several smoothing parameters spread apart, whereas the null space of a
-sum of positive semidefinite matrices is the intersection of their null
-spaces and does not depend on the weights.
+\code{theta}, so \code{penalty_rank()} and \code{penalty_null_basis()} do not take it.
+A count of the eigenvalues of the assembled \eqn{S(\theta)} above a
+tolerance would fall as several smoothing parameters spread apart, whereas
+the null space of a sum of positive semidefinite matrices is the
+intersection of their null spaces and does not depend on the weights.
 }
 
 \section{The log pseudo-determinant}{
@@ -102,8 +104,8 @@ and \code{\link[=penalty_matrix.AdditivePenalty]{penalty_matrix.AdditivePenalty(
 }
 
 \examples{
-# Second differences over four coefficients: rank 2, a two-dimensional
-# null space holding the level and the slope.
+# Second differences over four coefficients give rank 2 and a
+# two-dimensional null space that holds the level and the slope.
 pen <- quadratic_penalty(crossprod(diff(diag(4), differences = 2)))
 penalty_rank(pen)
 N <- penalty_null_basis(pen)

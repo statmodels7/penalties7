@@ -25,7 +25,8 @@ NULL
 #' on \eqn{(2, \infty)}, and MCP's is `gamma`, on \eqn{(1, \infty)}.
 #'
 #' @section Methods:
-#' The two classes register methods for the same generics. For `ScadPenalty`:
+#' The two classes register methods for the same generics. The methods of
+#' `ScadPenalty` are:
 #'
 #' - value and coefficient derivatives:
 #'   [penalty_value()][penalty_value.ScadPenalty],
@@ -41,7 +42,7 @@ NULL
 #' - proximal operator: [penalty_prox()][penalty_prox.ScadPenalty],
 #'   [penalty_prox_spec()][penalty_prox_spec.ScadPenalty].
 #'
-#' For `McpPenalty`:
+#' The methods of `McpPenalty` are:
 #'
 #' - value and coefficient derivatives:
 #'   [penalty_value()][penalty_value.McpPenalty],
@@ -96,10 +97,10 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty,
 #' @title Construct the SCAD and MCP Penalties
 #'
 #' @description
-#' The two non-convex selection penalties that shrink small coefficients like
-#' the lasso and leave large ones unshrunk. Both are defined by their
-#' derivative on \eqn{t \ge 0} and extended evenly, and `scad_penalty()` and
-#' `mcp_penalty()` build objects whose value is the closed antiderivative
+#' `scad_penalty()` and `mcp_penalty()` build the two non-convex selection
+#' penalties, which shrink small coefficients like the lasso and leave large
+#' ones unshrunk. Both are defined by their derivative on \eqn{t \ge 0} and
+#' extended evenly, and the value of each object is the closed antiderivative
 #' anchored at \eqn{\rho(0) = 0}.
 #'
 #' @details
@@ -131,8 +132,8 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty,
 #' \eqn{a \to \infty} and \eqn{\gamma \to \infty} recover the lasso, smaller
 #' values make the transition more abrupt, and MCP approaches hard
 #' thresholding as \eqn{\gamma \to 1}. The values used in the literature are
-#' \eqn{a = 3.7} and \eqn{\gamma = 3}. Neither constructor supplies a value,
-#' which the caller sets or a path sweeps.
+#' \eqn{a = 3.7} and \eqn{\gamma = 3}. The constructors do not supply a value
+#' for the shape parameter, which the caller sets or a path sweeps.
 #'
 #' # Points of non-smoothness
 #'
@@ -163,7 +164,8 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty,
 #' is single-valued while \eqn{s c_j < a - 1} for SCAD and
 #' \eqn{s c_j < \gamma} for MCP. At the step \eqn{s = 1/c_j} these conditions
 #' are \eqn{a > 2} and \eqn{\gamma > 1} for any data. By default `curv` is
-#' `NULL`, no curvature is stored, and every coordinate has \eqn{c_j = 1}.
+#' `NULL`, the penalty stores no curvature, and every coordinate has
+#' \eqn{c_j = 1}.
 #'
 #' # Improper penalties
 #'
@@ -174,28 +176,29 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty,
 #' hyperparameters, which are chosen along a path or by cross-validation.
 #'
 #' @param map The matrix \eqn{D}, with one column per coefficient, or `NULL`
-#'   (the default) for the identity. Given a map, `n_coef` is taken from its
-#'   column count and the argument is ignored. A \pkg{Matrix} object keeps
-#'   its storage, and a square map whose off-diagonal entries are all zero is
-#'   stored as a [Matrix::Diagonal()], so that a diagonal map has a proximal
+#'   (the default) for the identity. If a map is given, `n_coef` is taken
+#'   from its column count and the argument is ignored. A \pkg{Matrix} object
+#'   keeps its storage, and a square map whose off-diagonal entries are all zero
+#'   is stored as a [Matrix::Diagonal()], so that a diagonal map has a proximal
 #'   operator whatever its class.
-#' @param n_coef The number of coefficients when `map` is `NULL`. A single
-#'   whole number, `1L` by default.
+#' @param n_coef The number of coefficients when `map` is `NULL`. It is a
+#'   single whole number and defaults to `1L`.
 #' @param link_lambda The \pkg{linkfunctions7} link carrying \eqn{\lambda} onto
-#'   the whole real line. `linkfunctions7::log_link()` by default,
-#'   \eqn{\lambda} being positive.
+#'   the whole real line. The default is `linkfunctions7::log_link()`, because
+#'   \eqn{\lambda} is positive.
 #' @param link_a The link carrying SCAD's shape parameter, bounded below at 2.
-#'   `linkfunctions7::bounded_link(lwr = 2)` by default. `scad_penalty()` only.
+#'   The default is `linkfunctions7::bounded_link(lwr = 2)`. The argument
+#'   belongs to `scad_penalty()` only.
 #' @param link_gamma The link carrying MCP's shape parameter, bounded below at
-#'   1. `linkfunctions7::bounded_link(lwr = 1)` by default. `mcp_penalty()`
-#'   only.
+#'   1. The default is `linkfunctions7::bounded_link(lwr = 1)`. The argument
+#'   belongs to `mcp_penalty()` only.
 #' @param curv `NULL` (the default) for unit curvature, or positive finite
 #'   numbers, one per coordinate of \eqn{D\beta} or a single value repeated.
 #'
-#' @return `scad_penalty()` a [ScadPenalty()] object with hyperparameters
-#'   `lambda` on \eqn{(0, \infty)} and `a` on \eqn{(2, \infty)}.
-#'   `mcp_penalty()` an [McpPenalty()] object with `lambda` on
-#'   \eqn{(0, \infty)} and `gamma` on \eqn{(1, \infty)}.
+#' @return `scad_penalty()` returns a [ScadPenalty()] object with
+#'   hyperparameters `lambda` on \eqn{(0, \infty)} and `a` on
+#'   \eqn{(2, \infty)}. `mcp_penalty()` returns an [McpPenalty()] object with
+#'   `lambda` on \eqn{(0, \infty)} and `gamma` on \eqn{(1, \infty)}.
 #'
 #' @references
 #' Fan, J. and Li, R. (2001). Variable selection via nonconcave penalized
@@ -209,8 +212,9 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty,
 #' concave penalty. *Annals of Statistics* **38**, 894-942.
 #'
 #' @examples
-#' # SCAD at the shape used in the literature. A small coefficient is
-#' # penalized at the rate of the lasso, a large one by a constant.
+#' # SCAD is evaluated at the shape that the literature uses. A small
+#' # coefficient is penalized at the rate of the lasso, a large one by a
+#' # constant.
 #' pen <- scad_penalty(n_coef = 3)
 #' th <- list(lambda = 1, a = 3.7)
 #' penalty_value(pen, c(0.5, 2, 5), th)
@@ -228,7 +232,7 @@ McpPenalty <- S7::new_class(name = "McpPenalty", parent = penalty,
 #' penalty_value(mcp, c(0.5, 2, 5), list(lambda = 1, gamma = 3))
 #' penalty_gradient(mcp, c(0.5, 2, 5), list(lambda = 1, gamma = 3))
 #'
-#' # Both are bounded, so neither is a density.
+#' # Both are bounded, so they are not densities.
 #' c(scad = is_proper(pen), mcp = is_proper(mcp))
 #'
 #' # As the shape grows, the value at 2 approaches the lasso's value 2.
@@ -318,17 +322,17 @@ mcp_penalty <- function(map = NULL, n_coef = 1L,
 #' `check_curv()` signals an error for an empty vector, a missing, infinite,
 #' zero or negative value, and a length other than one or `n`; a single value
 #' is repeated `n` times. `curv_of()` returns the stored curvature, or `n`
-#' ones where none is stored, which is the penalty as defined without this
-#' scaling. A stored curvature is returned whatever `n` is.
+#' ones where the curvature is not stored, which is the penalty as defined
+#' without this scaling. A stored curvature is returned whatever `n` is.
 #'
 #' @param curv `NULL`, or positive finite numbers, one per coordinate of
 #'   \eqn{D\beta} or a single value repeated.
 #' @param n The number of coordinates of \eqn{D\beta}.
 #' @param pen A [ScadPenalty()] or [McpPenalty()].
 #'
-#' @return `check_curv()` a numeric vector of length `n`, or `numeric(0)`
-#'   for `NULL`; `curv_of()` the stored numeric vector, or a vector of `n`
-#'   ones.
+#' @return `check_curv()` returns a numeric vector of length `n`, or
+#'   `numeric(0)` for `NULL`; `curv_of()` the stored numeric vector, or a vector
+#'   of `n` ones.
 #'
 #' @keywords internal
 check_curv <- function(curv, n) {
@@ -356,11 +360,11 @@ curv_of <- function(pen, n) {
 #' The Piecewise Regions of SCAD and MCP
 #'
 #' @description
-#' Split the mapped coefficients into the regions over which the formulas of
-#' each family are written, and return the sign and the absolute value with
+#' Splits the mapped coefficients into the regions over which the formulas of
+#' each family are written, and returns the sign and the absolute value with
 #' them. The value, the coefficient derivatives and the hyperparameter
 #' derivatives of the two classes use these helpers, so each formula is one
-#' `ifelse()` over indicators and the comparisons are made once.
+#' `ifelse()` over indicators and the code makes each comparison once.
 #'
 #' @details
 #' SCAD has three regions and MCP has two, and this is the only difference
@@ -368,24 +372,24 @@ curv_of <- function(pen, n) {
 #' \eqn{t} up to the sign in front, so the formulas are written in
 #' `u = abs(t)` and multiplied by `s = sign(t)` where an odd order needs it.
 #'
-#' At `t = 0` the sign is `0`, so a coefficient exactly at the kink gets a
-#' gradient of zero. This is one element of the subdifferential
+#' At `t = 0` the sign is `0`, so the gradient of a coefficient exactly at the
+#' kink is zero. This is one element of the subdifferential
 #' \eqn{[-\lambda, \lambda]}, and the one that a smooth method can use.
 #'
 #' @param t The mapped coefficients \eqn{D\beta}, a numeric vector.
 #' @param lam The rate of each coordinate, \eqn{\lambda/c_j} with \eqn{c_j}
 #'   the curvature of the coordinate: a positive numeric vector as long as
 #'   `t`, or a single positive number when every curvature is one.
-#' @param a SCAD's shape parameter, a single number above 2. `scad_parts()`
-#'   only.
-#' @param gam MCP's shape parameter, a single number above 1. `mcp_parts()`
-#'   only.
+#' @param a SCAD's shape parameter, a single number above 2. Only
+#'   `scad_parts()` takes it.
+#' @param gam MCP's shape parameter, a single number above 1. Only
+#'   `mcp_parts()` takes it.
 #'
-#' @return `scad_parts()` a list of five vectors as long as `t`: `s` the sign,
-#'   `u` the absolute value, and the logical indicators `r1`
+#' @return `scad_parts()` returns a list of five vectors as long as `t`: `s`
+#'   the sign, `u` the absolute value, and the logical indicators `r1`
 #'   (\eqn{u \le} `lam`), `r2` (the taper, `lam` \eqn{< u \le a} `lam`) and
 #'   `r3` (\eqn{u > a} `lam`).
-#'   `mcp_parts()` a list of three vectors: `s`, `u`, and `r1` for
+#'   `mcp_parts()` returns a list of three vectors: `s`, `u`, and `r1` for
 #'   \eqn{u \le \gamma} `lam`, whose complement is the flat region.
 #'
 #' @seealso [scad_penalty()], [penalty_value.ScadPenalty()],
@@ -406,8 +410,8 @@ scad_parts <- function(t, lam, a) {
 #'
 #' @description
 #' Returns the closed antiderivative of SCAD's defining \eqn{\rho'}, summed
-#' over the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. No
-#' constant is added, since SCAD is improper.
+#' over the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. It
+#' adds no constant, since SCAD is improper.
 #'
 #' @details
 #' With unit curvature and \eqn{u = \lvert t\rvert} on each coordinate,
@@ -417,12 +421,13 @@ scad_parts <- function(t, lam, a) {
 #'     \;\; (\lambda < u \le a\lambda), \qquad
 #'   \rho(u) = \frac{(a+1)\lambda^2}{2} \;\; (u > a\lambda),}
 #'
-#' the three pieces meeting continuously at \eqn{\lambda} and \eqn{a\lambda}.
+#' where the three pieces meet continuously at \eqn{\lambda} and
+#' \eqn{a\lambda}.
 #' With curvature \eqn{c_j} (the `curv` property), coordinate \eqn{j}
 #' contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, the same formula with
 #' \eqn{\lambda/c_j} in place of \eqn{\lambda} and multiplied by \eqn{c_j}.
-#' The value saturates, which leaves a large coefficient unshrunk and makes
-#' the penalty improper.
+#' The value saturates, so a large coefficient receives no shrinkage and the
+#' penalty is improper.
 #'
 #' @param pen A [ScadPenalty()] object.
 #' @param beta A numeric vector of length `pen@n_coef`, already coerced by the
@@ -432,22 +437,22 @@ scad_parts <- function(t, lam, a) {
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return A single number, the sum over coordinates. It is bounded above by
-#'   \eqn{\sum_j (a+1)\lambda^2/(2c_j)}, the sum running over the coordinates
-#'   of \eqn{D\beta}, which is `pen@n_coef * (a + 1) * lambda^2 / 2` under
-#'   the identity map at unit curvature.
+#'   \eqn{\sum_j (a+1)\lambda^2/(2c_j)}, where the sum runs over the
+#'   coordinates of \eqn{D\beta}; under the identity map at unit curvature the
+#'   bound is `pen@n_coef * (a + 1) * lambda^2 / 2`.
 #'
 #' @examples
 #' pen <- scad_penalty(n_coef = 1)
 #' th <- list(lambda = 1, a = 3.7)
 #'
-#' # One coordinate in each region: linear, tapering, flat.
+#' # One coordinate is evaluated in each region: linear, tapering, flat.
 #' sapply(c(0.5, 2, 100), function(t) penalty_value(pen, t, th))
 #'
 #' # The flat value is (a + 1) lambda^2 / 2.
 #' (3.7 + 1) / 2
 #'
 #' @seealso [scad_penalty()] for the construction,
-#'   [penalty_gradient.ScadPenalty()] for the derivative it integrates,
+#'   [penalty_gradient.ScadPenalty()] for the derivative that it integrates,
 #'   [penalty_value.McpPenalty()] for the sibling family.
 #' @keywords internal
 S7::method(penalty_value, ScadPenalty) <- function(pen, beta, theta, ...) {
@@ -466,9 +471,9 @@ S7::method(penalty_value, ScadPenalty) <- function(pen, beta, theta, ...) {
 #'
 #' @description
 #' `penalty_gradient()` returns SCAD's defining derivative carried back through
-#' the map, and `penalty_hessian()` its second derivative carried back through
-#' the map. At unit curvature the second derivative is \eqn{-1/(a-1)} in the
-#' tapering region and zero elsewhere.
+#' the map, and `penalty_hessian()` returns its second derivative carried back
+#' through the map. At unit curvature the second derivative is
+#' \eqn{-1/(a-1)} in the tapering region and zero elsewhere.
 #'
 #' @details
 #' With unit curvature, on each coordinate, with \eqn{u = \lvert t\rvert} and
@@ -487,7 +492,7 @@ S7::method(penalty_value, ScadPenalty) <- function(pen, beta, theta, ...) {
 #' \eqn{\lambda/c_j} and \eqn{s\,(a\lambda - c_j u)/(a-1)} over the taper,
 #' and the second derivative over the taper is \eqn{-c_j/(a-1)}.
 #'
-#' The Hessian is **negative** where it is not zero, so the penalty is concave
+#' The Hessian is negative where it is not zero, so the penalty is concave
 #' over the taper. A penalized objective stays convex only while the curvature
 #' of the likelihood in each coordinate exceeds \eqn{1/(a-1)}
 #' (\eqn{c_j/(a-1)} with `curv`), and outside that condition a solver that
@@ -503,7 +508,7 @@ S7::method(penalty_value, ScadPenalty) <- function(pen, beta, theta, ...) {
 #' @param theta A list holding `lambda` and `a`.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_gradient()` a numeric vector of length `pen@n_coef`;
+#' @return `penalty_gradient()` returns a numeric vector of length `pen@n_coef`;
 #'   `penalty_hessian()` a symmetric `pen@n_coef` by `pen@n_coef` base matrix,
 #'   diagonal under the identity map and negative semidefinite always.
 #'
@@ -511,10 +516,11 @@ S7::method(penalty_value, ScadPenalty) <- function(pen, beta, theta, ...) {
 #' pen <- scad_penalty(n_coef = 3)
 #' th <- list(lambda = 1, a = 3.7)
 #'
-#' # Linear, tapering, flat: the gradient falls to zero as u grows.
+#' # The coordinates lie in the linear, tapering and flat regions, and the
+#' # gradient falls to zero as u grows.
 #' penalty_gradient(pen, c(0.5, 2, 5), th)
 #'
-#' # The Hessian is -1/(a - 1) on the tapering coordinate alone.
+#' # The Hessian is -1/(a - 1) on the tapering coordinate and zero elsewhere.
 #' diag(penalty_hessian(pen, c(0.5, 2, 5), th))
 #' -1 / (3.7 - 1)
 #'
@@ -546,8 +552,8 @@ S7::method(penalty_hessian, ScadPenalty) <- function(pen, beta, theta, ...) {
 #' @name penalty_grad_theta.ScadPenalty
 #'
 #' @description
-#' The three blocks in \eqn{(\lambda, a)}, each a closed piecewise form summed
-#' over the coordinates. `penalty_grad_theta()` returns the two first
+#' The three blocks in \eqn{(\lambda, a)} are each a closed piecewise form
+#' summed over the coordinates. `penalty_grad_theta()` returns the two first
 #' derivatives, `penalty_hess_theta()` the three second derivatives, and
 #' `penalty_cross()` the mixed block, one coefficient vector per
 #' hyperparameter.
@@ -561,10 +567,10 @@ S7::method(penalty_hessian, ScadPenalty) <- function(pen, beta, theta, ...) {
 #' \eqn{\partial\rho/\partial a = (u - \lambda)^2/(2(a-1)^2)}; beyond
 #' \eqn{a\lambda} the value is \eqn{(a+1)\lambda^2/2}, so
 #' \eqn{\partial\rho/\partial\lambda = (a+1)\lambda} and
-#' \eqn{\partial\rho/\partial a = \lambda^2/2}, and neither depends on the
-#' coefficient. With curvature \eqn{c_j} the coordinate contributes
-#' \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, and each derivative follows by the
-#' chain rule through \eqn{\lambda/c_j}.
+#' \eqn{\partial\rho/\partial a = \lambda^2/2}, and these two derivatives do
+#' not depend on the coefficient. With curvature \eqn{c_j} the coordinate
+#' contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, and each derivative follows
+#' by the chain rule through \eqn{\lambda/c_j}.
 #'
 #' A marginal criterion cannot use these derivatives: a Laplace expansion
 #' requires the penalty to be twice differentiable at the mode, and a mode
@@ -581,11 +587,10 @@ S7::method(penalty_hessian, ScadPenalty) <- function(pen, beta, theta, ...) {
 #'   parameter scale.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_grad_theta()` a list of two numbers, `lambda` and `a`.
-#'   `penalty_hess_theta()` a list of three numbers, `lambda_lambda`, `a_a` and
-#'   `lambda_a`.
-#'   `penalty_cross()` a list of two numeric vectors of length `pen@n_coef`,
-#'   named `lambda` and `a`.
+#' @return `penalty_grad_theta()` returns a list of two numbers, `lambda` and
+#'   `a`. `penalty_hess_theta()` returns a list of three numbers,
+#'   `lambda_lambda`, `a_a` and `lambda_a`. `penalty_cross()` returns a list of
+#'   two numeric vectors of length `pen@n_coef`, named `lambda` and `a`.
 #'
 #' @examples
 #' pen <- scad_penalty(n_coef = 3)
@@ -675,12 +680,12 @@ S7::method(penalty_cross, ScadPenalty) <-
 #' @param theta A list holding `lambda` and `a`.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_kinks()` a numeric vector of distinct points: `0`, then
-#'   \eqn{-\lambda/c_j} and \eqn{\lambda/c_j} over the distinct rates, then
-#'   \eqn{-a\lambda/c_j} and \eqn{a\lambda/c_j} over the same rates. At unit
-#'   curvature these are the five points `0`, \eqn{-\lambda}, \eqn{\lambda},
-#'   \eqn{-a\lambda}, \eqn{a\lambda}, in this order.
-#'   `is_proper()` the single logical `FALSE`.
+#' @return `penalty_kinks()` returns a numeric vector of distinct points: `0`,
+#'   then \eqn{-\lambda/c_j} and \eqn{\lambda/c_j} over the distinct rates,
+#'   then \eqn{-a\lambda/c_j} and \eqn{a\lambda/c_j} over the same rates. At
+#'   unit curvature these are the five points `0`, \eqn{-\lambda},
+#'   \eqn{\lambda}, \eqn{-a\lambda}, \eqn{a\lambda}, in this order.
+#'   `is_proper()` returns the single logical `FALSE`.
 #'
 #' @examples
 #' penalty_kinks(scad_penalty(), list(lambda = 1, a = 3.7))
@@ -718,8 +723,8 @@ mcp_parts <- function(t, lam, gam) {
 #'
 #' @description
 #' Returns the closed antiderivative of MCP's defining \eqn{\rho'}, summed over
-#' the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. No
-#' constant is added, since MCP is improper.
+#' the coordinates of \eqn{D\beta} and anchored at \eqn{\rho(0) = 0}. It adds
+#' no constant, since MCP is improper.
 #'
 #' @details
 #' With unit curvature and \eqn{u = \lvert t\rvert} on each coordinate,
@@ -728,7 +733,7 @@ mcp_parts <- function(t, lam, gam) {
 #'     (u \le \gamma\lambda), \qquad
 #'   \rho(u) = \frac{\gamma\lambda^2}{2} \;\; (u > \gamma\lambda),}
 #'
-#' the two pieces meeting continuously at \eqn{\gamma\lambda}. SCAD keeps the
+#' where the two pieces meet continuously at \eqn{\gamma\lambda}. SCAD keeps the
 #' slope of the lasso over an interval before it tapers, while MCP tapers from
 #' the origin, so its value is a downward parabola up to \eqn{\gamma\lambda}.
 #' With curvature \eqn{c_j} (the `curv` property), coordinate \eqn{j}
@@ -743,22 +748,22 @@ mcp_parts <- function(t, lam, gam) {
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return A single number, the sum over coordinates. It is bounded above by
-#'   \eqn{\sum_j \gamma\lambda^2/(2c_j)}, the sum running over the coordinates
-#'   of \eqn{D\beta}, which is `pen@n_coef * gamma * lambda^2 / 2` under the
-#'   identity map at unit curvature.
+#'   \eqn{\sum_j \gamma\lambda^2/(2c_j)}, where the sum runs over the
+#'   coordinates of \eqn{D\beta}; under the identity map at unit curvature the
+#'   bound is `pen@n_coef * gamma * lambda^2 / 2`.
 #'
 #' @examples
 #' pen <- mcp_penalty(n_coef = 1)
 #' th <- list(lambda = 1, gamma = 3)
 #'
-#' # Inside the taper and beyond it.
+#' # The coordinate is evaluated twice inside the taper and once beyond it.
 #' sapply(c(0.5, 2, 100), function(t) penalty_value(pen, t, th))
 #'
 #' # The flat value is gamma lambda^2 / 2.
 #' 3 / 2
 #'
 #' @seealso [mcp_penalty()] for the construction,
-#'   [penalty_gradient.McpPenalty()] for the derivative it integrates,
+#'   [penalty_gradient.McpPenalty()] for the derivative that it integrates,
 #'   [penalty_value.ScadPenalty()] for the sibling family.
 #' @keywords internal
 S7::method(penalty_value, McpPenalty) <- function(pen, beta, theta, ...) {
@@ -775,9 +780,9 @@ S7::method(penalty_value, McpPenalty) <- function(pen, beta, theta, ...) {
 #'
 #' @description
 #' `penalty_gradient()` returns MCP's defining derivative carried back through
-#' the map, and `penalty_hessian()` its second derivative carried back through
-#' the map. At unit curvature the second derivative is \eqn{-1/\gamma} inside
-#' the taper and zero beyond it.
+#' the map, and `penalty_hessian()` returns its second derivative carried back
+#' through the map. At unit curvature the second derivative is
+#' \eqn{-1/\gamma} inside the taper and zero beyond it.
 #'
 #' @details
 #' With unit curvature, on each coordinate, with \eqn{u = \lvert t\rvert} and
@@ -793,7 +798,7 @@ S7::method(penalty_value, McpPenalty) <- function(pen, beta, theta, ...) {
 #' first derivative is \eqn{s\,(\lambda - c_j u/\gamma)_{+}}, and the second
 #' derivative inside the taper is \eqn{-c_j/\gamma}.
 #'
-#' The Hessian is **negative** wherever the penalty is not constant, which is
+#' The Hessian is negative wherever the penalty is not constant, which is
 #' the non-convexity in the name of MCP, and it is constant there. Among the
 #' penalties whose derivative is \eqn{\lambda} at the origin and zero beyond
 #' \eqn{\gamma\lambda}, MCP has the smallest maximum concavity, the supremum
@@ -810,7 +815,7 @@ S7::method(penalty_value, McpPenalty) <- function(pen, beta, theta, ...) {
 #' @param theta A list holding `lambda` and `gamma`.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_gradient()` a numeric vector of length `pen@n_coef`;
+#' @return `penalty_gradient()` returns a numeric vector of length `pen@n_coef`;
 #'   `penalty_hessian()` a symmetric `pen@n_coef` by `pen@n_coef` base matrix,
 #'   diagonal under the identity map and negative semidefinite always.
 #'
@@ -851,7 +856,7 @@ S7::method(penalty_hessian, McpPenalty) <- function(pen, beta, theta, ...) {
 #' @name penalty_grad_theta.McpPenalty
 #'
 #' @description
-#' The three blocks in \eqn{(\lambda, \gamma)}, each a closed piecewise form
+#' The three blocks in \eqn{(\lambda, \gamma)} are each a closed piecewise form
 #' summed over the coordinates. `penalty_grad_theta()` returns the two first
 #' derivatives, `penalty_hess_theta()` the three second derivatives, and
 #' `penalty_cross()` the mixed block, one coefficient vector per
@@ -862,11 +867,11 @@ S7::method(penalty_hessian, McpPenalty) <- function(pen, beta, theta, ...) {
 #' \eqn{\lambda u - u^2/(2\gamma)}, so \eqn{\partial\rho/\partial\lambda = u}
 #' and \eqn{\partial\rho/\partial\gamma = u^2/(2\gamma^2)}; beyond it the value
 #' is \eqn{\gamma\lambda^2/2} and the two derivatives are \eqn{\gamma\lambda}
-#' and \eqn{\lambda^2/2}, and neither depends on the coefficient. The second
-#' derivative in \eqn{\lambda} is therefore zero inside the taper, where the
-#' value is linear in \eqn{\lambda}. With curvature \eqn{c_j} the coordinate
-#' contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, and each derivative follows
-#' by the chain rule through \eqn{\lambda/c_j}.
+#' and \eqn{\lambda^2/2}, and these two derivatives do not depend on the
+#' coefficient. The second derivative in \eqn{\lambda} is therefore zero inside
+#' the taper, where the value is linear in \eqn{\lambda}. With curvature
+#' \eqn{c_j} the coordinate contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, and
+#' each derivative follows by the chain rule through \eqn{\lambda/c_j}.
 #'
 #' As for SCAD, a marginal criterion cannot use these derivatives: the
 #' expansion on which such a criterion rests requires a mode at which the
@@ -881,11 +886,11 @@ S7::method(penalty_hessian, McpPenalty) <- function(pen, beta, theta, ...) {
 #'   parameter scale.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_grad_theta()` a list of two numbers, `lambda` and `gamma`.
-#'   `penalty_hess_theta()` a list of three numbers, `lambda_lambda`,
-#'   `gamma_gamma` and `lambda_gamma`.
-#'   `penalty_cross()` a list of two numeric vectors of length `pen@n_coef`,
-#'   named `lambda` and `gamma`.
+#' @return `penalty_grad_theta()` returns a list of two numbers, `lambda` and
+#'   `gamma`. `penalty_hess_theta()` returns a list of three numbers,
+#'   `lambda_lambda`, `gamma_gamma` and `lambda_gamma`. `penalty_cross()`
+#'   returns a list of two numeric vectors of length `pen@n_coef`, named
+#'   `lambda` and `gamma`.
 #'
 #' @examples
 #' pen <- mcp_penalty(n_coef = 3)
@@ -954,7 +959,7 @@ S7::method(penalty_cross, McpPenalty) <-
 #' differ in the order of the derivative that jumps. At the origin the first
 #' derivative jumps from \eqn{-\lambda} to \eqn{\lambda}, which is the kink
 #' that produces exact zeros. At \eqn{\pm\gamma\lambda} the first derivative
-#' is continuous, both branches giving zero, and the second jumps from
+#' is continuous, because both branches give zero, and the second jumps from
 #' \eqn{-1/\gamma} to \eqn{0} (from \eqn{-c_j/\gamma} with curvature
 #' \eqn{c_j}). MCP has one pair of outer points where SCAD has two, because its
 #' taper starts at the origin instead of at \eqn{\lambda}.
@@ -968,11 +973,11 @@ S7::method(penalty_cross, McpPenalty) <-
 #' @param theta A list holding `lambda` and `gamma`.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_kinks()` a numeric vector of distinct points: `0`, then
-#'   \eqn{-\gamma\lambda/c_j} and \eqn{\gamma\lambda/c_j} over the distinct
-#'   rates \eqn{\lambda/c_j}. At unit curvature these are the three points
-#'   `0`, \eqn{-\gamma\lambda}, \eqn{\gamma\lambda}, in this order.
-#'   `is_proper()` the single logical `FALSE`.
+#' @return `penalty_kinks()` returns a numeric vector of distinct points: `0`,
+#'   then \eqn{-\gamma\lambda/c_j} and \eqn{\gamma\lambda/c_j} over the
+#'   distinct rates \eqn{\lambda/c_j}. At unit curvature these are the three
+#'   points `0`, \eqn{-\gamma\lambda}, \eqn{\gamma\lambda}, in this order.
+#'   `is_proper()` returns the single logical `FALSE`.
 #'
 #' @examples
 #' penalty_kinks(mcp_penalty(), list(lambda = 1, gamma = 3))

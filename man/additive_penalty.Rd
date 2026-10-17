@@ -26,7 +26,7 @@ components of one block.}
 
 \item{map}{The matrix \eqn{D}, with as many rows as each component has and
 one column per coefficient, or \code{NULL} (the default) for the identity. A
-map is absorbed at construction, each component becoming
+map is absorbed at construction, and each component becomes
 \eqn{D^\top P_kD}, so the stored \code{map} is always \code{NULL} and \code{n_coef} is
 the number of columns of the map. A map with an entry that is not finite
 is rejected, and so is a map that carries a component to the zero matrix,
@@ -46,15 +46,16 @@ default. The same link is used for every parameter.}
 
 \item{tol}{The relative eigenvalue tolerance, \code{1e-10} by default. It is used
 to reject a component whose smallest eigenvalue is below \code{-tol} times its
-largest, and to count the rank of the sum of the components, each divided
-by its largest absolute entry. The object stores \code{tol}, and
+largest, and to count the rank of the sum of the components after each has
+been divided by its largest absolute entry. The object stores \code{tol}, and
 \code{\link[=additive_sum]{additive_sum()}} passes it to \code{\link[=additive_stable]{additive_stable()}} as \code{r_tol}, so the rank
 of each group of components in the similarity transformation is counted
 at the same tolerance as the rank of the sum.}
 }
 \value{
 An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object with one hyperparameter per component,
-named \code{lambda1}, \code{lambda2}, ..., each bounded on \eqn{(0, \infty)}.
+named \code{lambda1}, \code{lambda2}, ... The hyperparameters are bounded on
+\eqn{(0, \infty)}.
 }
 \description{
 Builds the Gaussian prior whose precision is a weighted sum of fixed
@@ -91,15 +92,15 @@ with the log pseudo-determinant, by the similarity transformation of
 
 \section{The rank of the sum}{
 The rank and the null basis are computed once, at construction, from the
-sum of the components, each divided by its largest absolute entry, and the
-rank is the number of eigenvalues of that sum above \code{tol} times the
-largest. Both are then fixed: the null space of \eqn{S(\lambda)} is the
-intersection of the null spaces of the components at every positive
+sum of the components after each has been divided by its largest absolute
+entry, and the rank is the number of eigenvalues of that sum above \code{tol}
+times the largest. Both are then fixed: the null space of \eqn{S(\lambda)} is
+the intersection of the null spaces of the components at every positive
 \eqn{\lambda}. An eigenvalue count of the assembled \eqn{S(\lambda)} itself
-is correct only while the parameters are comparable. Once they differ by
-many orders of magnitude, the smaller contributions fall below any fixed
-relative tolerance and the count drops, although the stored null basis
-still annihilates the sum to rounding error.
+is correct only while the parameters are comparable. Once they differ by many
+orders of magnitude, the smaller contributions fall below any fixed relative
+tolerance and the count drops, although the stored null basis still
+annihilates the sum to rounding error.
 }
 
 \section{Parameters that differ by many orders of magnitude}{
@@ -116,7 +117,7 @@ components by the size of their contributions and transforms by
 similarity, so that each decomposition resolves only the spread within one
 group of components. The sum is decomposed as a whole only when every
 contribution is at least \code{\link[=additive_tol]{additive_tol()}} times the largest, or when the
-dominant group alone has the rank of the sum. The identities of the
+dominant group by itself has the rank of the sum. The identities of the
 transformation are exact, and the accuracy of the value
 and of both derivative blocks is limited by the conditioning of the
 dominant group at each level of the partition rather than by the spread of
@@ -128,15 +129,16 @@ as the spread and the number of components grow.
 }
 
 \section{The quantities of a marginal criterion}{
-\code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE}, a sum of quadratic forms being a quadratic
-form, so \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}}, \code{\link[=penalty_null_basis]{penalty_null_basis()}} and
-\code{\link[=penalty_logpdet]{penalty_logpdet()}} all have methods for this class, and \code{\link[=check_penalty]{check_penalty()}}
-runs its quadratic rows here (the row of the null basis only when the null
-basis has columns). The matrix moves with one hyperparameter per
-component, whereas the plain quadratic branch has a single scale, so the
-log pseudo-determinant is not linear in the logarithm of any one parameter.
-The row of \code{\link[=check_penalty]{check_penalty()}} that checks it therefore compares its gradient
-with \code{numDeriv}, where the plain quadratic branch checks a slope.
+\code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE}, because a sum of quadratic forms is a
+quadratic form, so \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}},
+\code{\link[=penalty_null_basis]{penalty_null_basis()}} and \code{\link[=penalty_logpdet]{penalty_logpdet()}} all have methods for this
+class, and \code{\link[=check_penalty]{check_penalty()}} runs its quadratic rows here (the row of the
+null basis only when the null basis has columns). The matrix moves with one
+hyperparameter per component, whereas the plain quadratic branch has a single
+scale, so the log pseudo-determinant is not linear in the logarithm of any
+one parameter. The row of \code{\link[=check_penalty]{check_penalty()}} that checks it therefore compares
+its gradient with \code{numDeriv}, where the plain quadratic branch checks a
+slope.
 
 \code{\link[=has_prox]{has_prox()}} returns \code{FALSE}. That function first tests whether the class
 registers a \code{\link[=penalty_prox]{penalty_prox()}} method of its own, before it calls
@@ -154,15 +156,15 @@ matrices, which is also the storage that \code{\link[=penalty_hessian]{penalty_h
 }
 
 \section{The readable quantities}{
-\code{readable = "sd"} declares the smoothing parameters to be precisions of a
-prior, and \code{\link[=penalty_readable]{penalty_readable()}} then reports the standard deviations
-\eqn{\sigma_k = \lambda_k^{-1/2}}, named \code{sigma1}, \code{sigma2} and so on,
-in place of the parameters. The penalty itself is unchanged.
+Setting \code{readable = "sd"} declares the smoothing parameters to be
+precisions of a prior, and \code{\link[=penalty_readable]{penalty_readable()}} then reports the standard
+deviations \eqn{\sigma_k = \lambda_k^{-1/2}}, named \code{sigma1}, \code{sigma2} and
+so on, in place of the parameters. The penalty itself is unchanged.
 }
 
 \examples{
-# An anisotropic tensor smooth over a 4 x 4 grid: curvature along each
-# margin, penalized separately.
+# This is an anisotropic tensor smooth over a 4 x 4 grid, and the curvature
+# along each margin is penalized separately.
 P <- crossprod(diff(diag(4), differences = 2))
 pen <- additive_penalty(list(kronecker(diag(4), P), kronecker(P, diag(4))))
 pen@params

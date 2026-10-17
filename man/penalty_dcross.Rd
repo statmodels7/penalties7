@@ -18,7 +18,7 @@ value.}
 vector carrying the same, checked by the generic as in
 \code{\link[=penalty_dhessian]{penalty_dhessian()}}.}
 
-\item{...}{Passed to methods. No shipped method reads it.}
+\item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 A named list of one numeric vector of length \code{pen@n_coef} per
@@ -36,7 +36,7 @@ with the hyperparameters. The second derivative of the criterion therefore
 contains the second derivative of the mode, and this quantity is the
 contribution of the penalty to it.
 
-It is \strong{exactly zero} wherever the penalty is quadratic in the coefficients
+It is exactly zero wherever the penalty is quadratic in the coefficients
 with a Hessian linear in the hyperparameters, which covers the quadratic and
 additive branches. The structured branch returns
 \eqn{(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta}, computed
@@ -50,11 +50,11 @@ The keys are those of \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}, d
 \examples{
 b <- c(1, -0.5, 0.3)
 
-# Zero on the quadratic branch.
+# The derivative is zero on the quadratic branch.
 penalty_dcross(quadratic_penalty(diag(3)), b, list(lambda = 2))
 
-# And not on the structured one, where it is d2 Omega / dtheta^2 times
-# the coefficients.
+# It is not zero on the structured branch, where it equals
+# d2 Omega / dtheta^2 times the coefficients.
 s <- structured_penalty(parameters7::log_cholesky(2))
 th <- list(log_L1 = 0.1, log_L2 = -0.1, L2.1 = 0.3)
 bb <- c(1, -0.5)

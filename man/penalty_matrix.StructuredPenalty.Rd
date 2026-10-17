@@ -9,27 +9,28 @@
 \arguments{
 \item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{theta}{A named list of the structure's free values.
-\code{penalty_matrix()} and \code{penalty_logpdet()} only.}
+\item{theta}{A named list of the structure's free values. Only
+\code{penalty_matrix()} and \code{penalty_logpdet()} read it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_matrix()} the symmetric precision matrix, of side
+\code{penalty_matrix()} returns the symmetric precision matrix, of side
 \code{pen@n_coef}, carrying the structure's own dimnames.
-\code{penalty_rank()} a single integer, the structure's rank.
-\code{penalty_null_basis()} a matrix with \code{pen@n_coef} rows and one column per
-null direction, with no columns for a full-rank structure.
-\code{penalty_logpdet()} a list of \code{value} (a number), \code{grad} (a list of one
-number per free value) and \code{hess} (a list of one number per unordered
+\code{penalty_rank()} returns a single integer, the structure's rank.
+\code{penalty_null_basis()} returns a matrix with \code{pen@n_coef} rows and one
+column per null direction, with no columns for a full-rank structure.
+\code{penalty_logpdet()} returns a list of \code{value} (a number), \code{grad} (a list of
+one number per free value) and \code{hess} (a list of one number per unordered
 pair, keyed diagonals first).
 }
 \description{
-The four quantities that a REML or marginal likelihood criterion reads.
-\code{penalty_matrix()} returns the precision \eqn{\Omega(\theta)},
-\code{penalty_rank()} the structure's rank, \code{penalty_null_basis()} its null
-basis, and \code{penalty_logpdet()} the log pseudo-determinant of the precision
-with its first two derivatives in the free values.
+This page documents the four quantities that a REML or marginal likelihood
+criterion reads. \code{penalty_matrix()} returns the precision
+\eqn{\Omega(\theta)}, \code{penalty_rank()} the structure's rank,
+\code{penalty_null_basis()} its null basis, and \code{penalty_logpdet()} the log
+pseudo-determinant of the precision with its first two derivatives in the
+free values.
 }
 \details{
 For a plain quadratic penalty \eqn{\log^{+}\lvert S\rvert} is linear in
@@ -54,7 +55,7 @@ dim(penalty_null_basis(pen))
 all.equal(penalty_matrix(pen, th), penalty_hessian(pen, c(0, 0, 0, 0), th))
 
 # And its log pseudo-determinant is the ordinary log-determinant here,
-# the structure being full rank.
+# because the structure is full rank.
 lp <- penalty_logpdet(pen, th)
 lp$value - as.numeric(
   determinant(penalty_matrix(pen, th), logarithm = TRUE)$modulus)

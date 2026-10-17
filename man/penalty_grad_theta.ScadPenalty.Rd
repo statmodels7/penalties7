@@ -19,15 +19,14 @@ parameter scale.}
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_grad_theta()} a list of two numbers, \code{lambda} and \code{a}.
-\code{penalty_hess_theta()} a list of three numbers, \code{lambda_lambda}, \code{a_a} and
-\code{lambda_a}.
-\code{penalty_cross()} a list of two numeric vectors of length \code{pen@n_coef},
-named \code{lambda} and \code{a}.
+\code{penalty_grad_theta()} returns a list of two numbers, \code{lambda} and
+\code{a}. \code{penalty_hess_theta()} returns a list of three numbers,
+\code{lambda_lambda}, \code{a_a} and \code{lambda_a}. \code{penalty_cross()} returns a list of
+two numeric vectors of length \code{pen@n_coef}, named \code{lambda} and \code{a}.
 }
 \description{
-The three blocks in \eqn{(\lambda, a)}, each a closed piecewise form summed
-over the coordinates. \code{penalty_grad_theta()} returns the two first
+The three blocks in \eqn{(\lambda, a)} are each a closed piecewise form
+summed over the coordinates. \code{penalty_grad_theta()} returns the two first
 derivatives, \code{penalty_hess_theta()} the three second derivatives, and
 \code{penalty_cross()} the mixed block, one coefficient vector per
 hyperparameter.
@@ -41,10 +40,10 @@ shape does not enter; over the taper
 \eqn{\partial\rho/\partial a = (u - \lambda)^2/(2(a-1)^2)}; beyond
 \eqn{a\lambda} the value is \eqn{(a+1)\lambda^2/2}, so
 \eqn{\partial\rho/\partial\lambda = (a+1)\lambda} and
-\eqn{\partial\rho/\partial a = \lambda^2/2}, and neither depends on the
-coefficient. With curvature \eqn{c_j} the coordinate contributes
-\eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, and each derivative follows by the
-chain rule through \eqn{\lambda/c_j}.
+\eqn{\partial\rho/\partial a = \lambda^2/2}, and these two derivatives do
+not depend on the coefficient. With curvature \eqn{c_j} the coordinate
+contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, and each derivative follows
+by the chain rule through \eqn{\lambda/c_j}.
 
 A marginal criterion cannot use these derivatives: a Laplace expansion
 requires the penalty to be twice differentiable at the mode, and a mode

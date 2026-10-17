@@ -19,13 +19,13 @@ parameter scale.}
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_grad_theta()} a list of one number named \code{lambda};
+\code{penalty_grad_theta()} returns a list of one number named \code{lambda};
 \code{penalty_hess_theta()} a list of one number named \code{lambda_lambda};
 \code{penalty_cross()} a list of one numeric vector of length \code{pen@n_coef},
 named \code{lambda}.
 }
 \description{
-The three blocks in \eqn{\lambda}, all closed form. \code{penalty_grad_theta()}
+The three blocks in \eqn{\lambda} are all closed form. \code{penalty_grad_theta()}
 returns \eqn{\tfrac{1}{2}(D\beta)'P(D\beta) - r/(2\lambda)},
 \code{penalty_hess_theta()} returns \eqn{r/(2\lambda^2)}, and \code{penalty_cross()}
 returns \eqn{D'PD\beta}, which is the gradient with \eqn{\lambda} divided

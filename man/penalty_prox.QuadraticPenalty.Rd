@@ -19,10 +19,10 @@
 A numeric vector of the same length as \code{v}.
 }
 \description{
-One linear solve, \eqn{(I + tS)^{-1}v}, with \eqn{S} the penalty's Hessian:
-\eqn{\lambda D'PD} for a quadratic penalty and \eqn{\Omega(\theta)} for a
-structured one. The two methods have the same body, because the objective
-is quadratic in both.
+Computes the proximal point with one linear solve, \eqn{(I + tS)^{-1}v},
+with \eqn{S} the penalty's Hessian: \eqn{\lambda D'PD} for a quadratic
+penalty and \eqn{\Omega(\theta)} for a structured one. The two methods have
+the same body, because the objective is quadratic in both.
 }
 \details{
 The subproblem is
@@ -60,6 +60,6 @@ penalty_prox(s, v, 1,
 }
 \seealso{
 \code{\link[=penalty_prox]{penalty_prox()}} for the generic and the other branches,
-\code{\link[=penalty_hessian]{penalty_hessian()}} for the matrix solved against.
+\code{\link[=penalty_hessian]{penalty_hessian()}} for the matrix against which the system is solved.
 }
 \keyword{internal}

@@ -18,14 +18,14 @@ dp_log_jacobian(pen)
 \item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 }
 \value{
-\code{dp_diag_entries()} a numeric vector of length \code{nrow(map)}, a unit
-diagonal (\code{diag = "U"}) giving ones, or \code{NULL}. \code{map_log_jacobian()} and
-\code{dp_log_jacobian()} a single number, possibly \code{NA}.
+\code{dp_diag_entries()} returns a numeric vector of length \code{nrow(map)},
+a unit diagonal (\code{diag = "U"}) giving ones, or \code{NULL}. \code{map_log_jacobian()}
+and \code{dp_log_jacobian()} return a single number, possibly \code{NA}.
 }
 \description{
 \code{dp_diag_entries()} returns the entries of a \pkg{Matrix} diagonal map,
-zeros included, and \code{NULL} for any other map. \code{map_log_jacobian()} returns
-\eqn{\log\lvert\det D\rvert}: \code{0} for a \code{NULL} map,
+including the zeros, and \code{NULL} for any other map. \code{map_log_jacobian()}
+returns \eqn{\log\lvert\det D\rvert}: \code{0} for a \code{NULL} map,
 \eqn{\sum_j\log\lvert d_j\rvert} for a diagonal one, the log-modulus of the
 determinant for a square nonsingular one, and \code{NA} for a map that is not
 square or is singular. \code{dp_log_jacobian()} returns the same quantity for a
@@ -33,10 +33,10 @@ built penalty.
 }
 \details{
 A diagonal map is treated as singular when an entry is zero or missing. Any
-other square map is densified once; it is treated as singular when an entry
-is not finite or when the rank that \code{\link[=qr]{qr()}} reports at its default tolerance
-is below the number of columns, and otherwise the log-modulus comes from
-\code{\link[=determinant]{determinant()}}.
+other square map is converted once to a dense matrix; it is treated as
+singular when an entry is not finite or when the rank that \code{\link[=qr]{qr()}} reports at
+its default tolerance is below the number of columns, and otherwise the
+log-modulus comes from \code{\link[=determinant]{determinant()}}.
 
 \code{dp_log_jacobian()} recomputes the quantity from the entries of a diagonal
 map, at the cost of \eqn{q} logarithms, so that the result stays correct

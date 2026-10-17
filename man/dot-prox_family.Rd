@@ -16,8 +16,9 @@ parametrizations), and the name of the parent's family otherwise.
 }
 \description{
 Returns the bare name of the distribution on which a separable penalty is
-built, with a \code{fixed()} wrapper and any bracketed parameter list removed, so
-that the closed-form branches can be recognized by the family underneath.
+built. The function removes a \code{fixed()} wrapper and any bracketed parameter
+list, so that the closed-form branches can be recognized by the family
+underneath.
 }
 \details{
 The parent of a separable penalty is usually wrapped: the lasso's parent is

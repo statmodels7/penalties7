@@ -20,17 +20,19 @@ and by any code that reports which penalty a block carries.}
 
 \item{map}{The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
 \code{NULL} for the identity. A \pkg{Matrix} object is kept in its own
-storage, so a diagonal map, which is what standardization produces, is
-recognized as diagonal by its class.}
+storage, so a diagonal map, such as the map that standardization
+produces, is recognized as diagonal by its class.}
 
-\item{n_coef}{The number of coefficients \eqn{q}. A single whole number.}
+\item{n_coef}{The number of coefficients \eqn{q}. The value is a single
+whole number.}
 
-\item{params}{The hyperparameter names, in the order every derivative list
-is keyed by. \code{character(0)} for a penalty with none.}
+\item{params}{The hyperparameter names, in the order by which every
+derivative list is keyed. The value is \code{character(0)} for a penalty with
+none.}
 
-\item{params_bounds}{A named list, one entry per hyperparameter, each a
-numeric pair giving an \strong{open} interval. A value at either endpoint is
-rejected, so \verb{(0, Inf)} excludes zero.}
+\item{params_bounds}{A named list with one entry per hyperparameter, and
+each entry is a numeric pair giving an open interval. A value at either
+endpoint is rejected, so \verb{(0, Inf)} excludes zero.}
 
 \item{link_params}{A named list, one \pkg{linkfunctions7} link per
 hyperparameter, carrying that hyperparameter's own interval onto the whole
@@ -47,20 +49,21 @@ printed, it receives the defaults listed under Methods, and
 error for it.
 }
 \description{
-The abstract parent of every penalty in this package. A penalty is a scalar
-function of the coefficients, written \eqn{\rho(D\beta; \theta)}: a linear
-map \eqn{D} that selects or combines coefficients, a scalar function
-\eqn{\rho} applied to what the map returns, and hyperparameters \eqn{\theta}
-that scale or shape it. The class holds no mathematics of its own. It
-records the pieces that every branch needs, so that a penalty's size, its
-hyperparameter names and their bounds can be read without knowing which
-branch it is.
+This class is the abstract parent of every penalty in this package. A
+penalty is a scalar function of the coefficients, written \eqn{\rho(D\beta;
+\theta)}: a linear map \eqn{D} that selects or combines coefficients, a
+scalar function \eqn{\rho} applied to what the map returns, and
+hyperparameters \eqn{\theta} that scale or shape it. The class holds no
+mathematics of its own. It records the pieces that every branch needs, so
+that a penalty's size, its hyperparameter names and their bounds can be read
+in the same way for every branch.
 }
 \section{The properties}{
 With \eqn{q} coefficients and a map of \eqn{m} rows, \code{beta} is a vector of
 length \eqn{q}, \eqn{D\beta} has length \eqn{m}, and every derivative in the
 coefficients is returned with length \eqn{q} or shape \eqn{q \times q}. A
-\code{NULL} map is the identity, and then \eqn{m = q} and no arithmetic is done.
+\code{NULL} map is the identity, and then \eqn{m = q} and applying the map
+involves no arithmetic.
 
 Each hyperparameter carries a \pkg{linkfunctions7} link in \code{link_params},
 which maps its own open interval onto the whole real line. A penalty can
@@ -89,7 +92,7 @@ below, supply defaults for everything else.
 The shipped branches are \code{\link[=quadratic_penalty]{quadratic_penalty()}} (with \code{\link[=ridge_penalty]{ridge_penalty()}}),
 \code{\link[=distrib_penalty]{distrib_penalty()}} (with \code{\link[=lasso_penalty]{lasso_penalty()}} and \code{\link[=elasticnet_penalty]{elasticnet_penalty()}}),
 \code{\link[=scad_penalty]{scad_penalty()}}, \code{\link[=mcp_penalty]{mcp_penalty()}}, \code{\link[=additive_penalty]{additive_penalty()}} and
-\code{\link[=structured_penalty]{structured_penalty()}}, the last built on a \pkg{parameters7} matrix
+\code{\link[=structured_penalty]{structured_penalty()}}, which is built on a \pkg{parameters7} matrix
 parameter.
 }
 
@@ -142,14 +145,14 @@ read as a Gaussian prior and returns \code{NA} otherwise.
 pen <- quadratic_penalty(crossprod(diff(diag(4))), map = NULL)
 S7::S7_inherits(pen, penalty)
 
-# The properties that can be read without knowing the branch.
+# These properties can be read in the same way for every branch.
 pen@penalty_name
 pen@n_coef
 pen@params
 pen@params_bounds
 
-# A first-difference map over three coefficients: three coefficients in,
-# two rows out.
+# A first-difference map over three coefficients takes three coefficients
+# in and returns two rows.
 D <- diff(diag(3))
 mapped <- quadratic_penalty(diag(2), map = D)
 mapped

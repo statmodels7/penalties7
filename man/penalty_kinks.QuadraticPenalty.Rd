@@ -8,21 +8,22 @@
 \arguments{
 \item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{theta}{A list holding \code{lambda}. Accepted by \code{penalty_kinks()}, whose
-result does not depend on it.}
+\item{theta}{A list holding \code{lambda}. It is accepted by \code{penalty_kinks()},
+whose result does not depend on it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_kinks()} a numeric vector of length zero.
-\code{is_quadratic()} the single logical \code{TRUE}.
-\code{is_proper()} a single logical, \code{TRUE} when the rank equals the number of
-coefficients and the null basis has no columns.
+\code{penalty_kinks()} returns a numeric vector of length zero.
+\code{is_quadratic()} returns the single logical \code{TRUE}.
+\code{is_proper()} returns a single logical, \code{TRUE} when the rank equals the
+number of coefficients and the null basis has no columns.
 }
 \description{
-The three predicates that a consumer evaluates before choosing how to fit
-a quadratic block. \code{penalty_kinks()} returns \code{numeric(0)}, the value being
-a polynomial and smooth everywhere. \code{is_quadratic()} returns \code{TRUE}, so the
+This page documents the three predicates that a consumer evaluates before
+choosing how to fit a quadratic block. \code{penalty_kinks()} returns
+\code{numeric(0)}, because the value is a polynomial and smooth everywhere.
+\code{is_quadratic()} returns \code{TRUE}, so the
 four marginal quantities are available. \code{is_proper()} returns \code{TRUE} only
 when the penalty has full rank.
 }
@@ -33,7 +34,7 @@ there is no null direction. A ridge over \eqn{q} coefficients is proper;
 second differences over \eqn{q} coefficients leave the level and the slope
 unpenalized, have rank \eqn{q - 2}, and give an improper prior. Both can be
 used, and the difference appears in the normalizing constant, which is
-taken over the range alone.
+taken only over the range.
 
 Because there are no kinks, a fit can treat a quadratic block with any
 method for smooth objectives, and \code{\link[=penalty_prox]{penalty_prox()}} is a linear solve and
@@ -51,7 +52,7 @@ c(penalty_rank(ridge), penalty_rank(curve))
 }
 \seealso{
 \code{\link[=penalty_kinks]{penalty_kinks()}}, \code{\link[=is_proper]{is_proper()}} and \code{\link[=is_quadratic]{is_quadratic()}} for the
-generics, \code{\link[=penalty_matrix.QuadraticPenalty]{penalty_matrix.QuadraticPenalty()}} for the quantities
+generics, \code{\link[=penalty_matrix.QuadraticPenalty]{penalty_matrix.QuadraticPenalty()}} for the quantities that
 \code{is_quadratic()} gates.
 }
 \keyword{internal}

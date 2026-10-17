@@ -1,14 +1,14 @@
 #' @title S7 Base Class for Penalties
 #'
 #' @description
-#' The abstract parent of every penalty in this package. A penalty is a scalar
-#' function of the coefficients, written \eqn{\rho(D\beta; \theta)}: a linear
-#' map \eqn{D} that selects or combines coefficients, a scalar function
-#' \eqn{\rho} applied to what the map returns, and hyperparameters \eqn{\theta}
-#' that scale or shape it. The class holds no mathematics of its own. It
-#' records the pieces that every branch needs, so that a penalty's size, its
-#' hyperparameter names and their bounds can be read without knowing which
-#' branch it is.
+#' This class is the abstract parent of every penalty in this package. A
+#' penalty is a scalar function of the coefficients, written \eqn{\rho(D\beta;
+#' \theta)}: a linear map \eqn{D} that selects or combines coefficients, a
+#' scalar function \eqn{\rho} applied to what the map returns, and
+#' hyperparameters \eqn{\theta} that scale or shape it. The class holds no
+#' mathematics of its own. It records the pieces that every branch needs, so
+#' that a penalty's size, its hyperparameter names and their bounds can be read
+#' in the same way for every branch.
 #'
 #' @details
 #' # The properties
@@ -16,7 +16,8 @@
 #' With \eqn{q} coefficients and a map of \eqn{m} rows, `beta` is a vector of
 #' length \eqn{q}, \eqn{D\beta} has length \eqn{m}, and every derivative in the
 #' coefficients is returned with length \eqn{q} or shape \eqn{q \times q}. A
-#' `NULL` map is the identity, and then \eqn{m = q} and no arithmetic is done.
+#' `NULL` map is the identity, and then \eqn{m = q} and applying the map
+#' involves no arithmetic.
 #'
 #' Each hyperparameter carries a \pkg{linkfunctions7} link in `link_params`,
 #' which maps its own open interval onto the whole real line. A penalty can
@@ -45,7 +46,7 @@
 #' The shipped branches are [quadratic_penalty()] (with [ridge_penalty()]),
 #' [distrib_penalty()] (with [lasso_penalty()] and [elasticnet_penalty()]),
 #' [scad_penalty()], [mcp_penalty()], [additive_penalty()] and
-#' [structured_penalty()], the last built on a \pkg{parameters7} matrix
+#' [structured_penalty()], which is built on a \pkg{parameters7} matrix
 #' parameter.
 #'
 #' @section Methods:
@@ -84,14 +85,16 @@
 #'   and by any code that reports which penalty a block carries.
 #' @param map The matrix \eqn{D}, of \eqn{m} rows and \eqn{q} columns, or
 #'   `NULL` for the identity. A \pkg{Matrix} object is kept in its own
-#'   storage, so a diagonal map, which is what standardization produces, is
-#'   recognized as diagonal by its class.
-#' @param n_coef The number of coefficients \eqn{q}. A single whole number.
-#' @param params The hyperparameter names, in the order every derivative list
-#'   is keyed by. `character(0)` for a penalty with none.
-#' @param params_bounds A named list, one entry per hyperparameter, each a
-#'   numeric pair giving an **open** interval. A value at either endpoint is
-#'   rejected, so `(0, Inf)` excludes zero.
+#'   storage, so a diagonal map, such as the map that standardization
+#'   produces, is recognized as diagonal by its class.
+#' @param n_coef The number of coefficients \eqn{q}. The value is a single
+#'   whole number.
+#' @param params The hyperparameter names, in the order by which every
+#'   derivative list is keyed. The value is `character(0)` for a penalty with
+#'   none.
+#' @param params_bounds A named list with one entry per hyperparameter, and
+#'   each entry is a numeric pair giving an open interval. A value at either
+#'   endpoint is rejected, so `(0, Inf)` excludes zero.
 #' @param link_params A named list, one \pkg{linkfunctions7} link per
 #'   hyperparameter, carrying that hyperparameter's own interval onto the whole
 #'   real line.
@@ -115,14 +118,14 @@
 #' pen <- quadratic_penalty(crossprod(diff(diag(4))), map = NULL)
 #' S7::S7_inherits(pen, penalty)
 #'
-#' # The properties that can be read without knowing the branch.
+#' # These properties can be read in the same way for every branch.
 #' pen@penalty_name
 #' pen@n_coef
 #' pen@params
 #' pen@params_bounds
 #'
-#' # A first-difference map over three coefficients: three coefficients in,
-#' # two rows out.
+#' # A first-difference map over three coefficients takes three coefficients
+#' # in and returns two rows.
 #' D <- diff(diag(3))
 #' mapped <- quadratic_penalty(diag(2), map = D)
 #' mapped
@@ -145,19 +148,19 @@ penalty <- S7::new_class(
 #'
 #' @description
 #' Puts a hyperparameter argument into the single shape that every branch
-#' reads: a list reordered to `pen@params`, with the names removed from the
-#' values, and checked against `pen@params_bounds` as open intervals. Returns
+#' reads: a list reordered to `pen@params`, whose values are unnamed, and
+#' checked against `pen@params_bounds` as open intervals. Returns
 #' the aligned list. For a penalty with no hyperparameters it returns an empty
 #' list without examining `theta`.
 #'
 #' @details
 #' A named numeric vector is accepted in place of a list and converted with
 #' `as.list()`, because the SCAD and MCP methods read their hyperparameters
-#' with `$`, which does not apply to an atomic vector. The conversion is made
-#' here, in the function that every generic calls, so every branch receives a
+#' with `$`, which does not apply to an atomic vector. This function, which
+#' every generic calls, makes the conversion, so every branch receives a
 #' list.
 #'
-#' The bounds are **open**, so a hyperparameter at an endpoint is rejected
+#' The bounds are open, so a hyperparameter at an endpoint is rejected
 #' rather than clamped: `alpha = 1` on an elastic net whose bound is
 #' \eqn{(0, 1)} signals an error. Parameters in \pkg{distributions7} are
 #' validated in the same way, and the open bounds keep the value of every
@@ -165,16 +168,17 @@ penalty <- S7::new_class(
 #'
 #' @param pen A [penalty()] object.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same. Extra entries are dropped; a missing one is an
-#'   error naming which. Each value must be a single number.
+#'   vector carrying the same. Extra entries are dropped; a missing entry is an
+#'   error that names the entry. Each value must be a single number.
 #'
-#' @return A list of the same length and order as `pen@params`, each element
-#'   an unnamed single number. `list()` when the penalty has no
-#'   hyperparameters.
+#' @return A list of the same length and order as `pen@params`, in which each
+#'   element is an unnamed single number. The value is `list()` when the
+#'   penalty has no hyperparameters.
 #'
 #' @section Errors:
-#' `Missing parameter(s) in 'theta': ... Expected: ...` when a name is absent
-#' or `theta` is unnamed,
+#' The error message is
+#' `'theta' lacks the parameter(s) ...; the expected parameters are ....`
+#' when a name is absent or `theta` is unnamed,
 #' `Parameter 'p' must be a single number.` when a value is `NULL`, empty or
 #' longer than one, and
 #' `Parameter 'p' must lie in the open interval (a, b).` when a value is
@@ -192,7 +196,8 @@ align_ptheta <- function(pen, theta) {
   # one point every generic passes through.
   if (!is.list(theta)) theta <- as.list(theta)
   if (is.null(names(theta)) || !all(params %in% names(theta))) {
-    stop(sprintf("Missing parameter(s) in 'theta': %s. Expected: %s.",
+    stop(sprintf(paste0("'theta' lacks the parameter(s) %s; the expected ",
+                        "parameters are %s."),
                  paste(setdiff(params, names(theta)), collapse = ", "),
                  paste(params, collapse = ", ")), call. = FALSE)
   }
@@ -213,23 +218,23 @@ align_ptheta <- function(pen, theta) {
   theta
 }
 
-#' A Map, in Whatever Storage It Arrived In
+#' A Map in Its Original Storage
 #'
 #' @description
 #' Returns the map unchanged when it is already a \pkg{Matrix} object, and
-#' `as.matrix()` of it otherwise. Called once, by each constructor that takes
-#' a map, so that a map given as a data frame or a vector becomes a matrix
-#' while a sparse or diagonal one keeps its own storage.
+#' `as.matrix()` of it otherwise. Each constructor that takes a map calls this
+#' function once, so that a map given as a data frame or a vector becomes a
+#' matrix while a sparse or diagonal one keeps its own storage.
 #'
 #' @details
 #' A dense copy of a diagonal map would hold \eqn{q^2} numbers instead of
-#' \eqn{q}. A diagonal map is what standardization produces, a rescaling of
-#' each coordinate under which a separable penalty stays separable and its
-#' proximal operator stays in closed form. The product and the crossproduct,
+#' \eqn{q}. Standardization produces a diagonal map, a rescaling of each
+#' coordinate under which a separable penalty stays separable and its proximal
+#' operator stays in closed form. The product and the crossproduct,
 #' which are the only operations applied to the map, are defined for both
 #' kinds of storage.
 #'
-#' @param map A matrix, a \pkg{Matrix}, or anything `as.matrix()` accepts.
+#' @param map A matrix, a \pkg{Matrix}, or anything that `as.matrix()` accepts.
 #'
 #' @return The same object when it is a \pkg{Matrix}, and a base matrix
 #'   otherwise.
@@ -251,12 +256,14 @@ as_map <- function(map) {
 #'
 #' @param pen A [penalty()] object, whose `map` is \eqn{D} with \eqn{m} rows
 #'   and \eqn{q} columns, or `NULL`.
-#' @param beta A numeric vector of length \eqn{q}. `map_apply()` only.
-#' @param g A numeric vector of length \eqn{m}. `map_back()` only.
+#' @param beta A numeric vector of length \eqn{q}. Only `map_apply()` takes
+#'   this argument.
+#' @param g A numeric vector of length \eqn{m}. Only `map_back()` takes this
+#'   argument.
 #'
-#' @return `map_apply()` a numeric vector of length \eqn{m}; `map_back()` a
-#'   numeric vector of length \eqn{q}. Both are plain numeric vectors even
-#'   when the map is a \pkg{Matrix} object, rather than one-column
+#' @return `map_apply()` returns a numeric vector of length \eqn{m};
+#'   `map_back()` a numeric vector of length \eqn{q}. Both are plain numeric
+#'   vectors even when the map is a \pkg{Matrix} object, rather than one-column
 #'   \pkg{Matrix} objects.
 #'
 #' @keywords internal
@@ -283,15 +290,16 @@ map_back <- function(pen, g) {
 #' Both return a base matrix even when the map is a \pkg{Matrix} object. The
 #' crossproduct of a \pkg{Matrix} map would otherwise be a \pkg{Matrix}
 #' object, whereas the result for a `NULL` map is a base matrix and
-#' [map_back()] returns a plain vector. The conversion is made here so that
-#' the caller receives a base matrix from every branch and can write it into
-#' a block of a base information matrix.
+#' [map_back()] returns a plain vector. `map_quad()` and `map_quad_full()`
+#' convert the result, so that the caller receives a base matrix from every
+#' branch and can write it into a block of a base information matrix.
 #'
 #' @param pen A [penalty()] object, whose `map` is \eqn{D} with \eqn{m} rows
 #'   and \eqn{q} columns, or `NULL`.
-#' @param h A numeric vector of length \eqn{m}, the diagonal entries.
-#'   `map_quad()` only.
-#' @param m A symmetric \eqn{m \times m} matrix. `map_quad_full()` only.
+#' @param h A numeric vector of length \eqn{m}, the diagonal entries. Only
+#'   `map_quad()` takes this argument.
+#' @param m A symmetric \eqn{m \times m} matrix. Only `map_quad_full()` takes
+#'   this argument.
 #'
 #' @return A \eqn{q \times q} symmetric base matrix, from both.
 #'
@@ -317,19 +325,20 @@ map_quad_full <- function(pen, m) {
 #' The Hyperparameter Pair Names
 #'
 #' @description
-#' The keys of a penalty's second hyperparameter derivatives, and the pairs
-#' they stand for: the \eqn{p} diagonals first, in `params` order, then the
-#' \eqn{p(p-1)/2} upper off-diagonal pairs, each joined by an underscore. For
+#' Returns the keys of a penalty's second hyperparameter derivatives and the
+#' pairs that the keys represent. The \eqn{p} diagonal keys come first, in
+#' `params` order, the \eqn{p(p-1)/2} upper off-diagonal pairs follow, and
+#' each key joins the two names with an underscore. For
 #' `c("lambda", "alpha")` the keys are `lambda_lambda`, `alpha_alpha`,
-#' `lambda_alpha`. This is the order [penalty_hess_theta()] returns and the
-#' order [ptheta_to_link()] reads.
+#' `lambda_alpha`. This is the order that [penalty_hess_theta()] returns and
+#' that [ptheta_to_link()] reads.
 #'
 #' @details
 #' The diagonals come first, rather than in lexicographic order, so that the
 #' first \eqn{p} entries are the diagonal of the Hessian. The same convention
 #' names the Hessian components of \pkg{distributions7}.
 #'
-#' `character(0)` gives an empty **named** list. A penalty with no free
+#' `character(0)` gives an empty named list. A penalty with no free
 #' hyperparameters has no pair in which to differentiate, and the named empty
 #' list is the shape that [penalty_grad_theta()] and [penalty_cross()] return
 #' in that case. The function treats this case separately, because
@@ -338,11 +347,11 @@ map_quad_full <- function(pen, m) {
 #' pairs.
 #'
 #' @param params A character vector of hyperparameter names, in the order in
-#'   which the penalty holds them. May be empty.
+#'   which the penalty holds them. The vector may be empty.
 #'
 #' @return A named list of length \eqn{p(p+1)/2}, empty when `params` is. Each
 #'   element is a character pair naming the two hyperparameters of the
-#'   derivative, and each name is those two joined by an underscore.
+#'   derivative, and each name joins those two with an underscore.
 #'
 #' @keywords internal
 ptheta_pairs <- function(params) {
@@ -370,7 +379,7 @@ ptheta_pairs <- function(params) {
 #' @description
 #' Applies the chain rule that turns a derivative in \eqn{\theta} into one in
 #' \eqn{\eta = g(\theta)}, at first and second order, using the diagonal
-#' Jacobian the links supply. Handles one of the three derivative kinds per
+#' Jacobian that the links supply. Handles one of the three derivative kinds per
 #' call, whichever of `g`, `H` and `cross` is given.
 #'
 #' @details
@@ -385,8 +394,8 @@ ptheta_pairs <- function(params) {
 #'     h_i'(\eta_i)\, h_j'(\eta_j)
 #'   + \delta_{ij}\, \frac{\partial\rho}{\partial\theta_i}\, h_i''(\eta_i).}
 #'
-#' The second-derivative term appears on the diagonal alone, which is why the
-#' Hessian branch requires the gradient as well. The mixed block
+#' The second-derivative term appears only on the diagonal, so the Hessian
+#' branch requires the gradient as well. The mixed block
 #' \eqn{\partial^2\rho / \partial\beta\,\partial\theta_i} is first order in
 #' \eqn{\theta} and picks up one factor of \eqn{h_i'}, because a
 #' reparametrization of the hyperparameters does not change the coefficient
@@ -397,12 +406,12 @@ ptheta_pairs <- function(params) {
 #'
 #' @param pen A [penalty()] object.
 #' @param theta The aligned hyperparameters, as [align_ptheta()] returns them.
-#' @param g The parameter-scale gradient list, keyed by `pen@params`. Required
-#'   for the gradient and for the Hessian; `NULL` otherwise.
+#' @param g The parameter-scale gradient list, keyed by `pen@params`. It is
+#'   required for the gradient and for the Hessian and is `NULL` otherwise.
 #' @param H The parameter-scale Hessian list, keyed as [ptheta_pairs()]
-#'   names the pairs. Supplied with `g` for the second order.
-#' @param cross The parameter-scale mixed list, keyed by `pen@params`, each
-#'   element a vector of length `pen@n_coef`. Supplied alone.
+#'   names the pairs. It is supplied with `g` for the second order.
+#' @param cross The parameter-scale mixed list, keyed by `pen@params`, in which
+#'   each element is a vector of length `pen@n_coef`. It is supplied alone.
 #'
 #' @return Whichever kind was supplied, on the unconstrained scale, with the
 #'   same names and shapes as the input. `cross` takes precedence over `H`,
@@ -452,7 +461,7 @@ ptheta_to_link <- function(pen, theta, g = NULL, H = NULL, cross = NULL) {
 #' @examples
 #' quadratic_penalty(diag(3))
 #'
-#' # A first-difference map: three coefficients, two differences.
+#' # A first-difference map over three coefficients gives two differences.
 #' quadratic_penalty(diag(2), map = diff(diag(3)))
 #'
 #' # A penalty with no hyperparameters prints "(none)".

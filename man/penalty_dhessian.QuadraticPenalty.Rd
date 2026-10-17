@@ -9,30 +9,30 @@
 \arguments{
 \item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}. Unused, because none
-of these quantities depends on the coefficients.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. The methods do not use
+it, because these quantities do not depend on the coefficients.}
 
-\item{theta}{A named list holding \code{lambda}. Unused, because none of these
-quantities depends on \eqn{\lambda}.}
+\item{theta}{A named list holding \code{lambda}. The methods do not use it,
+because these quantities do not depend on \eqn{\lambda}.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_dhessian()} a list of one matrix named \code{lambda}.
-\code{penalty_d2hessian()} a list of one zero matrix named \code{lambda_lambda}.
-\code{penalty_dcross()} a list of one zero vector named \code{lambda_lambda}.
-\code{beta_quadratic()} the single logical \code{TRUE}.
+\code{penalty_dhessian()} returns a list of one matrix named \code{lambda}.
+\code{penalty_d2hessian()} returns a list of one zero matrix named
+\code{lambda_lambda}. \code{penalty_dcross()} returns a list of one zero vector named
+\code{lambda_lambda}. \code{beta_quadratic()} returns the single logical \code{TRUE}.
 }
 \description{
-The methods of the quadratic branch for the four generics that a marginal
+The methods of the quadratic branch cover the four generics that a marginal
 criterion requires beyond the second order. \eqn{S = \lambda D'PD} is
 linear in \eqn{\lambda} and free of the coefficients, so
 \code{penalty_dhessian()} returns \eqn{D'PD}, \code{penalty_d2hessian()} and
 \code{penalty_dcross()} return zeros, and \code{beta_quadratic()} returns \code{TRUE}.
 }
 \details{
-\code{penalty_dhessian()} returns the stored \eqn{D'PD} \strong{in the storage that
-the penalty keeps}. A base matrix is passed through \code{unclass()}, which
+\code{penalty_dhessian()} returns the stored \eqn{D'PD} in the storage that
+the penalty keeps. A base matrix is passed through \code{unclass()}, which
 removes the attributes that it may carry, and an S4 matrix is returned
 unchanged. A penalty built with \code{blocks > 1} therefore gives a
 \code{dgCMatrix}, and a consumer that needs a base matrix coerces it.

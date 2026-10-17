@@ -22,7 +22,7 @@ vector carrying the same, holding every name in \code{pen@params}.}
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
-\code{penalty_gradient()} a numeric vector of length \code{pen@n_coef};
+\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
 \code{penalty_hessian()} a symmetric matrix of that side. It is a base matrix
 even where the map is a \pkg{Matrix}, except for a penalty built by
 \code{\link[=quadratic_penalty]{quadratic_penalty()}} with \code{blocks > 1}, whose Hessian is a \code{dgCMatrix}
@@ -30,10 +30,10 @@ so that the sparse storage is kept.
 }
 \description{
 \code{penalty_gradient()} returns \eqn{\partial\rho/\partial\beta} and
-\code{penalty_hessian()} returns \eqn{\partial^2\rho/\partial\beta^2}, both in
-closed form for every shipped branch and both already carried back through
-the map. These are the two quantities that a penalized fit adds to the score
-and to the information at each iteration.
+\code{penalty_hessian()} returns \eqn{\partial^2\rho/\partial\beta^2}. Each is
+computed in closed form for every shipped branch and is already carried back
+through the map. These are the two quantities that a penalized fit adds to
+the score and to the information at each iteration.
 }
 \section{Derivatives through the map}{
 \eqn{\rho} is a function of \eqn{t = D\beta}, so the chain rule gives

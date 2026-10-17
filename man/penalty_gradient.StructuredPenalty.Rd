@@ -14,9 +14,9 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} an unnamed numeric vector of length
+\code{penalty_gradient()} returns an unnamed numeric vector of length
 \code{pen@n_coef}; \code{penalty_hessian()} the symmetric precision matrix
-\eqn{\Omega(\theta)}, \strong{carrying the structure's own dimnames} (\code{v1},
+\eqn{\Omega(\theta)}, carrying the structure's own dimnames (\code{v1},
 \code{v2}, ... for the \pkg{parameters7} primitives). The quadratic and
 additive branches return matrices with no dimnames, so a comparison
 across branches requires \code{unname()}.

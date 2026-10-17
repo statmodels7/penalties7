@@ -2,12 +2,12 @@
 % Please edit documentation in R/penalty_class.R
 \name{as_map}
 \alias{as_map}
-\title{A Map, in Whatever Storage It Arrived In}
+\title{A Map in Its Original Storage}
 \usage{
 as_map(map)
 }
 \arguments{
-\item{map}{A matrix, a \pkg{Matrix}, or anything \code{as.matrix()} accepts.}
+\item{map}{A matrix, a \pkg{Matrix}, or anything that \code{as.matrix()} accepts.}
 }
 \value{
 The same object when it is a \pkg{Matrix}, and a base matrix
@@ -15,15 +15,15 @@ otherwise.
 }
 \description{
 Returns the map unchanged when it is already a \pkg{Matrix} object, and
-\code{as.matrix()} of it otherwise. Called once, by each constructor that takes
-a map, so that a map given as a data frame or a vector becomes a matrix
-while a sparse or diagonal one keeps its own storage.
+\code{as.matrix()} of it otherwise. Each constructor that takes a map calls this
+function once, so that a map given as a data frame or a vector becomes a
+matrix while a sparse or diagonal one keeps its own storage.
 }
 \details{
 A dense copy of a diagonal map would hold \eqn{q^2} numbers instead of
-\eqn{q}. A diagonal map is what standardization produces, a rescaling of
-each coordinate under which a separable penalty stays separable and its
-proximal operator stays in closed form. The product and the crossproduct,
+\eqn{q}. Standardization produces a diagonal map, a rescaling of each
+coordinate under which a separable penalty stays separable and its proximal
+operator stays in closed form. The product and the crossproduct,
 which are the only operations applied to the map, are defined for both
 kinds of storage.
 }

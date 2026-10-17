@@ -11,14 +11,14 @@ ptheta_to_link(pen, theta, g = NULL, H = NULL, cross = NULL)
 
 \item{theta}{The aligned hyperparameters, as \code{\link[=align_ptheta]{align_ptheta()}} returns them.}
 
-\item{g}{The parameter-scale gradient list, keyed by \code{pen@params}. Required
-for the gradient and for the Hessian; \code{NULL} otherwise.}
+\item{g}{The parameter-scale gradient list, keyed by \code{pen@params}. It is
+required for the gradient and for the Hessian and is \code{NULL} otherwise.}
 
 \item{H}{The parameter-scale Hessian list, keyed as \code{\link[=ptheta_pairs]{ptheta_pairs()}}
-names the pairs. Supplied with \code{g} for the second order.}
+names the pairs. It is supplied with \code{g} for the second order.}
 
-\item{cross}{The parameter-scale mixed list, keyed by \code{pen@params}, each
-element a vector of length \code{pen@n_coef}. Supplied alone.}
+\item{cross}{The parameter-scale mixed list, keyed by \code{pen@params}, in which
+each element is a vector of length \code{pen@n_coef}. It is supplied alone.}
 }
 \value{
 Whichever kind was supplied, on the unconstrained scale, with the
@@ -28,7 +28,7 @@ and \code{H} over \code{g}, when more than one is given.
 \description{
 Applies the chain rule that turns a derivative in \eqn{\theta} into one in
 \eqn{\eta = g(\theta)}, at first and second order, using the diagonal
-Jacobian the links supply. Handles one of the three derivative kinds per
+Jacobian that the links supply. Handles one of the three derivative kinds per
 call, whichever of \code{g}, \code{H} and \code{cross} is given.
 }
 \details{
@@ -43,8 +43,8 @@ and the chain rule needs no partition sums. Writing \eqn{h = g^{-1}} and
     h_i'(\eta_i)\, h_j'(\eta_j)
   + \delta_{ij}\, \frac{\partial\rho}{\partial\theta_i}\, h_i''(\eta_i).}
 
-The second-derivative term appears on the diagonal alone, which is why the
-Hessian branch requires the gradient as well. The mixed block
+The second-derivative term appears only on the diagonal, so the Hessian
+branch requires the gradient as well. The mixed block
 \eqn{\partial^2\rho / \partial\beta\,\partial\theta_i} is first order in
 \eqn{\theta} and picks up one factor of \eqn{h_i'}, because a
 reparametrization of the hyperparameters does not change the coefficient

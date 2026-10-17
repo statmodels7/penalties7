@@ -17,7 +17,7 @@ A list of four: \code{S}, the assembled symmetric matrix of side
 \code{pen@n_coef}; \code{logpdet}, a single number; \code{dlog}, a numeric vector of
 \eqn{\operatorname{tr}(S^{+}P_k)} in \code{pen@params} order; and \code{d2log}, the
 square matrix of \eqn{\operatorname{tr}(S^{+}P_kS^{+}P_l)}. The last
-three are \code{NaN} at a setting the transformation cannot resolve.
+three are \code{NaN} at a setting that the transformation cannot resolve.
 }
 \description{
 Assembles \eqn{S(\lambda) = \sum_k \lambda_k P_k} and returns it together
@@ -35,18 +35,18 @@ eigendecomposition computes its eigenvalues with an absolute accuracy of
 order \eqn{d\,\epsilon\lVert S\rVert_{2}}, so the smallest eigenvalue on the
 range can fall below that resolution and carry no significant digit. The
 sum of logarithms is then \code{NaN} if that eigenvalue is computed as negative
-and an inaccurate number if it is computed as positive, and neither case
-raises a warning.
+and an inaccurate number if it is computed as positive, and the computation
+raises no warning in either case.
 }
 
 \section{The similarity transformation}{
 \code{\link[=additive_stable]{additive_stable()}} partitions the components by the size of their
 contributions, \eqn{\lambda_k\max_{ij}\lvert(P_k)_{ij}\rvert}, and rotates
 onto the eigenvectors of the dominant group, the components whose
-contribution is at least \code{\link[=additive_tol]{additive_tol()}} times the largest. With
-\eqn{U_{+}} spanning the range of that group and \eqn{U_{0}} its kernel,
+contribution is at least \code{\link[=additive_tol]{additive_tol()}} times the largest. Let
+\eqn{U_{+}} span the range of that group and \eqn{U_{0}} its kernel, and let
 \eqn{A = U_{+}^{\top}SU_{+}}, \eqn{C = U_{+}^{\top}SU_{0}},
-\eqn{F = A^{-1}C} and \eqn{M = U_{0}^{\top}SU_{0} - C^{\top}F},
+\eqn{F = A^{-1}C} and \eqn{M = U_{0}^{\top}SU_{0} - C^{\top}F}. Then
 
 \deqn{\log\mathrm{pdet}\,S = \log\lvert A\rvert + \log\mathrm{pdet}\,M,
   \qquad S^{+} = U_{+}A^{-1}U_{+}^{\top} + GM^{+}G^{\top},
@@ -67,8 +67,8 @@ dominant group is zero or reaches the rank left, and that level takes one
 eigendecomposition.
 
 Two quantities are exactly zero and are dropped instead of computed. The
-dominant group vanishes on \eqn{U_{0}}, that subspace being its kernel, so
-a computed value there would consist of rounding errors of order
+dominant group vanishes on \eqn{U_{0}}, because that subspace is its kernel,
+so a computed value there would consist of rounding errors of order
 \eqn{\lambda_{\mathrm{dom}}\epsilon}, which would swamp the subordinate
 terms; the blocks of each dominant component on \eqn{U_{0}} vanish for the
 same reason. The part of \eqn{M} that the next level does not carry as

@@ -9,21 +9,23 @@
 \arguments{
 \item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}. Unused.}
+\item{beta}{A numeric vector of length \code{pen@n_coef}. The methods do not use
+it.}
 
-\item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... Unused.}
+\item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... The methods do not
+use it.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_dhessian()} a list of one base matrix per component, named
-by \code{pen@params}.
-\code{penalty_d2hessian()} a list of zero matrices, one per unordered pair.
-\code{penalty_dcross()} a list of zero vectors, one per unordered pair.
-\code{beta_quadratic()} the single logical \code{TRUE}.
+\code{penalty_dhessian()} returns a list of one base matrix per
+component, named by \code{pen@params}. \code{penalty_d2hessian()} returns a list of
+zero matrices, one per unordered pair. \code{penalty_dcross()} returns a list of
+zero vectors, one per unordered pair. \code{beta_quadratic()} returns the single
+logical \code{TRUE}.
 }
 \description{
-The methods of the additive branch for the four generics that a marginal
+The methods of the additive branch cover the four generics that a marginal
 criterion requires beyond the second order. With \eqn{S_k = D'P_kD}, the
 Hessian \eqn{S = \sum_k \lambda_k S_k} is linear in the smoothing
 parameters and free of the coefficients, so \code{penalty_dhessian()} returns
@@ -31,10 +33,11 @@ the components \eqn{S_k} themselves, \code{penalty_d2hessian()} and
 \code{penalty_dcross()} return zeros, and \code{beta_quadratic()} returns \code{TRUE}.
 }
 \details{
-Every entry is exact, and none is computed at call time. The components
-were fixed at construction and are stored already carried through the map,
-so the first derivative is a lookup of \code{pen@mats} and the higher ones are
-zeros of the right shape. Under the identity map \eqn{S_k = P_k}.
+Every entry is exact, and the methods do not compute any entry at call
+time. The components were fixed at construction and are stored already
+carried through the map, so the first derivative is a lookup of \code{pen@mats}
+and the higher ones are zeros of the right shape. Under the identity map
+\eqn{S_k = P_k}.
 
 \code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE} for this branch, as it does for the
 quadratic and structured branches.

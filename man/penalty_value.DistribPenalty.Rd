@@ -24,7 +24,7 @@ supplies its own normalizing constant, the value is the negative log prior
 density of \eqn{D\beta}. Under a square nonsingular map, diagonal or not,
 \eqn{\log\lvert\det D\rvert} is subtracted, which makes the value the
 negative log-density of \eqn{\beta}. Under a map that is not square, or is
-singular, no constant is subtracted.
+singular, the function does not subtract a constant.
 }
 \details{
 The map is applied, the result is reshaped into the argument of the parent

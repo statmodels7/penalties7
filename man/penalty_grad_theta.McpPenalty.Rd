@@ -19,14 +19,14 @@ parameter scale.}
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_grad_theta()} a list of two numbers, \code{lambda} and \code{gamma}.
-\code{penalty_hess_theta()} a list of three numbers, \code{lambda_lambda},
-\code{gamma_gamma} and \code{lambda_gamma}.
-\code{penalty_cross()} a list of two numeric vectors of length \code{pen@n_coef},
-named \code{lambda} and \code{gamma}.
+\code{penalty_grad_theta()} returns a list of two numbers, \code{lambda} and
+\code{gamma}. \code{penalty_hess_theta()} returns a list of three numbers,
+\code{lambda_lambda}, \code{gamma_gamma} and \code{lambda_gamma}. \code{penalty_cross()}
+returns a list of two numeric vectors of length \code{pen@n_coef}, named
+\code{lambda} and \code{gamma}.
 }
 \description{
-The three blocks in \eqn{(\lambda, \gamma)}, each a closed piecewise form
+The three blocks in \eqn{(\lambda, \gamma)} are each a closed piecewise form
 summed over the coordinates. \code{penalty_grad_theta()} returns the two first
 derivatives, \code{penalty_hess_theta()} the three second derivatives, and
 \code{penalty_cross()} the mixed block, one coefficient vector per
@@ -37,11 +37,11 @@ At unit curvature, inside the taper the value is
 \eqn{\lambda u - u^2/(2\gamma)}, so \eqn{\partial\rho/\partial\lambda = u}
 and \eqn{\partial\rho/\partial\gamma = u^2/(2\gamma^2)}; beyond it the value
 is \eqn{\gamma\lambda^2/2} and the two derivatives are \eqn{\gamma\lambda}
-and \eqn{\lambda^2/2}, and neither depends on the coefficient. The second
-derivative in \eqn{\lambda} is therefore zero inside the taper, where the
-value is linear in \eqn{\lambda}. With curvature \eqn{c_j} the coordinate
-contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, and each derivative follows
-by the chain rule through \eqn{\lambda/c_j}.
+and \eqn{\lambda^2/2}, and these two derivatives do not depend on the
+coefficient. The second derivative in \eqn{\lambda} is therefore zero inside
+the taper, where the value is linear in \eqn{\lambda}. With curvature
+\eqn{c_j} the coordinate contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, and
+each derivative follows by the chain rule through \eqn{\lambda/c_j}.
 
 As for SCAD, a marginal criterion cannot use these derivatives: the
 expansion on which such a criterion rests requires a mode at which the

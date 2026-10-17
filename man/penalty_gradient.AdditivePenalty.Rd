@@ -14,14 +14,14 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} a numeric vector of length \code{pen@n_coef};
+\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
 \code{penalty_hessian()} a symmetric base matrix of that side.
 }
 \description{
 \code{penalty_gradient()} returns \eqn{S(\lambda)\beta} and \code{penalty_hessian()}
 returns \eqn{S(\lambda)}. Both assemble the weighted sum directly and take
-no eigendecomposition, the normalizing constant not depending on the
-coefficients.
+no eigendecomposition, because the normalizing constant does not depend on
+the coefficients.
 }
 \details{
 The value is a quadratic form, so the Hessian does not move with the

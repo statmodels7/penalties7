@@ -23,8 +23,8 @@ call.
 }
 \description{
 Builds the penalty of \eqn{I_m \otimes P} from \eqn{P} alone, and returns a
-\code{\link[=QuadraticPenalty]{QuadraticPenalty()}} whose stored matrix is sparse. Called by
-\code{\link[=quadratic_penalty]{quadratic_penalty()}} when \code{blocks} is above one.
+\code{\link[=QuadraticPenalty]{QuadraticPenalty()}} whose stored matrix is sparse.
+\code{\link[=quadratic_penalty]{quadratic_penalty()}} calls it when \code{blocks} is above one.
 }
 \details{
 Three quantities of a quadratic penalty come from its matrix: the rank, the

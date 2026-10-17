@@ -16,17 +16,17 @@ is_quadratic(pen, ...)
 A single logical.
 }
 \description{
-\code{TRUE} for \code{\link[=quadratic_penalty]{quadratic_penalty()}} (and \code{\link[=ridge_penalty]{ridge_penalty()}}, which is built
-on it), \code{\link[=structured_penalty]{structured_penalty()}} and \code{\link[=additive_penalty]{additive_penalty()}}, the branches whose
-value is the quadratic form \eqn{\tfrac{1}{2}\beta^\top S(\theta)\beta}
+Returns \code{TRUE} for \code{\link[=quadratic_penalty]{quadratic_penalty()}} (and \code{\link[=ridge_penalty]{ridge_penalty()}}, which is
+built on it), \code{\link[=structured_penalty]{structured_penalty()}} and \code{\link[=additive_penalty]{additive_penalty()}}, the branches
+whose value is the quadratic form \eqn{\tfrac{1}{2}\beta^\top S(\theta)\beta}
 plus a normalizing constant, with a matrix \eqn{S(\theta)} that
-\code{\link[=penalty_matrix]{penalty_matrix()}} returns. \code{FALSE} for every other branch. The predicate
-determines how a marginal likelihood criterion treats the penalty: where it
-is \code{TRUE} the penalty's contribution to the criterion is a log
+\code{\link[=penalty_matrix]{penalty_matrix()}} returns. Returns \code{FALSE} for every other branch. The
+predicate determines how a marginal likelihood criterion treats the penalty:
+where it is \code{TRUE} the penalty's contribution to the criterion is a log
 pseudo-determinant, and \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}},
-\code{\link[=penalty_null_basis]{penalty_null_basis()}} and \code{\link[=penalty_logpdet]{penalty_logpdet()}} supply the pieces. Where it
-is \code{FALSE}, \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}} and \code{\link[=penalty_logpdet]{penalty_logpdet()}}
-signal an error, and \code{\link[=penalty_null_basis]{penalty_null_basis()}} answers only for a separable
+\code{\link[=penalty_null_basis]{penalty_null_basis()}} and \code{\link[=penalty_logpdet]{penalty_logpdet()}} supply the pieces. Where it is
+\code{FALSE}, \code{\link[=penalty_matrix]{penalty_matrix()}}, \code{\link[=penalty_rank]{penalty_rank()}} and \code{\link[=penalty_logpdet]{penalty_logpdet()}} signal
+an error, and \code{\link[=penalty_null_basis]{penalty_null_basis()}} returns a value only for a separable
 penalty.
 }
 \section{The quadratic form}{
@@ -63,14 +63,14 @@ branch registers its own method returning \code{TRUE}, as
 }
 
 \examples{
-# The quadratic and structured branches.
+# The quadratic and structured branches return TRUE.
 is_quadratic(quadratic_penalty(diag(2)))
 is_quadratic(ridge_penalty())
 is_quadratic(structured_penalty(
   parameters7::log_cholesky(2)))
 
-# The additive branch, whose matrix moves with one hyperparameter per
-# component.
+# The additive branch is also quadratic, and its matrix moves with one
+# hyperparameter per component.
 add <- additive_penalty(list(diag(3), diag(c(1, 1, 0))))
 c(quadratic = is_quadratic(add), rank = penalty_rank(add))
 
