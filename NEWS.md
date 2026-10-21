@@ -1,3 +1,9 @@
+# penalties7 0.33.1
+
+* The package description writes out the relative pronoun of a relative
+  clause ("the proximal operator with which a non-smooth fit takes its
+  steps").
+
 # penalties7 0.33.0
 
 * `penalty_readable()` of a structured penalty reads the `inverse` mark that
