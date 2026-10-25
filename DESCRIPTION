@@ -42,6 +42,7 @@ Remotes:
     statmodels7/numericals7,
     statmodels7/optimizers7
 Config/testthat/edition: 3
+Config/testthat/parallel: true
 Collate:
     'penalty_class.R'
     'generics.R'
