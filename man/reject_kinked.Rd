@@ -4,10 +4,10 @@
 \alias{reject_kinked}
 \title{Reject a Kinked Penalty}
 \usage{
-reject_kinked(pen, what)
+reject_kinked(penalty, what)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{what}{The name of the generic, a single string, inserted in the
 message followed by \verb{()}.}
@@ -16,7 +16,7 @@ message followed by \verb{()}.}
 \code{NULL}, invisibly, when there is no kink.
 }
 \description{
-Signals an error naming the penalty and the generic when \code{pen@kinks} holds
+Signals an error naming the penalty and the generic when \code{penalty@kinks} holds
 at least one finite value, and returns invisibly otherwise. It is called at
 the head of the six methods of the separable branch that need a third or
 higher derivative: \code{penalty_dhessian()}, \code{penalty_d2hessian()},
@@ -29,7 +29,7 @@ kinked penalty places coefficients exactly at the kink, where the third
 derivative does not exist. The function therefore signals an error and
 does not return a one-sided derivative.
 
-The kinks are read directly from \code{pen@kinks} and not through
+The kinks are read directly from \code{penalty@kinks} and not through
 \code{\link[=penalty_kinks]{penalty_kinks()}}, because that generic takes a \code{theta} and this function
 receives only the penalty and the name of the generic. A penalty without a
 \code{kinks} property is treated as having no kink; every caller in the package

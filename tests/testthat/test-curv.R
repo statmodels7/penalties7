@@ -13,7 +13,7 @@ test_that("the scaled value is the sum of unit penalties at lambda / c", {
   lam <- 1.3
   for (case in list(list(mk = scad_penalty, extra = list(a = 3.7)),
                     list(mk = mcp_penalty, extra = list(gamma = 2.6)))) {
-    pen <- case$mk(n_coef = 6L, curv = cv)
+    pen <- case$mk(n_coef = 6L, curvature = cv)
     th <- c(list(lambda = lam), case$extra)
     ref <- sum(vapply(seq_along(t), function(j)
       cv[j] * one_coord(case$mk, t[j], lam / cv[j], case$extra), numeric(1)))
@@ -30,7 +30,7 @@ test_that("unit curvature is the unscaled penalty to the last bit", {
                     list(mk = mcp_penalty, extra = list(gamma = 2.6)))) {
     th <- c(list(lambda = 1.3), case$extra)
     a <- case$mk(n_coef = 5L)
-    b <- case$mk(n_coef = 5L, curv = 1)
+    b <- case$mk(n_coef = 5L, curvature = 1)
     expect_identical(penalty_value(a, t, th), penalty_value(b, t, th))
     expect_identical(penalty_gradient(a, t, th), penalty_gradient(b, t, th))
     expect_identical(penalty_grad_theta(a, t, th), penalty_grad_theta(b, t, th))
@@ -39,9 +39,9 @@ test_that("unit curvature is the unscaled penalty to the last bit", {
 
 test_that("check_penalty passes with a curvature", {
   cv <- c(0.5, 2, 3.7, 10)
-  expect_true(all(check_penalty(scad_penalty(n_coef = 4L, curv = cv),
+  expect_true(all(check_penalty(scad_penalty(n_coef = 4L, curvature = cv),
                                 theta = list(lambda = 0.8, a = 3.7))$ok))
-  expect_true(all(check_penalty(mcp_penalty(n_coef = 4L, curv = cv),
+  expect_true(all(check_penalty(mcp_penalty(n_coef = 4L, curvature = cv),
                                 theta = list(lambda = 0.8, gamma = 2.6))$ok))
 })
 
@@ -51,7 +51,7 @@ test_that("the operator and its table follow the curvature", {
   for (case in list(list(mk = scad_penalty, extra = list(a = 3.7)),
                     list(mk = mcp_penalty, extra = list(gamma = 2.6)))) {
     th <- c(list(lambda = 1.3), case$extra)
-    pen <- case$mk(n_coef = length(v), curv = cv)
+    pen <- case$mk(n_coef = length(v), curvature = cv)
     step <- rep(0.4, length(v))
     got <- penalty_prox(pen, v, 0.4, th)
     # coordinatewise, the unscaled operator at step s c and rate lambda / c
@@ -72,12 +72,12 @@ test_that("the operator and its table follow the curvature", {
 
 test_that("a step of 1 / c is admissible at any shape the bounds allow", {
   cv <- c(0.01, 1, 100)
-  pen <- scad_penalty(n_coef = 3L, curv = cv)
+  pen <- scad_penalty(n_coef = 3L, curvature = cv)
   expect_false(is.null(penalty_prox_spec(pen, list(lambda = 1, a = 2.05),
                                          1 / cv)))
-  pen <- mcp_penalty(n_coef = 3L, curv = cv)
+  pen <- mcp_penalty(n_coef = 3L, curvature = cv)
   expect_false(is.null(penalty_prox_spec(pen, list(lambda = 1, gamma = 1.05),
                                          1 / cv)))
-  expect_error(scad_penalty(n_coef = 3L, curv = c(1, -1, 2)), "positive")
-  expect_error(scad_penalty(n_coef = 3L, curv = c(1, 2)), "3 values")
+  expect_error(scad_penalty(n_coef = 3L, curvature = c(1, -1, 2)), "positive")
+  expect_error(scad_penalty(n_coef = 3L, curvature = c(1, 2)), "3 values")
 })

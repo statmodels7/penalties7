@@ -64,19 +64,19 @@ NULL
 #' @param P The symmetric positive semidefinite matrix of the quadratic form,
 #'   with as many rows as the map has, or as many as there are coefficients
 #'   when the map is `NULL`. It is a `dgCMatrix` under `blocks > 1`.
-#' @param p_rank The rank of \eqn{D'PD}, a single whole number, counted at
+#' @param rank The rank of \eqn{D'PD}, a single whole number, counted at
 #'   construction by a relative eigenvalue rule. Without a map it is the rank
 #'   of \eqn{P}.
 #' @param null_basis An orthonormal basis of the null space of \eqn{D'PD}, with
-#'   `n_coef` rows and `n_coef - p_rank` columns, and no columns when the
+#'   `n_coef` rows and `n_coef - rank` columns, and no columns when the
 #'   penalty is full rank.
-#' @param logpdet_DPD The log pseudo-determinant of \eqn{D'PD}: the sum of the
+#' @param penalty_logpdet The log pseudo-determinant of \eqn{D'PD}: the sum of the
 #'   logarithms of its non-zero eigenvalues. It is a single number. Without a
 #'   map it is the log pseudo-determinant of \eqn{P}.
-#' @param DPD The assembled \eqn{D'PD}, an `n_coef` by `n_coef` matrix, cached
+#' @param penalty_matrix The assembled \eqn{D'PD}, an `n_coef` by `n_coef` matrix, cached
 #'   so that the gradient and the Hessian never re-form it.
 #' @param tol The relative eigenvalue tolerance, a single positive number,
-#'   `1e-10` by default. [quadratic_penalty()] counts `p_rank` at this
+#'   `1e-10` by default. [quadratic_penalty()] counts `rank` at this
 #'   tolerance and stores it, and [check_penalty()] counts the eigenvalues of
 #'   the matrix at the same tolerance when it compares them with the rank.
 #'
@@ -93,9 +93,9 @@ NULL
 #' S7::S7_inherits(pen, QuadraticPenalty)
 #'
 #' # These are three of the six properties, all computed at construction.
-#' pen@p_rank
+#' pen@rank
 #' dim(pen@null_basis)
-#' pen@logpdet_DPD
+#' pen@penalty_logpdet
 #'
 #' @keywords internal
 #' @export
@@ -104,10 +104,10 @@ QuadraticPenalty <- S7::new_class(
   parent = penalty,
   properties = list(
     P = S7::class_any,
-    p_rank = S7::class_numeric,
+    rank = S7::class_numeric,
     null_basis = S7::class_any,
-    logpdet_DPD = S7::class_numeric,
-    DPD = S7::class_any,
+    penalty_logpdet = S7::class_numeric,
+    penalty_matrix = S7::class_any,
     tol = S7::new_property(S7::class_numeric, default = 1e-10)
   )
 )
@@ -351,10 +351,10 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
     link_params = list(lambda = link_lambda),
     params_smooth = c(lambda = TRUE),
     P = P,
-    p_rank = r,
+    rank = r,
     null_basis = nb,
-    logpdet_DPD = logpdet,
-    DPD = DPD,
+    penalty_logpdet = logpdet,
+    penalty_matrix = DPD,
     tol = tol
   )
 }
@@ -387,7 +387,7 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
 #' @param tol The relative eigenvalue tolerance for counting a zero.
 #'
 #' @return A [QuadraticPenalty()] with `n_coef` equal to `m * nrow(P)`, whose
-#'   `P`, `DPD` and `null_basis` are `dgCMatrix` objects. `P` is checked to be
+#'   `P`, `penalty_matrix` and `null_basis` are `dgCMatrix` objects. `P` is checked to be
 #'   positive semidefinite and not zero by [quadratic_penalty()] before the
 #'   call.
 #'
@@ -411,10 +411,10 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
     link_params = list(lambda = link_lambda),
     params_smooth = c(lambda = TRUE),
     P = Pb,
-    p_rank = m * sum(keep),
+    rank = m * sum(keep),
     null_basis = nb,
-    logpdet_DPD = m * sum(log(e$values[keep])),
-    DPD = Pb,
+    penalty_logpdet = m * sum(log(e$values[keep])),
+    penalty_matrix = Pb,
     tol = tol
   )
 }
@@ -433,17 +433,17 @@ quadratic_penalty <- function(P, map = NULL, blocks = 1L,
 #' the \eqn{m}-vector \eqn{D\beta} and the function does not form a
 #' \eqn{q \times q} product.
 #'
-#' @param pen A [QuadraticPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param penalty A [QuadraticPenalty()] object.
+#' @param beta A numeric vector of length `penalty@n_coef`.
 #'
 #' @return A single number, non-negative for a positive semidefinite \eqn{P}.
 #'
 #' @seealso [penalty_value.QuadraticPenalty()]
 #'
 #' @keywords internal
-quad_form <- function(pen, beta) {
-  t <- map_apply(pen, beta)
-  sum(t * as.numeric(pen@P %*% t))
+quad_form <- function(penalty, beta) {
+  t <- map_apply(penalty, beta)
+  sum(t * as.numeric(penalty@P %*% t))
 }
 
 #' @title Value of a Quadratic Penalty
@@ -464,8 +464,8 @@ quad_form <- function(pen, beta) {
 #' the constant alone and still depends on \eqn{\lambda}, so the smoothing
 #' parameter remains estimable from a joint objective.
 #'
-#' @param pen A [QuadraticPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`, already coerced by the
+#' @param penalty A [QuadraticPenalty()] object.
+#' @param beta A numeric vector of length `penalty@n_coef`, already coerced by the
 #'   generic.
 #' @param theta A list holding `lambda`, already aligned and bound-checked by
 #'   the generic.
@@ -489,11 +489,11 @@ quad_form <- function(pen, beta) {
 #'   derivatives, [penalty_logpdet.QuadraticPenalty()] for the constant's own
 #'   piece, [quadratic_penalty()] for the constructor.
 #' @keywords internal
-S7::method(penalty_value, QuadraticPenalty) <- function(pen, beta, theta, ...) {
+S7::method(penalty_value, QuadraticPenalty) <- function(penalty, beta, theta, ...) {
   lam <- theta[[1]]
-  r <- pen@p_rank
-  lam / 2 * quad_form(pen, beta) - r / 2 * log(lam) +
-    r / 2 * log(2 * pi) - pen@logpdet_DPD / 2
+  r <- penalty@rank
+  lam / 2 * quad_form(penalty, beta) - r / 2 * log(lam) +
+    r / 2 * log(2 * pi) - penalty@penalty_logpdet / 2
 }
 
 #' @title Coefficient Derivatives of a Quadratic Penalty
@@ -512,12 +512,12 @@ S7::method(penalty_value, QuadraticPenalty) <- function(pen, beta, theta, ...) {
 #' starting point. When \eqn{D'PD} is rank deficient, the Hessian is singular
 #' and the minimum is attained on the whole null space of \eqn{D'PD}.
 #'
-#' @param pen A [QuadraticPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param penalty A [QuadraticPenalty()] object.
+#' @param beta A numeric vector of length `penalty@n_coef`.
 #' @param theta A list holding `lambda`.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_gradient()` returns a numeric vector of length `pen@n_coef`;
+#' @return `penalty_gradient()` returns a numeric vector of length `penalty@n_coef`;
 #'   `penalty_hessian()` a symmetric matrix of that order, a base matrix for an
 #'   ordinary penalty and a `dgCMatrix` when the penalty was built with
 #'   `blocks > 1`.
@@ -538,15 +538,15 @@ S7::method(penalty_value, QuadraticPenalty) <- function(pen, beta, theta, ...) {
 #'   differentiated, [penalty_grad_theta.QuadraticPenalty()] for the
 #'   hyperparameter derivatives.
 #' @keywords internal
-S7::method(penalty_gradient, QuadraticPenalty) <- function(pen, beta, theta, ...) {
-  theta[[1]] * as.numeric(pen@DPD %*% beta)
+S7::method(penalty_gradient, QuadraticPenalty) <- function(penalty, beta, theta, ...) {
+  theta[[1]] * as.numeric(penalty@penalty_matrix %*% beta)
 }
 
 #' @rdname penalty_gradient.QuadraticPenalty
 #' @name penalty_hessian.QuadraticPenalty
 #' @keywords internal
-S7::method(penalty_hessian, QuadraticPenalty) <- function(pen, beta, theta, ...) {
-  theta[[1]] * pen@DPD
+S7::method(penalty_hessian, QuadraticPenalty) <- function(penalty, beta, theta, ...) {
+  theta[[1]] * penalty@penalty_matrix
 }
 
 #' @title Hyperparameter Derivatives of a Quadratic Penalty
@@ -572,8 +572,8 @@ S7::method(penalty_hessian, QuadraticPenalty) <- function(pen, beta, theta, ...)
 #' gradient \eqn{\lambda D'PD\beta} is linear in \eqn{\lambda} and its slope
 #' \eqn{D'PD\beta} does not depend on \eqn{\lambda}.
 #'
-#' @param pen A [QuadraticPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param penalty A [QuadraticPenalty()] object.
+#' @param beta A numeric vector of length `penalty@n_coef`.
 #' @param theta A list holding `lambda`.
 #' @param scale Read by the generic, which applies the chain rule onto the
 #'   unconstrained scale after dispatch. These methods always return the
@@ -582,7 +582,7 @@ S7::method(penalty_hessian, QuadraticPenalty) <- function(pen, beta, theta, ...)
 #'
 #' @return `penalty_grad_theta()` returns a list of one number named `lambda`;
 #'   `penalty_hess_theta()` a list of one number named `lambda_lambda`;
-#'   `penalty_cross()` a list of one numeric vector of length `pen@n_coef`,
+#'   `penalty_cross()` a list of one numeric vector of length `penalty@n_coef`,
 #'   named `lambda`.
 #'
 #' @examples
@@ -605,24 +605,24 @@ S7::method(penalty_hessian, QuadraticPenalty) <- function(pen, beta, theta, ...)
 #'   derivatives.
 #' @keywords internal
 S7::method(penalty_grad_theta, QuadraticPenalty) <-
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    list(lambda = quad_form(pen, beta) / 2 - pen@p_rank / (2 * theta[[1]]))
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
+    list(lambda = quad_form(penalty, beta) / 2 - penalty@rank / (2 * theta[[1]]))
   }
 
 #' @rdname penalty_grad_theta.QuadraticPenalty
 #' @name penalty_hess_theta.QuadraticPenalty
 #' @keywords internal
 S7::method(penalty_hess_theta, QuadraticPenalty) <-
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    list(lambda_lambda = pen@p_rank / (2 * theta[[1]]^2))
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
+    list(lambda_lambda = penalty@rank / (2 * theta[[1]]^2))
   }
 
 #' @rdname penalty_grad_theta.QuadraticPenalty
 #' @name penalty_cross.QuadraticPenalty
 #' @keywords internal
 S7::method(penalty_cross, QuadraticPenalty) <-
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    list(lambda = as.numeric(pen@DPD %*% beta))
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
+    list(lambda = as.numeric(penalty@penalty_matrix %*% beta))
   }
 
 #' @title Smoothness and Kind of a Quadratic Penalty
@@ -649,7 +649,7 @@ S7::method(penalty_cross, QuadraticPenalty) <-
 #' method for smooth objectives, and [penalty_prox()] is a linear solve and
 #' not a threshold.
 #'
-#' @param pen A [QuadraticPenalty()] object.
+#' @param penalty A [QuadraticPenalty()] object.
 #' @param theta A list holding `lambda`. It is accepted by `penalty_kinks()`,
 #'   whose result does not depend on it.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
@@ -672,21 +672,21 @@ S7::method(penalty_cross, QuadraticPenalty) <-
 #'   generics, [penalty_matrix.QuadraticPenalty()] for the quantities that
 #'   `is_quadratic()` gates.
 #' @keywords internal
-S7::method(penalty_kinks, QuadraticPenalty) <- function(pen, theta, ...) {
+S7::method(penalty_kinks, QuadraticPenalty) <- function(penalty, theta, ...) {
   numeric(0)
 }
 
 #' @rdname penalty_kinks.QuadraticPenalty
 #' @name is_proper.QuadraticPenalty
 #' @keywords internal
-S7::method(is_proper, QuadraticPenalty) <- function(pen, ...) {
-  pen@p_rank == ncol(pen@DPD) && ncol(pen@null_basis) == 0L
+S7::method(is_proper, QuadraticPenalty) <- function(penalty, ...) {
+  penalty@rank == ncol(penalty@penalty_matrix) && ncol(penalty@null_basis) == 0L
 }
 
 #' @rdname penalty_kinks.QuadraticPenalty
 #' @name is_quadratic.QuadraticPenalty
 #' @keywords internal
-S7::method(is_quadratic, QuadraticPenalty) <- function(pen, ...) TRUE
+S7::method(is_quadratic, QuadraticPenalty) <- function(penalty, ...) TRUE
 
 #' @title Marginal Quantities of a Quadratic Penalty
 #' @name penalty_matrix.QuadraticPenalty
@@ -711,16 +711,16 @@ S7::method(is_quadratic, QuadraticPenalty) <- function(pen, ...) TRUE
 #' rank and the null basis do not depend on \eqn{\lambda} and their generics
 #' take no `theta`.
 #'
-#' @param pen A [QuadraticPenalty()] object.
+#' @param penalty A [QuadraticPenalty()] object.
 #' @param theta A list holding `lambda`. Only `penalty_matrix()` and
 #'   `penalty_logpdet()` read it.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_matrix()` returns a symmetric matrix of side `pen@n_coef`,
+#' @return `penalty_matrix()` returns a symmetric matrix of side `penalty@n_coef`,
 #'   a base matrix ordinarily and a `dgCMatrix` when the penalty was built with
 #'   `blocks > 1`. `penalty_rank()` returns a single integer.
-#'   `penalty_null_basis()` returns a matrix with `pen@n_coef` rows and
-#'   `pen@n_coef - penalty_rank(pen)` orthonormal columns, sparse under
+#'   `penalty_null_basis()` returns a matrix with `penalty@n_coef` rows and
+#'   `penalty@n_coef - penalty_rank(penalty)` orthonormal columns, sparse under
 #'   `blocks > 1`. `penalty_logpdet()` returns a list of `value` (a number),
 #'   `grad` (a list of one number, `lambda`) and `hess` (a list of one number,
 #'   `lambda_lambda`).
@@ -744,31 +744,31 @@ S7::method(is_quadratic, QuadraticPenalty) <- function(pen, ...) TRUE
 #'   [penalty_value.QuadraticPenalty()] for the value that carries the same
 #'   constant.
 #' @keywords internal
-S7::method(penalty_matrix, QuadraticPenalty) <- function(pen, theta, ...) {
-  theta[[1]] * pen@DPD
+S7::method(penalty_matrix, QuadraticPenalty) <- function(penalty, theta, ...) {
+  theta[[1]] * penalty@penalty_matrix
 }
 
 #' @rdname penalty_matrix.QuadraticPenalty
 #' @name penalty_rank.QuadraticPenalty
 #' @keywords internal
-S7::method(penalty_rank, QuadraticPenalty) <- function(pen, ...) {
-  as.integer(pen@p_rank)
+S7::method(penalty_rank, QuadraticPenalty) <- function(penalty, ...) {
+  as.integer(penalty@rank)
 }
 
 #' @rdname penalty_matrix.QuadraticPenalty
 #' @name penalty_null_basis.QuadraticPenalty
 #' @keywords internal
-S7::method(penalty_null_basis, QuadraticPenalty) <- function(pen, ...) {
-  pen@null_basis
+S7::method(penalty_null_basis, QuadraticPenalty) <- function(penalty, ...) {
+  penalty@null_basis
 }
 
 #' @rdname penalty_matrix.QuadraticPenalty
 #' @name penalty_logpdet.QuadraticPenalty
 #' @keywords internal
-S7::method(penalty_logpdet, QuadraticPenalty) <- function(pen, theta, ...) {
+S7::method(penalty_logpdet, QuadraticPenalty) <- function(penalty, theta, ...) {
   lam <- theta[[1]]
-  r <- pen@p_rank
-  list(value = r * log(lam) + pen@logpdet_DPD,
+  r <- penalty@rank
+  list(value = r * log(lam) + penalty@penalty_logpdet,
        grad = list(lambda = r / lam),
        hess = list(lambda_lambda = -r / lam^2))
 }

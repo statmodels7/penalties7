@@ -4,10 +4,10 @@
 \alias{dp_blockdiag}
 \title{The Block-Diagonal Middle Matrix of a Blockwise Parent}
 \usage{
-dp_blockdiag(pen, h, nblk)
+dp_blockdiag(penalty, h, nblk)
 }
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object with \code{pen@block} above one.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object with \code{penalty@block} above one.}
 
 \item{h}{The parent's \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}}: a
 \eqn{p \times p} matrix or a \eqn{p \times p \times n} array.}
@@ -15,7 +15,7 @@ dp_blockdiag(pen, h, nblk)
 \item{nblk}{The number of blocks, a single whole number.}
 }
 \value{
-A symmetric base matrix of side \code{nblk * pen@block}, block diagonal
+A symmetric base matrix of side \code{nblk * penalty@block}, block diagonal
 with \code{nblk} blocks.
 }
 \description{

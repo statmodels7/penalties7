@@ -4,10 +4,10 @@
 \alias{.undiag}
 \title{A Penalty With Its Map Removed}
 \usage{
-.undiag(pen)
+.undiag(penalty)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object whose map is diagonal.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object whose map is diagonal.}
 }
 \value{
 The same object with \code{map} set to \code{NULL}.

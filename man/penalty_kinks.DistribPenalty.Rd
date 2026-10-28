@@ -5,7 +5,7 @@
 \alias{is_proper.DistribPenalty}
 \title{Smoothness and Properness of a Separable Penalty}
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
 \item{theta}{A named list of the parent's free parameters. It is accepted
 by \code{penalty_kinks()}, whose result does not depend on it.}
@@ -13,7 +13,7 @@ by \code{penalty_kinks()}, whose result does not depend on it.}
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_kinks()} returns a numeric vector, \code{pen@kinks} as it stands.
+\code{penalty_kinks()} returns a numeric vector, \code{penalty@kinks} as it stands.
 \code{is_proper()} returns a single logical.
 }
 \description{

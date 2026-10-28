@@ -7,7 +7,7 @@
 \alias{penalty_logpdet.QuadraticPenalty}
 \title{Marginal Quantities of a Quadratic Penalty}
 \arguments{
-\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
+\item{penalty}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
 \item{theta}{A list holding \code{lambda}. Only \code{penalty_matrix()} and
 \code{penalty_logpdet()} read it.}
@@ -15,11 +15,11 @@
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_matrix()} returns a symmetric matrix of side \code{pen@n_coef},
+\code{penalty_matrix()} returns a symmetric matrix of side \code{penalty@n_coef},
 a base matrix ordinarily and a \code{dgCMatrix} when the penalty was built with
 \code{blocks > 1}. \code{penalty_rank()} returns a single integer.
-\code{penalty_null_basis()} returns a matrix with \code{pen@n_coef} rows and
-\code{pen@n_coef - penalty_rank(pen)} orthonormal columns, sparse under
+\code{penalty_null_basis()} returns a matrix with \code{penalty@n_coef} rows and
+\code{penalty@n_coef - penalty_rank(penalty)} orthonormal columns, sparse under
 \code{blocks > 1}. \code{penalty_logpdet()} returns a list of \code{value} (a number),
 \code{grad} (a list of one number, \code{lambda}) and \code{hess} (a list of one number,
 \code{lambda_lambda}).

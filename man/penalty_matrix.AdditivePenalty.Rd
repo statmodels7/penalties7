@@ -7,7 +7,7 @@
 \alias{penalty_null_basis.AdditivePenalty}
 \title{Marginal Quantities of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
 \item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... Only
 \code{penalty_matrix()} and \code{penalty_logpdet()} read it.}
@@ -16,10 +16,10 @@
 }
 \value{
 \code{penalty_matrix()} returns a symmetric base matrix of side
-\code{pen@n_coef}. \code{penalty_rank()} returns a single integer, and
+\code{penalty@n_coef}. \code{penalty_rank()} returns a single integer, and
 \code{penalty_null_basis()} an orthonormal basis of the null space shared by the
-components, a matrix with \code{pen@n_coef} rows and \code{pen@n_coef - penalty_rank(pen)} columns. \code{penalty_logpdet()} returns a list of \code{value}
-(a single number), \code{grad} (a list keyed by \code{pen@params}) and \code{hess} (a list
+components, a matrix with \code{penalty@n_coef} rows and \code{penalty@n_coef - penalty_rank(penalty)} columns. \code{penalty_logpdet()} returns a list of \code{value}
+(a single number), \code{grad} (a list keyed by \code{penalty@params}) and \code{hess} (a list
 keyed by the pairs that \code{penalty_hess_theta()} uses). Every entry of it is
 \code{NaN} at a setting that \code{\link[=additive_sum]{additive_sum()}} reports as not resolvable.
 }
@@ -50,7 +50,7 @@ the stored values.
 \code{penalty_logpdet()} returns the same shape as
 \code{\link[=penalty_logpdet.QuadraticPenalty]{penalty_logpdet.QuadraticPenalty()}} and
 \code{\link[=penalty_logpdet.StructuredPenalty]{penalty_logpdet.StructuredPenalty()}}: \code{grad} is a list keyed by
-\code{pen@params} and \code{hess} a list keyed by the pairs that
+\code{penalty@params} and \code{hess} a list keyed by the pairs that
 \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} uses, so code written for those branches reads
 \code{grad$lambda1} here.
 }

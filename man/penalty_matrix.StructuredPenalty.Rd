@@ -7,7 +7,7 @@
 \alias{penalty_logpdet.StructuredPenalty}
 \title{Marginal Quantities of a Structured Penalty}
 \arguments{
-\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
+\item{penalty}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
 \item{theta}{A named list of the structure's free values. Only
 \code{penalty_matrix()} and \code{penalty_logpdet()} read it.}
@@ -16,9 +16,9 @@
 }
 \value{
 \code{penalty_matrix()} returns the symmetric precision matrix, of side
-\code{pen@n_coef}, carrying the structure's own dimnames.
+\code{penalty@n_coef}, carrying the structure's own dimnames.
 \code{penalty_rank()} returns a single integer, the structure's rank.
-\code{penalty_null_basis()} returns a matrix with \code{pen@n_coef} rows and one
+\code{penalty_null_basis()} returns a matrix with \code{penalty@n_coef} rows and one
 column per null direction, with no columns for a full-rank structure.
 \code{penalty_logpdet()} returns a list of \code{value} (a number), \code{grad} (a list of
 one number per free value) and \code{hess} (a list of one number per unordered

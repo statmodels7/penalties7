@@ -5,9 +5,9 @@
 \alias{penalty_hessian.StructuredPenalty}
 \title{Coefficient Derivatives of a Structured Penalty}
 \arguments{
-\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
+\item{penalty}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A named list of the structure's free values.}
 
@@ -15,7 +15,7 @@
 }
 \value{
 \code{penalty_gradient()} returns an unnamed numeric vector of length
-\code{pen@n_coef}; \code{penalty_hessian()} the symmetric precision matrix
+\code{penalty@n_coef}; \code{penalty_hessian()} the symmetric precision matrix
 \eqn{\Omega(\theta)}, carrying the structure's own dimnames (\code{v1},
 \code{v2}, ... for the \pkg{parameters7} primitives). The quadratic and
 additive branches return matrices with no dimnames, so a comparison

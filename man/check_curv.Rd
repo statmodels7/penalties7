@@ -5,17 +5,17 @@
 \alias{curv_of}
 \title{The Curvature of Each Coordinate of a SCAD or MCP Penalty}
 \usage{
-check_curv(curv, n)
+check_curv(curvature, n)
 
-curv_of(pen, n)
+curv_of(penalty, n)
 }
 \arguments{
-\item{curv}{\code{NULL}, or positive finite numbers, one per coordinate of
+\item{curvature}{\code{NULL}, or positive finite numbers, one per coordinate of
 \eqn{D\beta} or a single value repeated.}
 
 \item{n}{The number of coordinates of \eqn{D\beta}.}
 
-\item{pen}{A \code{\link[=ScadPenalty]{ScadPenalty()}} or \code{\link[=McpPenalty]{McpPenalty()}}.}
+\item{penalty}{A \code{\link[=ScadPenalty]{ScadPenalty()}} or \code{\link[=McpPenalty]{McpPenalty()}}.}
 }
 \value{
 \code{check_curv()} returns a numeric vector of length \code{n}, or

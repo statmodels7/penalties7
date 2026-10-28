@@ -144,12 +144,16 @@ penalty <- S7::new_class(
   )
 )
 
+# The base class under a second name, for the functions whose argument
+# `penalty` shadows the class inside their bodies.
+.penalty_class <- penalty
+
 #' Align and Validate the Hyperparameters
 #'
 #' @description
 #' Puts a hyperparameter argument into the single shape that every branch
-#' reads: a list reordered to `pen@params`, whose values are unnamed, and
-#' checked against `pen@params_bounds` as open intervals. Returns
+#' reads: a list reordered to `penalty@params`, whose values are unnamed, and
+#' checked against `penalty@params_bounds` as open intervals. Returns
 #' the aligned list. For a penalty with no hyperparameters it returns an empty
 #' list without examining `theta`.
 #'
@@ -166,12 +170,12 @@ penalty <- S7::new_class(
 #' validated in the same way, and the open bounds keep the value of every
 #' link finite.
 #'
-#' @param pen A [penalty()] object.
+#' @param penalty A [penalty()] object.
 #' @param theta A named list of hyperparameter values, or a named numeric
 #'   vector carrying the same. Extra entries are dropped; a missing entry is an
 #'   error that names the entry. Each value must be a single number.
 #'
-#' @return A list of the same length and order as `pen@params`, in which each
+#' @return A list of the same length and order as `penalty@params`, in which each
 #'   element is an unnamed single number. The value is `list()` when the
 #'   penalty has no hyperparameters.
 #'
@@ -185,8 +189,8 @@ penalty <- S7::new_class(
 #' non-finite or outside its bounds.
 #'
 #' @keywords internal
-align_ptheta <- function(pen, theta) {
-  params <- pen@params
+align_ptheta <- function(penalty, theta) {
+  params <- penalty@params
   if (length(params) == 0L) return(list())
   # A named numeric vector carries what the list carries, and the branches
   # split on how they read it: `[[` accepts both, `$` accepts only the list.
@@ -203,7 +207,7 @@ align_ptheta <- function(pen, theta) {
   }
   theta <- theta[params]
   for (p in params) {
-    b <- pen@params_bounds[[p]]
+    b <- penalty@params_bounds[[p]]
     v <- theta[[p]]
     if (length(v) != 1L) {
       stop(sprintf("Parameter '%s' must be a single number.", p),
@@ -254,7 +258,7 @@ as_map <- function(map) {
 #' carrying a gradient in \eqn{t} back to a gradient in \eqn{\beta}. A `NULL`
 #' map is the identity and both return their argument untouched.
 #'
-#' @param pen A [penalty()] object, whose `map` is \eqn{D} with \eqn{m} rows
+#' @param penalty A [penalty()] object, whose `map` is \eqn{D} with \eqn{m} rows
 #'   and \eqn{q} columns, or `NULL`.
 #' @param beta A numeric vector of length \eqn{q}. Only `map_apply()` takes
 #'   this argument.
@@ -267,14 +271,14 @@ as_map <- function(map) {
 #'   \pkg{Matrix} objects.
 #'
 #' @keywords internal
-map_apply <- function(pen, beta) {
-  if (is.null(pen@map)) beta else as.numeric(pen@map %*% beta)
+map_apply <- function(penalty, beta) {
+  if (is.null(penalty@map)) beta else as.numeric(penalty@map %*% beta)
 }
 
 #' @rdname map_apply
 #' @keywords internal
-map_back <- function(pen, g) {
-  if (is.null(pen@map)) g else as.numeric(crossprod(pen@map, g))
+map_back <- function(penalty, g) {
+  if (is.null(penalty@map)) g else as.numeric(crossprod(penalty@map, g))
 }
 
 #' Carry a Middle Matrix Through the Map
@@ -294,7 +298,7 @@ map_back <- function(pen, g) {
 #' convert the result, so that the caller receives a base matrix from every
 #' branch and can write it into a block of a base information matrix.
 #'
-#' @param pen A [penalty()] object, whose `map` is \eqn{D} with \eqn{m} rows
+#' @param penalty A [penalty()] object, whose `map` is \eqn{D} with \eqn{m} rows
 #'   and \eqn{q} columns, or `NULL`.
 #' @param h A numeric vector of length \eqn{m}, the diagonal entries. Only
 #'   `map_quad()` takes this argument.
@@ -304,22 +308,22 @@ map_back <- function(pen, g) {
 #' @return A \eqn{q \times q} symmetric base matrix, from both.
 #'
 #' @keywords internal
-map_quad <- function(pen, h) {
-  if (is.null(pen@map)) return(diag(h, length(h)))
+map_quad <- function(penalty, h) {
+  if (is.null(penalty@map)) return(diag(h, length(h)))
   # a Matrix map carries its class through the crossproduct, and the result
   # would then be the one thing in the contract that is not a base matrix:
   # the identity-map branch above is already dense at any width, map_back()
   # coerces its vector for the same reason, and a consumer writing this into
   # a block of its own information fails on the class rather than on the
   # arithmetic. Densified here, where the contract is stated.
-  as.matrix(crossprod(pen@map, pen@map * h))
+  as.matrix(crossprod(penalty@map, penalty@map * h))
 }
 
 #' @rdname map_quad
 #' @keywords internal
-map_quad_full <- function(pen, m) {
-  if (is.null(pen@map)) return(as.matrix(m))
-  as.matrix(crossprod(pen@map, m %*% pen@map))
+map_quad_full <- function(penalty, m) {
+  if (is.null(penalty@map)) return(as.matrix(m))
+  as.matrix(crossprod(penalty@map, m %*% penalty@map))
 }
 
 #' The Hyperparameter Pair Names
@@ -404,25 +408,25 @@ ptheta_pairs <- function(params) {
 #' This is the chain rule that \pkg{distributions7} applies to the link scale
 #' of a distribution's parameters, restricted to the first two orders.
 #'
-#' @param pen A [penalty()] object.
+#' @param penalty A [penalty()] object.
 #' @param theta The aligned hyperparameters, as [align_ptheta()] returns them.
-#' @param g The parameter-scale gradient list, keyed by `pen@params`. It is
+#' @param g The parameter-scale gradient list, keyed by `penalty@params`. It is
 #'   required for the gradient and for the Hessian and is `NULL` otherwise.
 #' @param H The parameter-scale Hessian list, keyed as [ptheta_pairs()]
 #'   names the pairs. It is supplied with `g` for the second order.
-#' @param cross The parameter-scale mixed list, keyed by `pen@params`, in which
-#'   each element is a vector of length `pen@n_coef`. It is supplied alone.
+#' @param cross The parameter-scale mixed list, keyed by `penalty@params`, in which
+#'   each element is a vector of length `penalty@n_coef`. It is supplied alone.
 #'
 #' @return Whichever kind was supplied, on the unconstrained scale, with the
 #'   same names and shapes as the input. `cross` takes precedence over `H`,
 #'   and `H` over `g`, when more than one is given.
 #'
 #' @keywords internal
-ptheta_to_link <- function(pen, theta, g = NULL, H = NULL, cross = NULL) {
-  params <- pen@params
+ptheta_to_link <- function(penalty, theta, g = NULL, H = NULL, cross = NULL) {
+  params <- penalty@params
   h1 <- h2 <- stats::setNames(numeric(length(params)), params)
   for (p in params) {
-    lk <- pen@link_params[[p]]
+    lk <- penalty@link_params[[p]]
     eta <- linkfunctions7::linkfun(lk, theta[[p]])
     h1[p] <- linkfunctions7::dlinkinv(lk, eta)
     h2[p] <- linkfunctions7::d2linkinv(lk, eta)

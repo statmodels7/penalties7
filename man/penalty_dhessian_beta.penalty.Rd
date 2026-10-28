@@ -8,18 +8,18 @@
 \alias{penalty_dhessian_beta.DistribPenalty}
 \title{Methods of penalty_dhessian_beta()}
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A named list of hyperparameter values.}
 
-\item{v}{A numeric vector of length \code{pen@n_coef}, the direction.}
+\item{v}{A numeric vector of length \code{penalty@n_coef}, the direction.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A square base matrix of side \code{pen@n_coef}, or an error.
+A square base matrix of side \code{penalty@n_coef}, or an error.
 }
 \description{
 The method of the base class signals an error that names the penalty; it is

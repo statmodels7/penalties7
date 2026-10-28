@@ -7,16 +7,16 @@
 \alias{struct_logdet}
 \title{Precision, and Its Derivatives, From the Structure}
 \usage{
-struct_omega(pen, eta)
+struct_omega(penalty, eta)
 
-struct_d1(pen, eta, omega = NULL)
+struct_d1(penalty, eta, omega = NULL)
 
-struct_d2(pen, eta, omega = NULL)
+struct_d2(penalty, eta, omega = NULL)
 
-struct_logdet(pen, eta, order = 2L)
+struct_logdet(penalty, eta, order = 2L)
 }
 \arguments{
-\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
+\item{penalty}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
 \item{eta}{The structure's free vector, as \code{\link[=struct_eta]{struct_eta()}} returns it.}
 
@@ -28,9 +28,9 @@ Only \code{struct_d1()} and \code{struct_d2()} take it.}
 }
 \value{
 \code{struct_omega()} returns a symmetric base matrix of side
-\code{pen@structure@dimension}.
+\code{penalty@structure@dimension}.
 \code{struct_d1()} returns a list of such matrices, one per free value, in
-\code{pen@params} order.
+\code{penalty@params} order.
 \code{struct_d2()} returns a list of such matrices, one per unordered pair,
 keyed by the colon-joined sorted names. \code{struct_logdet()} returns a list
 with \code{value} (a single number) and, according to \code{order}, \code{d1} (a named

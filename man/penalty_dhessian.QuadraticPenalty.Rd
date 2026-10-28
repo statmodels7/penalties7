@@ -7,9 +7,9 @@
 \alias{beta_quadratic.QuadraticPenalty}
 \title{Marginal Derivatives of a Quadratic Penalty}
 \arguments{
-\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
+\item{penalty}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}. The methods do not use
+\item{beta}{A numeric vector of length \code{penalty@n_coef}. The methods do not use
 it, because these quantities do not depend on the coefficients.}
 
 \item{theta}{A named list holding \code{lambda}. The methods do not use it,

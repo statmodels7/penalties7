@@ -4,24 +4,24 @@
 \alias{align_ptheta}
 \title{Align and Validate the Hyperparameters}
 \usage{
-align_ptheta(pen, theta)
+align_ptheta(penalty, theta)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
 vector carrying the same. Extra entries are dropped; a missing entry is an
 error that names the entry. Each value must be a single number.}
 }
 \value{
-A list of the same length and order as \code{pen@params}, in which each
+A list of the same length and order as \code{penalty@params}, in which each
 element is an unnamed single number. The value is \code{list()} when the
 penalty has no hyperparameters.
 }
 \description{
 Puts a hyperparameter argument into the single shape that every branch
-reads: a list reordered to \code{pen@params}, whose values are unnamed, and
-checked against \code{pen@params_bounds} as open intervals. Returns
+reads: a list reordered to \code{penalty@params}, whose values are unnamed, and
+checked against \code{penalty@params_bounds} as open intervals. Returns
 the aligned list. For a penalty with no hyperparameters it returns an empty
 list without examining \code{theta}.
 }

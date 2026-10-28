@@ -17,7 +17,7 @@
 }
 \value{
 A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} with \code{n_coef} equal to \code{m * nrow(P)}, whose
-\code{P}, \code{DPD} and \code{null_basis} are \code{dgCMatrix} objects. \code{P} is checked to be
+\code{P}, \code{penalty_matrix} and \code{null_basis} are \code{dgCMatrix} objects. \code{P} is checked to be
 positive semidefinite and not zero by \code{\link[=quadratic_penalty]{quadratic_penalty()}} before the
 call.
 }

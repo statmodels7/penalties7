@@ -5,24 +5,24 @@
 \alias{penalty_hessian}
 \title{Coefficient Derivatives of a Penalty}
 \usage{
-penalty_gradient(pen, beta, theta, ...)
+penalty_gradient(penalty, beta, theta, ...)
 
-penalty_hessian(pen, beta, theta, ...)
+penalty_hessian(penalty, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{beta}{A finite numeric vector of length \code{pen@n_coef}, coerced with
+\item{beta}{A finite numeric vector of length \code{penalty@n_coef}, coerced with
 \code{as.numeric()} in the generic. A vector of another length signals an
 error.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in \code{pen@params}.}
+vector carrying the same, holding every name in \code{penalty@params}.}
 
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
-\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
+\code{penalty_gradient()} returns a numeric vector of length \code{penalty@n_coef};
 \code{penalty_hessian()} a symmetric matrix of that side. It is a base matrix
 even where the map is a \pkg{Matrix}, except for a penalty built by
 \code{\link[=quadratic_penalty]{quadratic_penalty()}} with \code{blocks > 1}, whose Hessian is a \code{dgCMatrix}

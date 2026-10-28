@@ -5,17 +5,17 @@
 \alias{penalty_hessian.ScadPenalty}
 \title{Coefficient Derivatives of a SCAD Penalty}
 \arguments{
-\item{pen}{A \code{\link[=ScadPenalty]{ScadPenalty()}} object.}
+\item{penalty}{A \code{\link[=ScadPenalty]{ScadPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A list holding \code{lambda} and \code{a}.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
-\code{penalty_hessian()} a symmetric \code{pen@n_coef} by \code{pen@n_coef} base matrix,
+\code{penalty_gradient()} returns a numeric vector of length \code{penalty@n_coef};
+\code{penalty_hessian()} a symmetric \code{penalty@n_coef} by \code{penalty@n_coef} base matrix,
 diagonal under the identity map and negative semidefinite always.
 }
 \description{
@@ -44,7 +44,7 @@ and the second derivative over the taper is \eqn{-c_j/(a-1)}.
 The Hessian is negative where it is not zero, so the penalty is concave
 over the taper. A penalized objective stays convex only while the curvature
 of the likelihood in each coordinate exceeds \eqn{1/(a-1)}
-(\eqn{c_j/(a-1)} with \code{curv}), and outside that condition a solver that
+(\eqn{c_j/(a-1)} with \code{curvature}), and outside that condition a solver that
 assumes convexity has no guarantee of convergence.
 
 At \eqn{t = 0} the sign is zero, so the gradient returned is \code{0}. This is

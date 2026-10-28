@@ -73,7 +73,7 @@ test_that("the rank and the null basis of a quadratic penalty agree", {
     pen <- quadratic_penalty(P)
     ev <- eigen(P, symmetric = TRUE, only.values = TRUE)$values
     keep <- ev > 1e-10 * max(ev, 0)
-    expect_identical(pen@logpdet_DPD, sum(log(ev[keep])))
+    expect_identical(pen@penalty_logpdet, sum(log(ev[keep])))
     expect_identical(penalty_rank(pen), sum(keep))
     expect_identical(penalty_logpdet(pen, list(lambda = 2))$value,
                      sum(keep) * log(2) + sum(log(ev[keep])))

@@ -4,7 +4,7 @@
 \alias{is_quadratic.AdditivePenalty}
 \title{Quadratic Form of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }

@@ -8,13 +8,13 @@
 \alias{penalty_prox_spec.McpPenalty}
 \title{The Proximal Operator as a Piecewise Linear Table}
 \usage{
-penalty_prox_spec(pen, theta, step, ...)
+penalty_prox_spec(penalty, theta, step, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in \code{pen@params}.}
+vector carrying the same, holding every name in \code{penalty@params}.}
 
 \item{step}{A numeric vector of step lengths, either a single value used for
 every coefficient or one value per coefficient. Every entry must be finite
@@ -25,7 +25,7 @@ naming \code{step}.}
 }
 \value{
 A list of three matrices, \code{cut}, \code{slope} and \code{icept}, each with
-\code{pen@n_coef} rows and one column per piece. The last column of \code{cut} is
+\code{penalty@n_coef} rows and one column per piece. The last column of \code{cut} is
 \code{Inf}. The value is \code{NULL} where the operator has no piecewise linear
 description.
 }
@@ -108,7 +108,7 @@ cut is \eqn{t_j \lvert d_j\rvert \lambda} (with \eqn{d = (0.5, 2, 3)},
 \code{1.44}).
 
 The step limit of SCAD and MCP is tested on the scaled step. With
-\eqn{c_j} the curvature of the coordinate (the \code{curv} property, one when it
+\eqn{c_j} the curvature of the coordinate (the \code{curvature} property, one when it
 is empty), the table exists only while \eqn{t_j c_j d_j^2 < a - 1} for SCAD
 and \eqn{t_j c_j d_j^2 < \gamma} for MCP in every coordinate, so a
 standardized penalty takes shorter steps.

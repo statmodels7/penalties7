@@ -9,11 +9,11 @@ test_that("SCAD and MCP store a diagonal base matrix as a diagonal map", {
   )
   for (nm in names(cases)) {
     for (cv in list(NULL, c(1, 1.5, 0.5))) {
-      lab <- sprintf("%s, curv %s", nm, if (is.null(cv)) "NULL" else "given")
+      lab <- sprintf("%s, curvature %s", nm, if (is.null(cv)) "NULL" else "given")
       ctor <- cases[[nm]]$ctor
       th <- cases[[nm]]$th
-      base <- ctor(map = diag(d), curv = cv)
-      mat <- ctor(map = Matrix::Diagonal(x = d), curv = cv)
+      base <- ctor(map = diag(d), curvature = cv)
+      mat <- ctor(map = Matrix::Diagonal(x = d), curvature = cv)
       expect_true(methods::is(base@map, "diagonalMatrix"), label = lab)
       expect_true(has_prox(base), label = lab)
       expect_identical(has_prox(base), has_prox(mat), label = lab)
@@ -63,19 +63,19 @@ test_that("the SCAD and MCP step error prints the scaled step", {
                            list(lambda = 1, gamma = 3)))
   expect_match(m, "step < gamma", fixed = TRUE)
   expect_match(m, "\\b3\\.1\\b")
-  # with curv = 2 the scaled step is 6 * 2 * 0.5^2 = 3
+  # with curvature = 2 the scaled step is 6 * 2 * 0.5^2 = 3
   m <- msg_of(penalty_prox(scad_penalty(map = Matrix::Diagonal(x = 0.5),
-                                        curv = 2), 1, 6,
+                                        curvature = 2), 1, 6,
                            list(lambda = 1, a = 3.7)))
   expect_match(m, "step < a - 1", fixed = TRUE)
   expect_match(m, "scaled step is 3\\b")
 })
 
 test_that("check_curv() writes the singular for one coordinate", {
-  expect_error(scad_penalty(n_coef = 1, curv = c(1, 2)),
-               "'curv' must have 1 value, one per coordinate; it has 2.",
+  expect_error(scad_penalty(n_coef = 1, curvature = c(1, 2)),
+               "'curvature' must have 1 value, one per coordinate; it has 2.",
                fixed = TRUE)
-  expect_error(scad_penalty(n_coef = 3, curv = c(1, 2)),
-               "'curv' must have 3 values, one per coordinate; it has 2.",
+  expect_error(scad_penalty(n_coef = 3, curvature = c(1, 2)),
+               "'curvature' must have 3 values, one per coordinate; it has 2.",
                fixed = TRUE)
 })

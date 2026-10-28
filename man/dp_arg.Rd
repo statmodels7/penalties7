@@ -5,23 +5,23 @@
 \alias{dp_flat}
 \title{The Parent's Argument, Shaped and Unshaped}
 \usage{
-dp_arg(pen, t)
+dp_arg(penalty, t)
 
-dp_flat(pen, g)
+dp_flat(penalty, g)
 }
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
 \item{t}{The mapped coefficient vector \eqn{D\beta}, of length a multiple of
-\code{pen@block}. This argument belongs to \code{dp_arg()} only.}
+\code{penalty@block}. This argument belongs to \code{dp_arg()} only.}
 
 \item{g}{The result of the parent: a vector for a univariate parent, a
 matrix of one row per block for a multivariate one. This argument belongs
 to \code{dp_flat()} only.}
 }
 \value{
-\code{dp_arg()} returns the vector unchanged when \code{pen@block} is \code{1L}, and
-otherwise a matrix with \code{pen@block} columns filled by row.
+\code{dp_arg()} returns the vector unchanged when \code{penalty@block} is \code{1L}, and
+otherwise a matrix with \code{penalty@block} columns filled by row.
 \code{dp_flat()} returns a numeric vector, in coefficient order.
 }
 \description{

@@ -241,20 +241,20 @@ structured_penalty <- function(structure) {
 #'
 #' @description
 #' Unlists the aligned hyperparameter list into the numeric vector that the
-#' generics of the structure take, in `pen@params` order, which is the order
+#' generics of the structure take, in `penalty@params` order, which is the order
 #' of the structure's `free_names`.
 #'
-#' @param pen A [StructuredPenalty()] object.
+#' @param penalty A [StructuredPenalty()] object.
 #' @param theta The aligned hyperparameter list, as [align_ptheta()] returns
 #'   it.
 #'
-#' @return An unnamed numeric vector of length `length(pen@params)`.
+#' @return An unnamed numeric vector of length `length(penalty@params)`.
 #'
 #' @seealso [struct_omega()], [align_ptheta()]
 #'
 #' @keywords internal
-struct_eta <- function(pen, theta) {
-  unlist(theta[pen@params], use.names = FALSE)
+struct_eta <- function(penalty, theta) {
+  unlist(theta[penalty@params], use.names = FALSE)
 }
 
 # The structure IS the precision: the helpers below unwrap its own answers and
@@ -262,7 +262,7 @@ struct_eta <- function(pen, theta) {
 # parameters7::inverse_of(s), which carries its own derivatives.
 #
 # The three matrix helpers return, respectively, Omega, the list of
-# dOmega/dtheta_k in the order of pen@params, and the second derivatives keyed
+# dOmega/dtheta_k in the order of penalty@params, and the second derivatives keyed
 # as param_d2 keys them ("name_i:name_j", the pair sorted by position and the
 # key CONSTRUCTED from it, never parsed out of a name).
 
@@ -289,7 +289,7 @@ struct_eta <- function(pen, theta) {
 #' `free_names`. The key is constructed from the pair, never parsed out of a
 #' name, since a free name may itself contain a colon.
 #'
-#' @param pen A [StructuredPenalty()] object.
+#' @param penalty A [StructuredPenalty()] object.
 #' @param eta The structure's free vector, as [struct_eta()] returns it.
 #' @param omega Accepted and unused; the calls in this package never pass it.
 #'   Only `struct_d1()` and `struct_d2()` take it.
@@ -297,9 +297,9 @@ struct_eta <- function(pen, theta) {
 #'   `2`. Only `struct_logdet()` takes it, and its default is `2L`.
 #'
 #' @return `struct_omega()` returns a symmetric base matrix of side
-#'   `pen@structure@dimension`.
+#'   `penalty@structure@dimension`.
 #'   `struct_d1()` returns a list of such matrices, one per free value, in
-#'   `pen@params` order.
+#'   `penalty@params` order.
 #'   `struct_d2()` returns a list of such matrices, one per unordered pair,
 #'   keyed by the colon-joined sorted names. `struct_logdet()` returns a list
 #'   with `value` (a single number) and, according to `order`, `d1` (a named
@@ -311,26 +311,26 @@ struct_eta <- function(pen, theta) {
 #'   generics that they call.
 #'
 #' @keywords internal
-struct_omega <- function(pen, eta) {
-  unclass(parameters7::param_value(pen@structure, eta))
+struct_omega <- function(penalty, eta) {
+  unclass(parameters7::param_value(penalty@structure, eta))
 }
 
 #' @rdname struct_omega
 #' @keywords internal
-struct_d1 <- function(pen, eta, omega = NULL) {
-  lapply(parameters7::param_d1(pen@structure, eta), unclass)
+struct_d1 <- function(penalty, eta, omega = NULL) {
+  lapply(parameters7::param_d1(penalty@structure, eta), unclass)
 }
 
 #' @rdname struct_omega
 #' @keywords internal
-struct_d2 <- function(pen, eta, omega = NULL) {
-  lapply(parameters7::param_d2(pen@structure, eta), unclass)
+struct_d2 <- function(penalty, eta, omega = NULL) {
+  lapply(parameters7::param_d2(penalty@structure, eta), unclass)
 }
 
 #' @rdname struct_omega
 #' @keywords internal
-struct_logdet <- function(pen, eta, order = 2L) {
-  s <- pen@structure
+struct_logdet <- function(penalty, eta, order = 2L) {
+  s <- penalty@structure
   out <- list(value = parameters7::param_logdet(s, eta))
   if (order >= 1L) {
     out$d1 <- unlist(parameters7::param_dlogdet(s, eta))
@@ -359,8 +359,8 @@ struct_logdet <- function(pen, eta, order = 2L) {
 #' negative log-density of a multivariate normal distribution with mean zero
 #' and precision \eqn{\Omega(\theta)}.
 #'
-#' @param pen A [StructuredPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`, already coerced by the
+#' @param penalty A [StructuredPenalty()] object.
+#' @param beta A numeric vector of length `penalty@n_coef`, already coerced by the
 #'   generic.
 #' @param theta A named list of the structure's free values, already aligned by
 #'   the generic. The bounds are the whole line, so this method rejects no
@@ -386,12 +386,12 @@ struct_logdet <- function(pen, eta, order = 2L) {
 #'   [struct_omega()] for the helpers that read the precision from the
 #'   structure.
 #' @keywords internal
-S7::method(penalty_value, StructuredPenalty) <- function(pen, beta, theta, ...) {
-  eta <- struct_eta(pen, theta)
-  om <- struct_omega(pen, eta)
+S7::method(penalty_value, StructuredPenalty) <- function(penalty, beta, theta, ...) {
+  eta <- struct_eta(penalty, theta)
+  om <- struct_omega(penalty, eta)
   sum(beta * as.numeric(om %*% beta)) / 2 -
-    struct_logdet(pen, eta, 0L)$value / 2 +
-    pen@structure@rank / 2 * log(2 * pi)
+    struct_logdet(penalty, eta, 0L)$value / 2 +
+    penalty@structure@rank / 2 * log(2 * pi)
 }
 
 #' @title Coefficient Derivatives of a Structured Penalty
@@ -409,13 +409,13 @@ S7::method(penalty_value, StructuredPenalty) <- function(pen, beta, theta, ...) 
 #' evaluation includes the inversion of the matrix of `s`, and each generic
 #' repeats it.
 #'
-#' @param pen A [StructuredPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param penalty A [StructuredPenalty()] object.
+#' @param beta A numeric vector of length `penalty@n_coef`.
 #' @param theta A named list of the structure's free values.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return `penalty_gradient()` returns an unnamed numeric vector of length
-#'   `pen@n_coef`; `penalty_hessian()` the symmetric precision matrix
+#'   `penalty@n_coef`; `penalty_hessian()` the symmetric precision matrix
 #'   \eqn{\Omega(\theta)}, carrying the structure's own dimnames (`v1`,
 #'   `v2`, ... for the \pkg{parameters7} primitives). The quadratic and
 #'   additive branches return matrices with no dimnames, so a comparison
@@ -441,15 +441,15 @@ S7::method(penalty_value, StructuredPenalty) <- function(pen, beta, theta, ...) 
 #'   differentiated, [penalty_grad_theta.StructuredPenalty()] for the
 #'   hyperparameter blocks.
 #' @keywords internal
-S7::method(penalty_gradient, StructuredPenalty) <- function(pen, beta, theta, ...) {
-  as.numeric(struct_omega(pen, struct_eta(pen, theta)) %*% beta)
+S7::method(penalty_gradient, StructuredPenalty) <- function(penalty, beta, theta, ...) {
+  as.numeric(struct_omega(penalty, struct_eta(penalty, theta)) %*% beta)
 }
 
 #' @rdname penalty_gradient.StructuredPenalty
 #' @name penalty_hessian.StructuredPenalty
 #' @keywords internal
-S7::method(penalty_hessian, StructuredPenalty) <- function(pen, beta, theta, ...) {
-  struct_omega(pen, struct_eta(pen, theta))
+S7::method(penalty_hessian, StructuredPenalty) <- function(penalty, beta, theta, ...) {
+  struct_omega(penalty, struct_eta(penalty, theta))
 }
 
 #' @title Hyperparameter Derivatives of a Structured Penalty
@@ -483,8 +483,8 @@ S7::method(penalty_hessian, StructuredPenalty) <- function(pen, beta, theta, ...
 #' position, and the key is constructed from the pair, not parsed out of a
 #' name.
 #'
-#' @param pen A [StructuredPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param penalty A [StructuredPenalty()] object.
+#' @param beta A numeric vector of length `penalty@n_coef`.
 #' @param theta A named list of the structure's free values.
 #' @param scale Read by the generic, which applies the chain rule after
 #'   dispatch. Every link here is the identity, so the two scales coincide and
@@ -492,10 +492,10 @@ S7::method(penalty_hessian, StructuredPenalty) <- function(pen, beta, theta, ...
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return `penalty_grad_theta()` returns a list of one number per free value,
-#'   named by `pen@params`. `penalty_hess_theta()` returns a list of one number
+#'   named by `penalty@params`. `penalty_hess_theta()` returns a list of one number
 #'   per unordered pair, keyed diagonals first. `penalty_cross()` returns a list
-#'   of one numeric vector of length `pen@n_coef` per free value, named by
-#'   `pen@params`.
+#'   of one numeric vector of length `penalty@n_coef` per free value, named by
+#'   `penalty@params`.
 #'
 #' @examples
 #' pen <- structured_penalty(parameters7::ar1(4))
@@ -522,24 +522,24 @@ S7::method(penalty_hessian, StructuredPenalty) <- function(pen, beta, theta, ...
 #'   derivatives.
 #' @keywords internal
 S7::method(penalty_grad_theta, StructuredPenalty) <-
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    eta <- struct_eta(pen, theta)
-    A <- struct_d1(pen, eta)
-    dld <- struct_logdet(pen, eta, 1L)$d1
-    stats::setNames(lapply(seq_along(pen@params), function(k) {
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
+    eta <- struct_eta(penalty, theta)
+    A <- struct_d1(penalty, eta)
+    dld <- struct_logdet(penalty, eta, 1L)$d1
+    stats::setNames(lapply(seq_along(penalty@params), function(k) {
       sum(beta * as.numeric(A[[k]] %*% beta)) / 2 - dld[[k]] / 2
-    }), pen@params)
+    }), penalty@params)
   }
 
 #' @rdname penalty_grad_theta.StructuredPenalty
 #' @name penalty_hess_theta.StructuredPenalty
 #' @keywords internal
 S7::method(penalty_hess_theta, StructuredPenalty) <-
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    eta <- struct_eta(pen, theta)
-    A2 <- struct_d2(pen, eta)
-    d2 <- struct_logdet(pen, eta, 2L)$d2
-    nm <- pen@params
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
+    eta <- struct_eta(penalty, theta)
+    A2 <- struct_d2(penalty, eta)
+    d2 <- struct_logdet(penalty, eta, 2L)$d2
+    nm <- penalty@params
     prs <- ptheta_pairs(nm)
     # the structure keys its second-order components by the free names
     # joined with a colon, sorted by position; the key is CONSTRUCTED from
@@ -555,11 +555,11 @@ S7::method(penalty_hess_theta, StructuredPenalty) <-
 #' @name penalty_cross.StructuredPenalty
 #' @keywords internal
 S7::method(penalty_cross, StructuredPenalty) <-
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    A <- struct_d1(pen, struct_eta(pen, theta))
-    stats::setNames(lapply(seq_along(pen@params), function(k) {
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
+    A <- struct_d1(penalty, struct_eta(penalty, theta))
+    stats::setNames(lapply(seq_along(penalty@params), function(k) {
       as.numeric(A[[k]] %*% beta)
-    }), pen@params)
+    }), penalty@params)
   }
 
 #' @title Smoothness and Kind of a Structured Penalty
@@ -578,7 +578,7 @@ S7::method(penalty_cross, StructuredPenalty) <-
 #' improper prior, and its constant is the log pseudo-determinant over the
 #' range.
 #'
-#' @param pen A [StructuredPenalty()] object.
+#' @param penalty A [StructuredPenalty()] object.
 #' @param theta A named list of the structure's free values. It is
 #'   accepted by `penalty_kinks()`, whose result does not depend on it.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
@@ -599,21 +599,21 @@ S7::method(penalty_cross, StructuredPenalty) <-
 #'   generics, [penalty_matrix.StructuredPenalty()] for the quantities that
 #'   `is_quadratic()` gates.
 #' @keywords internal
-S7::method(penalty_kinks, StructuredPenalty) <- function(pen, theta, ...) {
+S7::method(penalty_kinks, StructuredPenalty) <- function(penalty, theta, ...) {
   numeric(0)
 }
 
 #' @rdname penalty_kinks.StructuredPenalty
 #' @name is_proper.StructuredPenalty
 #' @keywords internal
-S7::method(is_proper, StructuredPenalty) <- function(pen, ...) {
-  pen@structure@rank == pen@structure@dimension
+S7::method(is_proper, StructuredPenalty) <- function(penalty, ...) {
+  penalty@structure@rank == penalty@structure@dimension
 }
 
 #' @rdname penalty_kinks.StructuredPenalty
 #' @name is_quadratic.StructuredPenalty
 #' @keywords internal
-S7::method(is_quadratic, StructuredPenalty) <- function(pen, ...) TRUE
+S7::method(is_quadratic, StructuredPenalty) <- function(penalty, ...) TRUE
 
 #' @title Marginal Quantities of a Structured Penalty
 #' @name penalty_matrix.StructuredPenalty
@@ -638,15 +638,15 @@ S7::method(is_quadratic, StructuredPenalty) <- function(pen, ...) TRUE
 #' every free vector. `penalty_null_basis()` reshapes a vector-valued null
 #' basis into a one-column matrix, so its return is always a matrix.
 #'
-#' @param pen A [StructuredPenalty()] object.
+#' @param penalty A [StructuredPenalty()] object.
 #' @param theta A named list of the structure's free values. Only
 #'   `penalty_matrix()` and `penalty_logpdet()` read it.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return `penalty_matrix()` returns the symmetric precision matrix, of side
-#'   `pen@n_coef`, carrying the structure's own dimnames.
+#'   `penalty@n_coef`, carrying the structure's own dimnames.
 #'   `penalty_rank()` returns a single integer, the structure's rank.
-#'   `penalty_null_basis()` returns a matrix with `pen@n_coef` rows and one
+#'   `penalty_null_basis()` returns a matrix with `penalty@n_coef` rows and one
 #'   column per null direction, with no columns for a full-rank structure.
 #'   `penalty_logpdet()` returns a list of `value` (a number), `grad` (a list of
 #'   one number per free value) and `hess` (a list of one number per unordered
@@ -674,32 +674,32 @@ S7::method(is_quadratic, StructuredPenalty) <- function(pen, ...) TRUE
 #'   [penalty_matrix.QuadraticPenalty()] for the branch whose log
 #'   pseudo-determinant is linear in \eqn{\log\lambda}.
 #' @keywords internal
-S7::method(penalty_matrix, StructuredPenalty) <- function(pen, theta, ...) {
-  struct_omega(pen, struct_eta(pen, theta))
+S7::method(penalty_matrix, StructuredPenalty) <- function(penalty, theta, ...) {
+  struct_omega(penalty, struct_eta(penalty, theta))
 }
 
 #' @rdname penalty_matrix.StructuredPenalty
 #' @name penalty_rank.StructuredPenalty
 #' @keywords internal
-S7::method(penalty_rank, StructuredPenalty) <- function(pen, ...) {
-  as.integer(pen@structure@rank)
+S7::method(penalty_rank, StructuredPenalty) <- function(penalty, ...) {
+  as.integer(penalty@structure@rank)
 }
 
 #' @rdname penalty_matrix.StructuredPenalty
 #' @name penalty_null_basis.StructuredPenalty
 #' @keywords internal
-S7::method(penalty_null_basis, StructuredPenalty) <- function(pen, ...) {
-  nb <- pen@structure@null_basis
-  if (is.null(dim(nb))) matrix(nb, nrow = pen@n_coef) else nb
+S7::method(penalty_null_basis, StructuredPenalty) <- function(penalty, ...) {
+  nb <- penalty@structure@null_basis
+  if (is.null(dim(nb))) matrix(nb, nrow = penalty@n_coef) else nb
 }
 
 #' @rdname penalty_matrix.StructuredPenalty
 #' @name penalty_logpdet.StructuredPenalty
 #' @keywords internal
-S7::method(penalty_logpdet, StructuredPenalty) <- function(pen, theta, ...) {
-  eta <- struct_eta(pen, theta)
-  ld <- struct_logdet(pen, eta, 2L)
-  nm <- pen@params
+S7::method(penalty_logpdet, StructuredPenalty) <- function(penalty, theta, ...) {
+  eta <- struct_eta(penalty, theta)
+  ld <- struct_logdet(penalty, eta, 2L)
+  nm <- penalty@params
   prs <- ptheta_pairs(nm)
   list(
     value = ld$value,
@@ -756,10 +756,10 @@ S7::method(penalty_logpdet, StructuredPenalty) <- function(pen, theta, ...) {
 #' free values themselves, and the Jacobian that
 #' [parameters7::param_readable()] computes in closed form is the Jacobian
 #' with respect to the hyperparameters. The method names its rows by the
-#' prefixed names and its columns by `pen@params`, and repeats the
+#' prefixed names and its columns by `penalty@params`, and repeats the
 #' structure's label once per quantity to form `block`.
 #'
-#' @param pen A [StructuredPenalty()] object.
+#' @param penalty A [StructuredPenalty()] object.
 #' @param theta A named list of the structure's free values.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
@@ -769,7 +769,7 @@ S7::method(penalty_logpdet, StructuredPenalty) <- function(pen, theta, ...) {
 #'   `precision_`, or `covariance_` for an inverse structure; `jacobian`,
 #'   their derivatives, one row per quantity and one column per
 #'   hyperparameter, with row names from `value` and column names from
-#'   `pen@params`; `transform`, a character vector named like `value` that
+#'   `penalty@params`; `transform`, a character vector named like `value` that
 #'   names the scale on which each interval is built; and `block`, the
 #'   structure's label for every quantity, named like `value`.
 #'
@@ -805,15 +805,15 @@ S7::method(penalty_logpdet, StructuredPenalty) <- function(pen, theta, ...) {
 #'   [parameters7::param_readable()] for the quantities that a structure
 #'   declares.
 #' @keywords internal
-S7::method(penalty_readable, StructuredPenalty) <- function(pen, theta, ...) {
-  rd <- parameters7::param_readable(pen@structure, struct_eta(pen, theta))
+S7::method(penalty_readable, StructuredPenalty) <- function(penalty, theta, ...) {
+  rd <- parameters7::param_readable(penalty@structure, struct_eta(penalty, theta))
   if (is.null(rd)) return(NULL)
   # the quantities describe the precision, or, for an inverse structure, its
   # inverse, which is the prior's covariance
   side <- if (isTRUE(rd$inverse)) "covariance_" else "precision_"
   nm <- paste0(side, names(rd$value))
   jac <- rd$jacobian
-  dimnames(jac) <- list(nm, pen@params)
+  dimnames(jac) <- list(nm, penalty@params)
   list(value = stats::setNames(rd$value, nm), jacobian = jac,
        transform = stats::setNames(rd$transform, nm),
        block = stats::setNames(rep(rd$label, length(nm)), nm))

@@ -4,9 +4,9 @@
 \alias{penalty_value.AdditivePenalty}
 \title{Value of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}, already coerced by the
+\item{beta}{A numeric vector of length \code{penalty@n_coef}, already coerced by the
 generic.}
 
 \item{theta}{A named list of \code{lambda1}, \code{lambda2}, ..., already aligned and

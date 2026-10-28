@@ -13,26 +13,26 @@
 \alias{penalty_dhessian_beta_theta.DistribPenalty}
 \title{Methods of penalty_d2hessian_beta() and penalty_dhessian_beta_theta()}
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A named list of hyperparameter values.}
 
-\item{v, w}{Numeric vectors of length \code{pen@n_coef}, the directions.}
+\item{v, w}{Numeric vectors of length \code{penalty@n_coef}, the directions.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A square base matrix of side \code{pen@n_coef}, a list of them keyed by
-\code{pen@params}, or an error.
+A square base matrix of side \code{penalty@n_coef}, a list of them keyed by
+\code{penalty@params}, or an error.
 }
 \description{
 The methods of the base class for both generics signal an error that names
 the penalty; they are the methods that \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}}
 reach. The quadratic, additive and structured branches
 (\code{\link[=QuadraticPenalty]{QuadraticPenalty()}}, \code{\link[=AdditivePenalty]{AdditivePenalty()}} and \code{\link[=StructuredPenalty]{StructuredPenalty()}}) share
-one method per generic, which returns a zero matrix of side \code{pen@n_coef}
+one method per generic, which returns a zero matrix of side \code{penalty@n_coef}
 from \code{penalty_d2hessian_beta()} and a list of such zero matrices, one per
 hyperparameter, from \code{penalty_dhessian_beta_theta()}, because their Hessian
 is free of the coefficients. The separable branch returns the same zeros

@@ -4,9 +4,9 @@
 \alias{penalty_prox.ScadPenalty}
 \title{Proximal Operator of SCAD}
 \arguments{
-\item{pen}{A \code{\link[=ScadPenalty]{ScadPenalty()}} object.}
+\item{penalty}{A \code{\link[=ScadPenalty]{ScadPenalty()}} object.}
 
-\item{v}{A numeric vector of length \code{pen@n_coef}.}
+\item{v}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{step}{The step length \eqn{t}, a single positive finite number with
 \eqn{t c_j < a-1} in every coordinate (\eqn{t < a - 1} at unit
@@ -48,7 +48,7 @@ the call signals an error that prints \eqn{a - 1} and the largest scaled
 step, defined below.
 
 The formula is written for unit curvature. With the curvature \eqn{c_j} of
-\code{\link[=scad_penalty]{scad_penalty()}} (argument \code{curv}), the penalty in coordinate \eqn{j} is
+\code{\link[=scad_penalty]{scad_penalty()}} (argument \code{curvature}), the penalty in coordinate \eqn{j} is
 \eqn{c_j\rho(\cdot;\ \lambda/c_j)}, and the operator is the formula above
 with \eqn{t c_j} in place of \eqn{t} and \eqn{\lambda/c_j} in place of
 \eqn{\lambda}. Under a diagonal map the step is \eqn{t d_j^2}, so the

@@ -4,31 +4,31 @@
 \alias{penalty_dhessian_beta}
 \title{The Derivative of the Coefficient Hessian in the Coefficients}
 \usage{
-penalty_dhessian_beta(pen, beta, theta, v, ...)
+penalty_dhessian_beta(penalty, beta, theta, v, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}; the generic signals an
+\item{beta}{A numeric vector of length \code{penalty@n_coef}; the generic signals an
 error for any other length.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
 vector carrying the same, checked by the generic as in
 \code{\link[=penalty_dhessian]{penalty_dhessian()}}.}
 
-\item{v}{A numeric vector of length \code{pen@n_coef}, the direction; the
+\item{v}{A numeric vector of length \code{penalty@n_coef}, the direction; the
 generic signals an error for any other length.}
 
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
-A square base matrix of side \code{pen@n_coef}.
+A square base matrix of side \code{penalty@n_coef}.
 }
 \description{
 Returns \eqn{\partial S/\partial\beta\,[v] = \sum_c v_c\,
 \partial^3\rho/\partial\beta\,\partial\beta'\,\partial\beta_c}, the
 derivative of the coefficient Hessian along a direction \eqn{v}, as one
-matrix of side \code{pen@n_coef}. It is zero for every penalty whose Hessian
+matrix of side \code{penalty@n_coef}. It is zero for every penalty whose Hessian
 does not depend on the coefficients, apart from a kinked separable penalty,
 for which the generic signals an error.
 }

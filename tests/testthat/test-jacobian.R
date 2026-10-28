@@ -20,7 +20,7 @@ test_that("a quadratic penalty under a diagonal map carries the Jacobian", {
                  -sum(stats::dnorm(b, sd = 1 / (sqrt(lam) * d), log = TRUE)),
                  tolerance = 1e-12)
   }
-  expect_equal(mapped@logpdet_DPD, 2 * sum(log(d)), tolerance = 1e-12)
+  expect_equal(mapped@penalty_logpdet, 2 * sum(log(d)), tolerance = 1e-12)
   expect_identical(penalty_rank(mapped), 4L)
 })
 
@@ -32,7 +32,7 @@ test_that("a deficient quadratic penalty under a map reads pdet(D'PD)", {
   ev <- eigen(DPD, symmetric = TRUE)$values
   ev <- ev[ev > 1e-10 * max(ev)]
   expect_identical(penalty_rank(mapped), 3L)
-  expect_equal(mapped@logpdet_DPD, sum(log(ev)), tolerance = 1e-10)
+  expect_equal(mapped@penalty_logpdet, sum(log(ev)), tolerance = 1e-10)
   lp <- penalty_logpdet(mapped, list(lambda = 2))
   expect_equal(lp$value, 3 * log(2) + sum(log(ev)), tolerance = 1e-10)
 })
@@ -77,7 +77,7 @@ test_that("a penalty without a map is unchanged", {
   pen <- quadratic_penalty(P)
   ev <- eigen(P, symmetric = TRUE, only.values = TRUE)$values
   keep <- ev > 1e-10 * max(ev)
-  expect_identical(pen@logpdet_DPD, sum(log(ev[keep])))
+  expect_identical(pen@penalty_logpdet, sum(log(ev[keep])))
   expect_identical(penalty_rank(pen), sum(keep))
   b <- c(1, 0, -1)
   expect_identical(penalty_value(lasso_penalty(n_coef = 3), b,

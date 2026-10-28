@@ -4,18 +4,18 @@
 \alias{additive_sum}
 \title{The Weighted Sum and Its Log Pseudo-Determinant}
 \usage{
-additive_sum(pen, theta)
+additive_sum(penalty, theta)
 }
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
 \item{theta}{The aligned hyperparameter list, as \code{\link[=align_ptheta]{align_ptheta()}} returns
 it.}
 }
 \value{
 A list of four: \code{S}, the assembled symmetric matrix of side
-\code{pen@n_coef}; \code{logpdet}, a single number; \code{dlog}, a numeric vector of
-\eqn{\operatorname{tr}(S^{+}P_k)} in \code{pen@params} order; and \code{d2log}, the
+\code{penalty@n_coef}; \code{logpdet}, a single number; \code{dlog}, a numeric vector of
+\eqn{\operatorname{tr}(S^{+}P_k)} in \code{penalty@params} order; and \code{d2log}, the
 square matrix of \eqn{\operatorname{tr}(S^{+}P_kS^{+}P_l)}. The last
 three are \code{NaN} at a setting that the transformation cannot resolve.
 }
@@ -29,7 +29,7 @@ quantities from this function, which calls \code{\link[=additive_stable]{additiv
 last three.
 }
 \section{A single decomposition of the sum}{
-A single eigendecomposition of \eqn{S(\lambda)}, keeping its \code{p_rank}
+A single eigendecomposition of \eqn{S(\lambda)}, keeping its \code{rank}
 largest eigenvalues, fails once the parameters spread apart. A symmetric
 eigendecomposition computes its eigenvalues with an absolute accuracy of
 order \eqn{d\,\epsilon\lVert S\rVert_{2}}, so the smallest eigenvalue on the

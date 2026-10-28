@@ -7,9 +7,9 @@
 \alias{beta_quadratic.DistribPenalty}
 \title{Marginal Derivatives of a Separable Penalty}
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}. All three derivative
+\item{beta}{A numeric vector of length \code{penalty@n_coef}. All three derivative
 methods read it, because the components of the parent depend on it.}
 
 \item{theta}{A named list of the free parameters of the parent.}
@@ -18,10 +18,10 @@ methods read it, because the components of the parent depend on it.}
 }
 \value{
 \code{penalty_dhessian()} returns a list of one base matrix of side
-\code{pen@n_coef} per hyperparameter. \code{penalty_d2hessian()} returns a list of
+\code{penalty@n_coef} per hyperparameter. \code{penalty_d2hessian()} returns a list of
 one such matrix per unordered pair, keyed diagonals first.
 \code{penalty_dcross()} returns a list of one numeric vector of length
-\code{pen@n_coef} per unordered pair. \code{beta_quadratic()} returns a single
+\code{penalty@n_coef} per unordered pair. \code{beta_quadratic()} returns a single
 logical.
 }
 \description{
@@ -71,14 +71,14 @@ The log-density is quadratic in the response exactly when its second
 derivative in the response does not depend on the response. The generic
 has already checked \code{theta} (an invalid value is an error), and the method
 evaluates \code{\link[distributions7:distrib_hess_y]{distributions7::distrib_hess_y()}} of the parent at four points of
-\code{pen@block} coordinates each, and tests with \code{\link[=all.equal]{all.equal()}} at a relative
+\code{penalty@block} coordinates each, and tests with \code{\link[=all.equal]{all.equal()}} at a relative
 tolerance of \code{1e-12} whether the values agree across the points. A
 multivariate parent returns one \eqn{p \times p} matrix per point, or a
 single matrix when that matrix does not depend on the response, and the
 method compares the matrices of different points with one another, not the
 entries of one matrix. A single value or a single matrix, which carries
 no dimension for the points, gives \code{TRUE}. If the parent signals an error,
-or returns a number of values that is not a multiple of \code{pen@block^2}, the
+or returns a number of values that is not a multiple of \code{penalty@block^2}, the
 method returns \code{FALSE}.
 }
 

@@ -120,8 +120,8 @@ test_that("an injected defect is caught and a clean reference still passes", {
   expect_true(all(res$status == "OK"))
   # a 5% wrong gradient must fail: probe through a corrupted subclass method
   Bad <- S7::new_class("Bad", parent = QuadraticPenalty)
-  S7::method(penalty_gradient, Bad) <- function(pen, beta, theta, ...) {
-    1.05 * theta[[1]] * as.numeric(pen@DPD %*% beta)
+  S7::method(penalty_gradient, Bad) <- function(penalty, beta, theta, ...) {
+    1.05 * theta[[1]] * as.numeric(penalty@penalty_matrix %*% beta)
   }
   bad <- do.call(Bad, S7::props(quadratic_penalty(diag(3))))
   res <- check_penalty(bad, verbose = FALSE)
@@ -446,11 +446,11 @@ test_that("a blocked quadratic penalty is the assembled one, without assembling 
 
   expect_identical(b@n_coef, a@n_coef)
   expect_identical(penalty_rank(b), penalty_rank(a))
-  expect_equal(b@logpdet_DPD, a@logpdet_DPD)
+  expect_equal(b@penalty_logpdet, a@penalty_logpdet)
   expect_identical(ncol(penalty_null_basis(b)), ncol(penalty_null_basis(a)))
   # the null basis spans the same space: P times it is zero
   N <- as.matrix(penalty_null_basis(b))
-  expect_equal(max(abs(as.matrix(b@DPD) %*% N)), 0, tolerance = 1e-10)
+  expect_equal(max(abs(as.matrix(b@penalty_matrix) %*% N)), 0, tolerance = 1e-10)
 
   bb <- stats::rnorm(m * k)
   for (lam in c(0.3, 2.5)) {

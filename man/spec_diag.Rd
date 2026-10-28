@@ -4,13 +4,13 @@
 \alias{spec_diag}
 \title{Carry a Table Through a Diagonal Map}
 \usage{
-spec_diag(pen, step, build)
+spec_diag(penalty, step, build)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object whose map is \code{NULL} or diagonal.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object whose map is \code{NULL} or diagonal.}
 
 \item{step}{A numeric vector of step lengths, of length one or
-\code{pen@n_coef}, recycled to \code{pen@n_coef}.}
+\code{penalty@n_coef}, recycled to \code{penalty@n_coef}.}
 
 \item{build}{A function of a penalty and a step returning the table, or
 \code{NULL}. It is called on the penalty after the map has been removed.}

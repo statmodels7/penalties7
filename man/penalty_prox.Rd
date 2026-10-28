@@ -5,20 +5,20 @@
 \alias{penalty_prox.penalty}
 \title{Proximal Operator of a Penalty}
 \usage{
-penalty_prox(pen, v, step, theta, ...)
+penalty_prox(penalty, v, step, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object. \code{\link[=has_prox]{has_prox()}} tests whether it has an
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object. \code{\link[=has_prox]{has_prox()}} tests whether it has an
 operator.}
 
-\item{v}{A numeric vector of length \code{pen@n_coef}, the point of the quadratic
+\item{v}{A numeric vector of length \code{penalty@n_coef}, the point of the quadratic
 pull. The vector is coerced with \code{as.numeric()}.}
 
 \item{step}{The step length \eqn{t}, a single positive finite number. A
 vector is rejected; \code{\link[=penalty_prox_spec]{penalty_prox_spec()}} takes one step per coefficient.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector, holding every name in \code{pen@params}, each a single number.}
+vector, holding every name in \code{penalty@params}, each a single number.}
 
 \item{...}{Passed to methods. The shipped methods do not use it.}
 }
@@ -103,11 +103,11 @@ closed form is written for a parent centered at zero;
 \item a stationary condition that changes sign neither on the segment between
 \eqn{v} and the mode of the parent nor in a widened bracket;
 \item SCAD where \eqn{t c_j \ge a - 1} and MCP where \eqn{t c_j \ge \gamma} in
-some coordinate, where \eqn{c_j} is the curvature \code{curv} of the penalty
+some coordinate, where \eqn{c_j} is the \code{curvature} property of the penalty
 and \eqn{t} is multiplied by \eqn{d_j^2} under a diagonal map; the
 subproblem is then not convex and the operator is set-valued;
 \item a \code{step} that is not a single positive finite number, or a \code{v} whose
-length is not \code{pen@n_coef}.
+length is not \code{penalty@n_coef}.
 }
 }
 

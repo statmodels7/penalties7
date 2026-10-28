@@ -6,9 +6,9 @@
 \alias{penalty_cross.DistribPenalty}
 \title{Hyperparameter Derivatives of a Separable Penalty}
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A named list of the parent's free parameters.}
 
@@ -20,10 +20,10 @@ parent. These methods always return derivatives on the parameter scale.}
 }
 \value{
 \code{penalty_grad_theta()} returns a list of one number per
-hyperparameter, named by \code{pen@params}. \code{penalty_hess_theta()} returns a
+hyperparameter, named by \code{penalty@params}. \code{penalty_hess_theta()} returns a
 list of one number per unordered pair, keyed diagonals first.
 \code{penalty_cross()} returns a list of one numeric vector of length
-\code{pen@n_coef} per hyperparameter.
+\code{penalty@n_coef} per hyperparameter.
 }
 \description{
 These methods return the parent's own score and information in its
@@ -43,7 +43,7 @@ back through the map like the coefficient gradient.
 \section{Keys of the second derivatives}{
 The second derivatives are returned under the keys of \code{\link[=ptheta_pairs]{ptheta_pairs()}}:
 the diagonal pairs first, then the off-diagonal pairs, in the order of
-\code{pen@params}. The shipped continuous families of \pkg{distributions7} use
+\code{penalty@params}. The shipped continuous families of \pkg{distributions7} use
 the same order, but a family may spell a pair the other way, so each pair
 is looked up under both spellings, \code{a_b} and \code{b_a}. The key is composed
 from the pair and not parsed out of a name, because a parameter name may

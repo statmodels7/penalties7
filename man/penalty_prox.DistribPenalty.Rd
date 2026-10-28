@@ -4,9 +4,9 @@
 \alias{penalty_prox.DistribPenalty}
 \title{Proximal Operator of a Separable Penalty}
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
-\item{v}{A numeric vector of length \code{pen@n_coef}.}
+\item{v}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{step}{The step length \eqn{t}, a single positive finite number.}
 

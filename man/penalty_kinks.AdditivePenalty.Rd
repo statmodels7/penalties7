@@ -5,7 +5,7 @@
 \alias{is_proper.AdditivePenalty}
 \title{Smoothness and Properness of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
 \item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... \code{penalty_kinks()}
 accepts it, and its result does not depend on it.}

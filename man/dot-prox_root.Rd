@@ -7,16 +7,16 @@
 \alias{.prox_uniroot}
 \title{The Proximal Operator of a Separable Penalty, by Its Stationary Points}
 \usage{
-.prox_root(pen, v, step, theta, n_grid = 64L)
+.prox_root(penalty, v, step, theta, n_grid = 64L)
 
 .prox_mode(ly)
 
-.prox_root_widened(pen, h, vi, m = 0)
+.prox_root_widened(penalty, h, vi, m = 0)
 
 .prox_uniroot(h, lo, hi, flo, fhi)
 }
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object with no map and a block width of one.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object with no map and a block width of one.}
 
 \item{v}{A numeric vector, the points towards which the operator pulls.}
 

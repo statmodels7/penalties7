@@ -11,8 +11,8 @@ test_that("a component that the map carries to zero is rejected by number", {
   D <- rbind(c(1, 0, 0, 0, 0), c(0, 1, 0, 0, 0), c(0, 0, 1, 0, 0))
   pen <- additive_penalty(P, map = D)
   expect_identical(pen@n_coef, 5L)
-  expect_identical(pen@p_rank, 3L)
-  expect_equal(pen@mats[[2]], t(D) %*% P[[2]] %*% D)
+  expect_identical(pen@rank, 3L)
+  expect_equal(pen@matrices[[2]], t(D) %*% P[[2]] %*% D)
 })
 
 test_that("a setting whose rank identity is NA returns NaN without an error", {

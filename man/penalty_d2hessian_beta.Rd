@@ -6,29 +6,29 @@
 \title{Second Derivatives of the Coefficient Hessian in the Coefficients and the
 Hyperparameters}
 \usage{
-penalty_d2hessian_beta(pen, beta, theta, v, w, ...)
+penalty_d2hessian_beta(penalty, beta, theta, v, w, ...)
 
-penalty_dhessian_beta_theta(pen, beta, theta, v, ...)
+penalty_dhessian_beta_theta(penalty, beta, theta, v, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}; the generics signal an
+\item{beta}{A numeric vector of length \code{penalty@n_coef}; the generics signal an
 error for any other length.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
 vector carrying the same, checked by the generics as in
 \code{\link[=penalty_dhessian]{penalty_dhessian()}}.}
 
-\item{v, w}{Numeric vectors of length \code{pen@n_coef}, the directions; the
+\item{v, w}{Numeric vectors of length \code{penalty@n_coef}, the directions; the
 generics signal an error for any other length.}
 
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
 \code{penalty_d2hessian_beta()} returns a square base matrix of side
-\code{pen@n_coef}; \code{penalty_dhessian_beta_theta()} a list of such matrices, one
-per hyperparameter, keyed by \code{pen@params}.
+\code{penalty@n_coef}; \code{penalty_dhessian_beta_theta()} a list of such matrices, one
+per hyperparameter, keyed by \code{penalty@params}.
 }
 \description{
 These two functions return the derivatives of \code{\link[=penalty_dhessian_beta]{penalty_dhessian_beta()}} that

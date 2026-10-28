@@ -4,13 +4,13 @@
 \alias{map_diagonal}
 \title{The Diagonal of a Map That Has One}
 \usage{
-map_diagonal(pen)
+map_diagonal(penalty)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 }
 \value{
-A numeric vector of length \code{nrow(pen@map)}, or \code{NULL}. A unit
+A numeric vector of length \code{nrow(penalty@map)}, or \code{NULL}. A unit
 diagonal object (\code{diag = "U"}) gives a vector of ones.
 }
 \description{

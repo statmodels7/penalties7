@@ -5,9 +5,9 @@
 \alias{penalty_prox.StructuredPenalty}
 \title{Proximal Operator of a Quadratic or Structured Penalty}
 \arguments{
-\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} or \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
+\item{penalty}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} or \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{v}{A numeric vector of length \code{pen@n_coef}.}
+\item{v}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{step}{The step length \eqn{t}, a single positive finite number.}
 

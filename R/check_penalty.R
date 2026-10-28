@@ -31,13 +31,13 @@ NULL
 #' | `hessian vs numDeriv on the gradient` | [penalty_hessian()] against a numerical Jacobian of the analytic gradient, symmetrized |
 #' | `grad_theta[p] vs numDeriv` | [penalty_grad_theta()] against a numerical derivative of the value in hyperparameter `p` |
 #' | `hess_theta[p_p] vs numDeriv` | the diagonal entry of [penalty_hess_theta()] against a numerical derivative of the analytic `grad_theta` |
-#' | `hess_theta[p_r] vs numDeriv` | the off-diagonal entry of [penalty_hess_theta()] for hyperparameters `p` and `r`, with `p` before `r` in `pen@params`, against a numerical derivative in `r` of the analytic `grad_theta` of `p` |
+#' | `hess_theta[p_r] vs numDeriv` | the off-diagonal entry of [penalty_hess_theta()] for hyperparameters `p` and `r`, with `p` before `r` in `penalty@params`, against a numerical derivative in `r` of the analytic `grad_theta` of `p` |
 #' | `cross[p] vs Richardson on the gradient` | [penalty_cross()] against a numerical Jacobian of the analytic coefficient gradient in `p` |
 #' | `quadratic three-point identity` | \eqn{\rho(2\beta) - 4\rho(\beta) + 3\rho(0)}, which vanishes when the value is a quadratic form with no linear term |
 #' | `logpdet linear in log lambda with slope r` | raising `lambda` by a factor of \eqn{e} raises the value of [penalty_logpdet()] by the rank |
 #' | `logpdet gradient vs numDeriv` | the `grad` element of `penalty_logpdet()` against a numerical derivative of its `value` |
 #' | `rank vs eigenvalues of the matrix` | [penalty_rank()] against the number of eigenvalues of \eqn{S(\theta)}, or of the sum of the normalized components of an additive penalty, that exceed a relative tolerance times the largest |
-#' | `null basis width vs n_coef minus rank` | the number of columns of [penalty_null_basis()] against `pen@n_coef` minus [penalty_rank()] |
+#' | `null basis width vs n_coef minus rank` | the number of columns of [penalty_null_basis()] against `penalty@n_coef` minus [penalty_rank()] |
 #' | `null basis annihilates the matrix` | \eqn{S(\theta)N}, where \eqn{S(\theta)} is [penalty_matrix()] and \eqn{N} is [penalty_null_basis()] |
 #'
 #' The two log pseudo-determinant rows are alternatives, as described below.
@@ -55,7 +55,7 @@ NULL
 #' [is_quadratic()] returns `TRUE`: the three-point identity, one of the two
 #' log pseudo-determinant rows, the row of the rank, the row of the width of
 #' the null basis, and the row of the annihilation when the null basis has
-#' columns. When `"lambda"` is among `pen@params`, the matrix is one scale
+#' columns. When `"lambda"` is among `penalty@params`, the matrix is one scale
 #' times a constant, the log pseudo-determinant is linear in
 #' \eqn{\log\lambda} with slope the rank, and the row tests that identity.
 #' Otherwise the matrix depends on several hyperparameters, as in a
@@ -80,7 +80,7 @@ NULL
 #' row's `max_error` is the absolute difference between that count and
 #' [penalty_rank()]. A stored rank that differs from the count by one or more
 #' therefore fails the row of the rank, and a null basis whose number of columns
-#' differs from `pen@n_coef` minus the stored rank fails the row of the width.
+#' differs from `penalty@n_coef` minus the stored rank fails the row of the width.
 #'
 #' # What is not checked
 #'
@@ -104,8 +104,8 @@ NULL
 #' unchanged, and after fifty steps the last draw is used whether or not it
 #' clears them.
 #'
-#' @param pen A [penalty()] object, of any branch.
-#' @param beta A numeric coefficient vector of length `pen@n_coef`. `NULL`,
+#' @param penalty A [penalty()] object, of any branch.
+#' @param beta A numeric coefficient vector of length `penalty@n_coef`. `NULL`,
 #'   the default, draws one from `rnorm(sd = 1.3)` rounded to two places and
 #'   shifted by `0.11`, then moves it away from the kinks as above.
 #'   The draw is taken from a fixed seed, so the report is the same on two
@@ -169,8 +169,8 @@ NULL
 #' # the real class would change the generic for the rest of the session.
 #' Broken <- S7::new_class("Broken", parent = QuadraticPenalty)
 #' bad <- do.call(Broken, S7::props(quadratic_penalty(diag(3))))
-#' S7::method(penalty_gradient, Broken) <- function(pen, beta, theta, ...) {
-#'   1.05 * S7::method(penalty_gradient, QuadraticPenalty)(pen, beta, theta, ...)
+#' S7::method(penalty_gradient, Broken) <- function(penalty, beta, theta, ...) {
+#'   1.05 * S7::method(penalty_gradient, QuadraticPenalty)(penalty, beta, theta, ...)
 #' }
 #' failed <- check_penalty(bad, verbose = FALSE)
 #' failed[failed$status != "OK", c("check", "max_error")]
@@ -181,20 +181,20 @@ NULL
 #'   [linkfunctions7::check_link()] and [distributions7::check_distrib()] for
 #'   the corresponding checks of a link and of a distribution.
 #' @export
-check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
+check_penalty <- function(penalty, beta = NULL, theta = NULL, tol = 1e-6,
                           verbose = TRUE) {
   if (!requireNamespace("numDeriv", quietly = TRUE)) {
     stop("check_penalty() requires the numDeriv package.", call. = FALSE)
   }
   if (is.null(theta)) {
-    theta <- lapply(pen@params_bounds, function(b) {
+    theta <- lapply(penalty@params_bounds, function(b) {
       lo <- if (is.finite(b[1])) b[1] else -1
       hi <- if (is.finite(b[2])) b[2] else lo + 2
       lo + 0.6 * (hi - lo)
     })
   }
-  theta <- align_ptheta(pen, theta)
-  q <- pen@n_coef
+  theta <- align_ptheta(penalty, theta)
+  q <- penalty@n_coef
   if (is.null(beta)) {
     # The seed is fixed so that two runs report the same worst error: a
     # validator whose grid moves reports a different number every time. The
@@ -218,13 +218,13 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
     set.seed(7)
     beta <- round(stats::rnorm(q, sd = 1.3), 2) + 0.11
     # push t = D beta away from the declared kink set
-    kk <- penalty_kinks(pen, theta)
+    kk <- penalty_kinks(penalty, theta)
     if (length(kk)) {
-      t <- map_apply(pen, beta)
+      t <- map_apply(penalty, beta)
       for (i in seq_len(50)) {
         if (min(abs(outer(t, kk, "-"))) > 0.05) break
         beta <- beta + 0.033
-        t <- map_apply(pen, beta)
+        t <- map_apply(penalty, beta)
       }
     }
   }
@@ -242,36 +242,36 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
   # outside it at beta and theta, so their own errors are still signaled
   reference <- function(expr) tryCatch(expr, error = function(e) NaN)
 
-  penalty_value(pen, beta, theta)
-  g <- penalty_gradient(pen, beta, theta)
-  gn <- reference(numDeriv::grad(function(b) penalty_value(pen, b, theta), beta))
+  penalty_value(penalty, beta, theta)
+  g <- penalty_gradient(penalty, beta, theta)
+  gn <- reference(numDeriv::grad(function(b) penalty_value(penalty, b, theta), beta))
   add("gradient vs numDeriv", rel(g, gn))
 
-  H <- penalty_hessian(pen, beta, theta)
-  Hn <- reference(numDeriv::jacobian(function(b) penalty_gradient(pen, b, theta),
+  H <- penalty_hessian(penalty, beta, theta)
+  Hn <- reference(numDeriv::jacobian(function(b) penalty_gradient(penalty, b, theta),
                                      beta))
   add("hessian vs numDeriv on the gradient", rel(H, (Hn + t(Hn)) / 2))
 
-  gt <- penalty_grad_theta(pen, beta, theta)
-  ht <- penalty_hess_theta(pen, beta, theta)
-  cr <- penalty_cross(pen, beta, theta)
-  for (p in pen@params) {
+  gt <- penalty_grad_theta(penalty, beta, theta)
+  ht <- penalty_hess_theta(penalty, beta, theta)
+  cr <- penalty_cross(penalty, beta, theta)
+  for (p in penalty@params) {
     fn <- function(v) {
       th <- theta; th[[p]] <- v
-      penalty_value(pen, beta, th)
+      penalty_value(penalty, beta, th)
     }
     add(paste0("grad_theta[", p, "] vs numDeriv"),
         rel(gt[[p]], reference(numDeriv::grad(fn, theta[[p]]))))
     gfn <- function(v) {
       th <- theta; th[[p]] <- v
-      penalty_grad_theta(pen, beta, th)[[p]]
+      penalty_grad_theta(penalty, beta, th)[[p]]
     }
     add(paste0("hess_theta[", p, "_", p, "] vs numDeriv"),
         rel(ht[[paste0(p, "_", p)]],
             reference(numDeriv::grad(gfn, theta[[p]]))))
     cfn <- function(v) {
       th <- theta; th[[p]] <- v
-      penalty_gradient(pen, beta, th)
+      penalty_gradient(penalty, beta, th)
     }
     add(paste0("cross[", p, "] vs Richardson on the gradient"),
         rel(cr[[p]],
@@ -279,48 +279,48 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
   }
   # the mixed entries of the hyperparameter Hessian: the analytic gradient in
   # the first hyperparameter of the pair, differentiated in the second
-  prs <- ptheta_pairs(pen@params)
+  prs <- ptheta_pairs(penalty@params)
   for (key in names(prs)) {
     pr <- prs[[key]]
     if (pr[1] == pr[2]) next
     mfn <- function(v) {
       th <- theta; th[[pr[2]]] <- v
-      penalty_grad_theta(pen, beta, th)[[pr[1]]]
+      penalty_grad_theta(penalty, beta, th)[[pr[1]]]
     }
     add(paste0("hess_theta[", key, "] vs numDeriv"),
         rel(ht[[key]], reference(numDeriv::grad(mfn, theta[[pr[2]]]))))
   }
 
-  if (is_quadratic(pen)) {
+  if (is_quadratic(penalty)) {
     # the value is quadratic in beta: three-point exactness along a ray
-    v0 <- penalty_value(pen, 0 * beta, theta)
-    v1 <- penalty_value(pen, beta, theta)
-    v2 <- penalty_value(pen, 2 * beta, theta)
+    v0 <- penalty_value(penalty, 0 * beta, theta)
+    v1 <- penalty_value(penalty, beta, theta)
+    v2 <- penalty_value(penalty, 2 * beta, theta)
     add("quadratic three-point identity",
         abs(v2 - 4 * v1 + 3 * v0) / max(1, abs(v1)))
-    if ("lambda" %in% pen@params) {
+    if ("lambda" %in% penalty@params) {
       # the plain quadratic branch: one scale multiplies a constant matrix
-      lp1 <- penalty_logpdet(pen, theta)
+      lp1 <- penalty_logpdet(penalty, theta)
       th2 <- theta; th2$lambda <- theta$lambda * exp(1)
-      lp2 <- penalty_logpdet(pen, th2)
+      lp2 <- penalty_logpdet(penalty, th2)
       add("logpdet linear in log lambda with slope r",
-          abs((lp2$value - lp1$value) - penalty_rank(pen)))
+          abs((lp2$value - lp1$value) - penalty_rank(penalty)))
     } else {
       # the structured branch: the log pseudo-determinant's own gradient
       # against numDeriv on its value
-      lp <- penalty_logpdet(pen, theta)
+      lp <- penalty_logpdet(penalty, theta)
       worst <- 0
-      for (p2 in pen@params) {
+      for (p2 in penalty@params) {
         ref <- reference(numDeriv::grad(function(v) {
           th <- theta; th[[p2]] <- v
-          penalty_logpdet(pen, th)$value
+          penalty_logpdet(penalty, th)$value
         }, theta[[p2]]))
         worst <- max(worst, abs(lp$grad[[p2]] - ref) / max(1, abs(ref)))
       }
       add("logpdet gradient vs numDeriv", worst)
     }
-    M <- penalty_matrix(pen, theta)
-    nb <- penalty_null_basis(pen)
+    M <- penalty_matrix(penalty, theta)
+    nb <- penalty_null_basis(penalty)
     # the stored rank against the eigenvalues of the matrix, counted by the
     # relative rule of the constructors at the tolerance the penalty stores
     # (the default one for a branch that stores none), and the width of the
@@ -328,10 +328,10 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
     # counted on its normalized components, as additive_penalty() counts it:
     # S(theta) loses the smaller components once their scales differ by more
     # than the tolerance.
-    r_tol <- if (S7::S7_inherits(pen, QuadraticPenalty) ||
-                 S7::S7_inherits(pen, AdditivePenalty)) pen@tol else 1e-10
-    Md <- if (S7::S7_inherits(pen, AdditivePenalty)) {
-      as.matrix(Reduce(`+`, lapply(pen@mats, function(P) P / max(abs(P)))))
+    r_tol <- if (S7::S7_inherits(penalty, QuadraticPenalty) ||
+                 S7::S7_inherits(penalty, AdditivePenalty)) penalty@tol else 1e-10
+    Md <- if (S7::S7_inherits(penalty, AdditivePenalty)) {
+      as.matrix(Reduce(`+`, lapply(penalty@matrices, function(P) P / max(abs(P)))))
     } else {
       as.matrix(M)
     }
@@ -339,7 +339,7 @@ check_penalty <- function(pen, beta = NULL, theta = NULL, tol = 1e-6,
       ev <- eigen((Md + t(Md)) / 2, symmetric = TRUE, only.values = TRUE)$values
       sum(ev > r_tol * max(ev, 0))
     })
-    r <- penalty_rank(pen)
+    r <- penalty_rank(penalty)
     add("rank vs eigenvalues of the matrix", abs(count - r))
     add("null basis width vs n_coef minus rank",
         abs(ncol(nb) - (q - r)))

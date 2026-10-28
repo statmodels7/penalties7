@@ -4,12 +4,12 @@
 \alias{quad_form}
 \title{The Quadratic Form of a Quadratic Penalty}
 \usage{
-quad_form(pen, beta)
+quad_form(penalty, beta)
 }
 \arguments{
-\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
+\item{penalty}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 }
 \value{
 A single number, non-negative for a positive semidefinite \eqn{P}.

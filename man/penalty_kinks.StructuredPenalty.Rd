@@ -6,7 +6,7 @@
 \alias{is_quadratic.StructuredPenalty}
 \title{Smoothness and Kind of a Structured Penalty}
 \arguments{
-\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
+\item{penalty}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
 \item{theta}{A named list of the structure's free values. It is
 accepted by \code{penalty_kinks()}, whose result does not depend on it.}

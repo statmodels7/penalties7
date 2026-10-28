@@ -11,16 +11,16 @@
 \alias{penalty_logpdet}
 \title{Quantities of a Quadratic Penalty for a Marginal Criterion}
 \usage{
-penalty_matrix(pen, theta, ...)
+penalty_matrix(penalty, theta, ...)
 
-penalty_rank(pen, ...)
+penalty_rank(penalty, ...)
 
-penalty_null_basis(pen, ...)
+penalty_null_basis(penalty, ...)
 
-penalty_logpdet(pen, theta, ...)
+penalty_logpdet(penalty, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object for which \code{\link[=is_quadratic]{is_quadratic()}} is \code{TRUE}, or
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object for which \code{\link[=is_quadratic]{is_quadratic()}} is \code{TRUE}, or
 a separable penalty for \code{penalty_null_basis()}.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
@@ -31,7 +31,7 @@ take this argument.}
 }
 \value{
 \code{penalty_matrix()} returns a symmetric \verb{q x q} matrix, where \code{q} is
-\code{pen@n_coef}.
+\code{penalty@n_coef}.
 \code{penalty_rank()} returns a single integer, fixed at construction.
 \code{penalty_null_basis()} returns a \verb{q x (q - r)} matrix with orthonormal
 columns spanning the null space, and a \verb{q x 0} matrix when there is none.

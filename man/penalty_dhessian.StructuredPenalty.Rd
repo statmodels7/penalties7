@@ -7,9 +7,9 @@
 \alias{beta_quadratic.StructuredPenalty}
 \title{Marginal Derivatives of a Structured Penalty}
 \arguments{
-\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
+\item{penalty}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}. Read by
+\item{beta}{A numeric vector of length \code{penalty@n_coef}. Read by
 \code{penalty_dcross()}; the other three methods ignore it.}
 
 \item{theta}{A named list of the free values of the structure.}
@@ -18,11 +18,11 @@
 }
 \value{
 \code{penalty_dhessian()} returns a list of one matrix per free value,
-named by \code{pen@params}; the dimnames of each matrix are removed.
+named by \code{penalty@params}; the dimnames of each matrix are removed.
 \code{penalty_d2hessian()} returns a list of one matrix per unordered pair,
 keyed diagonals first.
 \code{penalty_dcross()} returns a list of one numeric vector of length
-\code{pen@n_coef} per unordered pair, keyed the same way. \code{beta_quadratic()}
+\code{penalty@n_coef} per unordered pair, keyed the same way. \code{beta_quadratic()}
 returns the single logical \code{TRUE}.
 }
 \description{
@@ -38,7 +38,7 @@ This branch does not differentiate. \pkg{parameters7} supplies both
 derivative arrays in closed form for the structures that it ships, and
 through its numerical fallback for a structure that does not implement them;
 this branch unwraps and re-keys the arrays. The free values in \code{theta} are
-passed to the structure as they are, in \code{pen@params} order.
+passed to the structure as they are, in \code{penalty@params} order.
 
 Since the value is quadratic in the coefficients, the mixed third derivative
 is \eqn{(\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta}, so

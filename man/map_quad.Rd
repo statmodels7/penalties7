@@ -5,12 +5,12 @@
 \alias{map_quad_full}
 \title{Carry a Middle Matrix Through the Map}
 \usage{
-map_quad(pen, h)
+map_quad(penalty, h)
 
-map_quad_full(pen, m)
+map_quad_full(penalty, m)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object, whose \code{map} is \eqn{D} with \eqn{m} rows
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object, whose \code{map} is \eqn{D} with \eqn{m} rows
 and \eqn{q} columns, or \code{NULL}.}
 
 \item{h}{A numeric vector of length \eqn{m}, the diagonal entries. Only

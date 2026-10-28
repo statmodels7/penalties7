@@ -10,12 +10,12 @@ dp_diag_entries(map)
 
 map_log_jacobian(map)
 
-dp_log_jacobian(pen)
+dp_log_jacobian(penalty)
 }
 \arguments{
 \item{map}{The map \eqn{D}: \code{NULL}, a base matrix or a \pkg{Matrix}.}
 
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 }
 \value{
 \code{dp_diag_entries()} returns a numeric vector of length \code{nrow(map)},

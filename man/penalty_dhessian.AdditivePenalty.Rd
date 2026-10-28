@@ -7,9 +7,9 @@
 \alias{beta_quadratic.AdditivePenalty}
 \title{Marginal Derivatives of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}. The methods do not use
+\item{beta}{A numeric vector of length \code{penalty@n_coef}. The methods do not use
 it.}
 
 \item{theta}{A named list of \code{lambda1}, \code{lambda2}, ... The methods do not
@@ -19,7 +19,7 @@ use it.}
 }
 \value{
 \code{penalty_dhessian()} returns a list of one base matrix per
-component, named by \code{pen@params}. \code{penalty_d2hessian()} returns a list of
+component, named by \code{penalty@params}. \code{penalty_d2hessian()} returns a list of
 zero matrices, one per unordered pair. \code{penalty_dcross()} returns a list of
 zero vectors, one per unordered pair. \code{beta_quadratic()} returns the single
 logical \code{TRUE}.
@@ -35,7 +35,7 @@ the components \eqn{S_k} themselves, \code{penalty_d2hessian()} and
 \details{
 Every entry is exact, and the methods do not compute any entry at call
 time. The components were fixed at construction and are stored already
-carried through the map, so the first derivative is a lookup of \code{pen@mats}
+carried through the map, so the first derivative is a lookup of \code{penalty@matrices}
 and the higher ones are zeros of the right shape. Under the identity map
 \eqn{S_k = P_k}.
 

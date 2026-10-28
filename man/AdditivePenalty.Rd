@@ -12,8 +12,8 @@ AdditivePenalty(
   params_bounds = list(),
   link_params = list(),
   params_smooth = logical(0),
-  mats = list(),
-  p_rank = integer(0),
+  matrices = list(),
+  rank = integer(0),
   null_basis = NULL,
   tol = 1e-10,
   blocks = integer(0),
@@ -48,26 +48,26 @@ real line.}
 \item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
 where the value is differentiable in it.}
 
-\item{mats}{A list of symmetric positive semidefinite matrices of the same
+\item{matrices}{A list of symmetric positive semidefinite matrices of the same
 side, already carried through the map, so each is \code{n_coef} by \code{n_coef}.
 One smoothing parameter goes with each, named \code{lambda1}, \code{lambda2} and so
 on in this order.}
 
-\item{p_rank}{The rank of the sum, a single whole number, the same at every
+\item{rank}{The rank of the sum, a single whole number, the same at every
 positive setting of the parameters.}
 
 \item{null_basis}{An orthonormal basis of the null space shared by the
-components, \code{n_coef} by \code{n_coef - p_rank}, read from the same
-eigendecomposition as \code{p_rank} and fixed in the same way.}
+components, \code{n_coef} by \code{n_coef - rank}, read from the same
+eigendecomposition as \code{rank} and fixed in the same way.}
 
 \item{tol}{The relative eigenvalue tolerance, a single positive number,
-\code{1e-10} by default. \code{\link[=additive_penalty]{additive_penalty()}} counts \code{p_rank} at this
+\code{1e-10} by default. \code{\link[=additive_penalty]{additive_penalty()}} counts \code{rank} at this
 tolerance, and \code{\link[=additive_sum]{additive_sum()}} passes it to \code{\link[=additive_stable]{additive_stable()}} as
 \code{r_tol}, so the rank of each group of components is counted at the same
 tolerance.}
 
 \item{blocks}{How many times each component is repeated blockwise, a whole
-number. An empty value is read as 1. Above 1, \code{mats} holds the repeated
+number. An empty value is read as 1. Above 1, \code{matrices} holds the repeated
 components as sparse matrices and \code{block_mats} holds one block of each.}
 
 \item{block_mats}{The components of one block, a list of base matrices, or
@@ -81,7 +81,7 @@ the smoothing parameters themselves or the standard deviations
 An S7 object of class \code{AdditivePenalty}, inheriting from \code{\link[=penalty]{penalty()}},
 with the seven inherited properties and the seven above. Its \code{map} is
 always \code{NULL}, because a map given to the constructor is absorbed into
-\code{mats}.
+\code{matrices}.
 }
 \description{
 This class holds the objects that \code{\link[=additive_penalty]{additive_penalty()}} builds: several
@@ -149,8 +149,8 @@ S7::S7_inherits(pen, AdditivePenalty)
 # The penalty has one hyperparameter per component and a rank fixed at
 # construction.
 pen@params
-c(rank = pen@p_rank, null_width = ncol(pen@null_basis))
-length(pen@mats)
+c(rank = pen@rank, null_width = ncol(pen@null_basis))
+length(pen@matrices)
 
 }
 \seealso{

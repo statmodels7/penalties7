@@ -4,12 +4,12 @@
 \alias{penalty_null_basis.DistribPenalty}
 \title{Null Basis of a Separable Penalty}
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-A numeric matrix with \code{pen@n_coef} rows and one column per null
+A numeric matrix with \code{penalty@n_coef} rows and one column per null
 direction.
 }
 \description{

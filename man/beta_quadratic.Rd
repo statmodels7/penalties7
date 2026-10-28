@@ -4,13 +4,13 @@
 \alias{beta_quadratic}
 \title{Is a Penalty Quadratic in the Coefficients?}
 \usage{
-beta_quadratic(pen, theta, ...)
+beta_quadratic(penalty, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in \code{pen@params}. The
+vector carrying the same, holding every name in \code{penalty@params}. The
 generic checks it as \code{\link[=penalty_dhessian]{penalty_dhessian()}} does, so a missing
 hyperparameter or a value outside its open bounds is an error on every
 branch. The separable branch evaluates the parent at it, and the other

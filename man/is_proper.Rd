@@ -4,10 +4,10 @@
 \alias{is_proper}
 \title{Is a Penalty a Proper Prior?}
 \usage{
-is_proper(pen, ...)
+is_proper(penalty, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }

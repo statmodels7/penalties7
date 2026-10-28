@@ -4,20 +4,20 @@
 \alias{struct_eta}
 \title{The Structure's Free Vector From the Aligned Hyperparameters}
 \usage{
-struct_eta(pen, theta)
+struct_eta(penalty, theta)
 }
 \arguments{
-\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
+\item{penalty}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
 \item{theta}{The aligned hyperparameter list, as \code{\link[=align_ptheta]{align_ptheta()}} returns
 it.}
 }
 \value{
-An unnamed numeric vector of length \code{length(pen@params)}.
+An unnamed numeric vector of length \code{length(penalty@params)}.
 }
 \description{
 Unlists the aligned hyperparameter list into the numeric vector that the
-generics of the structure take, in \code{pen@params} order, which is the order
+generics of the structure take, in \code{penalty@params} order, which is the order
 of the structure's \code{free_names}.
 }
 \seealso{

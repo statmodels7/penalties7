@@ -4,16 +4,16 @@
 \alias{additive_zero}
 \title{The Zero Matrix of an Additive Penalty's Side}
 \usage{
-additive_zero(pen)
+additive_zero(penalty)
 }
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 }
 \value{
 A square zero matrix.
 }
 \description{
-Returns the zero matrix of side \code{pen@n_coef}: sparse when the penalty is
+Returns the zero matrix of side \code{penalty@n_coef}: sparse when the penalty is
 repeated blockwise, so that a third-order block added to it by a caller
 is not allocated dense, and a base matrix otherwise.
 }

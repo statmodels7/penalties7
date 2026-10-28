@@ -4,12 +4,12 @@
 \alias{zero_pairs}
 \title{A Zero Entry for Every Hyperparameter Pair}
 \usage{
-zero_pairs(pen, z)
+zero_pairs(penalty, z)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{z}{The zero object: a \code{pen@n_coef} by \code{pen@n_coef} matrix for
+\item{z}{The zero object: a \code{penalty@n_coef} by \code{penalty@n_coef} matrix for
 \code{\link[=penalty_d2hessian]{penalty_d2hessian()}}, a numeric vector of that length for
 \code{\link[=penalty_dcross]{penalty_dcross()}}.}
 }

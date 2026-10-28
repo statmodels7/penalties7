@@ -6,9 +6,9 @@
 \alias{penalty_cross.AdditivePenalty}
 \title{Hyperparameter Derivatives of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A named list of \code{lambda1}, \code{lambda2}, ...}
 
@@ -22,7 +22,7 @@ parameter scale.}
 \code{penalty_grad_theta()} returns a list of one number per component,
 named \code{lambda1}, \code{lambda2}, ... \code{penalty_hess_theta()} returns a list of
 one number per unordered pair, keyed diagonals first. \code{penalty_cross()}
-returns a list of one numeric vector of length \code{pen@n_coef} per component.
+returns a list of one numeric vector of length \code{penalty@n_coef} per component.
 }
 \description{
 These methods return the three blocks of derivatives in the smoothing

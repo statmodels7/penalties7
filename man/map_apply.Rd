@@ -5,12 +5,12 @@
 \alias{map_back}
 \title{Apply the Linear Map and Its Transpose}
 \usage{
-map_apply(pen, beta)
+map_apply(penalty, beta)
 
-map_back(pen, g)
+map_back(penalty, g)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object, whose \code{map} is \eqn{D} with \eqn{m} rows
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object, whose \code{map} is \eqn{D} with \eqn{m} rows
 and \eqn{q} columns, or \code{NULL}.}
 
 \item{beta}{A numeric vector of length \eqn{q}. Only \code{map_apply()} takes

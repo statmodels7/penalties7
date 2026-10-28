@@ -5,7 +5,7 @@
 \title{Construct a Sum of Quadratic Penalties}
 \usage{
 additive_penalty(
-  mats,
+  matrices,
   map = NULL,
   blocks = 1L,
   readable = c("lambda", "sd"),
@@ -14,7 +14,7 @@ additive_penalty(
 )
 }
 \arguments{
-\item{mats}{A list of at least one symmetric positive semidefinite matrix,
+\item{matrices}{A list of at least one symmetric positive semidefinite matrix,
 all with the same number of rows. Each component is symmetrized. A
 component is rejected with an error that gives its position when it has
 an entry that is not finite (\code{NA}, \code{NaN} or infinite), when it differs

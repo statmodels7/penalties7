@@ -7,7 +7,7 @@
 \alias{beta_quadratic.penalty}
 \title{Base Class Methods of the Marginal Generics}
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of a class that registers none of these
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object of a class that registers none of these
 methods.}
 
 \item{beta}{A numeric vector of coefficients. The methods do not use it.}

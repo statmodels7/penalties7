@@ -60,12 +60,12 @@ NULL
 #' A zero would be indistinguishable from a prior that concentrates at zero,
 #' so it would not show which coordinates remain to be filled.
 #'
-#' @param pen A [penalty()] object.
+#' @param penalty A [penalty()] object.
 #' @param theta A named list of hyperparameter values, or a named numeric
 #'   vector carrying the same, as for the other generics of the package.
 #' @param ... Passed to methods. The shipped methods do not read it.
 #'
-#' @return A numeric vector of length `pen@n_coef`, `NA` in the coordinates
+#' @return A numeric vector of length `penalty@n_coef`, `NA` in the coordinates
 #'   that the prior does not determine and possibly `NA` throughout.
 #'
 #' @examples
@@ -105,17 +105,17 @@ NULL
 #'
 #' @aliases penalty_draw.penalty
 #' @export
-penalty_draw <- S7::new_generic("penalty_draw", "pen",
-  function(pen, theta, ...) {
-    theta <- align_ptheta(pen, theta)
+penalty_draw <- S7::new_generic("penalty_draw", "penalty",
+  function(penalty, theta, ...) {
+    theta <- align_ptheta(penalty, theta)
     S7::S7_dispatch()
   })
 
-S7::method(penalty_draw, penalty) <- function(pen, theta, ...) {
-  n <- as.integer(pen@n_coef)
+S7::method(penalty_draw, penalty) <- function(penalty, theta, ...) {
+  n <- as.integer(penalty@n_coef)
   out <- rep(NA_real_, n)
-  if (!is_quadratic(pen)) return(out)
-  S <- penalty_matrix(pen, theta)
+  if (!is_quadratic(penalty)) return(out)
+  S <- penalty_matrix(penalty, theta)
   # A diagonal precision is coordinatewise and is the ordinary case: a ridge,
   # and a Demmler-Reinsch smooth, whose penalty is diag(0, 1, ..., 1). The
   # zeros are the unpenalized directions and stay NA.
@@ -128,7 +128,7 @@ S7::method(penalty_draw, penalty) <- function(pen, theta, ...) {
   # Otherwise only a proper prior can be drawn from without a basis of the
   # range, and there one triangular factor does it: with S = R'R the vector
   # R^-1 z has covariance S^-1.
-  if (!is_proper(pen)) return(out)
+  if (!is_proper(penalty)) return(out)
   R <- try(chol(as.matrix(S)), silent = TRUE)
   if (inherits(R, "try-error")) return(out)
   as.numeric(backsolve(R, stats::rnorm(n)))
@@ -156,27 +156,27 @@ S7::method(penalty_draw, penalty) <- function(pen, theta, ...) {
 #' map by [distrib_penalty()], whatever its class, and is treated in the same
 #' way. Under any other map every coordinate is `NA`.
 #'
-#' @param pen A [DistribPenalty()] object.
+#' @param penalty A [DistribPenalty()] object.
 #' @param theta Its hyperparameters, which are the parent's parameters.
 #' @param ... Ignored.
 #'
-#' @return A numeric vector of length `pen@n_coef`, `NA` where a diagonal map
+#' @return A numeric vector of length `penalty@n_coef`, `NA` where a diagonal map
 #'   has a zero entry and `NA` throughout under a map that is not diagonal.
 #'
 #' @seealso [penalty_draw()], [distrib_penalty()]
 #' @keywords internal
-S7::method(penalty_draw, DistribPenalty) <- function(pen, theta, ...) {
-  n <- as.integer(pen@n_coef)
+S7::method(penalty_draw, DistribPenalty) <- function(penalty, theta, ...) {
+  n <- as.integer(penalty@n_coef)
   d <- NULL
-  if (!is.null(pen@map)) {
-    d <- dp_diag_entries(pen@map)
+  if (!is.null(penalty@map)) {
+    d <- dp_diag_entries(penalty@map)
     if (is.null(d)) return(rep(NA_real_, n))
   }
-  t <- if (pen@block == 1L) {
-    as.numeric(distributions7::distrib_rng(pen@parent, n, theta))
+  t <- if (penalty@block == 1L) {
+    as.numeric(distributions7::distrib_rng(penalty@parent, n, theta))
   } else {
-    dp_flat(pen, distributions7::distrib_rng(pen@parent,
-                                             n %/% pen@block, theta))
+    dp_flat(penalty, distributions7::distrib_rng(penalty@parent,
+                                             n %/% penalty@block, theta))
   }
   if (is.null(d)) return(t)
   # a zero on the diagonal is a coordinate the prior says nothing about
@@ -201,11 +201,11 @@ S7::method(penalty_draw, DistribPenalty) <- function(pen, theta, ...) {
 #' singular is not a proper prior and comes back `NA`, as the base method
 #' returns it.
 #'
-#' @param pen An [AdditivePenalty()] object.
+#' @param penalty An [AdditivePenalty()] object.
 #' @param theta A named list of `lambda1`, `lambda2`, ...
 #' @param ... Unused.
 #'
-#' @return A numeric vector of length `pen@n_coef`.
+#' @return A numeric vector of length `penalty@n_coef`.
 #'
 #' @examples
 #' pen <- additive_penalty(list(diag(2), diag(c(1, 2))), blocks = 3)
@@ -214,12 +214,12 @@ S7::method(penalty_draw, DistribPenalty) <- function(pen, theta, ...) {
 #'
 #' @seealso [penalty_draw()]
 #' @keywords internal
-S7::method(penalty_draw, AdditivePenalty) <- function(pen, theta, ...) {
-  m <- additive_blocks(pen)
-  if (m == 1L) return(S7::method(penalty_draw, penalty)(pen, theta, ...))
-  n <- as.integer(pen@n_coef)
-  lam <- unlist(theta[pen@params])
-  S1 <- Reduce(`+`, Map(function(P, l) l * P, pen@block_mats, lam))
+S7::method(penalty_draw, AdditivePenalty) <- function(penalty, theta, ...) {
+  m <- additive_blocks(penalty)
+  if (m == 1L) return(S7::method(penalty_draw, .penalty_class)(penalty, theta, ...))
+  n <- as.integer(penalty@n_coef)
+  lam <- unlist(theta[penalty@params])
+  S1 <- Reduce(`+`, Map(function(P, l) l * P, penalty@block_mats, lam))
   R <- try(chol(S1), silent = TRUE)
   if (inherits(R, "try-error")) return(rep(NA_real_, n))
   q <- nrow(S1)

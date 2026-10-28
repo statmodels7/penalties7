@@ -4,10 +4,10 @@
 \alias{.prox_param}
 \title{The Value of a Parent's Parameter, Free or Held}
 \usage{
-.prox_param(pen, theta, name)
+.prox_param(penalty, theta, name)
 }
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
 \item{theta}{The aligned hyperparameter list, as \code{\link[=align_ptheta]{align_ptheta()}} returns it.}
 

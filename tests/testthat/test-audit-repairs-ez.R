@@ -8,8 +8,8 @@ test_that("check_penalty() fails a wrong off-diagonal hyperparameter Hessian", {
   BadMixed <- S7::new_class("BadMixedScad", parent = ScadPenalty)
   bad <- do.call(BadMixed, S7::props(scad_penalty(n_coef = 4)))
   S7::method(penalty_hess_theta, BadMixed) <- function(
-      pen, beta, theta, scale = c("parameter", "link"), ...) {
-    h <- S7::method(penalty_hess_theta, ScadPenalty)(pen, beta, theta, ...)
+      penalty, beta, theta, scale = c("parameter", "link"), ...) {
+    h <- S7::method(penalty_hess_theta, ScadPenalty)(penalty, beta, theta, ...)
     h$lambda_a <- h$lambda_a + 0.01
     h
   }

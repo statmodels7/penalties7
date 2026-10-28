@@ -4,10 +4,10 @@
 \alias{has_prox}
 \title{Does a Penalty Supply a Proximal Operator?}
 \usage{
-has_prox(pen)
+has_prox(penalty)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch. Any other object signals an
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object of any branch. Any other object signals an
 error.}
 }
 \value{

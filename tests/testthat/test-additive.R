@@ -267,7 +267,7 @@ test_that("the stable determinant meets three identities of its own", {
     ev <- eigen(M, symmetric = TRUE)$values
     sum(ev > 1e-10 * max(ev))
   }
-  r1 <- rk(pen@mats[[1L]])
+  r1 <- rk(pen@matrices[[1L]])
   expect_identical(c(pen@n_coef, r, r1), c(16L, 12L, 8L))
 
   # (i) THE ASYMPTOTE. As one parameter comes to dominate, the directions its
@@ -308,7 +308,7 @@ test_that("the stable determinant meets three identities of its own", {
     V <- e$vectors[, k, drop = FALSE]
     Sp <- V %*% (t(V) / e$values[k])
     list(value = sum(log(e$values[k])),
-         grad = vapply(pen@mats, function(M) sum(Sp * M), numeric(1)))
+         grad = vapply(pen@matrices, function(M) sum(Sp * M), numeric(1)))
   }
   set.seed(5)
   for (i in seq_len(20)) {

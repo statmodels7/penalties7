@@ -5,16 +5,16 @@
 \alias{penalty_hessian.QuadraticPenalty}
 \title{Coefficient Derivatives of a Quadratic Penalty}
 \arguments{
-\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
+\item{penalty}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A list holding \code{lambda}.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
+\code{penalty_gradient()} returns a numeric vector of length \code{penalty@n_coef};
 \code{penalty_hessian()} a symmetric matrix of that order, a base matrix for an
 ordinary penalty and a \code{dgCMatrix} when the penalty was built with
 \code{blocks > 1}.

@@ -13,10 +13,10 @@ QuadraticPenalty(
   link_params = list(),
   params_smooth = logical(0),
   P = NULL,
-  p_rank = integer(0),
+  rank = integer(0),
   null_basis = NULL,
-  logpdet_DPD = integer(0),
-  DPD = NULL,
+  penalty_logpdet = integer(0),
+  penalty_matrix = NULL,
   tol = 1e-10
 )
 }
@@ -51,23 +51,23 @@ where the value is differentiable in it.}
 with as many rows as the map has, or as many as there are coefficients
 when the map is \code{NULL}. It is a \code{dgCMatrix} under \code{blocks > 1}.}
 
-\item{p_rank}{The rank of \eqn{D'PD}, a single whole number, counted at
+\item{rank}{The rank of \eqn{D'PD}, a single whole number, counted at
 construction by a relative eigenvalue rule. Without a map it is the rank
 of \eqn{P}.}
 
 \item{null_basis}{An orthonormal basis of the null space of \eqn{D'PD}, with
-\code{n_coef} rows and \code{n_coef - p_rank} columns, and no columns when the
+\code{n_coef} rows and \code{n_coef - rank} columns, and no columns when the
 penalty is full rank.}
 
-\item{logpdet_DPD}{The log pseudo-determinant of \eqn{D'PD}: the sum of the
+\item{penalty_logpdet}{The log pseudo-determinant of \eqn{D'PD}: the sum of the
 logarithms of its non-zero eigenvalues. It is a single number. Without a
 map it is the log pseudo-determinant of \eqn{P}.}
 
-\item{DPD}{The assembled \eqn{D'PD}, an \code{n_coef} by \code{n_coef} matrix, cached
+\item{penalty_matrix}{The assembled \eqn{D'PD}, an \code{n_coef} by \code{n_coef} matrix, cached
 so that the gradient and the Hessian never re-form it.}
 
 \item{tol}{The relative eigenvalue tolerance, a single positive number,
-\code{1e-10} by default. \code{\link[=quadratic_penalty]{quadratic_penalty()}} counts \code{p_rank} at this
+\code{1e-10} by default. \code{\link[=quadratic_penalty]{quadratic_penalty()}} counts \code{rank} at this
 tolerance and stores it, and \code{\link[=check_penalty]{check_penalty()}} counts the eigenvalues of
 the matrix at the same tolerance when it compares them with the rank.}
 }
@@ -140,9 +140,9 @@ pen <- quadratic_penalty(crossprod(diff(diag(5), differences = 2)))
 S7::S7_inherits(pen, QuadraticPenalty)
 
 # These are three of the six properties, all computed at construction.
-pen@p_rank
+pen@rank
 dim(pen@null_basis)
-pen@logpdet_DPD
+pen@penalty_logpdet
 
 }
 \seealso{

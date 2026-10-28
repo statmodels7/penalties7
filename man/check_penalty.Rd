@@ -4,12 +4,12 @@
 \alias{check_penalty}
 \title{Check a Penalty Numerically}
 \usage{
-check_penalty(pen, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
+check_penalty(penalty, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object, of any branch.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object, of any branch.}
 
-\item{beta}{A numeric coefficient vector of length \code{pen@n_coef}. \code{NULL},
+\item{beta}{A numeric coefficient vector of length \code{penalty@n_coef}. \code{NULL},
 the default, draws one from \code{rnorm(sd = 1.3)} rounded to two places and
 shifted by \code{0.11}, then moves it away from the kinks as above.
 The draw is taken from a fixed seed, so the report is the same on two
@@ -73,13 +73,13 @@ four or five more when \code{\link[=is_quadratic]{is_quadratic()}} is \code{TRUE
    \verb{hessian vs numDeriv on the gradient} \tab \code{\link[=penalty_hessian]{penalty_hessian()}} against a numerical Jacobian of the analytic gradient, symmetrized \cr
    \verb{grad_theta[p] vs numDeriv} \tab \code{\link[=penalty_grad_theta]{penalty_grad_theta()}} against a numerical derivative of the value in hyperparameter \code{p} \cr
    \verb{hess_theta[p_p] vs numDeriv} \tab the diagonal entry of \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} against a numerical derivative of the analytic \code{grad_theta} \cr
-   \verb{hess_theta[p_r] vs numDeriv} \tab the off-diagonal entry of \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} for hyperparameters \code{p} and \code{r}, with \code{p} before \code{r} in \code{pen@params}, against a numerical derivative in \code{r} of the analytic \code{grad_theta} of \code{p} \cr
+   \verb{hess_theta[p_r] vs numDeriv} \tab the off-diagonal entry of \code{\link[=penalty_hess_theta]{penalty_hess_theta()}} for hyperparameters \code{p} and \code{r}, with \code{p} before \code{r} in \code{penalty@params}, against a numerical derivative in \code{r} of the analytic \code{grad_theta} of \code{p} \cr
    \verb{cross[p] vs Richardson on the gradient} \tab \code{\link[=penalty_cross]{penalty_cross()}} against a numerical Jacobian of the analytic coefficient gradient in \code{p} \cr
    \verb{quadratic three-point identity} \tab \eqn{\rho(2\beta) - 4\rho(\beta) + 3\rho(0)}, which vanishes when the value is a quadratic form with no linear term \cr
    \verb{logpdet linear in log lambda with slope r} \tab raising \code{lambda} by a factor of \eqn{e} raises the value of \code{\link[=penalty_logpdet]{penalty_logpdet()}} by the rank \cr
    \verb{logpdet gradient vs numDeriv} \tab the \code{grad} element of \code{penalty_logpdet()} against a numerical derivative of its \code{value} \cr
    \verb{rank vs eigenvalues of the matrix} \tab \code{\link[=penalty_rank]{penalty_rank()}} against the number of eigenvalues of \eqn{S(\theta)}, or of the sum of the normalized components of an additive penalty, that exceed a relative tolerance times the largest \cr
-   \verb{null basis width vs n_coef minus rank} \tab the number of columns of \code{\link[=penalty_null_basis]{penalty_null_basis()}} against \code{pen@n_coef} minus \code{\link[=penalty_rank]{penalty_rank()}} \cr
+   \verb{null basis width vs n_coef minus rank} \tab the number of columns of \code{\link[=penalty_null_basis]{penalty_null_basis()}} against \code{penalty@n_coef} minus \code{\link[=penalty_rank]{penalty_rank()}} \cr
    \verb{null basis annihilates the matrix} \tab \eqn{S(\theta)N}, where \eqn{S(\theta)} is \code{\link[=penalty_matrix]{penalty_matrix()}} and \eqn{N} is \code{\link[=penalty_null_basis]{penalty_null_basis()}} \cr
 }
 
@@ -99,7 +99,7 @@ The quadratic rows are produced for every branch for which
 \code{\link[=is_quadratic]{is_quadratic()}} returns \code{TRUE}: the three-point identity, one of the two
 log pseudo-determinant rows, the row of the rank, the row of the width of
 the null basis, and the row of the annihilation when the null basis has
-columns. When \code{"lambda"} is among \code{pen@params}, the matrix is one scale
+columns. When \code{"lambda"} is among \code{penalty@params}, the matrix is one scale
 times a constant, the log pseudo-determinant is linear in
 \eqn{\log\lambda} with slope the rank, and the row tests that identity.
 Otherwise the matrix depends on several hyperparameters, as in a
@@ -124,7 +124,7 @@ constructor, and \code{1e-10} for a structured penalty, which stores none. The
 row's \code{max_error} is the absolute difference between that count and
 \code{\link[=penalty_rank]{penalty_rank()}}. A stored rank that differs from the count by one or more
 therefore fails the row of the rank, and a null basis whose number of columns
-differs from \code{pen@n_coef} minus the stored rank fails the row of the width.
+differs from \code{penalty@n_coef} minus the stored rank fails the row of the width.
 }
 
 \section{What is not checked}{
@@ -179,8 +179,8 @@ nrow(check_penalty(lasso_penalty(n_coef = 4), verbose = FALSE))
 # the real class would change the generic for the rest of the session.
 Broken <- S7::new_class("Broken", parent = QuadraticPenalty)
 bad <- do.call(Broken, S7::props(quadratic_penalty(diag(3))))
-S7::method(penalty_gradient, Broken) <- function(pen, beta, theta, ...) {
-  1.05 * S7::method(penalty_gradient, QuadraticPenalty)(pen, beta, theta, ...)
+S7::method(penalty_gradient, Broken) <- function(penalty, beta, theta, ...) {
+  1.05 * S7::method(penalty_gradient, QuadraticPenalty)(penalty, beta, theta, ...)
 }
 failed <- check_penalty(bad, verbose = FALSE)
 failed[failed$status != "OK", c("check", "max_error")]

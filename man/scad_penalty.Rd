@@ -10,7 +10,7 @@ scad_penalty(
   n_coef = 1L,
   link_lambda = linkfunctions7::log_link(),
   link_a = linkfunctions7::bounded_link(lwr = 2),
-  curv = NULL
+  curvature = NULL
 )
 
 mcp_penalty(
@@ -18,7 +18,7 @@ mcp_penalty(
   n_coef = 1L,
   link_lambda = linkfunctions7::log_link(),
   link_gamma = linkfunctions7::bounded_link(lwr = 1),
-  curv = NULL
+  curvature = NULL
 )
 }
 \arguments{
@@ -40,7 +40,7 @@ the whole real line. The default is \code{linkfunctions7::log_link()}, because
 The default is \code{linkfunctions7::bounded_link(lwr = 2)}. The argument
 belongs to \code{scad_penalty()} only.}
 
-\item{curv}{\code{NULL} (the default) for unit curvature, or positive finite
+\item{curvature}{\code{NULL} (the default) for unit curvature, or positive finite
 numbers, one per coordinate of \eqn{D\beta} or a single value repeated.}
 
 \item{link_gamma}{The link carrying MCP's shape parameter, bounded below at
@@ -78,7 +78,7 @@ MCP, after Zhang (2010), tapers from the origin:
 Integrating gives the values, which saturate at \eqn{(a+1)\lambda^2/2} for
 SCAD and at \eqn{\gamma\lambda^2/2} for MCP. These are the forms for unit
 curvature; the section on the curvature of the loss gives the form that
-\code{curv} produces.
+\code{curvature} produces.
 }
 
 \section{The shape parameter}{
@@ -97,7 +97,7 @@ for the shape parameter, which the caller sets or a path sweeps.
 Both penalties have a kink at zero, and both change branch again where the
 taper begins or ends. \code{\link[=penalty_kinks]{penalty_kinks()}} returns all of these points: at
 unit curvature they are \code{0}, \eqn{\pm\lambda} and \eqn{\pm a\lambda} for
-SCAD and \code{0} and \eqn{\pm\gamma\lambda} for MCP, and with \code{curv} the rate
+SCAD and \code{0} and \eqn{\pm\gamma\lambda} for MCP, and with \code{curvature} the rate
 \eqn{\lambda} in them becomes \eqn{\lambda/c_j}. At the points other than
 the origin the first derivative is continuous and the second jumps. When
 \code{beta} is not supplied, \code{\link[=check_penalty]{check_penalty()}} draws its coefficients away from
@@ -109,7 +109,7 @@ Both penalties are defined on the canonical problem
 \eqn{\tfrac12(z-\theta)^2 + \rho(\theta)}, whose loss has unit curvature
 (Fan and Lv 2010), and the value \eqn{a = 3.7} of Fan and Li (2001) is
 suggested for that problem. A likelihood has curvature \eqn{c_j} in
-coordinate \eqn{j}, and with \code{curv} the penalty is
+coordinate \eqn{j}, and with \code{curvature} the penalty is
 \eqn{\sum_j c_j\,\rho(t_j;\ \lambda/c_j)}. The slope at zero stays
 \eqn{\lambda}, the knee moves to \eqn{a\lambda/c_j} (\eqn{\gamma\lambda/c_j}
 for MCP), and the ratio of the knee to \eqn{\lambda/c_j} is the shape
@@ -120,7 +120,7 @@ and \eqn{-c_j/\gamma} for MCP. The proximal operator with step \eqn{s} is
 the unscaled operator at step \eqn{s c_j} and rate \eqn{\lambda/c_j}, so it
 is single-valued while \eqn{s c_j < a - 1} for SCAD and
 \eqn{s c_j < \gamma} for MCP. At the step \eqn{s = 1/c_j} these conditions
-are \eqn{a > 2} and \eqn{\gamma > 1} for any data. By default \code{curv} is
+are \eqn{a > 2} and \eqn{\gamma > 1} for any data. By default \code{curvature} is
 \code{NULL}, the penalty stores no curvature, and every coordinate has
 \eqn{c_j = 1}.
 }
@@ -162,9 +162,9 @@ sapply(c(3.7, 50, 1000),
        function(a) penalty_value(scad_penalty(n_coef = 1), 2,
                                  list(lambda = 1, a = a)))
 
-# With curv = 2 the slope at zero stays lambda and the value saturates at
+# With curvature = 2 the slope at zero stays lambda and the value saturates at
 # (a + 1) lambda^2 / (2 * 2).
-penalty_value(scad_penalty(n_coef = 1, curv = 2), 100, th)
+penalty_value(scad_penalty(n_coef = 1, curvature = 2), 100, th)
 (3.7 + 1) * 1^2 / (2 * 2)
 
 }

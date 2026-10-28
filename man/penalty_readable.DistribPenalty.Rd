@@ -4,14 +4,14 @@
 \alias{penalty_readable.DistribPenalty}
 \title{Interpretable Quantities of a Separable Penalty}
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
 \item{theta}{A named list of the parent's free parameters.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{NULL} when \code{pen@block} is \code{1L}. Otherwise the method returns the
+\code{NULL} when \code{penalty@block} is \code{1L}. Otherwise the method returns the
 list that \code{\link[distributions7:mv_derived]{distributions7::mv_derived()}} produces, with the elements
 \code{value}, \code{jacobian}, \code{transform} and \code{block}.
 }

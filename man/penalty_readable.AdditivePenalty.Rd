@@ -4,7 +4,7 @@
 \alias{penalty_readable.AdditivePenalty}
 \title{Readable Quantities of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
 \item{theta}{A named list of \code{lambda1}, \code{lambda2}, ...}
 

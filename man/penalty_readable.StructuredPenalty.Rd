@@ -4,7 +4,7 @@
 \alias{penalty_readable.StructuredPenalty}
 \title{Interpretable Quantities of a Structured Penalty}
 \arguments{
-\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
+\item{penalty}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
 \item{theta}{A named list of the structure's free values.}
 
@@ -17,7 +17,7 @@ quantities, in which each name is the structure's own name with the prefix
 \code{precision_}, or \code{covariance_} for an inverse structure; \code{jacobian},
 their derivatives, one row per quantity and one column per
 hyperparameter, with row names from \code{value} and column names from
-\code{pen@params}; \code{transform}, a character vector named like \code{value} that
+\code{penalty@params}; \code{transform}, a character vector named like \code{value} that
 names the scale on which each interval is built; and \code{block}, the
 structure's label for every quantity, named like \code{value}.
 }
@@ -63,7 +63,7 @@ Every link of the branch is the identity, so the hyperparameters are the
 free values themselves, and the Jacobian that
 \code{\link[parameters7:param_readable]{parameters7::param_readable()}} computes in closed form is the Jacobian
 with respect to the hyperparameters. The method names its rows by the
-prefixed names and its columns by \code{pen@params}, and repeats the
+prefixed names and its columns by \code{penalty@params}, and repeats the
 structure's label once per quantity to form \code{block}.
 }
 \examples{

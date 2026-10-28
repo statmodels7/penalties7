@@ -5,16 +5,16 @@
 \alias{penalty_hessian.AdditivePenalty}
 \title{Coefficient Derivatives of an Additive Penalty}
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A named list of \code{lambda1}, \code{lambda2}, ...}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
+\code{penalty_gradient()} returns a numeric vector of length \code{penalty@n_coef};
 \code{penalty_hessian()} a symmetric base matrix of that side.
 }
 \description{

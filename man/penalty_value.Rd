@@ -4,17 +4,17 @@
 \alias{penalty_value}
 \title{Value of a Penalty}
 \usage{
-penalty_value(pen, beta, theta, ...)
+penalty_value(penalty, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{beta}{A finite numeric vector of length \code{pen@n_coef}. The generic
+\item{beta}{A finite numeric vector of length \code{penalty@n_coef}. The generic
 coerces it with \code{as.numeric()}, so an integer vector or a one-column
 matrix is accepted. A vector of another length signals an error.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in \code{pen@params}. The generic
+vector carrying the same, holding every name in \code{penalty@params}. The generic
 reorders it and checks it against the penalty's open bounds before
 dispatch. Pass \code{list()} for a penalty with no hyperparameters.}
 

@@ -6,9 +6,9 @@
 \alias{penalty_cross.ScadPenalty}
 \title{Hyperparameter Derivatives of a SCAD Penalty}
 \arguments{
-\item{pen}{A \code{\link[=ScadPenalty]{ScadPenalty()}} object.}
+\item{penalty}{A \code{\link[=ScadPenalty]{ScadPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A list holding \code{lambda} and \code{a}.}
 
@@ -22,7 +22,7 @@ parameter scale.}
 \code{penalty_grad_theta()} returns a list of two numbers, \code{lambda} and
 \code{a}. \code{penalty_hess_theta()} returns a list of three numbers,
 \code{lambda_lambda}, \code{a_a} and \code{lambda_a}. \code{penalty_cross()} returns a list of
-two numeric vectors of length \code{pen@n_coef}, named \code{lambda} and \code{a}.
+two numeric vectors of length \code{penalty@n_coef}, named \code{lambda} and \code{a}.
 }
 \description{
 The three blocks in \eqn{(\lambda, a)} are each a closed piecewise form

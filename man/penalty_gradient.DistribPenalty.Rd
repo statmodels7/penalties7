@@ -5,16 +5,16 @@
 \alias{penalty_hessian.DistribPenalty}
 \title{Coefficient Derivatives of a Separable Penalty}
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A named list of the parent's free parameters.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
+\code{penalty_gradient()} returns a numeric vector of length \code{penalty@n_coef};
 \code{penalty_hessian()} a symmetric base matrix of that side, diagonal under
 the identity map with a univariate parent and block diagonal with a
 multivariate one.

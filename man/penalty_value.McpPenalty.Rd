@@ -4,9 +4,9 @@
 \alias{penalty_value.McpPenalty}
 \title{Value of an MCP Penalty}
 \arguments{
-\item{pen}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
+\item{penalty}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}, already coerced by the
+\item{beta}{A numeric vector of length \code{penalty@n_coef}, already coerced by the
 generic.}
 
 \item{theta}{A list holding \code{lambda} and \code{gamma}, already aligned and
@@ -18,7 +18,7 @@ bound-checked by the generic.}
 A single number, the sum over coordinates. It is bounded above by
 \eqn{\sum_j \gamma\lambda^2/(2c_j)}, where the sum runs over the
 coordinates of \eqn{D\beta}; under the identity map at unit curvature the
-bound is \code{pen@n_coef * gamma * lambda^2 / 2}.
+bound is \code{penalty@n_coef * gamma * lambda^2 / 2}.
 }
 \description{
 Returns the closed antiderivative of MCP's defining \eqn{\rho'}, summed over
@@ -35,7 +35,7 @@ With unit curvature and \eqn{u = \lvert t\rvert} on each coordinate,
 where the two pieces meet continuously at \eqn{\gamma\lambda}. SCAD keeps the
 slope of the lasso over an interval before it tapers, while MCP tapers from
 the origin, so its value is a downward parabola up to \eqn{\gamma\lambda}.
-With curvature \eqn{c_j} (the \code{curv} property), coordinate \eqn{j}
+With curvature \eqn{c_j} (the \code{curvature} property), coordinate \eqn{j}
 contributes \eqn{c_j\,\rho(u_j;\ \lambda/c_j)}, the same formula with
 \eqn{\lambda/c_j} in place of \eqn{\lambda} and multiplied by \eqn{c_j}.
 }

@@ -4,9 +4,9 @@
 \alias{penalty_value.QuadraticPenalty}
 \title{Value of a Quadratic Penalty}
 \arguments{
-\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
+\item{penalty}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}, already coerced by the
+\item{beta}{A numeric vector of length \code{penalty@n_coef}, already coerced by the
 generic.}
 
 \item{theta}{A list holding \code{lambda}, already aligned and bound-checked by

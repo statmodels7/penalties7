@@ -4,12 +4,12 @@
 \alias{penalty_d2hessian}
 \title{The Second Derivative of the Coefficient Hessian in the Hyperparameters}
 \usage{
-penalty_d2hessian(pen, beta, theta, ...)
+penalty_d2hessian(penalty, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}; the generic signals an
+\item{beta}{A numeric vector of length \code{penalty@n_coef}; the generic signals an
 error for any other length. Only the separable branch reads its values.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
@@ -20,7 +20,7 @@ vector carrying the same, checked by the generic as in
 }
 \value{
 A named list of one matrix per unordered pair of hyperparameters,
-each of side \code{pen@n_coef}, keyed diagonals first. A penalty with \eqn{p}
+each of side \code{penalty@n_coef}, keyed diagonals first. A penalty with \eqn{p}
 hyperparameters gives \eqn{p(p+1)/2} entries.
 }
 \description{
@@ -41,9 +41,9 @@ map as in \code{\link[=penalty_dhessian]{penalty_dhessian()}}. The derivatives a
 on its own scale.
 
 The keys are those of \code{\link[=penalty_hess_theta]{penalty_hess_theta()}}: the diagonal pairs come first
-in \code{pen@params} order, then the upper off-diagonal pairs follow, and each
+in \code{penalty@params} order, then the upper off-diagonal pairs follow, and each
 key joins the two names with an underscore. Each unordered pair has one
-key, written in \code{pen@params} order (\code{sigma_nu} and not \code{nu_sigma} when
+key, written in \code{penalty@params} order (\code{sigma_nu} and not \code{nu_sigma} when
 \code{sigma} comes first), and the reversed name is not an element of the list.
 
 A penalty with a kink signals an error, and so does the base class.

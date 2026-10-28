@@ -4,13 +4,13 @@
 \alias{penalty_kinks}
 \title{Points Where a Penalty Is Not Smooth}
 \usage{
-penalty_kinks(pen, theta, ...)
+penalty_kinks(penalty, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in \code{pen@params}. The argument
+vector carrying the same, holding every name in \code{penalty@params}. The argument
 is required even for a smooth penalty, whose result does not depend on it.}
 
 \item{...}{Passed to methods. The shipped methods do not read it.}

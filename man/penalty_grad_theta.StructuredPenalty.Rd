@@ -6,9 +6,9 @@
 \alias{penalty_cross.StructuredPenalty}
 \title{Hyperparameter Derivatives of a Structured Penalty}
 \arguments{
-\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
+\item{penalty}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A named list of the structure's free values.}
 
@@ -20,10 +20,10 @@ dispatch. Every link here is the identity, so the two scales coincide and
 }
 \value{
 \code{penalty_grad_theta()} returns a list of one number per free value,
-named by \code{pen@params}. \code{penalty_hess_theta()} returns a list of one number
+named by \code{penalty@params}. \code{penalty_hess_theta()} returns a list of one number
 per unordered pair, keyed diagonals first. \code{penalty_cross()} returns a list
-of one numeric vector of length \code{pen@n_coef} per free value, named by
-\code{pen@params}.
+of one numeric vector of length \code{penalty@n_coef} per free value, named by
+\code{penalty@params}.
 }
 \description{
 The three blocks in the structure's free values are all assembled from the

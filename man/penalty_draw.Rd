@@ -5,10 +5,10 @@
 \alias{penalty_draw.penalty}
 \title{Drawing From a Penalty Read as a Prior}
 \usage{
-penalty_draw(pen, theta, ...)
+penalty_draw(penalty, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
 vector carrying the same, as for the other generics of the package.}
@@ -16,7 +16,7 @@ vector carrying the same, as for the other generics of the package.}
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
-A numeric vector of length \code{pen@n_coef}, \code{NA} in the coordinates
+A numeric vector of length \code{penalty@n_coef}, \code{NA} in the coordinates
 that the prior does not determine and possibly \code{NA} throughout.
 }
 \description{

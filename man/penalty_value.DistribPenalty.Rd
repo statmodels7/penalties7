@@ -4,9 +4,9 @@
 \alias{penalty_value.DistribPenalty}
 \title{Value of a Separable Penalty}
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}, already coerced by the
+\item{beta}{A numeric vector of length \code{penalty@n_coef}, already coerced by the
 generic.}
 
 \item{theta}{A named list of the parent's free parameters, already aligned

@@ -4,9 +4,9 @@
 \alias{penalty_value.StructuredPenalty}
 \title{Value of a Structured Penalty}
 \arguments{
-\item{pen}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
+\item{penalty}{A \code{\link[=StructuredPenalty]{StructuredPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}, already coerced by the
+\item{beta}{A numeric vector of length \code{penalty@n_coef}, already coerced by the
 generic.}
 
 \item{theta}{A named list of the structure's free values, already aligned by

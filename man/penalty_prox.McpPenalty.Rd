@@ -4,9 +4,9 @@
 \alias{penalty_prox.McpPenalty}
 \title{Proximal Operator of MCP}
 \arguments{
-\item{pen}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
+\item{penalty}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
 
-\item{v}{A numeric vector of length \code{pen@n_coef}.}
+\item{v}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{step}{The step length \eqn{t}, a single positive finite number with
 \eqn{t c_j < \gamma} in every coordinate (\eqn{t < \gamma} at unit
@@ -47,7 +47,7 @@ set-valued, and the call signals an error that prints \eqn{\gamma} and the
 largest scaled step, defined below.
 
 The formula is written for unit curvature. With the curvature \eqn{c_j} of
-\code{\link[=mcp_penalty]{mcp_penalty()}} (argument \code{curv}), the operator is the formula above with
+\code{\link[=mcp_penalty]{mcp_penalty()}} (argument \code{curvature}), the operator is the formula above with
 \eqn{t c_j} in place of \eqn{t} and \eqn{\lambda/c_j} in place of
 \eqn{\lambda}. Under a diagonal map the step is \eqn{t d_j^2}, so the
 condition becomes \eqn{t c_j d_j^2 < \gamma} in every coordinate, which is

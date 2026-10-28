@@ -6,21 +6,21 @@
 \alias{penalty_cross}
 \title{Hyperparameter Derivatives of a Penalty}
 \usage{
-penalty_grad_theta(pen, beta, theta, scale = c("parameter", "link"), ...)
+penalty_grad_theta(penalty, beta, theta, scale = c("parameter", "link"), ...)
 
-penalty_hess_theta(pen, beta, theta, scale = c("parameter", "link"), ...)
+penalty_hess_theta(penalty, beta, theta, scale = c("parameter", "link"), ...)
 
-penalty_cross(pen, beta, theta, scale = c("parameter", "link"), ...)
+penalty_cross(penalty, beta, theta, scale = c("parameter", "link"), ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
-\item{beta}{A finite numeric vector of length \code{pen@n_coef}, coerced with
+\item{beta}{A finite numeric vector of length \code{penalty@n_coef}, coerced with
 \code{as.numeric()} in the generic. A vector of another length signals an
 error.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in \code{pen@params}.}
+vector carrying the same, holding every name in \code{penalty@params}.}
 
 \item{scale}{\code{"parameter"}, the default, gives derivatives in \eqn{\theta}.
 \code{"link"} gives them in the unconstrained values \eqn{\eta = g(\theta)},
@@ -32,11 +32,11 @@ hyperparameter's standard error is built.}
 \value{
 All three return a named list.
 \code{penalty_grad_theta()} has one element per hyperparameter; each element
-is a single number, and the elements are named by \code{pen@params}.
+is a single number, and the elements are named by \code{penalty@params}.
 \code{penalty_hess_theta()} has \eqn{p(p+1)/2} elements; each element is a
 single number, and the elements are keyed by pairs as described above.
 \code{penalty_cross()} has one element per hyperparameter; each element is a
-numeric vector of length \code{pen@n_coef}.
+numeric vector of length \code{penalty@n_coef}.
 }
 \description{
 The three functions return the three blocks of derivatives in the
@@ -79,7 +79,7 @@ the coefficient direction.
 }
 
 \section{Names of the elements}{
-The gradient and the mixed block are keyed by \code{pen@params}. The Hessian is
+The gradient and the mixed block are keyed by \code{penalty@params}. The Hessian is
 keyed by pairs. The diagonal entries come first, in \code{params} order, the
 upper off-diagonal pairs follow, and each key joins the two names with an
 underscore. For an elastic net the keys are \code{lambda_lambda}, \code{alpha_alpha},

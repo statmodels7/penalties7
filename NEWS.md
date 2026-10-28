@@ -1,3 +1,12 @@
+# penalties7 0.34.0
+
+* Renamed for readability: the argument `pen` of every generic and function
+  is `penalty`; `mats` of `additive_penalty()` and its property are
+  `matrices`; `curv` of `scad_penalty()` and `mcp_penalty()` and their
+  property is `curvature`; the properties `DPD`, `logpdet_DPD` and `p_rank`
+  of `QuadraticPenalty` are `penalty_matrix`, `penalty_logpdet` and `rank`,
+  and `p_rank` of `AdditivePenalty` is `rank`.
+
 # penalties7 0.33.1
 
 * The package description writes out the relative pronoun of a relative

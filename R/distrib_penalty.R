@@ -368,7 +368,7 @@ dp_is_multinomial <- function(d) {
 #' map it reads the stored `log_jacobian`.
 #'
 #' @param map The map \eqn{D}: `NULL`, a base matrix or a \pkg{Matrix}.
-#' @param pen A [DistribPenalty()] object.
+#' @param penalty A [DistribPenalty()] object.
 #'
 #' @return `dp_diag_entries()` returns a numeric vector of length `nrow(map)`,
 #'   a unit diagonal (`diag = "U"`) giving ones, or `NULL`. `map_log_jacobian()`
@@ -401,10 +401,10 @@ map_log_jacobian <- function(map) {
 
 #' @rdname dp_diag_entries
 #' @keywords internal
-dp_log_jacobian <- function(pen) {
-  if (is.null(pen@map)) return(0)
-  if (!is.null(dp_diag_entries(pen@map))) return(map_log_jacobian(pen@map))
-  pen@log_jacobian
+dp_log_jacobian <- function(penalty) {
+  if (is.null(penalty@map)) return(0)
+  if (!is.null(dp_diag_entries(penalty@map))) return(map_log_jacobian(penalty@map))
+  penalty@log_jacobian
 }
 
 
@@ -791,29 +791,29 @@ heavy_penalty <- function(map = NULL, n_coef = 1L) {
 #' Both functions return their argument unchanged when the block width is
 #' one, which is the case of every univariate parent.
 #'
-#' @param pen A [DistribPenalty()] object.
+#' @param penalty A [DistribPenalty()] object.
 #' @param t The mapped coefficient vector \eqn{D\beta}, of length a multiple of
-#'   `pen@block`. This argument belongs to `dp_arg()` only.
+#'   `penalty@block`. This argument belongs to `dp_arg()` only.
 #' @param g The result of the parent: a vector for a univariate parent, a
 #'   matrix of one row per block for a multivariate one. This argument belongs
 #'   to `dp_flat()` only.
 #'
-#' @return `dp_arg()` returns the vector unchanged when `pen@block` is `1L`, and
-#'   otherwise a matrix with `pen@block` columns filled by row.
+#' @return `dp_arg()` returns the vector unchanged when `penalty@block` is `1L`, and
+#'   otherwise a matrix with `penalty@block` columns filled by row.
 #'   `dp_flat()` returns a numeric vector, in coefficient order.
 #'
 #' @seealso [distrib_penalty()], [dp_blockdiag()] for the matrix-valued
 #'   counterpart.
 #'
 #' @keywords internal
-dp_arg <- function(pen, t) {
-  if (pen@block == 1L) t else matrix(t, ncol = pen@block, byrow = TRUE)
+dp_arg <- function(penalty, t) {
+  if (penalty@block == 1L) t else matrix(t, ncol = penalty@block, byrow = TRUE)
 }
 
 #' @rdname dp_arg
 #' @keywords internal
-dp_flat <- function(pen, g) {
-  if (pen@block == 1L) as.numeric(g) else as.numeric(t(g))
+dp_flat <- function(penalty, g) {
+  if (penalty@block == 1L) as.numeric(g) else as.numeric(t(g))
 }
 
 #' The Block-Diagonal Middle Matrix of a Blockwise Parent
@@ -836,20 +836,20 @@ dp_flat <- function(pen, g) {
 #' \eqn{p \times p \times n} array, and each slice goes to its own block. The
 #' two shapes are distinguished with `is.matrix()`.
 #'
-#' @param pen A [DistribPenalty()] object with `pen@block` above one.
+#' @param penalty A [DistribPenalty()] object with `penalty@block` above one.
 #' @param h The parent's [distributions7::distrib_hess_y()]: a
 #'   \eqn{p \times p} matrix or a \eqn{p \times p \times n} array.
 #' @param nblk The number of blocks, a single whole number.
 #'
-#' @return A symmetric base matrix of side `nblk * pen@block`, block diagonal
+#' @return A symmetric base matrix of side `nblk * penalty@block`, block diagonal
 #'   with `nblk` blocks.
 #'
 #' @seealso [dp_arg()], and [map_quad_full()], which carries this through the
 #'   map.
 #'
 #' @keywords internal
-dp_blockdiag <- function(pen, h, nblk) {
-  p <- pen@block
+dp_blockdiag <- function(penalty, h, nblk) {
+  p <- penalty@block
   out <- matrix(0, nblk * p, nblk * p)
   const <- is.matrix(h)
   for (i in seq_len(nblk)) {
@@ -882,8 +882,8 @@ dp_blockdiag <- function(pen, h, nblk) {
 #' computed from the entries of a diagonal map, and for any other map it is
 #' the `log_jacobian` stored when the penalty was built.
 #'
-#' @param pen A [DistribPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`, already coerced by the
+#' @param penalty A [DistribPenalty()] object.
+#' @param beta A numeric vector of length `penalty@n_coef`, already coerced by the
 #'   generic.
 #' @param theta A named list of the parent's free parameters, already aligned
 #'   and bound-checked by the generic against the parent's own bounds.
@@ -916,12 +916,12 @@ dp_blockdiag <- function(pen, h, nblk) {
 #'   [penalty_gradient.DistribPenalty()] for the coefficient derivatives,
 #'   [ridge_penalty()] and its siblings for the named instances.
 #' @keywords internal
-S7::method(penalty_value, DistribPenalty) <- function(pen, beta, theta, ...) {
-  t <- map_apply(pen, beta)
-  v <- -sum(distributions7::distrib_pdf(pen@parent, dp_arg(pen, t), theta,
+S7::method(penalty_value, DistribPenalty) <- function(penalty, beta, theta, ...) {
+  t <- map_apply(penalty, beta)
+  v <- -sum(distributions7::distrib_pdf(penalty@parent, dp_arg(penalty, t), theta,
                                         log = TRUE))
-  if (is.null(pen@map)) return(v)
-  lj <- dp_log_jacobian(pen)
+  if (is.null(penalty@map)) return(v)
+  lj <- dp_log_jacobian(penalty)
   if (is.na(lj)) v else v - lj
 }
 
@@ -951,12 +951,12 @@ S7::method(penalty_value, DistribPenalty) <- function(pen, beta, theta, ...) {
 #' subdifferential is \eqn{[-\lambda, \lambda]}; the exact zero of a fit is
 #' produced by [penalty_prox()].
 #'
-#' @param pen A [DistribPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param penalty A [DistribPenalty()] object.
+#' @param beta A numeric vector of length `penalty@n_coef`.
 #' @param theta A named list of the parent's free parameters.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_gradient()` returns a numeric vector of length `pen@n_coef`;
+#' @return `penalty_gradient()` returns a numeric vector of length `penalty@n_coef`;
 #'   `penalty_hessian()` a symmetric base matrix of that side, diagonal under
 #'   the identity map with a univariate parent and block diagonal with a
 #'   multivariate one.
@@ -991,25 +991,25 @@ S7::method(penalty_value, DistribPenalty) <- function(pen, beta, theta, ...) {
 #'   [penalty_prox()] for the step that produces exact zeros,
 #'   [dp_blockdiag()] for the multivariate middle matrix.
 #' @keywords internal
-S7::method(penalty_gradient, DistribPenalty) <- function(pen, beta, theta, ...) {
-  t <- map_apply(pen, beta)
-  a <- dp_arg(pen, t)
-  g <- distributions7::distrib_grad_y(pen@parent, a, theta) + 0 * a
-  -map_back(pen, dp_flat(pen, g))
+S7::method(penalty_gradient, DistribPenalty) <- function(penalty, beta, theta, ...) {
+  t <- map_apply(penalty, beta)
+  a <- dp_arg(penalty, t)
+  g <- distributions7::distrib_grad_y(penalty@parent, a, theta) + 0 * a
+  -map_back(penalty, dp_flat(penalty, g))
 }
 
 #' @rdname penalty_gradient.DistribPenalty
 #' @name penalty_hessian.DistribPenalty
 #' @keywords internal
-S7::method(penalty_hessian, DistribPenalty) <- function(pen, beta, theta, ...) {
-  t <- map_apply(pen, beta)
-  if (pen@block == 1L) {
-    return(-map_quad(pen,
-      distributions7::distrib_hess_y(pen@parent, t, theta) + 0 * t))
+S7::method(penalty_hessian, DistribPenalty) <- function(penalty, beta, theta, ...) {
+  t <- map_apply(penalty, beta)
+  if (penalty@block == 1L) {
+    return(-map_quad(penalty,
+      distributions7::distrib_hess_y(penalty@parent, t, theta) + 0 * t))
   }
-  a <- dp_arg(pen, t)
-  h <- distributions7::distrib_hess_y(pen@parent, a, theta)
-  -map_quad_full(pen, dp_blockdiag(pen, h, nrow(a)))
+  a <- dp_arg(penalty, t)
+  h <- distributions7::distrib_hess_y(penalty@parent, a, theta)
+  -map_quad_full(penalty, dp_blockdiag(penalty, h, nrow(a)))
 }
 
 #' @title Hyperparameter Derivatives of a Separable Penalty
@@ -1034,14 +1034,14 @@ S7::method(penalty_hessian, DistribPenalty) <- function(pen, beta, theta, ...) {
 #'
 #' The second derivatives are returned under the keys of [ptheta_pairs()]:
 #' the diagonal pairs first, then the off-diagonal pairs, in the order of
-#' `pen@params`. The shipped continuous families of \pkg{distributions7} use
+#' `penalty@params`. The shipped continuous families of \pkg{distributions7} use
 #' the same order, but a family may spell a pair the other way, so each pair
 #' is looked up under both spellings, `a_b` and `b_a`. The key is composed
 #' from the pair and not parsed out of a name, because a parameter name may
 #' contain an underscore.
 #'
-#' @param pen A [DistribPenalty()] object.
-#' @param beta A numeric vector of length `pen@n_coef`.
+#' @param penalty A [DistribPenalty()] object.
+#' @param beta A numeric vector of length `penalty@n_coef`.
 #' @param theta A named list of the parent's free parameters.
 #' @param scale Read by the generic, which applies the chain rule to the
 #'   unconstrained scale after dispatch and uses the links copied from the
@@ -1049,10 +1049,10 @@ S7::method(penalty_hessian, DistribPenalty) <- function(pen, beta, theta, ...) {
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
 #' @return `penalty_grad_theta()` returns a list of one number per
-#'   hyperparameter, named by `pen@params`. `penalty_hess_theta()` returns a
+#'   hyperparameter, named by `penalty@params`. `penalty_hess_theta()` returns a
 #'   list of one number per unordered pair, keyed diagonals first.
 #'   `penalty_cross()` returns a list of one numeric vector of length
-#'   `pen@n_coef` per hyperparameter.
+#'   `penalty@n_coef` per hyperparameter.
 #'
 #' @examples
 #' b <- c(1, 0, -1)
@@ -1078,9 +1078,9 @@ S7::method(penalty_hessian, DistribPenalty) <- function(pen, beta, theta, ...) {
 #'   [distributions7::distrib_cross_y()] for the mixed block's source.
 #' @keywords internal
 S7::method(penalty_grad_theta, DistribPenalty) <-
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    t <- map_apply(pen, beta)
-    g <- distributions7::distrib_gradient(pen@parent, dp_arg(pen, t), theta)
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
+    t <- map_apply(penalty, beta)
+    g <- distributions7::distrib_gradient(penalty@parent, dp_arg(penalty, t), theta)
     lapply(g, function(v) -sum(v))
   }
 
@@ -1088,11 +1088,11 @@ S7::method(penalty_grad_theta, DistribPenalty) <-
 #' @name penalty_hess_theta.DistribPenalty
 #' @keywords internal
 S7::method(penalty_hess_theta, DistribPenalty) <-
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    t <- map_apply(pen, beta)
-    H <- distributions7::distrib_hessian(pen@parent, dp_arg(pen, t), theta)
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
+    t <- map_apply(penalty, beta)
+    H <- distributions7::distrib_hessian(penalty@parent, dp_arg(penalty, t), theta)
     # reorder onto the diagonals-first convention of ptheta_pairs
-    prs <- ptheta_pairs(pen@params)
+    prs <- ptheta_pairs(penalty@params)
     hn <- names(H)
     stats::setNames(lapply(names(prs), function(nm) {
       pr <- prs[[nm]]
@@ -1106,11 +1106,11 @@ S7::method(penalty_hess_theta, DistribPenalty) <-
 #' @name penalty_cross.DistribPenalty
 #' @keywords internal
 S7::method(penalty_cross, DistribPenalty) <-
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
-    t <- map_apply(pen, beta)
-    a <- dp_arg(pen, t)
-    cy <- distributions7::distrib_cross_y(pen@parent, a, theta)
-    lapply(cy, function(v) -map_back(pen, dp_flat(pen, v + 0 * a)))
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
+    t <- map_apply(penalty, beta)
+    a <- dp_arg(penalty, t)
+    cy <- distributions7::distrib_cross_y(penalty@parent, a, theta)
+    lapply(cy, function(v) -map_back(penalty, dp_flat(penalty, v + 0 * a)))
   }
 
 #' @title Smoothness and Properness of a Separable Penalty
@@ -1141,12 +1141,12 @@ S7::method(penalty_cross, DistribPenalty) <-
 #' entries of a diagonal map, through [dp_log_jacobian()][dp_diag_entries],
 #' and returns `TRUE` exactly when that quantity is finite.
 #'
-#' @param pen A [DistribPenalty()] object.
+#' @param penalty A [DistribPenalty()] object.
 #' @param theta A named list of the parent's free parameters. It is accepted
 #'   by `penalty_kinks()`, whose result does not depend on it.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `penalty_kinks()` returns a numeric vector, `pen@kinks` as it stands.
+#' @return `penalty_kinks()` returns a numeric vector, `penalty@kinks` as it stands.
 #'   `is_proper()` returns a single logical.
 #'
 #' @examples
@@ -1172,15 +1172,15 @@ S7::method(penalty_cross, DistribPenalty) <-
 #'   improper map leaves free,
 #'   [penalty_prox()] for the proximal operator at a kink.
 #' @keywords internal
-S7::method(penalty_kinks, DistribPenalty) <- function(pen, theta, ...) {
-  pen@kinks
+S7::method(penalty_kinks, DistribPenalty) <- function(penalty, theta, ...) {
+  penalty@kinks
 }
 
 #' @rdname penalty_kinks.DistribPenalty
 #' @name is_proper.DistribPenalty
 #' @keywords internal
-S7::method(is_proper, DistribPenalty) <- function(pen, ...) {
-  isTRUE(is.finite(dp_log_jacobian(pen)))
+S7::method(is_proper, DistribPenalty) <- function(penalty, ...) {
+  isTRUE(is.finite(dp_log_jacobian(penalty)))
 }
 
 #' @title Null Basis of a Separable Penalty
@@ -1205,10 +1205,10 @@ S7::method(is_proper, DistribPenalty) <- function(pen, ...) {
 #' columns and full column rank has an empty basis, although [is_proper()]
 #' returns `FALSE` for it.
 #'
-#' @param pen A [DistribPenalty()] object.
+#' @param penalty A [DistribPenalty()] object.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return A numeric matrix with `pen@n_coef` rows and one column per null
+#' @return A numeric matrix with `penalty@n_coef` rows and one column per null
 #'   direction.
 #'
 #' @examples
@@ -1223,15 +1223,15 @@ S7::method(is_proper, DistribPenalty) <- function(pen, ...) {
 #' @seealso [penalty_null_basis()] for the generic, [is_proper()] for the
 #'   test of properness.
 #' @keywords internal
-S7::method(penalty_null_basis, DistribPenalty) <- function(pen, ...) {
-  q <- as.integer(pen@n_coef)
-  if (is.null(pen@map)) return(matrix(0, q, 0L))
-  d <- dp_diag_entries(pen@map)
+S7::method(penalty_null_basis, DistribPenalty) <- function(penalty, ...) {
+  q <- as.integer(penalty@n_coef)
+  if (is.null(penalty@map)) return(matrix(0, q, 0L))
+  d <- dp_diag_entries(penalty@map)
   if (!is.null(d)) {
     zero <- which(is.na(d) | d == 0)
     return(diag(1, q)[, zero, drop = FALSE])
   }
-  m <- as.matrix(pen@map)
+  m <- as.matrix(penalty@map)
   r <- qr(m)$rank
   if (r >= q) return(matrix(0, q, 0L))
   svd(m, nu = 0L, nv = q)$v[, seq.int(r + 1L, q), drop = FALSE]
@@ -1255,11 +1255,11 @@ S7::method(penalty_null_basis, DistribPenalty) <- function(pen, ...) {
 #' of the effects within a block, and the parent provides them through
 #' [distributions7::mv_derived()].
 #'
-#' @param pen A [DistribPenalty()] object.
+#' @param penalty A [DistribPenalty()] object.
 #' @param theta A named list of the parent's free parameters.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
 #'
-#' @return `NULL` when `pen@block` is `1L`. Otherwise the method returns the
+#' @return `NULL` when `penalty@block` is `1L`. Otherwise the method returns the
 #'   list that [distributions7::mv_derived()] produces, with the elements
 #'   `value`, `jacobian`, `transform` and `block`.
 #'
@@ -1281,10 +1281,10 @@ S7::method(penalty_null_basis, DistribPenalty) <- function(pen, ...) {
 #'   [distributions7::mv_derived()] for the quantities that a multivariate
 #'   family provides.
 #' @keywords internal
-S7::method(penalty_readable, DistribPenalty) <- function(pen, theta, ...) {
+S7::method(penalty_readable, DistribPenalty) <- function(penalty, theta, ...) {
   # only a blockwise parent has coordinates that are not the quantities: a
   # univariate one's hyperparameters are a scale, a rate, a shape, each read
   # on its own scale already
-  if (pen@block == 1L) return(NULL)
-  distributions7::mv_derived(pen@parent, theta)
+  if (penalty@block == 1L) return(NULL)
+  distributions7::mv_derived(penalty@parent, theta)
 }

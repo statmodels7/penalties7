@@ -4,12 +4,12 @@
 \alias{penalty_dhessian}
 \title{The Derivative of the Coefficient Hessian in the Hyperparameters}
 \usage{
-penalty_dhessian(pen, beta, theta, ...)
+penalty_dhessian(penalty, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}; the generic signals an
+\item{beta}{A numeric vector of length \code{penalty@n_coef}; the generic signals an
 error for any other length. Only the separable branch reads its values,
 because the derivatives of the parent depend on them; the quadratic,
 additive and structured branches ignore them.}
@@ -22,7 +22,7 @@ present as a single number inside its bounds.}
 }
 \value{
 A named list of one matrix per hyperparameter, each of side
-\code{pen@n_coef}, named by \code{pen@params}. The quadratic branch returns the
+\code{penalty@n_coef}, named by \code{penalty@params}. The quadratic branch returns the
 stored matrix in the storage that the penalty keeps, so a penalty built
 with \code{blocks > 1} gives a \code{dgCMatrix}; the other branches return base
 matrices.

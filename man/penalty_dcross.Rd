@@ -4,12 +4,12 @@
 \alias{penalty_dcross}
 \title{The Derivative of the Mixed Block in the Hyperparameters}
 \usage{
-penalty_dcross(pen, beta, theta, ...)
+penalty_dcross(penalty, beta, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}; the generic signals an
+\item{beta}{A numeric vector of length \code{penalty@n_coef}; the generic signals an
 error for any other length. The structured and separable branches read
 its values; the quadratic and additive branches return zero for any
 value.}
@@ -21,7 +21,7 @@ vector carrying the same, checked by the generic as in
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }
 \value{
-A named list of one numeric vector of length \code{pen@n_coef} per
+A named list of one numeric vector of length \code{penalty@n_coef} per
 unordered pair, keyed diagonals first.
 }
 \description{

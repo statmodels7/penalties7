@@ -4,14 +4,14 @@
 \alias{penalty_draw.DistribPenalty}
 \title{Drawing From a Separable Penalty}
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
 \item{theta}{Its hyperparameters, which are the parent's parameters.}
 
 \item{...}{Ignored.}
 }
 \value{
-A numeric vector of length \code{pen@n_coef}, \code{NA} where a diagonal map
+A numeric vector of length \code{penalty@n_coef}, \code{NA} where a diagonal map
 has a zero entry and \code{NA} throughout under a map that is not diagonal.
 }
 \description{

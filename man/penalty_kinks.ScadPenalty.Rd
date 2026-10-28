@@ -5,7 +5,7 @@
 \alias{is_proper.ScadPenalty}
 \title{Smoothness and Kind of a SCAD Penalty}
 \arguments{
-\item{pen}{A \code{\link[=ScadPenalty]{ScadPenalty()}} object.}
+\item{penalty}{A \code{\link[=ScadPenalty]{ScadPenalty()}} object.}
 
 \item{theta}{A list holding \code{lambda} and \code{a}.}
 
@@ -34,7 +34,7 @@ continuous and the second jumps between \eqn{0} and \eqn{-1/(a-1)}
 because a numerical Hessian across any of them is as wrong as a numerical
 gradient across the origin.
 
-With \code{curv}, the points \eqn{\pm\lambda/c_j} and \eqn{\pm a\lambda/c_j} are
+With \code{curvature}, the points \eqn{\pm\lambda/c_j} and \eqn{\pm a\lambda/c_j} are
 returned for each distinct value of \eqn{\lambda/c_j}, so the vector has
 more than five points when the curvatures differ. Every point except the
 origin moves with the hyperparameters, so \code{theta} is required.
@@ -44,7 +44,7 @@ penalty_kinks(scad_penalty(), list(lambda = 1, a = 3.7))
 penalty_kinks(scad_penalty(), list(lambda = 2, a = 3.7))
 
 # Two curvatures give two rates and nine points.
-penalty_kinks(scad_penalty(n_coef = 2, curv = c(1, 2)),
+penalty_kinks(scad_penalty(n_coef = 2, curvature = c(1, 2)),
               list(lambda = 1, a = 3.7))
 is_proper(scad_penalty())
 

@@ -13,7 +13,7 @@ ScadPenalty(
   params_bounds = list(),
   link_params = list(),
   params_smooth = logical(0),
-  curv = integer(0)
+  curvature = integer(0)
 )
 
 McpPenalty(
@@ -24,7 +24,7 @@ McpPenalty(
   params_bounds = list(),
   link_params = list(),
   params_smooth = logical(0),
-  curv = integer(0)
+  curvature = integer(0)
 )
 }
 \arguments{
@@ -54,7 +54,7 @@ real line.}
 \item{params_smooth}{A logical vector, one entry per hyperparameter, \code{TRUE}
 where the value is differentiable in it.}
 
-\item{curv}{The curvature of the loss in each coordinate of \eqn{D\beta}, a
+\item{curvature}{The curvature of the loss in each coordinate of \eqn{D\beta}, a
 numeric vector of positive finite values with one entry per coordinate,
 or \code{numeric(0)}, which stores no curvature and gives every coordinate
 unit curvature. The constructors \code{\link[=scad_penalty]{scad_penalty()}} and \code{\link[=mcp_penalty]{mcp_penalty()}}
@@ -62,16 +62,16 @@ build it with \code{\link[=check_curv]{check_curv()}}.}
 }
 \value{
 An S7 object of class \code{ScadPenalty} or \code{McpPenalty}, inheriting from
-\code{\link[=penalty]{penalty()}} and carrying its seven properties and \code{curv}.
+\code{\link[=penalty]{penalty()}} and carrying its seven properties and \code{curvature}.
 }
 \description{
 \code{ScadPenalty} is the class that \code{\link[=scad_penalty]{scad_penalty()}} builds, and \code{McpPenalty} is
 the class that \code{\link[=mcp_penalty]{mcp_penalty()}} builds. The literature defines both families
 by the derivative \eqn{\rho'}, and their value is the closed piecewise
 antiderivative anchored at \eqn{\rho(0) = 0}. Each class adds one property
-to \code{\link[=penalty]{penalty()}}, \code{curv}, the curvature of the loss in each coordinate of
+to \code{\link[=penalty]{penalty()}}, \code{curvature}, the curvature of the loss in each coordinate of
 \eqn{D\beta}, and every quantity is computed from the two hyperparameters,
-the map and \code{curv}.
+the map and \code{curvature}.
 }
 \details{
 Both penalties are improper. The derivative \eqn{\rho'} is exactly zero

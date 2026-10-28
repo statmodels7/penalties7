@@ -5,17 +5,17 @@
 \alias{penalty_hessian.McpPenalty}
 \title{Coefficient Derivatives of an MCP Penalty}
 \arguments{
-\item{pen}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
+\item{penalty}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A list holding \code{lambda} and \code{gamma}.}
 
 \item{...}{Unused, and accepted so that the signature matches the generic's.}
 }
 \value{
-\code{penalty_gradient()} returns a numeric vector of length \code{pen@n_coef};
-\code{penalty_hessian()} a symmetric \code{pen@n_coef} by \code{pen@n_coef} base matrix,
+\code{penalty_gradient()} returns a numeric vector of length \code{penalty@n_coef};
+\code{penalty_hessian()} a symmetric \code{penalty@n_coef} by \code{penalty@n_coef} base matrix,
 diagonal under the identity map and negative semidefinite always.
 }
 \description{
@@ -44,7 +44,7 @@ penalties whose derivative is \eqn{\lambda} at the origin and zero beyond
 \eqn{\gamma\lambda}, MCP has the smallest maximum concavity, the supremum
 of \eqn{-\rho''} (Zhang 2010). A penalized objective stays convex only while
 the curvature of the likelihood in each coordinate exceeds \eqn{1/\gamma}
-(\eqn{c_j/\gamma} with \code{curv}).
+(\eqn{c_j/\gamma} with \code{curvature}).
 
 At \eqn{t = 0} the sign is zero, so the gradient returned is \code{0}, one
 element of the subdifferential \eqn{[-\lambda, \lambda]}. Exact zeros are

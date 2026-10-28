@@ -5,10 +5,10 @@
 \alias{is_quadratic.penalty}
 \title{Is a Penalty a Quadratic Form?}
 \usage{
-is_quadratic(pen, ...)
+is_quadratic(penalty, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }

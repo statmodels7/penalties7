@@ -7,7 +7,7 @@
 \usage{
 dp_contract(A, dirs)
 
-dp_parent_or_reject(pen, what, fun, a, theta)
+dp_parent_or_reject(penalty, what, fun, a, theta)
 }
 \arguments{
 \item{A}{A numeric array with \eqn{n} as its last dimension.}
@@ -16,7 +16,7 @@ dp_parent_or_reject(pen, what, fun, a, theta)
 the last remaining index of the array is contracted first, against the
 last direction.}
 
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 
 \item{what}{A word naming the derivative, for the message.}
 

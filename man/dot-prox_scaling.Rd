@@ -4,10 +4,10 @@
 \alias{.prox_scaling}
 \title{The Diagonal by Which a Proximal Operator Rescales}
 \usage{
-.prox_scaling(pen)
+.prox_scaling(penalty)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 }
 \value{
 A numeric vector of diagonal entries, or \code{NULL} when the map is

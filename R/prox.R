@@ -81,20 +81,20 @@ NULL
 #' - a stationary condition that changes sign neither on the segment between
 #'   \eqn{v} and the mode of the parent nor in a widened bracket;
 #' - SCAD where \eqn{t c_j \ge a - 1} and MCP where \eqn{t c_j \ge \gamma} in
-#'   some coordinate, where \eqn{c_j} is the curvature `curv` of the penalty
+#'   some coordinate, where \eqn{c_j} is the `curvature` property of the penalty
 #'   and \eqn{t} is multiplied by \eqn{d_j^2} under a diagonal map; the
 #'   subproblem is then not convex and the operator is set-valued;
 #' - a `step` that is not a single positive finite number, or a `v` whose
-#'   length is not `pen@n_coef`.
+#'   length is not `penalty@n_coef`.
 #'
-#' @param pen A [penalty()] object. [has_prox()] tests whether it has an
+#' @param penalty A [penalty()] object. [has_prox()] tests whether it has an
 #'   operator.
-#' @param v A numeric vector of length `pen@n_coef`, the point of the quadratic
+#' @param v A numeric vector of length `penalty@n_coef`, the point of the quadratic
 #'   pull. The vector is coerced with `as.numeric()`.
 #' @param step The step length \eqn{t}, a single positive finite number. A
 #'   vector is rejected; [penalty_prox_spec()] takes one step per coefficient.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector, holding every name in `pen@params`, each a single number.
+#'   vector, holding every name in `penalty@params`, each a single number.
 #' @param ... Passed to methods. The shipped methods do not use it.
 #'
 #' @return A numeric vector of the same length as `v`.
@@ -168,26 +168,26 @@ NULL
 #'   fails, [penalty_gradient()] for the gradient where the penalty is smooth.
 #'
 #' @export
-penalty_prox <- S7::new_generic("penalty_prox", "pen",
-  function(pen, v, step, theta, ...) {
-    theta <- align_ptheta(pen, theta)
+penalty_prox <- S7::new_generic("penalty_prox", "penalty",
+  function(penalty, v, step, theta, ...) {
+    theta <- align_ptheta(penalty, theta)
     v <- as.numeric(v)
     if (length(step) != 1L || is.na(step) || !is.finite(step) || step <= 0) {
       stop("'step' must be a single positive finite number.", call. = FALSE)
     }
-    if (length(v) != pen@n_coef) {
-      stop(sprintf("'v' must have length %d.", pen@n_coef), call. = FALSE)
+    if (length(v) != penalty@n_coef) {
+      stop(sprintf("'v' must have length %d.", penalty@n_coef), call. = FALSE)
     }
     S7::S7_dispatch()
   })
 
-S7::method(penalty_prox, penalty) <- function(pen, v, step, theta, ...) {
+S7::method(penalty_prox, penalty) <- function(penalty, v, step, theta, ...) {
   stop(sprintf(paste0(
     "'%s' has no proximal operator.\n",
     "  A penalty has one when it is a quadratic or structured penalty, a SCAD\n",
     "  or MCP penalty, or a separable penalty under the identity map or a\n",
     "  diagonal map. has_prox() tests this before a call."),
-    pen@penalty_name), call. = FALSE)
+    penalty@penalty_name), call. = FALSE)
 }
 
 #' @title Does a Penalty Supply a Proximal Operator?
@@ -234,7 +234,7 @@ S7::method(penalty_prox, penalty) <- function(pen, v, step, theta, ...) {
 #' declares a kink and has no closed form, return `TRUE`, and the call signals
 #' an error.
 #'
-#' @param pen A [penalty()] object of any branch. Any other object signals an
+#' @param penalty A [penalty()] object of any branch. Any other object signals an
 #'   error.
 #'
 #' @return A single logical.
@@ -261,22 +261,22 @@ S7::method(penalty_prox, penalty) <- function(pen, v, step, theta, ...) {
 #'   that a fitting layer uses to route a block.
 #'
 #' @export
-has_prox <- function(pen) {
-  if (!S7::S7_inherits(pen, penalty)) {
-    stop("'pen' must be a penalty object.", call. = FALSE)
+has_prox <- function(penalty) {
+  if (!S7::S7_inherits(penalty, .penalty_class)) {
+    stop("'penalty' must be a penalty object.", call. = FALSE)
   }
-  m <- S7::method(penalty_prox, S7::S7_class(pen))
+  m <- S7::method(penalty_prox, S7::S7_class(penalty))
   owner <- attr(attr(m, "signature")[[1L]], "name")
   if (identical(owner, "penalty")) return(FALSE)
-  if (is_quadratic(pen) || S7::S7_inherits(pen, StructuredPenalty)) {
+  if (is_quadratic(penalty) || S7::S7_inherits(penalty, StructuredPenalty)) {
     return(TRUE)
   }
   # A parent read BLOCKWISE has no operator: the operator acts one coordinate
   # at a time and the coordinates of a block do not separate. Asked here
   # rather than discovered at the call, so a fitting layer routes the block to
   # the scheme that can solve it.
-  if (S7::S7_inherits(pen, DistribPenalty) && pen@block > 1L) return(FALSE)
-  is.null(pen@map) || !is.null(map_diagonal(pen))
+  if (S7::S7_inherits(penalty, DistribPenalty) && penalty@block > 1L) return(FALSE)
+  is.null(penalty@map) || !is.null(map_diagonal(penalty))
 }
 
 #' The Diagonal of a Map That Has One
@@ -307,16 +307,16 @@ has_prox <- function(pen) {
 #' A zero on the diagonal also gives `NULL`, because the transport divides by
 #' the diagonal entries.
 #'
-#' @param pen A [penalty()] object.
+#' @param penalty A [penalty()] object.
 #'
-#' @return A numeric vector of length `nrow(pen@map)`, or `NULL`. A unit
+#' @return A numeric vector of length `nrow(penalty@map)`, or `NULL`. A unit
 #'   diagonal object (`diag = "U"`) gives a vector of ones.
 #'
 #' @seealso [has_prox()], [penalty_prox()], [spec_diag()]
 #'
 #' @keywords internal
-map_diagonal <- function(pen) {
-  m <- pen@map
+map_diagonal <- function(penalty) {
+  m <- penalty@map
   if (is.null(m)) return(NULL)
   if (!isS4(m) || !methods::is(m, "diagonalMatrix")) return(NULL)
   d <- if (identical(m@diag, "U")) rep(1, nrow(m)) else as.numeric(m@x)
@@ -347,16 +347,16 @@ map_diagonal <- function(pen) {
 #' the penalty without its map. The other properties are unchanged; in
 #' particular `n_coef` is unaffected, because a diagonal map is square.
 #'
-#' @param pen A [penalty()] object whose map is diagonal.
+#' @param penalty A [penalty()] object whose map is diagonal.
 #'
 #' @return The same object with `map` set to `NULL`.
 #'
 #' @seealso [.prox_scaling()], [spec_diag()], [map_diagonal()]
 #'
 #' @keywords internal
-.undiag <- function(pen) {
-  pen@map <- NULL
-  pen
+.undiag <- function(penalty) {
+  penalty@map <- NULL
+  penalty
 }
 
 #' The Diagonal by Which a Proximal Operator Rescales
@@ -382,7 +382,7 @@ map_diagonal <- function(pen) {
 #' map would otherwise ignore the map. [has_prox()] returns `FALSE` for the
 #' same penalty, so a caller that tests it first does not reach the error.
 #'
-#' @param pen A [penalty()] object.
+#' @param penalty A [penalty()] object.
 #'
 #' @return A numeric vector of diagonal entries, or `NULL` when the map is
 #'   absent.
@@ -396,16 +396,16 @@ map_diagonal <- function(pen) {
 #' @seealso [map_diagonal()], [.undiag()], [penalty_prox()]
 #'
 #' @keywords internal
-.prox_scaling <- function(pen) {
-  if (is.null(pen@map)) return(NULL)
-  d <- map_diagonal(pen)
+.prox_scaling <- function(penalty) {
+  if (is.null(penalty@map)) return(NULL)
+  d <- map_diagonal(penalty)
   if (is.null(d)) {
     stop(sprintf(paste0(
       "'%s' carries a map that is not a Matrix diagonal object with nonzero\n",
       "  entries. The proximal operator is available only under the identity\n",
       "  map and such a diagonal map, because under a general map it\n",
       "  does not split by coordinate."),
-      pen@penalty_name), call. = FALSE)
+      penalty@penalty_name), call. = FALSE)
   }
   d
 }
@@ -434,8 +434,8 @@ map_diagonal <- function(pen) {
 #' `diag(length(v)) + step * S` stays sparse, and `solve()` uses the sparse
 #' factorization of \pkg{Matrix}.
 #'
-#' @param pen A [QuadraticPenalty()] or [StructuredPenalty()] object.
-#' @param v A numeric vector of length `pen@n_coef`.
+#' @param penalty A [QuadraticPenalty()] or [StructuredPenalty()] object.
+#' @param v A numeric vector of length `penalty@n_coef`.
 #' @param step The step length \eqn{t}, a single positive finite number.
 #' @param theta A named list of hyperparameter values.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
@@ -463,16 +463,16 @@ map_diagonal <- function(pen) {
 #' @seealso [penalty_prox()] for the generic and the other branches,
 #'   [penalty_hessian()] for the matrix against which the system is solved.
 #' @keywords internal
-S7::method(penalty_prox, QuadraticPenalty) <- function(pen, v, step, theta, ...) {
-  S <- penalty_hessian(pen, v, theta)
+S7::method(penalty_prox, QuadraticPenalty) <- function(penalty, v, step, theta, ...) {
+  S <- penalty_hessian(penalty, v, theta)
   as.numeric(solve(diag(length(v)) + step * S, v))
 }
 
 #' @rdname penalty_prox.QuadraticPenalty
 #' @name penalty_prox.StructuredPenalty
 #' @keywords internal
-S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...) {
-  S <- penalty_hessian(pen, v, theta)
+S7::method(penalty_prox, StructuredPenalty) <- function(penalty, v, step, theta, ...) {
+  S <- penalty_hessian(penalty, v, theta)
   as.numeric(solve(diag(length(v)) + step * S, v))
 }
 
@@ -498,7 +498,7 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' at zero is tested separately, by evaluating the penalty's gradient at the
 #' origin, because the family name does not carry the location.
 #'
-#' @param pen A [DistribPenalty()] object.
+#' @param penalty A [DistribPenalty()] object.
 #'
 #' @return A single string: `"gaussian1"`, `"laplace2"`, `"laplace"` or
 #'   `"enet"` for the families with a closed form (the Laplace in two
@@ -507,8 +507,8 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' @seealso [penalty_prox.DistribPenalty()], [penalty_prox_spec()]
 #'
 #' @keywords internal
-.prox_family <- function(pen) {
-  d <- pen@parent
+.prox_family <- function(penalty) {
+  d <- penalty@parent
   nm <- d@distrib_name
   sub("^fixed ", "", sub(" \\[.*$", "", nm))
 }
@@ -530,7 +530,7 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' `theta` when it is a free hyperparameter and from the parent's
 #' `fixed_params` otherwise.
 #'
-#' @param pen A [DistribPenalty()] object.
+#' @param penalty A [DistribPenalty()] object.
 #' @param theta The aligned hyperparameter list, as [align_ptheta()] returns it.
 #' @param name The parameter's name, a single string.
 #'
@@ -543,14 +543,14 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' @seealso [penalty_prox.DistribPenalty()], [penalty_prox_spec()]
 #'
 #' @keywords internal
-.prox_param <- function(pen, theta, name) {
-  if (name %in% pen@params) return(theta[[name]])
-  fx <- pen@parent@fixed_params
+.prox_param <- function(penalty, theta, name) {
+  if (name %in% penalty@params) return(theta[[name]])
+  fx <- penalty@parent@fixed_params
   if (!is.null(fx) && name %in% names(fx)) return(fx[[name]])
   stop(sprintf(paste0(
     "the parent of penalty '%s' carries no parameter '%s', neither as a free\n",
     "  hyperparameter nor held at a value by distributions7::fixed()."),
-    pen@penalty_name, name), call. = FALSE)
+    penalty@penalty_name, name), call. = FALSE)
 }
 
 #' @title Proximal Operator of a Separable Penalty
@@ -602,8 +602,8 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' families is rejected, because the stationary condition does not hold at a
 #' kink and the minimizer of such a penalty can lie there.
 #'
-#' @param pen A [DistribPenalty()] object.
-#' @param v A numeric vector of length `pen@n_coef`.
+#' @param penalty A [DistribPenalty()] object.
+#' @param v A numeric vector of length `penalty@n_coef`.
 #' @param step The step length \eqn{t}, a single positive finite number.
 #' @param theta A named list of hyperparameter values.
 #' @param ... Unused, and accepted so that the signature matches the generic's.
@@ -640,37 +640,37 @@ S7::method(penalty_prox, StructuredPenalty) <- function(pen, v, step, theta, ...
 #' @seealso [penalty_prox()] for the generic, [distrib_penalty()] for the
 #'   branch, [distributions7::distrib_grad_y()] for the root's right-hand side.
 #' @keywords internal
-S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
-  if (pen@block > 1L) {
+S7::method(penalty_prox, DistribPenalty) <- function(penalty, v, step, theta, ...) {
+  if (penalty@block > 1L) {
     stop(sprintf(paste0(
       "'%s' is read in blocks of %d, and the proximal operator acts one\n",
       "  coordinate at a time: the coordinates of a block do not separate.\n",
       "  has_prox() returns FALSE for it."),
-      pen@penalty_name, pen@block), call. = FALSE)
+      penalty@penalty_name, penalty@block), call. = FALSE)
   }
-  d <- .prox_scaling(pen)
+  d <- .prox_scaling(penalty)
   if (!is.null(d)) {
     return(S7::method(penalty_prox, DistribPenalty)(
-      .undiag(pen), d * v, step * d^2, theta, ...) / d)
+      .undiag(penalty), d * v, step * d^2, theta, ...) / d)
   }
-  fam <- .prox_family(pen)
+  fam <- .prox_family(penalty)
 
   # The closed forms below hold for a parent centered where the quadratic
   # pull is, and a family name does not say where that is. The gradient at
   # the origin does: it is the location term of the stationary condition, so
   # the Gaussian carries it through, and the Laplace, whose location cannot
   # be recovered from one evaluation, is required to sit at zero.
-  g0 <- penalty_gradient(pen, rep(0, length(v)), theta)
+  g0 <- penalty_gradient(penalty, rep(0, length(v)), theta)
 
   if (identical(fam, "gaussian1")) {
-    s <- .prox_param(pen, theta, "sigma")
+    s <- .prox_param(penalty, theta, "sigma")
     return((v - step * g0) / (1 + step / s^2))
   }
   if (identical(fam, "laplace2") || identical(fam, "laplace")) {
     lam <- if (identical(fam, "laplace2")) {
-      .prox_param(pen, theta, "lambda")
+      .prox_param(penalty, theta, "lambda")
     } else {
-      1 / .prox_param(pen, theta, "sigma")
+      1 / .prox_param(penalty, theta, "sigma")
     }
     if (max(abs(g0)) > 1e-8 * max(1, lam)) {
       stop(paste("the Laplace proximal operator is written for a parent",
@@ -679,8 +679,8 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
     return(sign(v) * pmax(abs(v) - step * lam, 0))
   }
   if (identical(fam, "enet")) {
-    lam <- .prox_param(pen, theta, "lambda")
-    al <- .prox_param(pen, theta, "alpha")
+    lam <- .prox_param(penalty, theta, "lambda")
+    al <- .prox_param(penalty, theta, "alpha")
     if (max(abs(g0)) > 1e-8 * max(1, lam)) {
       stop(paste("the elastic-net proximal operator is written for a parent",
                  "centered at zero; this one is not."), call. = FALSE)
@@ -692,14 +692,14 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
     return(sft / (1 + step * lam * (1 - al)))
   }
 
-  if (length(pen@kinks)) {
+  if (length(penalty@kinks)) {
     stop(sprintf(paste0(
       "'%s' declares a kink and is not one of the closed-form families, so\n",
       "  its proximal operator cannot be found from the stationary condition."),
-      pen@penalty_name), call. = FALSE)
+      penalty@penalty_name), call. = FALSE)
   }
 
-  .prox_root(pen, v, step, theta)
+  .prox_root(penalty, v, step, theta)
 }
 
 #' The Proximal Operator of a Separable Penalty, by Its Stationary Points
@@ -758,7 +758,7 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' current iterate to that tolerance, so the root is found to a relative
 #' accuracy whatever its magnitude.
 #'
-#' @param pen A [DistribPenalty()] object with no map and a block width of one.
+#' @param penalty A [DistribPenalty()] object with no map and a block width of one.
 #' @param v A numeric vector, the points towards which the operator pulls.
 #' @param step The step length \eqn{t}, a single positive finite number.
 #' @param theta The aligned hyperparameter list.
@@ -777,9 +777,9 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' @seealso [penalty_prox.DistribPenalty()]
 #'
 #' @keywords internal
-.prox_root <- function(pen, v, step, theta, n_grid = 64L) {
+.prox_root <- function(penalty, v, step, theta, n_grid = 64L) {
   ly <- function(b) {
-    as.numeric(distributions7::distrib_grad_y(pen@parent, b, theta)) + 0 * b
+    as.numeric(distributions7::distrib_grad_y(penalty@parent, b, theta)) + 0 * b
   }
   q <- length(v)
   # the global minimizer lies between v_j and the parent's mode m, the same
@@ -799,10 +799,10 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
       cand <- c(cand, .prox_uniroot(h, g[[k]], g[[k + 1L]],
                                     hj[[k]], hj[[k + 1L]]))
     }
-    if (!length(cand)) return(.prox_root_widened(pen, h, vj, m))
+    if (!length(cand)) return(.prox_root_widened(penalty, h, vj, m))
     if (length(cand) == 1L) return(cand)
     obj <- (cand - vj)^2 / (2 * step) -
-      as.numeric(distributions7::distrib_pdf(pen@parent, cand, theta,
+      as.numeric(distributions7::distrib_pdf(penalty@parent, cand, theta,
                                              log = TRUE))
     cand[[which.min(obj)]]
   }, numeric(1))
@@ -846,7 +846,7 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' @param vi That coordinate's point.
 #' @param m The parent's mode, as `.prox_mode()` returns it.
 #' @keywords internal
-.prox_root_widened <- function(pen, h, vi, m = 0) {
+.prox_root_widened <- function(penalty, h, vi, m = 0) {
   lo <- min(vi, m) - 1
   hi <- max(vi, m) + 1
   for (k in 1:60) {
@@ -860,7 +860,7 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
     stop(sprintf(paste0(
       "the proximal operator of '%s' could not be found: the stationary\n",
       "  condition changes sign neither between %s and v nor in a bracket\n",
-      "  widened sixty times."), pen@penalty_name,
+      "  widened sixty times."), penalty@penalty_name,
       if (m == 0) "0" else "the mode of the parent"), call. = FALSE)
   }
   if (hl == 0) return(lo)
@@ -921,7 +921,7 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' step, defined below.
 #'
 #' The formula is written for unit curvature. With the curvature \eqn{c_j} of
-#' [scad_penalty()] (argument `curv`), the penalty in coordinate \eqn{j} is
+#' [scad_penalty()] (argument `curvature`), the penalty in coordinate \eqn{j} is
 #' \eqn{c_j\rho(\cdot;\ \lambda/c_j)}, and the operator is the formula above
 #' with \eqn{t c_j} in place of \eqn{t} and \eqn{\lambda/c_j} in place of
 #' \eqn{\lambda}. Under a diagonal map the step is \eqn{t d_j^2}, so the
@@ -929,8 +929,8 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #' stricter than \eqn{t < a - 1} where \eqn{c_j d_j^2 > 1} and looser where
 #' \eqn{c_j d_j^2 < 1}.
 #'
-#' @param pen A [ScadPenalty()] object.
-#' @param v A numeric vector of length `pen@n_coef`.
+#' @param penalty A [ScadPenalty()] object.
+#' @param v A numeric vector of length `penalty@n_coef`.
 #' @param step The step length \eqn{t}, a single positive finite number with
 #'   \eqn{t c_j < a-1} in every coordinate (\eqn{t < a - 1} at unit
 #'   curvature).
@@ -964,13 +964,13 @@ S7::method(penalty_prox, DistribPenalty) <- function(pen, v, step, theta, ...) {
 #'   [penalty_prox.McpPenalty()] for the sibling family,
 #'   [penalty_prox_spec()] for the same operator as a table.
 #' @keywords internal
-S7::method(penalty_prox, ScadPenalty) <- function(pen, v, step, theta, ...) {
-  d <- .prox_scaling(pen)
+S7::method(penalty_prox, ScadPenalty) <- function(penalty, v, step, theta, ...) {
+  d <- .prox_scaling(penalty)
   if (!is.null(d)) {
     return(S7::method(penalty_prox, ScadPenalty)(
-      .undiag(pen), d * v, step * d^2, theta, ...) / d)
+      .undiag(penalty), d * v, step * d^2, theta, ...) / d)
   }
-  cv <- curv_of(pen, length(v))
+  cv <- curv_of(penalty, length(v))
   lam <- theta$lambda / cv
   a <- theta$a
   step <- step * cv
@@ -1026,15 +1026,15 @@ S7::method(penalty_prox, ScadPenalty) <- function(pen, v, step, theta, ...) {
 #' largest scaled step, defined below.
 #'
 #' The formula is written for unit curvature. With the curvature \eqn{c_j} of
-#' [mcp_penalty()] (argument `curv`), the operator is the formula above with
+#' [mcp_penalty()] (argument `curvature`), the operator is the formula above with
 #' \eqn{t c_j} in place of \eqn{t} and \eqn{\lambda/c_j} in place of
 #' \eqn{\lambda}. Under a diagonal map the step is \eqn{t d_j^2}, so the
 #' condition becomes \eqn{t c_j d_j^2 < \gamma} in every coordinate, which is
 #' stricter than \eqn{t < \gamma} where \eqn{c_j d_j^2 > 1} and looser where
 #' \eqn{c_j d_j^2 < 1}.
 #'
-#' @param pen An [McpPenalty()] object.
-#' @param v A numeric vector of length `pen@n_coef`.
+#' @param penalty An [McpPenalty()] object.
+#' @param v A numeric vector of length `penalty@n_coef`.
 #' @param step The step length \eqn{t}, a single positive finite number with
 #'   \eqn{t c_j < \gamma} in every coordinate (\eqn{t < \gamma} at unit
 #'   curvature).
@@ -1067,13 +1067,13 @@ S7::method(penalty_prox, ScadPenalty) <- function(pen, v, step, theta, ...) {
 #'   [penalty_prox.ScadPenalty()] for the sibling family,
 #'   [penalty_prox_spec()] for the same operator as a table.
 #' @keywords internal
-S7::method(penalty_prox, McpPenalty) <- function(pen, v, step, theta, ...) {
-  d <- .prox_scaling(pen)
+S7::method(penalty_prox, McpPenalty) <- function(penalty, v, step, theta, ...) {
+  d <- .prox_scaling(penalty)
   if (!is.null(d)) {
     return(S7::method(penalty_prox, McpPenalty)(
-      .undiag(pen), d * v, step * d^2, theta, ...) / d)
+      .undiag(penalty), d * v, step * d^2, theta, ...) / d)
   }
-  cv <- curv_of(pen, length(v))
+  cv <- curv_of(penalty, length(v))
   lam <- theta$lambda / cv
   gam <- theta$gamma
   step <- step * cv

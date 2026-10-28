@@ -6,9 +6,9 @@
 \alias{penalty_cross.QuadraticPenalty}
 \title{Hyperparameter Derivatives of a Quadratic Penalty}
 \arguments{
-\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
+\item{penalty}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A list holding \code{lambda}.}
 
@@ -21,7 +21,7 @@ parameter scale.}
 \value{
 \code{penalty_grad_theta()} returns a list of one number named \code{lambda};
 \code{penalty_hess_theta()} a list of one number named \code{lambda_lambda};
-\code{penalty_cross()} a list of one numeric vector of length \code{pen@n_coef},
+\code{penalty_cross()} a list of one numeric vector of length \code{penalty@n_coef},
 named \code{lambda}.
 }
 \description{

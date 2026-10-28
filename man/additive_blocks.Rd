@@ -4,10 +4,10 @@
 \alias{additive_blocks}
 \title{How Many Blocks an Additive Penalty Repeats}
 \usage{
-additive_blocks(pen)
+additive_blocks(penalty)
 }
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 }
 \value{
 A single integer of at least 1.

@@ -6,7 +6,7 @@
 \alias{is_quadratic.QuadraticPenalty}
 \title{Smoothness and Kind of a Quadratic Penalty}
 \arguments{
-\item{pen}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
+\item{penalty}{A \code{\link[=QuadraticPenalty]{QuadraticPenalty()}} object.}
 
 \item{theta}{A list holding \code{lambda}. It is accepted by \code{penalty_kinks()},
 whose result does not depend on it.}

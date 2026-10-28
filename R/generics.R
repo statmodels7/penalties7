@@ -37,12 +37,12 @@ NULL
 #' \eqn{\rho} an argument of length \eqn{m}, so a second-difference map
 #' penalizes curvature and leaves the level and the slope unpenalized.
 #'
-#' @param pen A [penalty()] object of any branch.
-#' @param beta A finite numeric vector of length `pen@n_coef`. The generic
+#' @param penalty A [penalty()] object of any branch.
+#' @param beta A finite numeric vector of length `penalty@n_coef`. The generic
 #'   coerces it with `as.numeric()`, so an integer vector or a one-column
 #'   matrix is accepted. A vector of another length signals an error.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same, holding every name in `pen@params`. The generic
+#'   vector carrying the same, holding every name in `penalty@params`. The generic
 #'   reorders it and checks it against the penalty's open bounds before
 #'   dispatch. Pass `list()` for a penalty with no hyperparameters.
 #' @param ... Passed to methods. The shipped methods do not read it.
@@ -76,12 +76,12 @@ NULL
 #'   [is_proper()] for whether the constant is there, [penalty_kinks()] for
 #'   where the value is not differentiable.
 #' @export
-penalty_value <- S7::new_generic("penalty_value", "pen",
-  function(pen, beta, theta, ...) {
-    theta <- align_ptheta(pen, theta)
+penalty_value <- S7::new_generic("penalty_value", "penalty",
+  function(penalty, beta, theta, ...) {
+    theta <- align_ptheta(penalty, theta)
     beta <- as.numeric(beta)
-    if (length(beta) != pen@n_coef) {
-      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    if (length(beta) != penalty@n_coef) {
+      stop(sprintf("'beta' must have length %d.", penalty@n_coef), call. = FALSE)
     }
     S7::S7_dispatch()
   })
@@ -121,15 +121,15 @@ penalty_value <- S7::new_generic("penalty_value", "pen",
 #' gradient method, and [penalty_kinks()] returns the points where this
 #' happens.
 #'
-#' @param pen A [penalty()] object of any branch.
-#' @param beta A finite numeric vector of length `pen@n_coef`, coerced with
+#' @param penalty A [penalty()] object of any branch.
+#' @param beta A finite numeric vector of length `penalty@n_coef`, coerced with
 #'   `as.numeric()` in the generic. A vector of another length signals an
 #'   error.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same, holding every name in `pen@params`.
+#'   vector carrying the same, holding every name in `penalty@params`.
 #' @param ... Passed to methods. The shipped methods do not read it.
 #'
-#' @return `penalty_gradient()` returns a numeric vector of length `pen@n_coef`;
+#' @return `penalty_gradient()` returns a numeric vector of length `penalty@n_coef`;
 #'   `penalty_hessian()` a symmetric matrix of that side. It is a base matrix
 #'   even where the map is a \pkg{Matrix}, except for a penalty built by
 #'   [quadratic_penalty()] with `blocks > 1`, whose Hessian is a `dgCMatrix`
@@ -154,24 +154,24 @@ penalty_value <- S7::new_generic("penalty_value", "pen",
 #'   [penalty_prox()] for the operator to use where the gradient does not
 #'   exist, [check_penalty()] to verify both against a numerical route.
 #' @export
-penalty_gradient <- S7::new_generic("penalty_gradient", "pen",
-  function(pen, beta, theta, ...) {
-    theta <- align_ptheta(pen, theta)
+penalty_gradient <- S7::new_generic("penalty_gradient", "penalty",
+  function(penalty, beta, theta, ...) {
+    theta <- align_ptheta(penalty, theta)
     beta <- as.numeric(beta)
-    if (length(beta) != pen@n_coef) {
-      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    if (length(beta) != penalty@n_coef) {
+      stop(sprintf("'beta' must have length %d.", penalty@n_coef), call. = FALSE)
     }
     S7::S7_dispatch()
   })
 
 #' @rdname penalty_gradient
 #' @export
-penalty_hessian <- S7::new_generic("penalty_hessian", "pen",
-  function(pen, beta, theta, ...) {
-    theta <- align_ptheta(pen, theta)
+penalty_hessian <- S7::new_generic("penalty_hessian", "penalty",
+  function(penalty, beta, theta, ...) {
+    theta <- align_ptheta(penalty, theta)
     beta <- as.numeric(beta)
-    if (length(beta) != pen@n_coef) {
-      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    if (length(beta) != penalty@n_coef) {
+      stop(sprintf("'beta' must have length %d.", penalty@n_coef), call. = FALSE)
     }
     S7::S7_dispatch()
   })
@@ -221,19 +221,19 @@ penalty_hessian <- S7::new_generic("penalty_hessian", "pen",
 #'
 #' # Names of the elements
 #'
-#' The gradient and the mixed block are keyed by `pen@params`. The Hessian is
+#' The gradient and the mixed block are keyed by `penalty@params`. The Hessian is
 #' keyed by pairs. The diagonal entries come first, in `params` order, the
 #' upper off-diagonal pairs follow, and each key joins the two names with an
 #' underscore. For an elastic net the keys are `lambda_lambda`, `alpha_alpha`,
 #' `lambda_alpha`. Only the upper triangle is returned, since the matrix is
 #' symmetric.
 #'
-#' @param pen A [penalty()] object of any branch.
-#' @param beta A finite numeric vector of length `pen@n_coef`, coerced with
+#' @param penalty A [penalty()] object of any branch.
+#' @param beta A finite numeric vector of length `penalty@n_coef`, coerced with
 #'   `as.numeric()` in the generic. A vector of another length signals an
 #'   error.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same, holding every name in `pen@params`.
+#'   vector carrying the same, holding every name in `penalty@params`.
 #' @param scale `"parameter"`, the default, gives derivatives in \eqn{\theta}.
 #'   `"link"` gives them in the unconstrained values \eqn{\eta = g(\theta)},
 #'   which is the scale on which an optimizer works and on which a
@@ -242,11 +242,11 @@ penalty_hessian <- S7::new_generic("penalty_hessian", "pen",
 #'
 #' @return All three return a named list.
 #'   `penalty_grad_theta()` has one element per hyperparameter; each element
-#'   is a single number, and the elements are named by `pen@params`.
+#'   is a single number, and the elements are named by `penalty@params`.
 #'   `penalty_hess_theta()` has \eqn{p(p+1)/2} elements; each element is a
 #'   single number, and the elements are keyed by pairs as described above.
 #'   `penalty_cross()` has one element per hyperparameter; each element is a
-#'   numeric vector of length `pen@n_coef`.
+#'   numeric vector of length `penalty@n_coef`.
 #'
 #' @examples
 #' pen <- quadratic_penalty(diag(2))
@@ -271,49 +271,49 @@ penalty_hessian <- S7::new_generic("penalty_hessian", "pen",
 #'   [penalty_dhessian()] for the third-order blocks that a marginal criterion
 #'   reads, [check_penalty()] to verify all three against numerical routes.
 #' @export
-penalty_grad_theta <- S7::new_generic("penalty_grad_theta", "pen",
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
+penalty_grad_theta <- S7::new_generic("penalty_grad_theta", "penalty",
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
     scale <- match.arg(scale)
-    theta <- align_ptheta(pen, theta)
+    theta <- align_ptheta(penalty, theta)
     beta <- as.numeric(beta)
-    if (length(beta) != pen@n_coef) {
-      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    if (length(beta) != penalty@n_coef) {
+      stop(sprintf("'beta' must have length %d.", penalty@n_coef), call. = FALSE)
     }
     out <- S7::S7_dispatch()
-    if (scale == "link") out <- ptheta_to_link(pen, theta, g = out)
+    if (scale == "link") out <- ptheta_to_link(penalty, theta, g = out)
     out
   })
 
 #' @rdname penalty_grad_theta
 #' @export
-penalty_hess_theta <- S7::new_generic("penalty_hess_theta", "pen",
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
+penalty_hess_theta <- S7::new_generic("penalty_hess_theta", "penalty",
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
     scale <- match.arg(scale)
-    theta <- align_ptheta(pen, theta)
+    theta <- align_ptheta(penalty, theta)
     beta <- as.numeric(beta)
-    if (length(beta) != pen@n_coef) {
-      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    if (length(beta) != penalty@n_coef) {
+      stop(sprintf("'beta' must have length %d.", penalty@n_coef), call. = FALSE)
     }
     out <- S7::S7_dispatch()
     if (scale == "link") {
-      g <- penalty_grad_theta(pen, beta, theta)
-      out <- ptheta_to_link(pen, theta, g = g, H = out)
+      g <- penalty_grad_theta(penalty, beta, theta)
+      out <- ptheta_to_link(penalty, theta, g = g, H = out)
     }
     out
   })
 
 #' @rdname penalty_grad_theta
 #' @export
-penalty_cross <- S7::new_generic("penalty_cross", "pen",
-  function(pen, beta, theta, scale = c("parameter", "link"), ...) {
+penalty_cross <- S7::new_generic("penalty_cross", "penalty",
+  function(penalty, beta, theta, scale = c("parameter", "link"), ...) {
     scale <- match.arg(scale)
-    theta <- align_ptheta(pen, theta)
+    theta <- align_ptheta(penalty, theta)
     beta <- as.numeric(beta)
-    if (length(beta) != pen@n_coef) {
-      stop(sprintf("'beta' must have length %d.", pen@n_coef), call. = FALSE)
+    if (length(beta) != penalty@n_coef) {
+      stop(sprintf("'beta' must have length %d.", penalty@n_coef), call. = FALSE)
     }
     out <- S7::S7_dispatch()
-    if (scale == "link") out <- ptheta_to_link(pen, theta, cross = out)
+    if (scale == "link") out <- ptheta_to_link(penalty, theta, cross = out)
     out
   })
 
@@ -362,9 +362,9 @@ penalty_cross <- S7::new_generic("penalty_cross", "pen",
 #' where \eqn{c_j} is the curvature of coordinate \eqn{j} (one by default), so
 #' the result depends on `theta` and the argument is required.
 #'
-#' @param pen A [penalty()] object of any branch.
+#' @param penalty A [penalty()] object of any branch.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same, holding every name in `pen@params`. The argument
+#'   vector carrying the same, holding every name in `penalty@params`. The argument
 #'   is required even for a smooth penalty, whose result does not depend on it.
 #' @param ... Passed to methods. The shipped methods do not read it.
 #'
@@ -391,9 +391,9 @@ penalty_cross <- S7::new_generic("penalty_cross", "pen",
 #'   [has_prox()] for whether the penalty has such an operator,
 #'   [check_penalty()] for the caller that uses this to place a grid.
 #' @export
-penalty_kinks <- S7::new_generic("penalty_kinks", "pen",
-  function(pen, theta, ...) {
-    theta <- align_ptheta(pen, theta)
+penalty_kinks <- S7::new_generic("penalty_kinks", "penalty",
+  function(penalty, theta, ...) {
+    theta <- align_ptheta(penalty, theta)
     S7::S7_dispatch()
   })
 
@@ -440,7 +440,7 @@ penalty_kinks <- S7::new_generic("penalty_kinks", "pen",
 #' The predicate is a property of the penalty as constructed, so it does not
 #' depend on `theta` and does not take it.
 #'
-#' @param pen A [penalty()] object of any branch.
+#' @param penalty A [penalty()] object of any branch.
 #' @param ... Passed to methods. The shipped methods do not read it.
 #'
 #' @return A single logical.
@@ -466,7 +466,7 @@ penalty_kinks <- S7::new_generic("penalty_kinks", "pen",
 #'   quadratic, [is_quadratic()] and [has_prox()] for the other two
 #'   predicates on which a fitting routine selects a method.
 #' @export
-is_proper <- S7::new_generic("is_proper", "pen")
+is_proper <- S7::new_generic("is_proper", "penalty")
 
 #' @title Is a Penalty a Quadratic Form?
 #'
@@ -510,7 +510,7 @@ is_proper <- S7::new_generic("is_proper", "pen")
 #' matrix moves with one hyperparameter per component, where the plain
 #' quadratic branch has a single scale \eqn{\lambda}.
 #'
-#' @param pen A [penalty()] object of any branch.
+#' @param penalty A [penalty()] object of any branch.
 #' @param ... Passed to methods. The shipped methods do not read it.
 #'
 #' @return A single logical.
@@ -543,9 +543,9 @@ is_proper <- S7::new_generic("is_proper", "pen")
 #'   [quadratic_penalty()], [structured_penalty()] and
 #'   [additive_penalty()] for the branches.
 #' @export
-is_quadratic <- S7::new_generic("is_quadratic", "pen")
+is_quadratic <- S7::new_generic("is_quadratic", "penalty")
 
-S7::method(is_quadratic, penalty) <- function(pen, ...) FALSE
+S7::method(is_quadratic, penalty) <- function(penalty, ...) FALSE
 
 #' @title Quantities of a Quadratic Penalty for a Marginal Criterion
 #'
@@ -600,7 +600,7 @@ S7::method(is_quadratic, penalty) <- function(pen, ...) FALSE
 #' without a method of its own, all four signal an error with a message that
 #' names [is_quadratic()].
 #'
-#' @param pen A [penalty()] object for which [is_quadratic()] is `TRUE`, or
+#' @param penalty A [penalty()] object for which [is_quadratic()] is `TRUE`, or
 #'   a separable penalty for `penalty_null_basis()`.
 #' @param theta A named list of hyperparameter values, or a named numeric
 #'   vector carrying the same. Only `penalty_matrix()` and `penalty_logpdet()`
@@ -608,7 +608,7 @@ S7::method(is_quadratic, penalty) <- function(pen, ...) FALSE
 #' @param ... Passed to methods. The shipped methods do not read it.
 #'
 #' @return `penalty_matrix()` returns a symmetric `q x q` matrix, where `q` is
-#'   `pen@n_coef`.
+#'   `penalty@n_coef`.
 #'   `penalty_rank()` returns a single integer, fixed at construction.
 #'   `penalty_null_basis()` returns a `q x (q - r)` matrix with orthonormal
 #'   columns spanning the null space, and a `q x 0` matrix when there is none.
@@ -664,42 +664,42 @@ S7::method(is_quadratic, penalty) <- function(pen, ...) FALSE
 #'   [additive_penalty()] for those branches, [penalty_hess_theta()] for the
 #'   names of `penalty_logpdet()`'s `hess`.
 #' @export
-penalty_matrix <- S7::new_generic("penalty_matrix", "pen",
-  function(pen, theta, ...) {
-    theta <- align_ptheta(pen, theta)
+penalty_matrix <- S7::new_generic("penalty_matrix", "penalty",
+  function(penalty, theta, ...) {
+    theta <- align_ptheta(penalty, theta)
     S7::S7_dispatch()
   })
 
 #' @rdname penalty_matrix
 #' @export
-penalty_rank <- S7::new_generic("penalty_rank", "pen")
+penalty_rank <- S7::new_generic("penalty_rank", "penalty")
 
 #' @rdname penalty_matrix
 #' @export
-penalty_null_basis <- S7::new_generic("penalty_null_basis", "pen")
+penalty_null_basis <- S7::new_generic("penalty_null_basis", "penalty")
 
 #' @rdname penalty_matrix
 #' @export
-penalty_logpdet <- S7::new_generic("penalty_logpdet", "pen",
-  function(pen, theta, ...) {
-    theta <- align_ptheta(pen, theta)
+penalty_logpdet <- S7::new_generic("penalty_logpdet", "penalty",
+  function(penalty, theta, ...) {
+    theta <- align_ptheta(penalty, theta)
     S7::S7_dispatch()
   })
 
-S7::method(penalty_matrix, penalty) <- function(pen, theta, ...) {
+S7::method(penalty_matrix, penalty) <- function(penalty, theta, ...) {
   stop("Only a quadratic penalty exposes its matrix; see is_quadratic().",
        call. = FALSE)
 }
-S7::method(penalty_rank, penalty) <- function(pen, ...) {
+S7::method(penalty_rank, penalty) <- function(penalty, ...) {
   stop("Only a quadratic penalty has a rank; see is_quadratic().",
        call. = FALSE)
 }
-S7::method(penalty_null_basis, penalty) <- function(pen, ...) {
+S7::method(penalty_null_basis, penalty) <- function(penalty, ...) {
   stop(paste0("Only a quadratic penalty (see is_quadratic()) or a separable",
               " penalty has a null basis."),
        call. = FALSE)
 }
-S7::method(penalty_logpdet, penalty) <- function(pen, theta, ...) {
+S7::method(penalty_logpdet, penalty) <- function(penalty, theta, ...) {
   stop("Only a quadratic penalty has a log pseudo-determinant; see is_quadratic().",
        call. = FALSE)
 }
@@ -743,9 +743,9 @@ S7::method(penalty_logpdet, penalty) <- function(pen, theta, ...) {
 #' no quantities through [parameters7::param_readable()], as
 #' [parameters7::log_cholesky()] does.
 #'
-#' @param pen A [penalty()] object of any branch.
+#' @param penalty A [penalty()] object of any branch.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same, holding every name in `pen@params`.
+#'   vector carrying the same, holding every name in `penalty@params`.
 #' @param ... Passed to methods. The shipped methods do not read it.
 #'
 #' @return `NULL`, or a list of four as [distributions7::mv_derived()] returns
@@ -791,10 +791,10 @@ S7::method(penalty_logpdet, penalty) <- function(pen, theta, ...) {
 #'   [parameters7::param_readable()] for the same distinction on a matrix
 #'   parameter.
 #' @export
-penalty_readable <- S7::new_generic("penalty_readable", "pen",
-  function(pen, theta, ...) {
-    theta <- align_ptheta(pen, theta)
+penalty_readable <- S7::new_generic("penalty_readable", "penalty",
+  function(penalty, theta, ...) {
+    theta <- align_ptheta(penalty, theta)
     S7::S7_dispatch()
   })
 
-S7::method(penalty_readable, penalty) <- function(pen, theta, ...) NULL
+S7::method(penalty_readable, penalty) <- function(penalty, theta, ...) NULL

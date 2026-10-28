@@ -66,10 +66,10 @@ test_that("entries that are not finite are rejected with the argument named", {
   B <- diag(3)
   B[1, 1] <- Inf
   expect_error(additive_penalty(list(diag(3), A)),
-               "component 2 of 'mats' must have only finite entries.",
+               "component 2 of 'matrices' must have only finite entries.",
                fixed = TRUE)
   expect_error(additive_penalty(list(B, diag(3))),
-               "component 1 of 'mats' must have only finite entries.",
+               "component 1 of 'matrices' must have only finite entries.",
                fixed = TRUE)
   expect_error(quadratic_penalty(A),
                "'P' must have only finite entries.", fixed = TRUE)
@@ -91,8 +91,8 @@ test_that("entries that are not finite are rejected with the argument named", {
   }
 
   # a unit diagonal Matrix stores no entries and is accepted
-  expect_identical(quadratic_penalty(diag(3), map = Matrix::Diagonal(3))@p_rank,
+  expect_identical(quadratic_penalty(diag(3), map = Matrix::Diagonal(3))@rank,
                    3L)
   expect_identical(additive_penalty(list(diag(3)),
-                                    map = Matrix::Diagonal(3))@p_rank, 3L)
+                                    map = Matrix::Diagonal(3))@rank, 3L)
 })

@@ -84,7 +84,7 @@ NULL
 #' `1.44`).
 #'
 #' The step limit of SCAD and MCP is tested on the scaled step. With
-#' \eqn{c_j} the curvature of the coordinate (the `curv` property, one when it
+#' \eqn{c_j} the curvature of the coordinate (the `curvature` property, one when it
 #' is empty), the table exists only while \eqn{t_j c_j d_j^2 < a - 1} for SCAD
 #' and \eqn{t_j c_j d_j^2 < \gamma} for MCP in every coordinate, so a
 #' standardized penalty takes shorter steps.
@@ -110,9 +110,9 @@ NULL
 #' step \eqn{t_j c_j d_j^2} of some coordinate reaches \eqn{a - 1} or
 #' \eqn{\gamma}, where the operator is set-valued.
 #'
-#' @param pen A [penalty()] object of any branch.
+#' @param penalty A [penalty()] object of any branch.
 #' @param theta A named list of hyperparameter values, or a named numeric
-#'   vector carrying the same, holding every name in `pen@params`.
+#'   vector carrying the same, holding every name in `penalty@params`.
 #' @param step A numeric vector of step lengths, either a single value used for
 #'   every coefficient or one value per coefficient. Every entry must be finite
 #'   and positive, and any other length or value is rejected with an error
@@ -120,7 +120,7 @@ NULL
 #' @param ... Passed to methods. The shipped methods do not read it.
 #'
 #' @return A list of three matrices, `cut`, `slope` and `icept`, each with
-#'   `pen@n_coef` rows and one column per piece. The last column of `cut` is
+#'   `penalty@n_coef` rows and one column per piece. The last column of `cut` is
 #'   `Inf`. The value is `NULL` where the operator has no piecewise linear
 #'   description.
 #'
@@ -151,10 +151,10 @@ NULL
 #'   [spec_diag()] for the diagonal-map transport.
 #'
 #' @export
-penalty_prox_spec <- S7::new_generic("penalty_prox_spec", "pen",
-  function(pen, theta, step, ...) {
-    theta <- align_ptheta(pen, theta)
-    n <- as.integer(pen@n_coef)
+penalty_prox_spec <- S7::new_generic("penalty_prox_spec", "penalty",
+  function(penalty, theta, step, ...) {
+    theta <- align_ptheta(penalty, theta)
+    n <- as.integer(penalty@n_coef)
     if (!is.numeric(step) || !(length(step) %in% c(1L, n)) ||
         anyNA(step) || any(!is.finite(step)) || any(step <= 0)) {
       stop(sprintf(paste0(
@@ -167,7 +167,7 @@ penalty_prox_spec <- S7::new_generic("penalty_prox_spec", "pen",
 #' @name penalty_prox_spec.penalty
 #' @rdname penalty_prox_spec
 #' @keywords internal
-S7::method(penalty_prox_spec, penalty) <- function(pen, theta, step, ...) {
+S7::method(penalty_prox_spec, penalty) <- function(penalty, theta, step, ...) {
   NULL
 }
 
@@ -253,9 +253,9 @@ prox_table_j <- function(step, n_coef, pieces) {
 #' a diagonal base matrix as a [Matrix::Diagonal()] object, so its diagonal
 #' map is recognized.
 #'
-#' @param pen A [penalty()] object whose map is `NULL` or diagonal.
+#' @param penalty A [penalty()] object whose map is `NULL` or diagonal.
 #' @param step A numeric vector of step lengths, of length one or
-#'   `pen@n_coef`, recycled to `pen@n_coef`.
+#'   `penalty@n_coef`, recycled to `penalty@n_coef`.
 #' @param build A function of a penalty and a step returning the table, or
 #'   `NULL`. It is called on the penalty after the map has been removed.
 #'
@@ -265,15 +265,15 @@ prox_table_j <- function(step, n_coef, pieces) {
 #' @seealso [penalty_prox_spec()], [map_diagonal()], [prox_table()]
 #'
 #' @keywords internal
-spec_diag <- function(pen, step, build) {
-  if (is.null(pen@map)) return(build(pen, step))
-  d <- map_diagonal(pen)
+spec_diag <- function(penalty, step, build) {
+  if (is.null(penalty@map)) return(build(penalty, step))
+  d <- map_diagonal(penalty)
   if (is.null(d)) return(NULL)
-  q <- as.integer(pen@n_coef)
+  q <- as.integer(penalty@n_coef)
   # the operator is odd, so the sign of d cancels between the point and the
   # division back and only the magnitude enters
   d <- abs(rep_len(d, q))
-  sp <- build(.undiag(pen), rep_len(as.numeric(step), q) * d^2)
+  sp <- build(.undiag(penalty), rep_len(as.numeric(step), q) * d^2)
   if (is.null(sp)) return(NULL)
   sp$cut <- sp$cut / d
   sp$icept <- sp$icept / d
@@ -284,32 +284,32 @@ spec_diag <- function(pen, step, build) {
 #' @name penalty_prox_spec.DistribPenalty
 #' @rdname penalty_prox_spec
 #' @keywords internal
-S7::method(penalty_prox_spec, DistribPenalty) <- function(pen, theta, step,
+S7::method(penalty_prox_spec, DistribPenalty) <- function(penalty, theta, step,
                                                           ...) {
   # a blockwise parent has no operator, so it has no table either
-  if (pen@block > 1L) return(NULL)
-  spec_diag(pen, step, function(pen, step) {
-  fam <- .prox_family(pen)
-  q <- as.integer(pen@n_coef)
+  if (penalty@block > 1L) return(NULL)
+  spec_diag(penalty, step, function(penalty, step) {
+  fam <- .prox_family(penalty)
+  q <- as.integer(penalty@n_coef)
   # the closed forms are written for a parent centered where the quadratic
   # pull is, and the table is odd, so an off-center parent has none
-  g0 <- penalty_gradient(pen, rep(0, q), theta)
+  g0 <- penalty_gradient(penalty, rep(0, q), theta)
   if (identical(fam, "gaussian1")) {
     if (max(abs(g0)) > 1e-8) return(NULL)
-    s <- .prox_param(pen, theta, "sigma")
+    s <- .prox_param(penalty, theta, "sigma")
     return(prox_table(step, q, function(t)
       rbind(Inf, 1 / (1 + t / s^2), 0)))
   }
   if (identical(fam, "laplace2") || identical(fam, "laplace")) {
-    lam <- if (identical(fam, "laplace2")) .prox_param(pen, theta, "lambda")
-      else 1 / .prox_param(pen, theta, "sigma")
+    lam <- if (identical(fam, "laplace2")) .prox_param(penalty, theta, "lambda")
+      else 1 / .prox_param(penalty, theta, "sigma")
     if (max(abs(g0)) > 1e-8 * max(1, lam)) return(NULL)
     return(prox_table(step, q, function(t)
       rbind(c(t * lam, Inf), c(0, 1), c(0, -t * lam))))
   }
   if (identical(fam, "enet")) {
-    lam <- .prox_param(pen, theta, "lambda")
-    al <- .prox_param(pen, theta, "alpha")
+    lam <- .prox_param(penalty, theta, "lambda")
+    al <- .prox_param(penalty, theta, "alpha")
     if (max(abs(g0)) > 1e-8 * max(1, lam)) return(NULL)
     a <- lam * al
     cc <- lam * (1 - al)
@@ -326,10 +326,10 @@ S7::method(penalty_prox_spec, DistribPenalty) <- function(pen, theta, step,
 #' @name penalty_prox_spec.ScadPenalty
 #' @rdname penalty_prox_spec
 #' @keywords internal
-S7::method(penalty_prox_spec, ScadPenalty) <- function(pen, theta, step, ...) {
-  spec_diag(pen, step, function(pen, step) {
-  n <- as.integer(pen@n_coef)
-  cv <- curv_of(pen, n)
+S7::method(penalty_prox_spec, ScadPenalty) <- function(penalty, theta, step, ...) {
+  spec_diag(penalty, step, function(penalty, step) {
+  n <- as.integer(penalty@n_coef)
+  cv <- curv_of(penalty, n)
   L <- theta$lambda / cv
   a <- theta$a
   step <- rep_len(as.numeric(step), n) * cv
@@ -348,10 +348,10 @@ S7::method(penalty_prox_spec, ScadPenalty) <- function(pen, theta, step, ...) {
 #' @name penalty_prox_spec.McpPenalty
 #' @rdname penalty_prox_spec
 #' @keywords internal
-S7::method(penalty_prox_spec, McpPenalty) <- function(pen, theta, step, ...) {
-  spec_diag(pen, step, function(pen, step) {
-  n <- as.integer(pen@n_coef)
-  cv <- curv_of(pen, n)
+S7::method(penalty_prox_spec, McpPenalty) <- function(penalty, theta, step, ...) {
+  spec_diag(penalty, step, function(penalty, step) {
+  n <- as.integer(penalty@n_coef)
+  cv <- curv_of(penalty, n)
   L <- theta$lambda / cv
   gam <- theta$gamma
   step <- rep_len(as.numeric(step), n) * cv

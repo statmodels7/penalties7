@@ -4,10 +4,10 @@
 \alias{carry_pairs}
 \title{Carry a Parent's Paired Components Into Coefficient Space}
 \usage{
-carry_pairs(pen, comp, carry)
+carry_pairs(penalty, comp, carry)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{comp}{The components of the parent, keyed by parameter pair.}
 
@@ -24,7 +24,7 @@ package's own keys, and places each through the penalty's map.
 \details{
 The two enumerations of pairs are built the same way from the same names, so
 a key of one is a key of the other. Each pair is looked up by name, first in
-\code{pen@params} order and then in the reversed order, and not by position or
+\code{penalty@params} order and then in the reversed order, and not by position or
 by splitting a key, since a hyperparameter whose own name contains the
 separator could not be split back into its two names. If the pair is absent
 in both orders, the function signals an error that names the pair.

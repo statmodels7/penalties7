@@ -4,10 +4,10 @@
 \alias{.prox_family}
 \title{The Family Name Under a Separable Penalty's Wrappers}
 \usage{
-.prox_family(pen)
+.prox_family(penalty)
 }
 \arguments{
-\item{pen}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
+\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 }
 \value{
 A single string: \code{"gaussian1"}, \code{"laplace2"}, \code{"laplace"} or

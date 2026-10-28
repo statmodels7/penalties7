@@ -5,13 +5,13 @@
 \alias{penalty_readable.penalty}
 \title{Interpretable Quantities of a Penalty's Hyperparameters}
 \usage{
-penalty_readable(pen, theta, ...)
+penalty_readable(penalty, theta, ...)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object of any branch.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object of any branch.}
 
 \item{theta}{A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in \code{pen@params}.}
+vector carrying the same, holding every name in \code{penalty@params}.}
 
 \item{...}{Passed to methods. The shipped methods do not read it.}
 }

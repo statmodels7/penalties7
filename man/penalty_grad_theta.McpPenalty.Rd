@@ -6,9 +6,9 @@
 \alias{penalty_cross.McpPenalty}
 \title{Hyperparameter Derivatives of an MCP Penalty}
 \arguments{
-\item{pen}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
+\item{penalty}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
 
-\item{beta}{A numeric vector of length \code{pen@n_coef}.}
+\item{beta}{A numeric vector of length \code{penalty@n_coef}.}
 
 \item{theta}{A list holding \code{lambda} and \code{gamma}.}
 
@@ -22,7 +22,7 @@ parameter scale.}
 \code{penalty_grad_theta()} returns a list of two numbers, \code{lambda} and
 \code{gamma}. \code{penalty_hess_theta()} returns a list of three numbers,
 \code{lambda_lambda}, \code{gamma_gamma} and \code{lambda_gamma}. \code{penalty_cross()}
-returns a list of two numeric vectors of length \code{pen@n_coef}, named
+returns a list of two numeric vectors of length \code{penalty@n_coef}, named
 \code{lambda} and \code{gamma}.
 }
 \description{

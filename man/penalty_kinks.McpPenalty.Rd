@@ -5,7 +5,7 @@
 \alias{is_proper.McpPenalty}
 \title{Smoothness and Kind of an MCP Penalty}
 \arguments{
-\item{pen}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
+\item{penalty}{An \code{\link[=McpPenalty]{McpPenalty()}} object.}
 
 \item{theta}{A list holding \code{lambda} and \code{gamma}.}
 
@@ -33,7 +33,7 @@ is continuous, because both branches give zero, and the second jumps from
 \eqn{c_j}). MCP has one pair of outer points where SCAD has two, because its
 taper starts at the origin instead of at \eqn{\lambda}.
 
-With \code{curv}, the points \eqn{\pm\gamma\lambda/c_j} are returned for each
+With \code{curvature}, the points \eqn{\pm\gamma\lambda/c_j} are returned for each
 distinct value of \eqn{\lambda/c_j}, so the vector has more than three
 points when the curvatures differ. The outer points move with the
 hyperparameters, so \code{theta} is required.
@@ -43,7 +43,7 @@ penalty_kinks(mcp_penalty(), list(lambda = 1, gamma = 3))
 penalty_kinks(mcp_penalty(), list(lambda = 0.5, gamma = 3))
 
 # Two curvatures give two rates and five points.
-penalty_kinks(mcp_penalty(n_coef = 2, curv = c(1, 2)),
+penalty_kinks(mcp_penalty(n_coef = 2, curvature = c(1, 2)),
               list(lambda = 1, gamma = 3))
 is_proper(mcp_penalty())
 

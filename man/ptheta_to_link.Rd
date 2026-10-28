@@ -4,21 +4,21 @@
 \alias{ptheta_to_link}
 \title{Carry Hyperparameter Derivatives Onto the Unconstrained Scale}
 \usage{
-ptheta_to_link(pen, theta, g = NULL, H = NULL, cross = NULL)
+ptheta_to_link(penalty, theta, g = NULL, H = NULL, cross = NULL)
 }
 \arguments{
-\item{pen}{A \code{\link[=penalty]{penalty()}} object.}
+\item{penalty}{A \code{\link[=penalty]{penalty()}} object.}
 
 \item{theta}{The aligned hyperparameters, as \code{\link[=align_ptheta]{align_ptheta()}} returns them.}
 
-\item{g}{The parameter-scale gradient list, keyed by \code{pen@params}. It is
+\item{g}{The parameter-scale gradient list, keyed by \code{penalty@params}. It is
 required for the gradient and for the Hessian and is \code{NULL} otherwise.}
 
 \item{H}{The parameter-scale Hessian list, keyed as \code{\link[=ptheta_pairs]{ptheta_pairs()}}
 names the pairs. It is supplied with \code{g} for the second order.}
 
-\item{cross}{The parameter-scale mixed list, keyed by \code{pen@params}, in which
-each element is a vector of length \code{pen@n_coef}. It is supplied alone.}
+\item{cross}{The parameter-scale mixed list, keyed by \code{penalty@params}, in which
+each element is a vector of length \code{penalty@n_coef}. It is supplied alone.}
 }
 \value{
 Whichever kind was supplied, on the unconstrained scale, with the

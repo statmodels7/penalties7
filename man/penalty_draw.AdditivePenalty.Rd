@@ -4,14 +4,14 @@
 \alias{penalty_draw.AdditivePenalty}
 \title{Drawing From an Additive Penalty}
 \arguments{
-\item{pen}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
+\item{penalty}{An \code{\link[=AdditivePenalty]{AdditivePenalty()}} object.}
 
 \item{theta}{A named list of \code{lambda1}, \code{lambda2}, ...}
 
 \item{...}{Unused.}
 }
 \value{
-A numeric vector of length \code{pen@n_coef}.
+A numeric vector of length \code{penalty@n_coef}.
 }
 \description{
 Returns one draw from the Gaussian prior with precision \eqn{S(\lambda)},

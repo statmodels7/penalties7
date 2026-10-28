@@ -103,7 +103,7 @@ test_that("the SCAD operator is exact as the step approaches a - 1", {
   expect_equal(penalty_prox(sc, -u, st, th), -2.35, tolerance = 1e-13)
   # the curvature-scaled operator, at step st/2 and curvature 2, is the
   # unscaled one at step st and rate lambda / 2
-  sc2 <- scad_penalty(n_coef = 1, curv = 2)
+  sc2 <- scad_penalty(n_coef = 1, curvature = 2)
   expect_equal(penalty_prox(sc2, u, st / 2, list(lambda = 2, a = 3.7)), 2.35,
                tolerance = 1e-13)
 
