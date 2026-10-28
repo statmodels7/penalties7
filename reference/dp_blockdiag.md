@@ -8,16 +8,16 @@ between them.
 ## Usage
 
 ``` r
-dp_blockdiag(pen, h, nblk)
+dp_blockdiag(penalty, h, nblk)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
-  object with `pen@block` above one.
+  object with `penalty@block` above one.
 
 - h:
 
@@ -31,8 +31,8 @@ dp_blockdiag(pen, h, nblk)
 
 ## Value
 
-A symmetric base matrix of side `nblk * pen@block`, block diagonal with
-`nblk` blocks.
+A symmetric base matrix of side `nblk * penalty@block`, block diagonal
+with `nblk` blocks.
 
 ## Details
 

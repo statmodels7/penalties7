@@ -9,7 +9,7 @@ on the coefficients.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
@@ -17,7 +17,7 @@ on the coefficients.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -30,7 +30,7 @@ on the coefficients.
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-returns a numeric vector of length `pen@n_coef`;
+returns a numeric vector of length `penalty@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 a symmetric base matrix of that side.
 

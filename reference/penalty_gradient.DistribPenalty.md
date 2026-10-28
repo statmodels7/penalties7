@@ -10,7 +10,7 @@ is block diagonal instead of diagonal when the parent is multivariate.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
@@ -18,7 +18,7 @@ is block diagonal instead of diagonal when the parent is multivariate.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -31,7 +31,7 @@ is block diagonal instead of diagonal when the parent is multivariate.
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-returns a numeric vector of length `pen@n_coef`;
+returns a numeric vector of length `penalty@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 a symmetric base matrix of that side, diagonal under the identity map
 with a univariate parent and block diagonal with a multivariate one.

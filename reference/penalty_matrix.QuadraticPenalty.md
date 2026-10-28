@@ -14,7 +14,7 @@ returns the log pseudo-determinant with its first two derivatives in
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
@@ -35,15 +35,15 @@ returns the log pseudo-determinant with its first two derivatives in
 ## Value
 
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-returns a symmetric matrix of side `pen@n_coef`, a base matrix
+returns a symmetric matrix of side `penalty@n_coef`, a base matrix
 ordinarily and a `dgCMatrix` when the penalty was built with
 `blocks > 1`.
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns a single integer.
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-returns a matrix with `pen@n_coef` rows and
-`pen@n_coef - penalty_rank(pen)` orthonormal columns, sparse under
-`blocks > 1`.
+returns a matrix with `penalty@n_coef` rows and
+`penalty@n_coef - penalty_rank(penalty)` orthonormal columns, sparse
+under `blocks > 1`.
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns a list of `value` (a number), `grad` (a list of one number,
 `lambda`) and `hess` (a list of one number, `lambda_lambda`).
@@ -82,7 +82,7 @@ N <- penalty_null_basis(pen)
 dim(N)
 #> [1] 5 2
 max(abs(penalty_matrix(pen, list(lambda = 3)) %*% N))
-#> [1] 8.382184e-15
+#> [1] 2.664535e-15
 
 # The log pseudo-determinant is r log(lambda) plus a constant.
 lp <- penalty_logpdet(pen, list(lambda = 3))

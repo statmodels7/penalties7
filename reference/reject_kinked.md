@@ -1,6 +1,6 @@
 # Reject a Kinked Penalty
 
-Signals an error naming the penalty and the generic when `pen@kinks`
+Signals an error naming the penalty and the generic when `penalty@kinks`
 holds at least one finite value, and returns invisibly otherwise. It is
 called at the head of the six methods of the separable branch that need
 a third or higher derivative:
@@ -15,12 +15,12 @@ and
 ## Usage
 
 ``` r
-reject_kinked(pen, what)
+reject_kinked(penalty, what)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -42,7 +42,7 @@ kinked penalty places coefficients exactly at the kink, where the third
 derivative does not exist. The function therefore signals an error and
 does not return a one-sided derivative.
 
-The kinks are read directly from `pen@kinks` and not through
+The kinks are read directly from `penalty@kinks` and not through
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md),
 because that generic takes a `theta` and this function receives only the
 penalty and the name of the generic. A penalty without a `kinks`

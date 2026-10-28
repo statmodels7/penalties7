@@ -11,7 +11,7 @@ any constant."><meta property="og:image" content="https://statmodels7.github.io/
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,7 @@ any constant.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>An <code><a href="ScadPenalty.html">McpPenalty()</a></code> object.</p></dd>
 
 
@@ -78,7 +78,7 @@ is continuous, because both branches give zero, and the second jumps from
 \(-1/\gamma\) to \(0\) (from \(-c_j/\gamma\) with curvature
 \(c_j\)). MCP has one pair of outer points where SCAD has two, because its
 taper starts at the origin instead of at \(\lambda\).</p>
-<p>With <code>curv</code>, the points \(\pm\gamma\lambda/c_j\) are returned for each
+<p>With <code>curvature</code>, the points \(\pm\gamma\lambda/c_j\) are returned for each
 distinct value of \(\lambda/c_j\), so the vector has more than three
 points when the curvatures differ. The outer points move with the
 hyperparameters, so <code>theta</code> is required.</p>
@@ -97,7 +97,7 @@ hyperparameters, so <code>theta</code> is required.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  0.0 -1.5  1.5</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Two curvatures give two rates and five points.</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="penalty_kinks.html">penalty_kinks</a></span><span class="op">(</span><span class="fu"><a href="scad_penalty.html">mcp_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">2</span>, curv <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span><span class="fu"><a href="penalty_kinks.html">penalty_kinks</a></span><span class="op">(</span><span class="fu"><a href="scad_penalty.html">mcp_penalty</a></span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">2</span>, curvature <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>              <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span>, gamma <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  0.0 -3.0 -1.5  3.0  1.5</span>
 <span class="r-in"><span><span class="fu"><a href="is_proper.html">is_proper</a></span><span class="op">(</span><span class="fu"><a href="scad_penalty.html">mcp_penalty</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>

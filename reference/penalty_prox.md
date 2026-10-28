@@ -15,12 +15,12 @@ zero, where a gradient method only brings it close to zero.
 ## Usage
 
 ``` r
-penalty_prox(pen, v, step, theta, ...)
+penalty_prox(penalty, v, step, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -30,8 +30,8 @@ penalty_prox(pen, v, step, theta, ...)
 
 - v:
 
-  A numeric vector of length `pen@n_coef`, the point of the quadratic
-  pull. The vector is coerced with
+  A numeric vector of length `penalty@n_coef`, the point of the
+  quadratic pull. The vector is coerced with
   [`as.numeric()`](https://rdrr.io/r/base/numeric.html).
 
 - step:
@@ -44,7 +44,7 @@ penalty_prox(pen, v, step, theta, ...)
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector,
-  holding every name in `pen@params`, each a single number.
+  holding every name in `penalty@params`, each a single number.
 
 - ...:
 
@@ -132,12 +132,12 @@ describes.
   between \\v\\ and the mode of the parent nor in a widened bracket;
 
 - SCAD where \\t c_j \ge a - 1\\ and MCP where \\t c_j \ge \gamma\\ in
-  some coordinate, where \\c_j\\ is the curvature `curv` of the penalty
-  and \\t\\ is multiplied by \\d_j^2\\ under a diagonal map; the
+  some coordinate, where \\c_j\\ is the `curvature` property of the
+  penalty and \\t\\ is multiplied by \\d_j^2\\ under a diagonal map; the
   subproblem is then not convex and the operator is set-valued;
 
 - a `step` that is not a single positive finite number, or a `v` whose
-  length is not `pen@n_coef`.
+  length is not `penalty@n_coef`.
 
 ## Methods
 

@@ -17,7 +17,7 @@ first two derivatives."><meta property="og:image" content="https://statmodels7.g
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@ first two derivatives.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>An <code><a href="AdditivePenalty.html">AdditivePenalty()</a></code> object.</p></dd>
 
 
@@ -73,10 +73,10 @@ first two derivatives.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code><a href="penalty_matrix.html">penalty_matrix()</a></code> returns a symmetric base matrix of side
-<code>pen@n_coef</code>. <code><a href="penalty_matrix.html">penalty_rank()</a></code> returns a single integer, and
+<code>penalty@n_coef</code>. <code><a href="penalty_matrix.html">penalty_rank()</a></code> returns a single integer, and
 <code><a href="penalty_matrix.html">penalty_null_basis()</a></code> an orthonormal basis of the null space shared by the
-components, a matrix with <code>pen@n_coef</code> rows and <code>pen@n_coef - penalty_rank(pen)</code> columns. <code><a href="penalty_matrix.html">penalty_logpdet()</a></code> returns a list of <code>value</code>
-(a single number), <code>grad</code> (a list keyed by <code>pen@params</code>) and <code>hess</code> (a list
+components, a matrix with <code>penalty@n_coef</code> rows and <code>penalty@n_coef - penalty_rank(penalty)</code> columns. <code><a href="penalty_matrix.html">penalty_logpdet()</a></code> returns a list of <code>value</code>
+(a single number), <code>grad</code> (a list keyed by <code>penalty@params</code>) and <code>hess</code> (a list
 keyed by the pairs that <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code> uses). Every entry of it is
 <code>NaN</code> at a setting that <code><a href="additive_sum.html">additive_sum()</a></code> reports as not resolvable.</p>
     </div>
@@ -97,7 +97,7 @@ the stored values.</p>
 <p><code><a href="penalty_matrix.html">penalty_logpdet()</a></code> returns the same shape as
 <code><a href="penalty_matrix.QuadraticPenalty.html">penalty_logpdet.QuadraticPenalty()</a></code> and
 <code><a href="penalty_matrix.StructuredPenalty.html">penalty_logpdet.StructuredPenalty()</a></code>: <code>grad</code> is a list keyed by
-<code>pen@params</code> and <code>hess</code> a list keyed by the pairs that
+<code>penalty@params</code> and <code>hess</code> a list keyed by the pairs that
 <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code> uses, so code written for those branches reads
 <code>grad$lambda1</code> here.</p>
     </div>

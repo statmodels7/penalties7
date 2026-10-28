@@ -10,12 +10,12 @@ it.
 ## Usage
 
 ``` r
-penalty_dhessian(pen, beta, theta, ...)
+penalty_dhessian(penalty, beta, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -23,10 +23,10 @@ penalty_dhessian(pen, beta, theta, ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`; the generic signals an error
-  for any other length. Only the separable branch reads its values,
-  because the derivatives of the parent depend on them; the quadratic,
-  additive and structured branches ignore them.
+  A numeric vector of length `penalty@n_coef`; the generic signals an
+  error for any other length. Only the separable branch reads its
+  values, because the derivatives of the parent depend on them; the
+  quadratic, additive and structured branches ignore them.
 
 - theta:
 
@@ -41,10 +41,10 @@ penalty_dhessian(pen, beta, theta, ...)
 ## Value
 
 A named list of one matrix per hyperparameter, each of side
-`pen@n_coef`, named by `pen@params`. The quadratic branch returns the
-stored matrix in the storage that the penalty keeps, so a penalty built
-with `blocks > 1` gives a `dgCMatrix`; the other branches return base
-matrices.
+`penalty@n_coef`, named by `penalty@params`. The quadratic branch
+returns the stored matrix in the storage that the penalty keeps, so a
+penalty built with `blocks > 1` gives a `dgCMatrix`; the other branches
+return base matrices.
 
 ## Role in a marginal criterion
 

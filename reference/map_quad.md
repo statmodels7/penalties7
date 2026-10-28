@@ -9,14 +9,14 @@ parent read blockwise, whose middle matrix is block diagonal. With a
 ## Usage
 
 ``` r
-map_quad(pen, h)
+map_quad(penalty, h)
 
-map_quad_full(pen, m)
+map_quad_full(penalty, m)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)

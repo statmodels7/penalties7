@@ -7,12 +7,12 @@ identity map.
 ## Usage
 
 ``` r
-.undiag(pen)
+.undiag(penalty)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)

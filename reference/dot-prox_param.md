@@ -9,12 +9,12 @@ holds it at a value.
 ## Usage
 
 ``` r
-.prox_param(pen, theta, name)
+.prox_param(penalty, theta, name)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)

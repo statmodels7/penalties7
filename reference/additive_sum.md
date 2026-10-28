@@ -15,12 +15,12 @@ for the last three.
 ## Usage
 
 ``` r
-additive_sum(pen, theta)
+additive_sum(penalty, theta)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
@@ -35,14 +35,15 @@ additive_sum(pen, theta)
 ## Value
 
 A list of four: `S`, the assembled symmetric matrix of side
-`pen@n_coef`; `logpdet`, a single number; `dlog`, a numeric vector of
-\\\operatorname{tr}(S^{+}P_k)\\ in `pen@params` order; and `d2log`, the
-square matrix of \\\operatorname{tr}(S^{+}P_kS^{+}P_l)\\. The last three
-are `NaN` at a setting that the transformation cannot resolve.
+`penalty@n_coef`; `logpdet`, a single number; `dlog`, a numeric vector
+of \\\operatorname{tr}(S^{+}P_k)\\ in `penalty@params` order; and
+`d2log`, the square matrix of \\\operatorname{tr}(S^{+}P_kS^{+}P_l)\\.
+The last three are `NaN` at a setting that the transformation cannot
+resolve.
 
 ## A single decomposition of the sum
 
-A single eigendecomposition of \\S(\lambda)\\, keeping its `p_rank`
+A single eigendecomposition of \\S(\lambda)\\, keeping its `rank`
 largest eigenvalues, fails once the parameters spread apart. A symmetric
 eigendecomposition computes its eigenvalues with an absolute accuracy of
 order \\d\\\epsilon\lVert S\rVert\_{2}\\, so the smallest eigenvalue on

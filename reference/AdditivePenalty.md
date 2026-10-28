@@ -20,8 +20,8 @@ AdditivePenalty(
   params_bounds = list(),
   link_params = list(),
   params_smooth = logical(0),
-  mats = list(),
-  p_rank = integer(0),
+  matrices = list(),
+  rank = integer(0),
   null_basis = NULL,
   tol = 1e-10,
   blocks = integer(0),
@@ -70,14 +70,14 @@ AdditivePenalty(
   A logical vector, one entry per hyperparameter, `TRUE` where the value
   is differentiable in it.
 
-- mats:
+- matrices:
 
   A list of symmetric positive semidefinite matrices of the same side,
   already carried through the map, so each is `n_coef` by `n_coef`. One
   smoothing parameter goes with each, named `lambda1`, `lambda2` and so
   on in this order.
 
-- p_rank:
+- rank:
 
   The rank of the sum, a single whole number, the same at every positive
   setting of the parameters.
@@ -85,15 +85,15 @@ AdditivePenalty(
 - null_basis:
 
   An orthonormal basis of the null space shared by the components,
-  `n_coef` by `n_coef - p_rank`, read from the same eigendecomposition
-  as `p_rank` and fixed in the same way.
+  `n_coef` by `n_coef - rank`, read from the same eigendecomposition as
+  `rank` and fixed in the same way.
 
 - tol:
 
   The relative eigenvalue tolerance, a single positive number, `1e-10`
   by default.
   [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md)
-  counts `p_rank` at this tolerance, and
+  counts `rank` at this tolerance, and
   [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
   passes it to
   [`additive_stable()`](https://statmodels7.github.io/penalties7/reference/additive_stable.md)
@@ -103,7 +103,7 @@ AdditivePenalty(
 - blocks:
 
   How many times each component is repeated blockwise, a whole number.
-  An empty value is read as 1. Above 1, `mats` holds the repeated
+  An empty value is read as 1. Above 1, `matrices` holds the repeated
   components as sparse matrices and `block_mats` holds one block of
   each.
 
@@ -125,7 +125,7 @@ An S7 object of class `AdditivePenalty`, inheriting from
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md),
 with the seven inherited properties and the seven above. Its `map` is
 always `NULL`, because a map given to the constructor is absorbed into
-`mats`.
+`matrices`.
 
 ## Details
 
@@ -219,9 +219,9 @@ S7::S7_inherits(pen, AdditivePenalty)
 # construction.
 pen@params
 #> [1] "lambda1" "lambda2"
-c(rank = pen@p_rank, null_width = ncol(pen@null_basis))
+c(rank = pen@rank, null_width = ncol(pen@null_basis))
 #>       rank null_width 
 #>          3          0 
-length(pen@mats)
+length(pen@matrices)
 #> [1] 2
 ```

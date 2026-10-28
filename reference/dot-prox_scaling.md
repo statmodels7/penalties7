@@ -9,12 +9,12 @@ operator is applied as it is, or the call stops.
 ## Usage
 
 ``` r
-.prox_scaling(pen)
+.prox_scaling(penalty)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)

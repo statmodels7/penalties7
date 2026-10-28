@@ -11,12 +11,12 @@ hyperparameter.
 ## Usage
 
 ``` r
-penalty_dcross(pen, beta, theta, ...)
+penalty_dcross(penalty, beta, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -24,9 +24,10 @@ penalty_dcross(pen, beta, theta, ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`; the generic signals an error
-  for any other length. The structured and separable branches read its
-  values; the quadratic and additive branches return zero for any value.
+  A numeric vector of length `penalty@n_coef`; the generic signals an
+  error for any other length. The structured and separable branches read
+  its values; the quadratic and additive branches return zero for any
+  value.
 
 - theta:
 
@@ -40,8 +41,8 @@ penalty_dcross(pen, beta, theta, ...)
 
 ## Value
 
-A named list of one numeric vector of length `pen@n_coef` per unordered
-pair, keyed diagonals first.
+A named list of one numeric vector of length `penalty@n_coef` per
+unordered pair, keyed diagonals first.
 
 ## Details
 

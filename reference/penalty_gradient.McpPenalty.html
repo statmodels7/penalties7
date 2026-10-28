@@ -13,7 +13,7 @@ through the map. At unit curvature the second derivative is
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,12 +51,12 @@ through the map. At unit curvature the second derivative is
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>An <code><a href="ScadPenalty.html">McpPenalty()</a></code> object.</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>A numeric vector of length <code>pen@n_coef</code>.</p></dd>
+<dd><p>A numeric vector of length <code>penalty@n_coef</code>.</p></dd>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
@@ -69,8 +69,8 @@ through the map. At unit curvature the second derivative is
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code><a href="penalty_gradient.html">penalty_gradient()</a></code> returns a numeric vector of length <code>pen@n_coef</code>;
-<code><a href="penalty_gradient.html">penalty_hessian()</a></code> a symmetric <code>pen@n_coef</code> by <code>pen@n_coef</code> base matrix,
+    <p><code><a href="penalty_gradient.html">penalty_gradient()</a></code> returns a numeric vector of length <code>penalty@n_coef</code>;
+<code><a href="penalty_gradient.html">penalty_hessian()</a></code> a symmetric <code>penalty@n_coef</code> by <code>penalty@n_coef</code> base matrix,
 diagonal under the identity map and negative semidefinite always.</p>
     </div>
     <div class="section level2">
@@ -91,7 +91,7 @@ penalties whose derivative is \(\lambda\) at the origin and zero beyond
 \(\gamma\lambda\), MCP has the smallest maximum concavity, the supremum
 of \(-\rho''\) (Zhang 2010). A penalized objective stays convex only while
 the curvature of the likelihood in each coordinate exceeds \(1/\gamma\)
-(\(c_j/\gamma\) with <code>curv</code>).</p>
+(\(c_j/\gamma\) with <code>curvature</code>).</p>
 <p>At \(t = 0\) the sign is zero, so the gradient returned is <code>0</code>, one
 element of the subdifferential \([-\lambda, \lambda]\). Exact zeros are
 produced by <code><a href="penalty_prox.html">penalty_prox()</a></code>.</p>

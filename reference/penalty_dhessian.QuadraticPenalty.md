@@ -14,7 +14,7 @@ returns `TRUE`.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
@@ -22,8 +22,8 @@ returns `TRUE`.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`. The methods do not use it,
-  because these quantities do not depend on the coefficients.
+  A numeric vector of length `penalty@n_coef`. The methods do not use
+  it, because these quantities do not depend on the coefficients.
 
 - theta:
 

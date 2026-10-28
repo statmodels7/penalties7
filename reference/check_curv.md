@@ -7,14 +7,14 @@ scaled and returns it with one value per coordinate of \\D\beta\\.
 ## Usage
 
 ``` r
-check_curv(curv, n)
+check_curv(curvature, n)
 
-curv_of(pen, n)
+curv_of(penalty, n)
 ```
 
 ## Arguments
 
-- curv:
+- curvature:
 
   `NULL`, or positive finite numbers, one per coordinate of \\D\beta\\
   or a single value repeated.
@@ -23,7 +23,7 @@ curv_of(pen, n)
 
   The number of coordinates of \\D\beta\\.
 
-- pen:
+- penalty:
 
   A
   [`ScadPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)

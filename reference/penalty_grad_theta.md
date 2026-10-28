@@ -12,16 +12,16 @@ the unconstrained scale, as selected by `scale`.
 ## Usage
 
 ``` r
-penalty_grad_theta(pen, beta, theta, scale = c("parameter", "link"), ...)
+penalty_grad_theta(penalty, beta, theta, scale = c("parameter", "link"), ...)
 
-penalty_hess_theta(pen, beta, theta, scale = c("parameter", "link"), ...)
+penalty_hess_theta(penalty, beta, theta, scale = c("parameter", "link"), ...)
 
-penalty_cross(pen, beta, theta, scale = c("parameter", "link"), ...)
+penalty_cross(penalty, beta, theta, scale = c("parameter", "link"), ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -29,14 +29,14 @@ penalty_cross(pen, beta, theta, scale = c("parameter", "link"), ...)
 
 - beta:
 
-  A finite numeric vector of length `pen@n_coef`, coerced with
+  A finite numeric vector of length `penalty@n_coef`, coerced with
   [`as.numeric()`](https://rdrr.io/r/base/numeric.html) in the generic.
   A vector of another length signals an error.
 
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same, holding every name in `pen@params`.
+  carrying the same, holding every name in `penalty@params`.
 
 - scale:
 
@@ -53,10 +53,11 @@ penalty_cross(pen, beta, theta, scale = c("parameter", "link"), ...)
 
 All three return a named list. `penalty_grad_theta()` has one element
 per hyperparameter; each element is a single number, and the elements
-are named by `pen@params`. `penalty_hess_theta()` has \\p(p+1)/2\\
+are named by `penalty@params`. `penalty_hess_theta()` has \\p(p+1)/2\\
 elements; each element is a single number, and the elements are keyed by
 pairs as described above. `penalty_cross()` has one element per
-hyperparameter; each element is a numeric vector of length `pen@n_coef`.
+hyperparameter; each element is a numeric vector of length
+`penalty@n_coef`.
 
 ## Uses of the three blocks
 
@@ -91,12 +92,12 @@ the coefficient direction.
 
 ## Names of the elements
 
-The gradient and the mixed block are keyed by `pen@params`. The Hessian
-is keyed by pairs. The diagonal entries come first, in `params` order,
-the upper off-diagonal pairs follow, and each key joins the two names
-with an underscore. For an elastic net the keys are `lambda_lambda`,
-`alpha_alpha`, `lambda_alpha`. Only the upper triangle is returned,
-since the matrix is symmetric.
+The gradient and the mixed block are keyed by `penalty@params`. The
+Hessian is keyed by pairs. The diagonal entries come first, in `params`
+order, the upper off-diagonal pairs follow, and each key joins the two
+names with an underscore. For an elastic net the keys are
+`lambda_lambda`, `alpha_alpha`, `lambda_alpha`. Only the upper triangle
+is returned, since the matrix is symmetric.
 
 ## See also
 

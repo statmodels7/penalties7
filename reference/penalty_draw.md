@@ -7,12 +7,12 @@ the distribution does not determine.
 ## Usage
 
 ``` r
-penalty_draw(pen, theta, ...)
+penalty_draw(penalty, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -29,8 +29,8 @@ penalty_draw(pen, theta, ...)
 
 ## Value
 
-A numeric vector of length `pen@n_coef`, `NA` in the coordinates that
-the prior does not determine and possibly `NA` throughout.
+A numeric vector of length `penalty@n_coef`, `NA` in the coordinates
+that the prior does not determine and possibly `NA` throughout.
 
 ## Details
 

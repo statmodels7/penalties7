@@ -8,14 +8,14 @@ the argument at which \\\rho\\ is evaluated. `map_back()` computes
 ## Usage
 
 ``` r
-map_apply(pen, beta)
+map_apply(penalty, beta)
 
-map_back(pen, g)
+map_back(penalty, g)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)

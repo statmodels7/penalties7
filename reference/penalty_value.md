@@ -16,12 +16,12 @@ without a Jacobian term. SCAD and MCP return the bare \\\rho\\.
 ## Usage
 
 ``` r
-penalty_value(pen, beta, theta, ...)
+penalty_value(penalty, beta, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -29,15 +29,15 @@ penalty_value(pen, beta, theta, ...)
 
 - beta:
 
-  A finite numeric vector of length `pen@n_coef`. The generic coerces it
-  with [`as.numeric()`](https://rdrr.io/r/base/numeric.html), so an
-  integer vector or a one-column matrix is accepted. A vector of another
-  length signals an error.
+  A finite numeric vector of length `penalty@n_coef`. The generic
+  coerces it with [`as.numeric()`](https://rdrr.io/r/base/numeric.html),
+  so an integer vector or a one-column matrix is accepted. A vector of
+  another length signals an error.
 
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same, holding every name in `pen@params`. The generic
+  carrying the same, holding every name in `penalty@params`. The generic
   reorders it and checks it against the penalty's open bounds before
   dispatch. Pass [`list()`](https://rdrr.io/r/base/list.html) for a
   penalty with no hyperparameters.

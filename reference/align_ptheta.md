@@ -1,20 +1,20 @@
 # Align and Validate the Hyperparameters
 
 Puts a hyperparameter argument into the single shape that every branch
-reads: a list reordered to `pen@params`, whose values are unnamed, and
-checked against `pen@params_bounds` as open intervals. Returns the
-aligned list. For a penalty with no hyperparameters it returns an empty
-list without examining `theta`.
+reads: a list reordered to `penalty@params`, whose values are unnamed,
+and checked against `penalty@params_bounds` as open intervals. Returns
+the aligned list. For a penalty with no hyperparameters it returns an
+empty list without examining `theta`.
 
 ## Usage
 
 ``` r
-align_ptheta(pen, theta)
+align_ptheta(penalty, theta)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -28,7 +28,7 @@ align_ptheta(pen, theta)
 
 ## Value
 
-A list of the same length and order as `pen@params`, in which each
+A list of the same length and order as `penalty@params`, in which each
 element is an unnamed single number. The value is
 [`list()`](https://rdrr.io/r/base/list.html) when the penalty has no
 hyperparameters.

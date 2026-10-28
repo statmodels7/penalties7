@@ -10,7 +10,7 @@ in another, whereas a single parameter smooths every direction alike.
 
 ``` r
 additive_penalty(
-  mats,
+  matrices,
   map = NULL,
   blocks = 1L,
   readable = c("lambda", "sd"),
@@ -21,7 +21,7 @@ additive_penalty(
 
 ## Arguments
 
-- mats:
+- matrices:
 
   A list of at least one symmetric positive semidefinite matrix, all
   with the same number of rows. Each component is symmetrized. A
@@ -242,7 +242,7 @@ P2 <- crossprod(diff(diag(5), differences = 2))
 bb <- c(0.4, -1.1, 0.7, 0.2, -0.3)
 penalty_value(additive_penalty(list(P2)), bb, list(lambda1 = 3)) -
   penalty_value(quadratic_penalty(P2), bb, list(lambda = 3))
-#> [1] 7.105427e-15
+#> [1] 3.552714e-15
 
 # The stored rank stays fixed as the parameters spread apart, while an
 # eigenvalue count of the assembled sum drops.

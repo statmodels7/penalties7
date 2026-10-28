@@ -13,7 +13,7 @@ penalty_cross() one coefficient vector per free value."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,12 +51,12 @@ per free value, <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="StructuredPenalty.html">StructuredPenalty()</a></code> object.</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>A numeric vector of length <code>pen@n_coef</code>.</p></dd>
+<dd><p>A numeric vector of length <code>penalty@n_coef</code>.</p></dd>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
@@ -76,10 +76,10 @@ dispatch. Every link here is the identity, so the two scales coincide and
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code><a href="penalty_grad_theta.html">penalty_grad_theta()</a></code> returns a list of one number per free value,
-named by <code>pen@params</code>. <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code> returns a list of one number
+named by <code>penalty@params</code>. <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code> returns a list of one number
 per unordered pair, keyed diagonals first. <code><a href="penalty_grad_theta.html">penalty_cross()</a></code> returns a list
-of one numeric vector of length <code>pen@n_coef</code> per free value, named by
-<code>pen@params</code>.</p>
+of one numeric vector of length <code>penalty@n_coef</code> per free value, named by
+<code>penalty@params</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

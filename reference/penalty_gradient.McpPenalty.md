@@ -9,7 +9,7 @@ zero beyond it.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`McpPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
@@ -17,7 +17,7 @@ zero beyond it.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -30,10 +30,10 @@ zero beyond it.
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-returns a numeric vector of length `pen@n_coef`;
+returns a numeric vector of length `penalty@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-a symmetric `pen@n_coef` by `pen@n_coef` base matrix, diagonal under the
-identity map and negative semidefinite always.
+a symmetric `penalty@n_coef` by `penalty@n_coef` base matrix, diagonal
+under the identity map and negative semidefinite always.
 
 ## Details
 
@@ -54,7 +54,7 @@ the penalties whose derivative is \\\lambda\\ at the origin and zero
 beyond \\\gamma\lambda\\, MCP has the smallest maximum concavity, the
 supremum of \\-\rho''\\ (Zhang 2010). A penalized objective stays convex
 only while the curvature of the likelihood in each coordinate exceeds
-\\1/\gamma\\ (\\c_j/\gamma\\ with `curv`).
+\\1/\gamma\\ (\\c_j/\gamma\\ with `curvature`).
 
 At \\t = 0\\ the sign is zero, so the gradient returned is `0`, one
 element of the subdifferential \\\[-\lambda, \lambda\]\\. Exact zeros

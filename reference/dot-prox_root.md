@@ -11,18 +11,18 @@ Student t prior.
 ## Usage
 
 ``` r
-.prox_root(pen, v, step, theta, n_grid = 64L)
+.prox_root(penalty, v, step, theta, n_grid = 64L)
 
 .prox_mode(ly)
 
-.prox_root_widened(pen, h, vi, m = 0)
+.prox_root_widened(penalty, h, vi, m = 0)
 
 .prox_uniroot(h, lo, hi, flo, fhi)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)

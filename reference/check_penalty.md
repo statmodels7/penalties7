@@ -17,12 +17,12 @@ verify the derivatives of a penalty written by the user.
 ## Usage
 
 ``` r
-check_penalty(pen, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
+check_penalty(penalty, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -30,7 +30,7 @@ check_penalty(pen, beta = NULL, theta = NULL, tol = 1e-06, verbose = TRUE)
 
 - beta:
 
-  A numeric coefficient vector of length `pen@n_coef`. `NULL`, the
+  A numeric coefficient vector of length `penalty@n_coef`. `NULL`, the
   default, draws one from `rnorm(sd = 1.3)` rounded to two places and
   shifted by `0.11`, then moves it away from the kinks as above. The
   draw is taken from a fixed seed, so the report is the same on two
@@ -92,13 +92,13 @@ is `TRUE`:
 | `hessian vs numDeriv on the gradient` | [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md) against a numerical Jacobian of the analytic gradient, symmetrized |
 | `grad_theta[p] vs numDeriv` | [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md) against a numerical derivative of the value in hyperparameter `p` |
 | `hess_theta[p_p] vs numDeriv` | the diagonal entry of [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md) against a numerical derivative of the analytic `grad_theta` |
-| `hess_theta[p_r] vs numDeriv` | the off-diagonal entry of [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md) for hyperparameters `p` and `r`, with `p` before `r` in `pen@params`, against a numerical derivative in `r` of the analytic `grad_theta` of `p` |
+| `hess_theta[p_r] vs numDeriv` | the off-diagonal entry of [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md) for hyperparameters `p` and `r`, with `p` before `r` in `penalty@params`, against a numerical derivative in `r` of the analytic `grad_theta` of `p` |
 | `cross[p] vs Richardson on the gradient` | [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md) against a numerical Jacobian of the analytic coefficient gradient in `p` |
 | `quadratic three-point identity` | \\\rho(2\beta) - 4\rho(\beta) + 3\rho(0)\\, which vanishes when the value is a quadratic form with no linear term |
 | `logpdet linear in log lambda with slope r` | raising `lambda` by a factor of \\e\\ raises the value of [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md) by the rank |
 | `logpdet gradient vs numDeriv` | the `grad` element of [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md) against a numerical derivative of its `value` |
 | `rank vs eigenvalues of the matrix` | [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md) against the number of eigenvalues of \\S(\theta)\\, or of the sum of the normalized components of an additive penalty, that exceed a relative tolerance times the largest |
-| `null basis width vs n_coef minus rank` | the number of columns of [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md) against `pen@n_coef` minus [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md) |
+| `null basis width vs n_coef minus rank` | the number of columns of [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md) against `penalty@n_coef` minus [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md) |
 | `null basis annihilates the matrix` | \\S(\theta)N\\, where \\S(\theta)\\ is [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md) and \\N\\ is [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md) |
 
 The two log pseudo-determinant rows are alternatives, as described
@@ -116,8 +116,8 @@ The quadratic rows are produced for every branch for which
 returns `TRUE`: the three-point identity, one of the two log
 pseudo-determinant rows, the row of the rank, the row of the width of
 the null basis, and the row of the annihilation when the null basis has
-columns. When `"lambda"` is among `pen@params`, the matrix is one scale
-times a constant, the log pseudo-determinant is linear in
+columns. When `"lambda"` is among `penalty@params`, the matrix is one
+scale times a constant, the log pseudo-determinant is linear in
 \\\log\lambda\\ with slope the rank, and the row tests that identity.
 Otherwise the matrix depends on several hyperparameters, as in a
 structured or an additive penalty, and the row compares the reported
@@ -144,7 +144,7 @@ between that count and
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md).
 A stored rank that differs from the count by one or more therefore fails
 the row of the rank, and a null basis whose number of columns differs
-from `pen@n_coef` minus the stored rank fails the row of the width.
+from `penalty@n_coef` minus the stored rank fails the row of the width.
 
 ## What is not checked
 
@@ -221,15 +221,15 @@ pen <- quadratic_penalty(crossprod(diff(diag(5))))
 res <- check_penalty(pen)
 #>                                        check    max_error status
 #>                         gradient vs numDeriv 4.007727e-11     OK
-#>          hessian vs numDeriv on the gradient 7.928288e-12     OK
+#>          hessian vs numDeriv on the gradient 7.080910e-12     OK
 #>               grad_theta[lambda] vs numDeriv 1.851376e-11     OK
 #>        hess_theta[lambda_lambda] vs numDeriv 1.488393e-11     OK
-#>  cross[lambda] vs Richardson on the gradient 1.291110e-11     OK
+#>  cross[lambda] vs Richardson on the gradient 1.291093e-11     OK
 #>               quadratic three-point identity 2.296653e-16     OK
 #>    logpdet linear in log lambda with slope r 4.440892e-16     OK
 #>            rank vs eigenvalues of the matrix 0.000000e+00     OK
 #>        null basis width vs n_coef minus rank 0.000000e+00     OK
-#>            null basis annihilates the matrix 2.775558e-16     OK
+#>            null basis annihilates the matrix 2.395716e-16     OK
 all(res$status == "OK")
 #> [1] TRUE
 
@@ -242,8 +242,8 @@ nrow(check_penalty(lasso_penalty(n_coef = 4), verbose = FALSE))
 # the real class would change the generic for the rest of the session.
 Broken <- S7::new_class("Broken", parent = QuadraticPenalty)
 bad <- do.call(Broken, S7::props(quadratic_penalty(diag(3))))
-S7::method(penalty_gradient, Broken) <- function(pen, beta, theta, ...) {
-  1.05 * S7::method(penalty_gradient, QuadraticPenalty)(pen, beta, theta, ...)
+S7::method(penalty_gradient, Broken) <- function(penalty, beta, theta, ...) {
+  1.05 * S7::method(penalty_gradient, QuadraticPenalty)(penalty, beta, theta, ...)
 }
 failed <- check_penalty(bad, verbose = FALSE)
 failed[failed$status != "OK", c("check", "max_error")]

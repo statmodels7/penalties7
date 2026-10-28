@@ -8,9 +8,9 @@ builds. The literature defines both families by the derivative
 \\\rho'\\, and their value is the closed piecewise antiderivative
 anchored at \\\rho(0) = 0\\. Each class adds one property to
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md),
-`curv`, the curvature of the loss in each coordinate of \\D\beta\\, and
-every quantity is computed from the two hyperparameters, the map and
-`curv`.
+`curvature`, the curvature of the loss in each coordinate of \\D\beta\\,
+and every quantity is computed from the two hyperparameters, the map and
+`curvature`.
 
 ## Usage
 
@@ -23,7 +23,7 @@ ScadPenalty(
   params_bounds = list(),
   link_params = list(),
   params_smooth = logical(0),
-  curv = integer(0)
+  curvature = integer(0)
 )
 
 McpPenalty(
@@ -34,7 +34,7 @@ McpPenalty(
   params_bounds = list(),
   link_params = list(),
   params_smooth = logical(0),
-  curv = integer(0)
+  curvature = integer(0)
 )
 ```
 
@@ -78,7 +78,7 @@ McpPenalty(
   A logical vector, one entry per hyperparameter, `TRUE` where the value
   is differentiable in it.
 
-- curv:
+- curvature:
 
   The curvature of the loss in each coordinate of \\D\beta\\, a numeric
   vector of positive finite values with one entry per coordinate, or
@@ -94,7 +94,7 @@ McpPenalty(
 
 An S7 object of class `ScadPenalty` or `McpPenalty`, inheriting from
 [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
-and carrying its seven properties and `curv`.
+and carrying its seven properties and `curvature`.
 
 ## Details
 
@@ -184,5 +184,5 @@ S7::S7_inherits(mcp_penalty(), McpPenalty)
 
 # Both add one property to the base class, the curvature per coordinate.
 setdiff(names(S7::props(scad_penalty())), names(S7::props(lasso_penalty())))
-#> [1] "curv"
+#> [1] "curvature"
 ```

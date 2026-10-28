@@ -34,9 +34,9 @@ calls it when `blocks` is above one.
 
 A
 [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
-with `n_coef` equal to `m * nrow(P)`, whose `P`, `DPD` and `null_basis`
-are `dgCMatrix` objects. `P` is checked to be positive semidefinite and
-not zero by
+with `n_coef` equal to `m * nrow(P)`, whose `P`, `penalty_matrix` and
+`null_basis` are `dgCMatrix` objects. `P` is checked to be positive
+semidefinite and not zero by
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
 before the call.
 

@@ -8,12 +8,12 @@ in the hyperparameters contains it, and so does an exact outer Hessian.
 ## Usage
 
 ``` r
-penalty_d2hessian(pen, beta, theta, ...)
+penalty_d2hessian(penalty, beta, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -21,8 +21,9 @@ penalty_d2hessian(pen, beta, theta, ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`; the generic signals an error
-  for any other length. Only the separable branch reads its values.
+  A numeric vector of length `penalty@n_coef`; the generic signals an
+  error for any other length. Only the separable branch reads its
+  values.
 
 - theta:
 
@@ -37,7 +38,7 @@ penalty_d2hessian(pen, beta, theta, ...)
 ## Value
 
 A named list of one matrix per unordered pair of hyperparameters, each
-of side `pen@n_coef`, keyed diagonals first. A penalty with \\p\\
+of side `penalty@n_coef`, keyed diagonals first. A penalty with \\p\\
 hyperparameters gives \\p(p+1)/2\\ entries.
 
 ## Details
@@ -55,9 +56,9 @@ The derivatives are taken in \\\theta\\ on its own scale.
 
 The keys are those of
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md):
-the diagonal pairs come first in `pen@params` order, then the upper
+the diagonal pairs come first in `penalty@params` order, then the upper
 off-diagonal pairs follow, and each key joins the two names with an
-underscore. Each unordered pair has one key, written in `pen@params`
+underscore. Each unordered pair has one key, written in `penalty@params`
 order (`sigma_nu` and not `nu_sigma` when `sigma` comes first), and the
 reversed name is not an element of the list.
 

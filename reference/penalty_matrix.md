@@ -11,18 +11,18 @@ derivatives in the hyperparameters.
 ## Usage
 
 ``` r
-penalty_matrix(pen, theta, ...)
+penalty_matrix(penalty, theta, ...)
 
-penalty_rank(pen, ...)
+penalty_rank(penalty, ...)
 
-penalty_null_basis(pen, ...)
+penalty_null_basis(penalty, ...)
 
-penalty_logpdet(pen, theta, ...)
+penalty_logpdet(penalty, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -43,7 +43,7 @@ penalty_logpdet(pen, theta, ...)
 ## Value
 
 `penalty_matrix()` returns a symmetric `q x q` matrix, where `q` is
-`pen@n_coef`. `penalty_rank()` returns a single integer, fixed at
+`penalty@n_coef`. `penalty_rank()` returns a single integer, fixed at
 construction. `penalty_null_basis()` returns a `q x (q - r)` matrix with
 orthonormal columns spanning the null space, and a `q x 0` matrix when
 there is none. The two matrices are base matrices ordinarily, and

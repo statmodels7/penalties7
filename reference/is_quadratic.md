@@ -33,12 +33,12 @@ returns a value only for a separable penalty.
 ## Usage
 
 ``` r
-is_quadratic(pen, ...)
+is_quadratic(penalty, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)

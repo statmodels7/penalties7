@@ -9,7 +9,7 @@ because the value is a quadratic form.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
@@ -17,7 +17,7 @@ because the value is a quadratic form.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -30,7 +30,7 @@ because the value is a quadratic form.
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-returns a numeric vector of length `pen@n_coef`;
+returns a numeric vector of length `penalty@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 a symmetric matrix of that order, a base matrix for an ordinary penalty
 and a `dgCMatrix` when the penalty was built with `blocks > 1`.

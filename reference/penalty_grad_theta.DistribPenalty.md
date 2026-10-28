@@ -12,7 +12,7 @@ hyperparameter.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
@@ -20,7 +20,7 @@ hyperparameter.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -39,11 +39,12 @@ hyperparameter.
 ## Value
 
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-returns a list of one number per hyperparameter, named by `pen@params`.
+returns a list of one number per hyperparameter, named by
+`penalty@params`.
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns a list of one number per unordered pair, keyed diagonals first.
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-returns a list of one numeric vector of length `pen@n_coef` per
+returns a list of one numeric vector of length `penalty@n_coef` per
 hyperparameter.
 
 ## Details
@@ -62,11 +63,11 @@ carried back through the map like the coefficient gradient.
 The second derivatives are returned under the keys of
 [`ptheta_pairs()`](https://statmodels7.github.io/penalties7/reference/ptheta_pairs.md):
 the diagonal pairs first, then the off-diagonal pairs, in the order of
-`pen@params`. The shipped continuous families of distributions7 use the
-same order, but a family may spell a pair the other way, so each pair is
-looked up under both spellings, `a_b` and `b_a`. The key is composed
-from the pair and not parsed out of a name, because a parameter name may
-contain an underscore.
+`penalty@params`. The shipped continuous families of distributions7 use
+the same order, but a family may spell a pair the other way, so each
+pair is looked up under both spellings, `a_b` and `b_a`. The key is
+composed from the pair and not parsed out of a name, because a parameter
+name may contain an underscore.
 
 ## See also
 

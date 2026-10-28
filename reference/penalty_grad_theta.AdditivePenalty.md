@@ -11,7 +11,7 @@ one coefficient vector per component.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
@@ -19,7 +19,7 @@ one coefficient vector per component.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -43,7 +43,7 @@ returns a list of one number per component, named `lambda1`, `lambda2`,
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns a list of one number per unordered pair, keyed diagonals first.
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-returns a list of one numeric vector of length `pen@n_coef` per
+returns a list of one numeric vector of length `penalty@n_coef` per
 component.
 
 ## Details

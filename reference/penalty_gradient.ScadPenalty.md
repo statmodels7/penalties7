@@ -9,7 +9,7 @@ and zero elsewhere.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`ScadPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
@@ -17,7 +17,7 @@ and zero elsewhere.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -30,10 +30,10 @@ and zero elsewhere.
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-returns a numeric vector of length `pen@n_coef`;
+returns a numeric vector of length `penalty@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-a symmetric `pen@n_coef` by `pen@n_coef` base matrix, diagonal under the
-identity map and negative semidefinite always.
+a symmetric `penalty@n_coef` by `penalty@n_coef` base matrix, diagonal
+under the identity map and negative semidefinite always.
 
 ## Details
 
@@ -54,8 +54,8 @@ the second derivative over the taper is \\-c_j/(a-1)\\.
 The Hessian is negative where it is not zero, so the penalty is concave
 over the taper. A penalized objective stays convex only while the
 curvature of the likelihood in each coordinate exceeds \\1/(a-1)\\
-(\\c_j/(a-1)\\ with `curv`), and outside that condition a solver that
-assumes convexity has no guarantee of convergence.
+(\\c_j/(a-1)\\ with `curvature`), and outside that condition a solver
+that assumes convexity has no guarantee of convergence.
 
 At \\t = 0\\ the sign is zero, so the gradient returned is `0`. This is
 one element of the subdifferential \\\[-\lambda, \lambda\]\\, and the

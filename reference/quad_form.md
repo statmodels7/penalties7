@@ -9,12 +9,12 @@ this quantity.
 ## Usage
 
 ``` r
-quad_form(pen, beta)
+quad_form(penalty, beta)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
@@ -22,7 +22,7 @@ quad_form(pen, beta)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 ## Value
 

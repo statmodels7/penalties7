@@ -16,7 +16,7 @@ parent that cannot supply its third response derivative.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -24,7 +24,7 @@ parent that cannot supply its third response derivative.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -32,7 +32,7 @@ parent that cannot supply its third response derivative.
 
 - v:
 
-  A numeric vector of length `pen@n_coef`, the direction.
+  A numeric vector of length `penalty@n_coef`, the direction.
 
 - ...:
 
@@ -40,7 +40,7 @@ parent that cannot supply its third response derivative.
 
 ## Value
 
-A square base matrix of side `pen@n_coef`, or an error.
+A square base matrix of side `penalty@n_coef`, or an error.
 
 ## See also
 

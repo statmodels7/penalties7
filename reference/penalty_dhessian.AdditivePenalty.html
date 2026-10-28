@@ -17,7 +17,7 @@ penalty_dcross() return zeros, and beta_quadratic() returns TRUE."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,12 +57,12 @@ the components \(S_k\) themselves, <code><a href="penalty_d2hessian.html">penalt
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>An <code><a href="AdditivePenalty.html">AdditivePenalty()</a></code> object.</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>A numeric vector of length <code>pen@n_coef</code>. The methods do not use
+<dd><p>A numeric vector of length <code>penalty@n_coef</code>. The methods do not use
 it.</p></dd>
 
 
@@ -78,7 +78,7 @@ use it.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code><a href="penalty_dhessian.html">penalty_dhessian()</a></code> returns a list of one base matrix per
-component, named by <code>pen@params</code>. <code><a href="penalty_d2hessian.html">penalty_d2hessian()</a></code> returns a list of
+component, named by <code>penalty@params</code>. <code><a href="penalty_d2hessian.html">penalty_d2hessian()</a></code> returns a list of
 zero matrices, one per unordered pair. <code><a href="penalty_dcross.html">penalty_dcross()</a></code> returns a list of
 zero vectors, one per unordered pair. <code><a href="beta_quadratic.html">beta_quadratic()</a></code> returns the single
 logical <code>TRUE</code>.</p>
@@ -87,7 +87,7 @@ logical <code>TRUE</code>.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Every entry is exact, and the methods do not compute any entry at call
 time. The components were fixed at construction and are stored already
-carried through the map, so the first derivative is a lookup of <code>pen@mats</code>
+carried through the map, so the first derivative is a lookup of <code>penalty@matrices</code>
 and the higher ones are zeros of the right shape. Under the identity map
 \(S_k = P_k\).</p>
 <p><code><a href="is_quadratic.html">is_quadratic()</a></code> returns <code>TRUE</code> for this branch, as it does for the

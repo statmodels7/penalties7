@@ -8,7 +8,7 @@ returns `TRUE` when the stored rank equals the number of coefficients.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)

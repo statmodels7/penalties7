@@ -22,7 +22,7 @@ either the complete tensor or an error.
 ``` r
 dp_contract(A, dirs)
 
-dp_parent_or_reject(pen, what, fun, a, theta)
+dp_parent_or_reject(penalty, what, fun, a, theta)
 ```
 
 ## Arguments
@@ -37,7 +37,7 @@ dp_parent_or_reject(pen, what, fun, a, theta)
   remaining index of the array is contracted first, against the last
   direction.
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)

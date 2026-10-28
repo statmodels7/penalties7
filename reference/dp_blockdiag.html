@@ -13,7 +13,7 @@ between them."><meta property="og:image" content="https://statmodels7.github.io/
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,15 +48,15 @@ between them.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dp_blockdiag</span><span class="op">(</span><span class="va">pen</span>, <span class="va">h</span>, <span class="va">nblk</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dp_blockdiag</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">h</span>, <span class="va">nblk</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
-<dd><p>A <code><a href="DistribPenalty.html">DistribPenalty()</a></code> object with <code>pen@block</code> above one.</p></dd>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
+<dd><p>A <code><a href="DistribPenalty.html">DistribPenalty()</a></code> object with <code>penalty@block</code> above one.</p></dd>
 
 
 <dt id="arg-h">h<a class="anchor" aria-label="anchor" href="#arg-h"></a></dt>
@@ -70,7 +70,7 @@ between them.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A symmetric base matrix of side <code>nblk * pen@block</code>, block diagonal
+    <p>A symmetric base matrix of side <code>nblk * penalty@block</code>, block diagonal
 with <code>nblk</code> blocks.</p>
     </div>
     <div class="section level2">

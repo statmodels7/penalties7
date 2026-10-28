@@ -13,7 +13,7 @@ call, whichever of g, H and cross is given."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,14 +48,14 @@ call, whichever of <code>g</code>, <code>H</code> and <code>cross</code> is give
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ptheta_to_link</span><span class="op">(</span><span class="va">pen</span>, <span class="va">theta</span>, g <span class="op">=</span> <span class="cn">NULL</span>, H <span class="op">=</span> <span class="cn">NULL</span>, cross <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ptheta_to_link</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">theta</span>, g <span class="op">=</span> <span class="cn">NULL</span>, H <span class="op">=</span> <span class="cn">NULL</span>, cross <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="penalty.html">penalty()</a></code> object.</p></dd>
 
 
@@ -64,7 +64,7 @@ call, whichever of <code>g</code>, <code>H</code> and <code>cross</code> is give
 
 
 <dt id="arg-g">g<a class="anchor" aria-label="anchor" href="#arg-g"></a></dt>
-<dd><p>The parameter-scale gradient list, keyed by <code>pen@params</code>. It is
+<dd><p>The parameter-scale gradient list, keyed by <code>penalty@params</code>. It is
 required for the gradient and for the Hessian and is <code>NULL</code> otherwise.</p></dd>
 
 
@@ -74,8 +74,8 @@ names the pairs. It is supplied with <code>g</code> for the second order.</p></d
 
 
 <dt id="arg-cross">cross<a class="anchor" aria-label="anchor" href="#arg-cross"></a></dt>
-<dd><p>The parameter-scale mixed list, keyed by <code>pen@params</code>, in which
-each element is a vector of length <code>pen@n_coef</code>. It is supplied alone.</p></dd>
+<dd><p>The parameter-scale mixed list, keyed by <code>penalty@params</code>, in which
+each element is a vector of length <code>penalty@n_coef</code>. It is supplied alone.</p></dd>
 
 </dl></div>
     <div class="section level2">

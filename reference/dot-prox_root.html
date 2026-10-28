@@ -19,7 +19,7 @@ prior."><meta property="og:image" content="https://statmodels7.github.io/penalti
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,11 +57,11 @@ prior.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.prox_root</span><span class="op">(</span><span class="va">pen</span>, <span class="va">v</span>, <span class="va">step</span>, <span class="va">theta</span>, n_grid <span class="op">=</span> <span class="fl">64L</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.prox_root</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">v</span>, <span class="va">step</span>, <span class="va">theta</span>, n_grid <span class="op">=</span> <span class="fl">64L</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">.prox_mode</span><span class="op">(</span><span class="va">ly</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">.prox_root_widened</span><span class="op">(</span><span class="va">pen</span>, <span class="va">h</span>, <span class="va">vi</span>, m <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu">.prox_root_widened</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">h</span>, <span class="va">vi</span>, m <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">.prox_uniroot</span><span class="op">(</span><span class="va">h</span>, <span class="va">lo</span>, <span class="va">hi</span>, <span class="va">flo</span>, <span class="va">fhi</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -70,7 +70,7 @@ prior.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="DistribPenalty.html">DistribPenalty()</a></code> object with no map and a block width of one.</p></dd>
 
 

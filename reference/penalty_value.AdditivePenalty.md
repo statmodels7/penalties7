@@ -6,7 +6,7 @@ normalizing constant is taken over the range of the sum.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
@@ -14,7 +14,7 @@ normalizing constant is taken over the range of the sum.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`, already coerced by the
+  A numeric vector of length `penalty@n_coef`, already coerced by the
   generic.
 
 - theta:

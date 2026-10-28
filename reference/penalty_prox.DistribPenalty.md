@@ -8,7 +8,7 @@ rescaling, and any other map is rejected.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
@@ -16,7 +16,7 @@ rescaling, and any other map is rejected.
 
 - v:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - step:
 

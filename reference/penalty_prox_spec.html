@@ -17,7 +17,7 @@ penalty_prox()."><meta property="og:image" content="https://statmodels7.github.i
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,20 +54,20 @@ description; where such a penalty has an operator, it is applied with
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">penalty_prox_spec</span><span class="op">(</span><span class="va">pen</span>, <span class="va">theta</span>, <span class="va">step</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">penalty_prox_spec</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">theta</span>, <span class="va">step</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="penalty.html">penalty()</a></code> object of any branch.</p></dd>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
 <dd><p>A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in <code>pen@params</code>.</p></dd>
+vector carrying the same, holding every name in <code>penalty@params</code>.</p></dd>
 
 
 <dt id="arg-step">step<a class="anchor" aria-label="anchor" href="#arg-step"></a></dt>
@@ -84,7 +84,7 @@ naming <code>step</code>.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list of three matrices, <code>cut</code>, <code>slope</code> and <code>icept</code>, each with
-<code>pen@n_coef</code> rows and one column per piece. The last column of <code>cut</code> is
+<code>penalty@n_coef</code> rows and one column per piece. The last column of <code>cut</code> is
 <code>Inf</code>. The value is <code>NULL</code> where the operator has no piecewise linear
 description.</p>
     </div>
@@ -147,7 +147,7 @@ cut is \(t_j \lvert d_j\rvert \lambda\) (with \(d = (0.5, 2, 3)\),
 \(t = 0.4\) and \(\lambda = 1.2\) the cuts are <code>0.24</code>, <code>0.96</code> and
 <code>1.44</code>).</p>
 <p>The step limit of SCAD and MCP is tested on the scaled step. With
-\(c_j\) the curvature of the coordinate (the <code>curv</code> property, one when it
+\(c_j\) the curvature of the coordinate (the <code>curvature</code> property, one when it
 is empty), the table exists only while \(t_j c_j d_j^2 &lt; a - 1\) for SCAD
 and \(t_j c_j d_j^2 &lt; \gamma\) for MCP in every coordinate, so a
 standardized penalty takes shorter steps.</p>

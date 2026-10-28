@@ -13,7 +13,7 @@ hyperparameters contains it, and so does an exact outer Hessian."><meta property
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,19 +48,19 @@ hyperparameters contains it, and so does an exact outer Hessian.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">penalty_d2hessian</span><span class="op">(</span><span class="va">pen</span>, <span class="va">beta</span>, <span class="va">theta</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">penalty_d2hessian</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">beta</span>, <span class="va">theta</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="penalty.html">penalty()</a></code> object.</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>A numeric vector of length <code>pen@n_coef</code>; the generic signals an
+<dd><p>A numeric vector of length <code>penalty@n_coef</code>; the generic signals an
 error for any other length. Only the separable branch reads its values.</p></dd>
 
 
@@ -77,7 +77,7 @@ vector carrying the same, checked by the generic as in
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A named list of one matrix per unordered pair of hyperparameters,
-each of side <code>pen@n_coef</code>, keyed diagonals first. A penalty with \(p\)
+each of side <code>penalty@n_coef</code>, keyed diagonals first. A penalty with \(p\)
 hyperparameters gives \(p(p+1)/2\) entries.</p>
     </div>
     <div class="section level2">
@@ -92,9 +92,9 @@ through <code><a href="https://statmodels7.github.io/distributions7/reference/di
 map as in <code><a href="penalty_dhessian.html">penalty_dhessian()</a></code>. The derivatives are taken in \(\theta\)
 on its own scale.</p>
 <p>The keys are those of <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code>: the diagonal pairs come first
-in <code>pen@params</code> order, then the upper off-diagonal pairs follow, and each
+in <code>penalty@params</code> order, then the upper off-diagonal pairs follow, and each
 key joins the two names with an underscore. Each unordered pair has one
-key, written in <code>pen@params</code> order (<code>sigma_nu</code> and not <code>nu_sigma</code> when
+key, written in <code>penalty@params</code> order (<code>sigma_nu</code> and not <code>nu_sigma</code> when
 <code>sigma</code> comes first), and the reversed name is not an element of the list.</p>
 <p>A penalty with a kink signals an error, and so does the base class.</p>
     </div>

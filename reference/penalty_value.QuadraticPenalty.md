@@ -7,7 +7,7 @@ log pseudo-determinant of \\D'PD\\ are fixed at construction.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
@@ -15,7 +15,7 @@ log pseudo-determinant of \\D'PD\\ are fixed at construction.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`, already coerced by the
+  A numeric vector of length `penalty@n_coef`, already coerced by the
   generic.
 
 - theta:

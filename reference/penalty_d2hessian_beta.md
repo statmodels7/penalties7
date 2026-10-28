@@ -12,14 +12,14 @@ of \\\partial S/\partial\beta\\\[v\]\\ in each hyperparameter.
 ## Usage
 
 ``` r
-penalty_d2hessian_beta(pen, beta, theta, v, w, ...)
+penalty_d2hessian_beta(penalty, beta, theta, v, w, ...)
 
-penalty_dhessian_beta_theta(pen, beta, theta, v, ...)
+penalty_dhessian_beta_theta(penalty, beta, theta, v, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -27,8 +27,8 @@ penalty_dhessian_beta_theta(pen, beta, theta, v, ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`; the generics signal an error
-  for any other length.
+  A numeric vector of length `penalty@n_coef`; the generics signal an
+  error for any other length.
 
 - theta:
 
@@ -38,8 +38,8 @@ penalty_dhessian_beta_theta(pen, beta, theta, v, ...)
 
 - v, w:
 
-  Numeric vectors of length `pen@n_coef`, the directions; the generics
-  signal an error for any other length.
+  Numeric vectors of length `penalty@n_coef`, the directions; the
+  generics signal an error for any other length.
 
 - ...:
 
@@ -48,8 +48,8 @@ penalty_dhessian_beta_theta(pen, beta, theta, v, ...)
 ## Value
 
 `penalty_d2hessian_beta()` returns a square base matrix of side
-`pen@n_coef`; `penalty_dhessian_beta_theta()` a list of such matrices,
-one per hyperparameter, keyed by `pen@params`.
+`penalty@n_coef`; `penalty_dhessian_beta_theta()` a list of such
+matrices, one per hyperparameter, keyed by `penalty@params`.
 
 ## Details
 

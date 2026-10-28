@@ -11,12 +11,12 @@ the coefficients.
 ## Usage
 
 ``` r
-zero_pairs(pen, z)
+zero_pairs(penalty, z)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -24,7 +24,7 @@ zero_pairs(pen, z)
 
 - z:
 
-  The zero object: a `pen@n_coef` by `pen@n_coef` matrix for
+  The zero object: a `penalty@n_coef` by `penalty@n_coef` matrix for
   [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md),
   a numeric vector of that length for
   [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md).

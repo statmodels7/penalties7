@@ -9,12 +9,12 @@ hyperparameters are reported as they stand.
 ## Usage
 
 ``` r
-penalty_readable(pen, theta, ...)
+penalty_readable(penalty, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -23,7 +23,7 @@ penalty_readable(pen, theta, ...)
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same, holding every name in `pen@params`.
+  carrying the same, holding every name in `penalty@params`.
 
 - ...:
 

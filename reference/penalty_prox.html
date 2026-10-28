@@ -23,7 +23,7 @@ method only brings it close to zero."><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,20 +63,20 @@ method only brings it close to zero.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">penalty_prox</span><span class="op">(</span><span class="va">pen</span>, <span class="va">v</span>, <span class="va">step</span>, <span class="va">theta</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">penalty_prox</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">v</span>, <span class="va">step</span>, <span class="va">theta</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="penalty.html">penalty()</a></code> object. <code><a href="has_prox.html">has_prox()</a></code> tests whether it has an
 operator.</p></dd>
 
 
 <dt id="arg-v">v<a class="anchor" aria-label="anchor" href="#arg-v"></a></dt>
-<dd><p>A numeric vector of length <code>pen@n_coef</code>, the point of the quadratic
+<dd><p>A numeric vector of length <code>penalty@n_coef</code>, the point of the quadratic
 pull. The vector is coerced with <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric()</a></code>.</p></dd>
 
 
@@ -87,7 +87,7 @@ vector is rejected; <code><a href="penalty_prox_spec.html">penalty_prox_spec()</
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
 <dd><p>A named list of hyperparameter values, or a named numeric
-vector, holding every name in <code>pen@params</code>, each a single number.</p></dd>
+vector, holding every name in <code>penalty@params</code>, each a single number.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -152,11 +152,11 @@ closed form is written for a parent centered at zero;</p></li>
 <li><p>a stationary condition that changes sign neither on the segment between
 \(v\) and the mode of the parent nor in a widened bracket;</p></li>
 <li><p>SCAD where \(t c_j \ge a - 1\) and MCP where \(t c_j \ge \gamma\) in
-some coordinate, where \(c_j\) is the curvature <code>curv</code> of the penalty
+some coordinate, where \(c_j\) is the <code>curvature</code> property of the penalty
 and \(t\) is multiplied by \(d_j^2\) under a diagonal map; the
 subproblem is then not convex and the operator is set-valued;</p></li>
 <li><p>a <code>step</code> that is not a single positive finite number, or a <code>v</code> whose
-length is not <code>pen@n_coef</code>.</p></li>
+length is not <code>penalty@n_coef</code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>

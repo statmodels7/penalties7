@@ -8,7 +8,7 @@ the higher components of the parent carried through the same map.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
@@ -16,8 +16,8 @@ the higher components of the parent carried through the same map.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`. All three derivative methods
-  read it, because the components of the parent depend on it.
+  A numeric vector of length `penalty@n_coef`. All three derivative
+  methods read it, because the components of the parent depend on it.
 
 - theta:
 
@@ -30,13 +30,13 @@ the higher components of the parent carried through the same map.
 ## Value
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-returns a list of one base matrix of side `pen@n_coef` per
+returns a list of one base matrix of side `penalty@n_coef` per
 hyperparameter.
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
 returns a list of one such matrix per unordered pair, keyed diagonals
 first.
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
-returns a list of one numeric vector of length `pen@n_coef` per
+returns a list of one numeric vector of length `penalty@n_coef` per
 unordered pair.
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
 returns a single logical.
@@ -93,8 +93,8 @@ derivative in the response does not depend on the response. The generic
 has already checked `theta` (an invalid value is an error), and the
 method evaluates
 [`distributions7::distrib_hess_y()`](https://statmodels7.github.io/distributions7/reference/distrib_hess_y.html)
-of the parent at four points of `pen@block` coordinates each, and tests
-with [`all.equal()`](https://rdrr.io/r/base/all.equal.html) at a
+of the parent at four points of `penalty@block` coordinates each, and
+tests with [`all.equal()`](https://rdrr.io/r/base/all.equal.html) at a
 relative tolerance of `1e-12` whether the values agree across the
 points. A multivariate parent returns one \\p \times p\\ matrix per
 point, or a single matrix when that matrix does not depend on the
@@ -102,7 +102,7 @@ response, and the method compares the matrices of different points with
 one another, not the entries of one matrix. A single value or a single
 matrix, which carries no dimension for the points, gives `TRUE`. If the
 parent signals an error, or returns a number of values that is not a
-multiple of `pen@block^2`, the method returns `FALSE`.
+multiple of `penalty@block^2`, the method returns `FALSE`.
 
 ## See also
 

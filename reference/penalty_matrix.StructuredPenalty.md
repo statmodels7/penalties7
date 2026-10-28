@@ -14,7 +14,7 @@ derivatives in the free values.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md)
@@ -35,12 +35,12 @@ derivatives in the free values.
 ## Value
 
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-returns the symmetric precision matrix, of side `pen@n_coef`, carrying
-the structure's own dimnames.
+returns the symmetric precision matrix, of side `penalty@n_coef`,
+carrying the structure's own dimnames.
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns a single integer, the structure's rank.
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-returns a matrix with `pen@n_coef` rows and one column per null
+returns a matrix with `penalty@n_coef` rows and one column per null
 direction, with no columns for a full-rank structure.
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns a list of `value` (a number), `grad` (a list of one number per

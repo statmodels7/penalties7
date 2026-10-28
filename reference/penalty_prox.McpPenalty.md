@@ -6,7 +6,7 @@ coefficient passes through untouched.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`McpPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
@@ -14,7 +14,7 @@ coefficient passes through untouched.
 
 - v:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - step:
 
@@ -55,8 +55,8 @@ the largest scaled step, defined below.
 
 The formula is written for unit curvature. With the curvature \\c_j\\ of
 [`mcp_penalty()`](https://statmodels7.github.io/penalties7/reference/scad_penalty.md)
-(argument `curv`), the operator is the formula above with \\t c_j\\ in
-place of \\t\\ and \\\lambda/c_j\\ in place of \\\lambda\\. Under a
+(argument `curvature`), the operator is the formula above with \\t c_j\\
+in place of \\t\\ and \\\lambda/c_j\\ in place of \\\lambda\\. Under a
 diagonal map the step is \\t d_j^2\\, so the condition becomes \\t c_j
 d_j^2 \< \gamma\\ in every coordinate, which is stricter than \\t \<
 \gamma\\ where \\c_j d_j^2 \> 1\\ and looser where \\c_j d_j^2 \< 1\\.

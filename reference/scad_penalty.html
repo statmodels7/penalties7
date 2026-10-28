@@ -15,7 +15,7 @@ anchored at \(\rho(0) = 0\)."><meta property="og:image" content="https://statmod
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,7 +56,7 @@ anchored at \(\rho(0) = 0\).</p>
 <span>  n_coef <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  link_lambda <span class="op">=</span> <span class="fu">linkfunctions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/linkfunctions7/reference/log_link.html" class="external-link">log_link</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  link_a <span class="op">=</span> <span class="fu">linkfunctions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/linkfunctions7/reference/bounded_link.html" class="external-link">bounded_link</a></span><span class="op">(</span>lwr <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  curv <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  curvature <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">mcp_penalty</span><span class="op">(</span></span>
@@ -64,7 +64,7 @@ anchored at \(\rho(0) = 0\).</p>
 <span>  n_coef <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  link_lambda <span class="op">=</span> <span class="fu">linkfunctions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/linkfunctions7/reference/log_link.html" class="external-link">log_link</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  link_gamma <span class="op">=</span> <span class="fu">linkfunctions7</span><span class="fu">::</span><span class="fu"><a href="https://statmodels7.github.io/linkfunctions7/reference/bounded_link.html" class="external-link">bounded_link</a></span><span class="op">(</span>lwr <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>  curv <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  curvature <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,7 +98,7 @@ The default is <code>linkfunctions7::bounded_link(lwr = 2)</code>. The argument
 belongs to <code>scad_penalty()</code> only.</p></dd>
 
 
-<dt id="arg-curv">curv<a class="anchor" aria-label="anchor" href="#arg-curv"></a></dt>
+<dt id="arg-curvature">curvature<a class="anchor" aria-label="anchor" href="#arg-curvature"></a></dt>
 <dd><p><code>NULL</code> (the default) for unit curvature, or positive finite
 numbers, one per coordinate of \(D\beta\) or a single value repeated.</p></dd>
 
@@ -129,7 +129,7 @@ up to \(\lambda\), tapers it linearly to zero over the next
 <p>Integrating gives the values, which saturate at \((a+1)\lambda^2/2\) for
 SCAD and at \(\gamma\lambda^2/2\) for MCP. These are the forms for unit
 curvature; the section on the curvature of the loss gives the form that
-<code>curv</code> produces.</p>
+<code>curvature</code> produces.</p>
     </div>
     <div class="section level2">
     <h2 id="the-shape-parameter">The shape parameter<a class="anchor" aria-label="anchor" href="#the-shape-parameter"></a></h2>
@@ -148,7 +148,7 @@ for the shape parameter, which the caller sets or a path sweeps.</p>
     <p>Both penalties have a kink at zero, and both change branch again where the
 taper begins or ends. <code><a href="penalty_kinks.html">penalty_kinks()</a></code> returns all of these points: at
 unit curvature they are <code>0</code>, \(\pm\lambda\) and \(\pm a\lambda\) for
-SCAD and <code>0</code> and \(\pm\gamma\lambda\) for MCP, and with <code>curv</code> the rate
+SCAD and <code>0</code> and \(\pm\gamma\lambda\) for MCP, and with <code>curvature</code> the rate
 \(\lambda\) in them becomes \(\lambda/c_j\). At the points other than
 the origin the first derivative is continuous and the second jumps. When
 <code>beta</code> is not supplied, <code><a href="check_penalty.html">check_penalty()</a></code> draws its coefficients away from
@@ -160,7 +160,7 @@ the points that <code><a href="penalty_kinks.html">penalty_kinks()</a></code> re
 \(\tfrac12(z-\theta)^2 + \rho(\theta)\), whose loss has unit curvature
 (Fan and Lv 2010), and the value \(a = 3.7\) of Fan and Li (2001) is
 suggested for that problem. A likelihood has curvature \(c_j\) in
-coordinate \(j\), and with <code>curv</code> the penalty is
+coordinate \(j\), and with <code>curvature</code> the penalty is
 \(\sum_j c_j\,\rho(t_j;\ \lambda/c_j)\). The slope at zero stays
 \(\lambda\), the knee moves to \(a\lambda/c_j\) (\(\gamma\lambda/c_j\)
 for MCP), and the ratio of the knee to \(\lambda/c_j\) is the shape
@@ -171,7 +171,7 @@ and \(-c_j/\gamma\) for MCP. The proximal operator with step \(s\) is
 the unscaled operator at step \(s c_j\) and rate \(\lambda/c_j\), so it
 is single-valued while \(s c_j &lt; a - 1\) for SCAD and
 \(s c_j &lt; \gamma\) for MCP. At the step \(s = 1/c_j\) these conditions
-are \(a &gt; 2\) and \(\gamma &gt; 1\) for any data. By default <code>curv</code> is
+are \(a &gt; 2\) and \(\gamma &gt; 1\) for any data. By default <code>curvature</code> is
 <code>NULL</code>, the penalty stores no curvature, and every coordinate has
 \(c_j = 1\).</p>
     </div>
@@ -241,9 +241,9 @@ below \(a - 1\) for SCAD and below \(\gamma\) for MCP,
 <span class="r-in"><span>                                 <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">1</span>, a <span class="op">=</span> <span class="va">a</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.814815 1.989796 1.999499</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># With curv = 2 the slope at zero stays lambda and the value saturates at</span></span></span>
+<span class="r-in"><span><span class="co"># With curvature = 2 the slope at zero stays lambda and the value saturates at</span></span></span>
 <span class="r-in"><span><span class="co"># (a + 1) lambda^2 / (2 * 2).</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="fu">scad_penalty</span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">1</span>, curv <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, <span class="fl">100</span>, <span class="va">th</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="penalty_value.html">penalty_value</a></span><span class="op">(</span><span class="fu">scad_penalty</span><span class="op">(</span>n_coef <span class="op">=</span> <span class="fl">1</span>, curvature <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, <span class="fl">100</span>, <span class="va">th</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.175</span>
 <span class="r-in"><span><span class="op">(</span><span class="fl">3.7</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.175</span>

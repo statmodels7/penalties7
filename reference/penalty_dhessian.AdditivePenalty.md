@@ -15,7 +15,7 @@ returns `TRUE`.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
@@ -23,7 +23,8 @@ returns `TRUE`.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`. The methods do not use it.
+  A numeric vector of length `penalty@n_coef`. The methods do not use
+  it.
 
 - theta:
 
@@ -36,7 +37,8 @@ returns `TRUE`.
 ## Value
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-returns a list of one base matrix per component, named by `pen@params`.
+returns a list of one base matrix per component, named by
+`penalty@params`.
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
 returns a list of zero matrices, one per unordered pair.
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
@@ -49,8 +51,8 @@ returns the single logical `TRUE`.
 Every entry is exact, and the methods do not compute any entry at call
 time. The components were fixed at construction and are stored already
 carried through the map, so the first derivative is a lookup of
-`pen@mats` and the higher ones are zeros of the right shape. Under the
-identity map \\S_k = P_k\\.
+`penalty@matrices` and the higher ones are zeros of the right shape.
+Under the identity map \\S_k = P_k\\.
 
 [`is_quadratic()`](https://statmodels7.github.io/penalties7/reference/is_quadratic.md)
 returns `TRUE` for this branch, as it does for the quadratic and

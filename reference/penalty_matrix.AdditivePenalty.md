@@ -14,7 +14,7 @@ the log pseudo-determinant with its first two derivatives.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
@@ -35,16 +35,16 @@ the log pseudo-determinant with its first two derivatives.
 ## Value
 
 [`penalty_matrix()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
-returns a symmetric base matrix of side `pen@n_coef`.
+returns a symmetric base matrix of side `penalty@n_coef`.
 [`penalty_rank()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns a single integer, and
 [`penalty_null_basis()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 an orthonormal basis of the null space shared by the components, a
-matrix with `pen@n_coef` rows and `pen@n_coef - penalty_rank(pen)`
-columns.
+matrix with `penalty@n_coef` rows and
+`penalty@n_coef - penalty_rank(penalty)` columns.
 [`penalty_logpdet()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.md)
 returns a list of `value` (a single number), `grad` (a list keyed by
-`pen@params`) and `hess` (a list keyed by the pairs that
+`penalty@params`) and `hess` (a list keyed by the pairs that
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 uses). Every entry of it is `NaN` at a setting that
 [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
@@ -78,8 +78,8 @@ returns the same shape as
 [`penalty_logpdet.QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.QuadraticPenalty.md)
 and
 [`penalty_logpdet.StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.StructuredPenalty.md):
-`grad` is a list keyed by `pen@params` and `hess` a list keyed by the
-pairs that
+`grad` is a list keyed by `penalty@params` and `hess` a list keyed by
+the pairs that
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 uses, so code written for those branches reads `grad$lambda1` here.
 

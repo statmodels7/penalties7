@@ -15,7 +15,7 @@ requested order."><meta property="og:image" content="https://statmodels7.github.
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,20 +51,20 @@ requested order.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">struct_omega</span><span class="op">(</span><span class="va">pen</span>, <span class="va">eta</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">struct_omega</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">eta</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">struct_d1</span><span class="op">(</span><span class="va">pen</span>, <span class="va">eta</span>, omega <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu">struct_d1</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">eta</span>, omega <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">struct_d2</span><span class="op">(</span><span class="va">pen</span>, <span class="va">eta</span>, omega <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu">struct_d2</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">eta</span>, omega <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">struct_logdet</span><span class="op">(</span><span class="va">pen</span>, <span class="va">eta</span>, order <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">struct_logdet</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">eta</span>, order <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="StructuredPenalty.html">StructuredPenalty()</a></code> object.</p></dd>
 
 
@@ -85,9 +85,9 @@ Only <code>struct_d1()</code> and <code>struct_d2()</code> take it.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>struct_omega()</code> returns a symmetric base matrix of side
-<code>pen@structure@dimension</code>.
+<code>penalty@structure@dimension</code>.
 <code>struct_d1()</code> returns a list of such matrices, one per free value, in
-<code>pen@params</code> order.
+<code>penalty@params</code> order.
 <code>struct_d2()</code> returns a list of such matrices, one per unordered pair,
 keyed by the colon-joined sorted names. <code>struct_logdet()</code> returns a list
 with <code>value</code> (a single number) and, according to <code>order</code>, <code>d1</code> (a named

@@ -14,12 +14,12 @@ constant.
 ## Usage
 
 ``` r
-is_proper(pen, ...)
+is_proper(penalty, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)

@@ -19,7 +19,7 @@ form in \(\lambda\)."><meta property="og:image" content="https://statmodels7.git
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,10 +66,10 @@ form in \(\lambda\).</p>
 <span>  link_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  params_smooth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  P <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  p_rank <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  rank <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  null_basis <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  logpdet_DPD <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  DPD <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  penalty_logpdet <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  penalty_matrix <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tol <span class="op">=</span> <span class="fl">1e-10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -124,7 +124,7 @@ with as many rows as the map has, or as many as there are coefficients
 when the map is <code>NULL</code>. It is a <code>dgCMatrix</code> under <code>blocks &gt; 1</code>.</p></dd>
 
 
-<dt id="arg-p-rank">p_rank<a class="anchor" aria-label="anchor" href="#arg-p-rank"></a></dt>
+<dt id="arg-rank">rank<a class="anchor" aria-label="anchor" href="#arg-rank"></a></dt>
 <dd><p>The rank of \(D'PD\), a single whole number, counted at
 construction by a relative eigenvalue rule. Without a map it is the rank
 of \(P\).</p></dd>
@@ -132,24 +132,24 @@ of \(P\).</p></dd>
 
 <dt id="arg-null-basis">null_basis<a class="anchor" aria-label="anchor" href="#arg-null-basis"></a></dt>
 <dd><p>An orthonormal basis of the null space of \(D'PD\), with
-<code>n_coef</code> rows and <code>n_coef - p_rank</code> columns, and no columns when the
+<code>n_coef</code> rows and <code>n_coef - rank</code> columns, and no columns when the
 penalty is full rank.</p></dd>
 
 
-<dt id="arg-logpdet-dpd">logpdet_DPD<a class="anchor" aria-label="anchor" href="#arg-logpdet-dpd"></a></dt>
+<dt id="arg-penalty-logpdet">penalty_logpdet<a class="anchor" aria-label="anchor" href="#arg-penalty-logpdet"></a></dt>
 <dd><p>The log pseudo-determinant of \(D'PD\): the sum of the
 logarithms of its non-zero eigenvalues. It is a single number. Without a
 map it is the log pseudo-determinant of \(P\).</p></dd>
 
 
-<dt id="arg-dpd">DPD<a class="anchor" aria-label="anchor" href="#arg-dpd"></a></dt>
+<dt id="arg-penalty-matrix">penalty_matrix<a class="anchor" aria-label="anchor" href="#arg-penalty-matrix"></a></dt>
 <dd><p>The assembled \(D'PD\), an <code>n_coef</code> by <code>n_coef</code> matrix, cached
 so that the gradient and the Hessian never re-form it.</p></dd>
 
 
 <dt id="arg-tol">tol<a class="anchor" aria-label="anchor" href="#arg-tol"></a></dt>
 <dd><p>The relative eigenvalue tolerance, a single positive number,
-<code>1e-10</code> by default. <code><a href="quadratic_penalty.html">quadratic_penalty()</a></code> counts <code>p_rank</code> at this
+<code>1e-10</code> by default. <code><a href="quadratic_penalty.html">quadratic_penalty()</a></code> counts <code>rank</code> at this
 tolerance and stores it, and <code><a href="check_penalty.html">check_penalty()</a></code> counts the eigenvalues of
 the matrix at the same tolerance when it compares them with the rank.</p></dd>
 
@@ -223,11 +223,11 @@ for which <code><a href="is_quadratic.html">is_quadratic()</a></code> returns <c
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># These are three of the six properties, all computed at construction.</span></span></span>
-<span class="r-in"><span><span class="va">pen</span><span class="op">@</span><span class="va">p_rank</span></span></span>
+<span class="r-in"><span><span class="va">pen</span><span class="op">@</span><span class="va">rank</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">pen</span><span class="op">@</span><span class="va">null_basis</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5 2</span>
-<span class="r-in"><span><span class="va">pen</span><span class="op">@</span><span class="va">logpdet_DPD</span></span></span>
+<span class="r-in"><span><span class="va">pen</span><span class="op">@</span><span class="va">penalty_logpdet</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.912023</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

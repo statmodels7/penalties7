@@ -8,12 +8,12 @@ called directly.
 ## Usage
 
 ``` r
-spec_diag(pen, step, build)
+spec_diag(penalty, step, build)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -21,8 +21,8 @@ spec_diag(pen, step, build)
 
 - step:
 
-  A numeric vector of step lengths, of length one or `pen@n_coef`,
-  recycled to `pen@n_coef`.
+  A numeric vector of step lengths, of length one or `penalty@n_coef`,
+  recycled to `penalty@n_coef`.
 
 - build:
 

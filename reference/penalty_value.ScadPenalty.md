@@ -6,7 +6,7 @@ adds no constant, since SCAD is improper.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`ScadPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
@@ -14,7 +14,7 @@ adds no constant, since SCAD is improper.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`, already coerced by the
+  A numeric vector of length `penalty@n_coef`, already coerced by the
   generic.
 
 - theta:
@@ -31,7 +31,7 @@ adds no constant, since SCAD is improper.
 A single number, the sum over coordinates. It is bounded above by
 \\\sum_j (a+1)\lambda^2/(2c_j)\\, where the sum runs over the
 coordinates of \\D\beta\\; under the identity map at unit curvature the
-bound is `pen@n_coef * (a + 1) * lambda^2 / 2`.
+bound is `penalty@n_coef * (a + 1) * lambda^2 / 2`.
 
 ## Details
 
@@ -43,11 +43,11 @@ a\lambda), \qquad \rho(u) = \frac{(a+1)\lambda^2}{2} \\\\ (u \>
 a\lambda),\$\$
 
 where the three pieces meet continuously at \\\lambda\\ and
-\\a\lambda\\. With curvature \\c_j\\ (the `curv` property), coordinate
-\\j\\ contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, the same formula
-with \\\lambda/c_j\\ in place of \\\lambda\\ and multiplied by \\c_j\\.
-The value saturates, so a large coefficient receives no shrinkage and
-the penalty is improper.
+\\a\lambda\\. With curvature \\c_j\\ (the `curvature` property),
+coordinate \\j\\ contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, the same
+formula with \\\lambda/c_j\\ in place of \\\lambda\\ and multiplied by
+\\c_j\\. The value saturates, so a large coefficient receives no
+shrinkage and the penalty is improper.
 
 ## See also
 

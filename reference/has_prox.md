@@ -9,12 +9,12 @@ block then goes to a smooth method or to a scheme of its own.
 ## Usage
 
 ``` r
-has_prox(pen)
+has_prox(penalty)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)

@@ -10,12 +10,12 @@ them to determine whether a block can be passed to a gradient method.
 ## Usage
 
 ``` r
-penalty_kinks(pen, theta, ...)
+penalty_kinks(penalty, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -24,9 +24,9 @@ penalty_kinks(pen, theta, ...)
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same, holding every name in `pen@params`. The argument is
-  required even for a smooth penalty, whose result does not depend on
-  it.
+  carrying the same, holding every name in `penalty@params`. The
+  argument is required even for a smooth penalty, whose result does not
+  depend on it.
 
 - ...:
 

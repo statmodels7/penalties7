@@ -8,7 +8,7 @@ returns, and `NULL` for a structure that declares none.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md)
@@ -30,8 +30,8 @@ which each name is the structure's own name with the prefix
 `precision_`, or `covariance_` for an inverse structure; `jacobian`,
 their derivatives, one row per quantity and one column per
 hyperparameter, with row names from `value` and column names from
-`pen@params`; `transform`, a character vector named like `value` that
-names the scale on which each interval is built; and `block`, the
+`penalty@params`; `transform`, a character vector named like `value`
+that names the scale on which each interval is built; and `block`, the
 structure's label for every quantity, named like `value`.
 
 ## Details
@@ -87,7 +87,7 @@ free values themselves, and the Jacobian that
 [`parameters7::param_readable()`](https://statmodels7.github.io/parameters7/reference/param_readable.html)
 computes in closed form is the Jacobian with respect to the
 hyperparameters. The method names its rows by the prefixed names and its
-columns by `pen@params`, and repeats the structure's label once per
+columns by `penalty@params`, and repeats the structure's label once per
 quantity to form `block`.
 
 ## See also

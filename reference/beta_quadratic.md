@@ -8,12 +8,12 @@ test the property numerically.
 ## Usage
 
 ``` r
-beta_quadratic(pen, theta, ...)
+beta_quadratic(penalty, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -22,7 +22,7 @@ beta_quadratic(pen, theta, ...)
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same, holding every name in `pen@params`. The generic
+  carrying the same, holding every name in `penalty@params`. The generic
   checks it as
   [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
   does, so a missing hyperparameter or a value outside its open bounds

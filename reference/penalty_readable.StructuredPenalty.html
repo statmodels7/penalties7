@@ -13,7 +13,7 @@ that declares none."><meta property="og:image" content="https://statmodels7.gith
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@ that declares none.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="StructuredPenalty.html">StructuredPenalty()</a></code> object.</p></dd>
 
 
@@ -71,7 +71,7 @@ quantities, in which each name is the structure's own name with the prefix
 <code>precision_</code>, or <code>covariance_</code> for an inverse structure; <code>jacobian</code>,
 their derivatives, one row per quantity and one column per
 hyperparameter, with row names from <code>value</code> and column names from
-<code>pen@params</code>; <code>transform</code>, a character vector named like <code>value</code> that
+<code>penalty@params</code>; <code>transform</code>, a character vector named like <code>value</code> that
 names the scale on which each interval is built; and <code>block</code>, the
 structure's label for every quantity, named like <code>value</code>.</p>
     </div>
@@ -109,7 +109,7 @@ method prefixes them with <code>covariance_</code>, so that they are reported as
 free values themselves, and the Jacobian that
 <code><a href="https://statmodels7.github.io/parameters7/reference/param_readable.html" class="external-link">parameters7::param_readable()</a></code> computes in closed form is the Jacobian
 with respect to the hyperparameters. The method names its rows by the
-prefixed names and its columns by <code>pen@params</code>, and repeats the
+prefixed names and its columns by <code>penalty@params</code>, and repeats the
 structure's label once per quantity to form <code>block</code>.</p>
     </div>
     <div class="section level2">

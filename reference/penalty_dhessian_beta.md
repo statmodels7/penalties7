@@ -3,19 +3,19 @@
 Returns \\\partial S/\partial\beta\\\[v\] = \sum_c v_c\\
 \partial^3\rho/\partial\beta\\\partial\beta'\\\partial\beta_c\\, the
 derivative of the coefficient Hessian along a direction \\v\\, as one
-matrix of side `pen@n_coef`. It is zero for every penalty whose Hessian
-does not depend on the coefficients, apart from a kinked separable
-penalty, for which the generic signals an error.
+matrix of side `penalty@n_coef`. It is zero for every penalty whose
+Hessian does not depend on the coefficients, apart from a kinked
+separable penalty, for which the generic signals an error.
 
 ## Usage
 
 ``` r
-penalty_dhessian_beta(pen, beta, theta, v, ...)
+penalty_dhessian_beta(penalty, beta, theta, v, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -23,8 +23,8 @@ penalty_dhessian_beta(pen, beta, theta, v, ...)
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`; the generic signals an error
-  for any other length.
+  A numeric vector of length `penalty@n_coef`; the generic signals an
+  error for any other length.
 
 - theta:
 
@@ -34,8 +34,8 @@ penalty_dhessian_beta(pen, beta, theta, v, ...)
 
 - v:
 
-  A numeric vector of length `pen@n_coef`, the direction; the generic
-  signals an error for any other length.
+  A numeric vector of length `penalty@n_coef`, the direction; the
+  generic signals an error for any other length.
 
 - ...:
 
@@ -43,7 +43,7 @@ penalty_dhessian_beta(pen, beta, theta, v, ...)
 
 ## Value
 
-A square base matrix of side `pen@n_coef`.
+A square base matrix of side `penalty@n_coef`.
 
 ## Role in a marginal criterion
 

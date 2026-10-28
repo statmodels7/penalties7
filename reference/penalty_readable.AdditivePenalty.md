@@ -7,7 +7,7 @@ deviations \\\sigma_k = \lambda_k^{-1/2}\\ for one built with
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)

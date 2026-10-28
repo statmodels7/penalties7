@@ -59,17 +59,17 @@ does not read it: the validator places its grid from
 ## The methods
 
 Each of the generics below that takes `theta` aligns it before it
-dispatches. The generic reorders the list to `pen@params`, strips stray
-names off the values, checks that each value is a single number inside
-`params_bounds`, and, where it also takes `beta`, checks that `beta` has
-length `pen@n_coef`. A method therefore receives a list in the penalty’s
-own order and does not align it again. One helper reads the list and
-records the branch in which each coefficient falls, and the six methods
-for the value and the derivatives share it:
+dispatches. The generic reorders the list to `penalty@params`, strips
+stray names off the values, checks that each value is a single number
+inside `params_bounds`, and, where it also takes `beta`, checks that
+`beta` has length `penalty@n_coef`. A method therefore receives a list
+in the penalty’s own order and does not align it again. One helper reads
+the list and records the branch in which each coefficient falls, and the
+six methods for the value and the derivatives share it:
 
 ``` r
 
-.berhu <- function(pen, beta, theta) {
+.berhu <- function(penalty, beta, theta) {
   list(lam = theta$lambda, del = theta$delta,
        a = abs(beta), big = abs(beta) > theta$delta)
 }
@@ -80,18 +80,18 @@ the Hessian in $`\beta`$:
 
 ``` r
 
-S7::method(penalty_value, BerhuPenalty) <- function(pen, beta, theta, ...) {
-  p <- .berhu(pen, beta, theta)
+S7::method(penalty_value, BerhuPenalty) <- function(penalty, beta, theta, ...) {
+  p <- .berhu(penalty, beta, theta)
   sum(ifelse(p$big, p$lam * (beta^2 + p$del^2) / (2 * p$del), p$lam * p$a))
 }
 
-S7::method(penalty_gradient, BerhuPenalty) <- function(pen, beta, theta, ...) {
-  p <- .berhu(pen, beta, theta)
+S7::method(penalty_gradient, BerhuPenalty) <- function(penalty, beta, theta, ...) {
+  p <- .berhu(penalty, beta, theta)
   ifelse(p$big, p$lam * beta / p$del, p$lam * sign(beta))
 }
 
-S7::method(penalty_hessian, BerhuPenalty) <- function(pen, beta, theta, ...) {
-  p <- .berhu(pen, beta, theta)
+S7::method(penalty_hessian, BerhuPenalty) <- function(penalty, beta, theta, ...) {
+  p <- .berhu(penalty, beta, theta)
   diag(ifelse(p$big, p$lam / p$del, 0), length(beta))
 }
 ```
@@ -109,16 +109,16 @@ links in `link_params`.
 ``` r
 
 S7::method(penalty_grad_theta, BerhuPenalty) <- function(
-    pen, beta, theta, scale = c("parameter", "link"), ...) {
-  p <- .berhu(pen, beta, theta)
+    penalty, beta, theta, scale = c("parameter", "link"), ...) {
+  p <- .berhu(penalty, beta, theta)
   list(lambda = sum(ifelse(p$big, (beta^2 + p$del^2) / (2 * p$del), p$a)),
        delta  = sum(ifelse(p$big,
                            p$lam * (p$del^2 - beta^2) / (2 * p$del^2), 0)))
 }
 
 S7::method(penalty_hess_theta, BerhuPenalty) <- function(
-    pen, beta, theta, scale = c("parameter", "link"), ...) {
-  p <- .berhu(pen, beta, theta)
+    penalty, beta, theta, scale = c("parameter", "link"), ...) {
+  p <- .berhu(penalty, beta, theta)
   list(lambda_lambda = 0,
        delta_delta   = sum(ifelse(p$big, p$lam * beta^2 / p$del^3, 0)),
        lambda_delta  = sum(ifelse(p$big,
@@ -126,8 +126,8 @@ S7::method(penalty_hess_theta, BerhuPenalty) <- function(
 }
 
 S7::method(penalty_cross, BerhuPenalty) <- function(
-    pen, beta, theta, scale = c("parameter", "link"), ...) {
-  p <- .berhu(pen, beta, theta)
+    penalty, beta, theta, scale = c("parameter", "link"), ...) {
+  p <- .berhu(penalty, beta, theta)
   list(lambda = ifelse(p$big, beta / p$del, sign(beta)),
        delta  = ifelse(p$big, -p$lam * beta / p$del^2, 0))
 }
@@ -152,10 +152,10 @@ constant and is therefore not the negative log-density of a prior.
 
 ``` r
 
-S7::method(penalty_kinks, BerhuPenalty) <- function(pen, theta, ...) {
+S7::method(penalty_kinks, BerhuPenalty) <- function(penalty, theta, ...) {
   c(0, -theta$delta, theta$delta)
 }
-S7::method(is_proper, BerhuPenalty) <- function(pen, ...) FALSE
+S7::method(is_proper, BerhuPenalty) <- function(penalty, ...) FALSE
 
 pen <- berhu_penalty(5)
 b <- c(-2.5, -0.4, 0, 0.7, 3.1)
@@ -178,11 +178,11 @@ diag(penalty_hessian(pen, b, th))
 Every hyperparameter block is a named list, not a matrix or a data
 frame.
 [`penalty_grad_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-returns one number per hyperparameter, keyed by `pen@params`.
+returns one number per hyperparameter, keyed by `penalty@params`.
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns one number per pair of hyperparameters, keyed by the two names
 joined by an underscore: the diagonal pairs come first, and then each
-remaining pair follows in the order of `pen@params` (here
+remaining pair follows in the order of `penalty@params` (here
 `"lambda_lambda"`, `"delta_delta"` and `"lambda_delta"`).
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 returns one vector of length `n_coef` per hyperparameter. The generics

@@ -7,7 +7,7 @@ have the same body, because the objective is quadratic in both.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
@@ -17,7 +17,7 @@ have the same body, because the objective is quadratic in both.
 
 - v:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - step:
 

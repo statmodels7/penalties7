@@ -8,7 +8,7 @@ nonsingular, and `FALSE` otherwise.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
@@ -27,7 +27,7 @@ nonsingular, and `FALSE` otherwise.
 ## Value
 
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
-returns a numeric vector, `pen@kinks` as it stands.
+returns a numeric vector, `penalty@kinks` as it stands.
 [`is_proper()`](https://statmodels7.github.io/penalties7/reference/is_proper.md)
 returns a single logical.
 

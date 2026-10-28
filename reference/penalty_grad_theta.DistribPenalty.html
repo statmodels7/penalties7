@@ -17,7 +17,7 @@ vector per hyperparameter."><meta property="og:image" content="https://statmodel
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,12 +57,12 @@ vector per hyperparameter.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="DistribPenalty.html">DistribPenalty()</a></code> object.</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>A numeric vector of length <code>pen@n_coef</code>.</p></dd>
+<dd><p>A numeric vector of length <code>penalty@n_coef</code>.</p></dd>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
@@ -82,10 +82,10 @@ parent. These methods always return derivatives on the parameter scale.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code><a href="penalty_grad_theta.html">penalty_grad_theta()</a></code> returns a list of one number per
-hyperparameter, named by <code>pen@params</code>. <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code> returns a
+hyperparameter, named by <code>penalty@params</code>. <code><a href="penalty_grad_theta.html">penalty_hess_theta()</a></code> returns a
 list of one number per unordered pair, keyed diagonals first.
 <code><a href="penalty_grad_theta.html">penalty_cross()</a></code> returns a list of one numeric vector of length
-<code>pen@n_coef</code> per hyperparameter.</p>
+<code>penalty@n_coef</code> per hyperparameter.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -99,7 +99,7 @@ back through the map like the coefficient gradient.</p>
     <h2 id="keys-of-the-second-derivatives">Keys of the second derivatives<a class="anchor" aria-label="anchor" href="#keys-of-the-second-derivatives"></a></h2>
     <p>The second derivatives are returned under the keys of <code><a href="ptheta_pairs.html">ptheta_pairs()</a></code>:
 the diagonal pairs first, then the off-diagonal pairs, in the order of
-<code>pen@params</code>. The shipped continuous families of <span class="pkg">distributions7</span> use
+<code>penalty@params</code>. The shipped continuous families of <span class="pkg">distributions7</span> use
 the same order, but a family may spell a pair the other way, so each pair
 is looked up under both spellings, <code>a_b</code> and <code>b_a</code>. The key is composed
 from the pair and not parsed out of a name, because a parameter name may

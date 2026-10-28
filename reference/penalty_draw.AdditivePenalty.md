@@ -5,7 +5,7 @@ block by block where the penalty is repeated blockwise.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
@@ -21,7 +21,7 @@ block by block where the penalty is repeated blockwise.
 
 ## Value
 
-A numeric vector of length `pen@n_coef`.
+A numeric vector of length `penalty@n_coef`.
 
 ## Details
 

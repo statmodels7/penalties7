@@ -9,14 +9,14 @@ adds to the score and to the information at each iteration.
 ## Usage
 
 ``` r
-penalty_gradient(pen, beta, theta, ...)
+penalty_gradient(penalty, beta, theta, ...)
 
-penalty_hessian(pen, beta, theta, ...)
+penalty_hessian(penalty, beta, theta, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -24,14 +24,14 @@ penalty_hessian(pen, beta, theta, ...)
 
 - beta:
 
-  A finite numeric vector of length `pen@n_coef`, coerced with
+  A finite numeric vector of length `penalty@n_coef`, coerced with
   [`as.numeric()`](https://rdrr.io/r/base/numeric.html) in the generic.
   A vector of another length signals an error.
 
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same, holding every name in `pen@params`.
+  carrying the same, holding every name in `penalty@params`.
 
 - ...:
 
@@ -39,9 +39,10 @@ penalty_hessian(pen, beta, theta, ...)
 
 ## Value
 
-`penalty_gradient()` returns a numeric vector of length `pen@n_coef`;
-`penalty_hessian()` a symmetric matrix of that side. It is a base matrix
-even where the map is a Matrix, except for a penalty built by
+`penalty_gradient()` returns a numeric vector of length
+`penalty@n_coef`; `penalty_hessian()` a symmetric matrix of that side.
+It is a base matrix even where the map is a Matrix, except for a penalty
+built by
 [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
 with `blocks > 1`, whose Hessian is a `dgCMatrix` so that the sparse
 storage is kept.

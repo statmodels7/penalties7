@@ -21,10 +21,10 @@ QuadraticPenalty(
   link_params = list(),
   params_smooth = logical(0),
   P = NULL,
-  p_rank = integer(0),
+  rank = integer(0),
   null_basis = NULL,
-  logpdet_DPD = integer(0),
-  DPD = NULL,
+  penalty_logpdet = integer(0),
+  penalty_matrix = NULL,
   tol = 1e-10
 )
 ```
@@ -75,7 +75,7 @@ QuadraticPenalty(
   as many rows as the map has, or as many as there are coefficients when
   the map is `NULL`. It is a `dgCMatrix` under `blocks > 1`.
 
-- p_rank:
+- rank:
 
   The rank of \\D'PD\\, a single whole number, counted at construction
   by a relative eigenvalue rule. Without a map it is the rank of \\P\\.
@@ -83,16 +83,16 @@ QuadraticPenalty(
 - null_basis:
 
   An orthonormal basis of the null space of \\D'PD\\, with `n_coef` rows
-  and `n_coef - p_rank` columns, and no columns when the penalty is full
+  and `n_coef - rank` columns, and no columns when the penalty is full
   rank.
 
-- logpdet_DPD:
+- penalty_logpdet:
 
   The log pseudo-determinant of \\D'PD\\: the sum of the logarithms of
   its non-zero eigenvalues. It is a single number. Without a map it is
   the log pseudo-determinant of \\P\\.
 
-- DPD:
+- penalty_matrix:
 
   The assembled \\D'PD\\, an `n_coef` by `n_coef` matrix, cached so that
   the gradient and the Hessian never re-form it.
@@ -102,7 +102,7 @@ QuadraticPenalty(
   The relative eigenvalue tolerance, a single positive number, `1e-10`
   by default.
   [`quadratic_penalty()`](https://statmodels7.github.io/penalties7/reference/quadratic_penalty.md)
-  counts `p_rank` at this tolerance and stores it, and
+  counts `rank` at this tolerance and stores it, and
   [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
   counts the eigenvalues of the matrix at the same tolerance when it
   compares them with the rank.
@@ -209,10 +209,10 @@ S7::S7_inherits(pen, QuadraticPenalty)
 #> [1] TRUE
 
 # These are three of the six properties, all computed at construction.
-pen@p_rank
+pen@rank
 #> [1] 3
 dim(pen@null_basis)
 #> [1] 5 2
-pen@logpdet_DPD
+pen@penalty_logpdet
 #> [1] 3.912023
 ```

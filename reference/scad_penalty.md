@@ -14,7 +14,7 @@ scad_penalty(
   n_coef = 1L,
   link_lambda = linkfunctions7::log_link(),
   link_a = linkfunctions7::bounded_link(lwr = 2),
-  curv = NULL
+  curvature = NULL
 )
 
 mcp_penalty(
@@ -22,7 +22,7 @@ mcp_penalty(
   n_coef = 1L,
   link_lambda = linkfunctions7::log_link(),
   link_gamma = linkfunctions7::bounded_link(lwr = 1),
-  curv = NULL
+  curvature = NULL
 )
 ```
 
@@ -56,7 +56,7 @@ mcp_penalty(
   default is `linkfunctions7::bounded_link(lwr = 2)`. The argument
   belongs to `scad_penalty()` only.
 
-- curv:
+- curvature:
 
   `NULL` (the default) for unit curvature, or positive finite numbers,
   one per coordinate of \\D\beta\\ or a single value repeated.
@@ -94,7 +94,7 @@ MCP, after Zhang (2010), tapers from the origin:
 Integrating gives the values, which saturate at \\(a+1)\lambda^2/2\\ for
 SCAD and at \\\gamma\lambda^2/2\\ for MCP. These are the forms for unit
 curvature; the section on the curvature of the loss gives the form that
-`curv` produces.
+`curvature` produces.
 
 ## The shape parameter
 
@@ -115,8 +115,8 @@ the taper begins or ends.
 [`penalty_kinks()`](https://statmodels7.github.io/penalties7/reference/penalty_kinks.md)
 returns all of these points: at unit curvature they are `0`,
 \\\pm\lambda\\ and \\\pm a\lambda\\ for SCAD and `0` and
-\\\pm\gamma\lambda\\ for MCP, and with `curv` the rate \\\lambda\\ in
-them becomes \\\lambda/c_j\\. At the points other than the origin the
+\\\pm\gamma\lambda\\ for MCP, and with `curvature` the rate \\\lambda\\
+in them becomes \\\lambda/c_j\\. At the points other than the origin the
 first derivative is continuous and the second jumps. When `beta` is not
 supplied,
 [`check_penalty()`](https://statmodels7.github.io/penalties7/reference/check_penalty.md)
@@ -130,7 +130,7 @@ Both penalties are defined on the canonical problem
 \\\tfrac12(z-\theta)^2 + \rho(\theta)\\, whose loss has unit curvature
 (Fan and Lv 2010), and the value \\a = 3.7\\ of Fan and Li (2001) is
 suggested for that problem. A likelihood has curvature \\c_j\\ in
-coordinate \\j\\, and with `curv` the penalty is \\\sum_j
+coordinate \\j\\, and with `curvature` the penalty is \\\sum_j
 c_j\\\rho(t_j;\\ \lambda/c_j)\\. The slope at zero stays \\\lambda\\,
 the knee moves to \\a\lambda/c_j\\ (\\\gamma\lambda/c_j\\ for MCP), and
 the ratio of the knee to \\\lambda/c_j\\ is the shape parameter in every
@@ -141,8 +141,8 @@ The proximal operator with step \\s\\ is the unscaled operator at step
 \\s c_j\\ and rate \\\lambda/c_j\\, so it is single-valued while \\s c_j
 \< a - 1\\ for SCAD and \\s c_j \< \gamma\\ for MCP. At the step \\s =
 1/c_j\\ these conditions are \\a \> 2\\ and \\\gamma \> 1\\ for any
-data. By default `curv` is `NULL`, the penalty stores no curvature, and
-every coordinate has \\c_j = 1\\.
+data. By default `curvature` is `NULL`, the penalty stores no curvature,
+and every coordinate has \\c_j = 1\\.
 
 ## Improper penalties
 
@@ -221,9 +221,9 @@ sapply(c(3.7, 50, 1000),
                                  list(lambda = 1, a = a)))
 #> [1] 1.814815 1.989796 1.999499
 
-# With curv = 2 the slope at zero stays lambda and the value saturates at
+# With curvature = 2 the slope at zero stays lambda and the value saturates at
 # (a + 1) lambda^2 / (2 * 2).
-penalty_value(scad_penalty(n_coef = 1, curv = 2), 100, th)
+penalty_value(scad_penalty(n_coef = 1, curvature = 2), 100, th)
 #> [1] 1.175
 (3.7 + 1) * 1^2 / (2 * 2)
 #> [1] 1.175

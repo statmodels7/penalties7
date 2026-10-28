@@ -3,7 +3,7 @@
 the penalty; they are the methods that scad_penalty() and mcp_penalty()
 reach. The quadratic, additive and structured branches
 (QuadraticPenalty(), AdditivePenalty() and StructuredPenalty()) share
-one method per generic, which returns a zero matrix of side pen@n_coef
+one method per generic, which returns a zero matrix of side penalty@n_coef
 from penalty_d2hessian_beta() and a list of such zero matrices, one per
 hyperparameter, from penalty_dhessian_beta_theta(), because their Hessian
 is free of the coefficients. The separable branch returns the same zeros
@@ -15,7 +15,7 @@ derivative."><meta property="og:description" content="The methods of the base cl
 the penalty; they are the methods that scad_penalty() and mcp_penalty()
 reach. The quadratic, additive and structured branches
 (QuadraticPenalty(), AdditivePenalty() and StructuredPenalty()) share
-one method per generic, which returns a zero matrix of side pen@n_coef
+one method per generic, which returns a zero matrix of side penalty@n_coef
 from penalty_d2hessian_beta() and a list of such zero matrices, one per
 hyperparameter, from penalty_dhessian_beta_theta(), because their Hessian
 is free of the coefficients. The separable branch returns the same zeros
@@ -31,7 +31,7 @@ derivative."><meta property="og:image" content="https://statmodels7.github.io/pe
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@ derivative."><meta property="og:image" content="https://statmodels7.github.io/pe
 the penalty; they are the methods that <code><a href="scad_penalty.html">scad_penalty()</a></code> and <code><a href="scad_penalty.html">mcp_penalty()</a></code>
 reach. The quadratic, additive and structured branches
 (<code><a href="QuadraticPenalty.html">QuadraticPenalty()</a></code>, <code><a href="AdditivePenalty.html">AdditivePenalty()</a></code> and <code><a href="StructuredPenalty.html">StructuredPenalty()</a></code>) share
-one method per generic, which returns a zero matrix of side <code>pen@n_coef</code>
+one method per generic, which returns a zero matrix of side <code>penalty@n_coef</code>
 from <code><a href="penalty_d2hessian_beta.html">penalty_d2hessian_beta()</a></code> and a list of such zero matrices, one per
 hyperparameter, from <code><a href="penalty_d2hessian_beta.html">penalty_dhessian_beta_theta()</a></code>, because their Hessian
 is free of the coefficients. The separable branch returns the same zeros
@@ -78,12 +78,12 @@ derivative.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="penalty.html">penalty()</a></code> object.</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>A numeric vector of length <code>pen@n_coef</code>.</p></dd>
+<dd><p>A numeric vector of length <code>penalty@n_coef</code>.</p></dd>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
@@ -91,7 +91,7 @@ derivative.</p>
 
 
 <dt id="arg-v-w">v, w<a class="anchor" aria-label="anchor" href="#arg-v-w"></a></dt>
-<dd><p>Numeric vectors of length <code>pen@n_coef</code>, the directions.</p></dd>
+<dd><p>Numeric vectors of length <code>penalty@n_coef</code>, the directions.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -100,8 +100,8 @@ derivative.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A square base matrix of side <code>pen@n_coef</code>, a list of them keyed by
-<code>pen@params</code>, or an error.</p>
+    <p>A square base matrix of side <code>penalty@n_coef</code>, a list of them keyed by
+<code>penalty@params</code>, or an error.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -15,7 +15,7 @@ dp_diag_entries(map)
 
 map_log_jacobian(map)
 
-dp_log_jacobian(pen)
+dp_log_jacobian(penalty)
 ```
 
 ## Arguments
@@ -24,7 +24,7 @@ dp_log_jacobian(pen)
 
   The map \\D\\: `NULL`, a base matrix or a Matrix.
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)

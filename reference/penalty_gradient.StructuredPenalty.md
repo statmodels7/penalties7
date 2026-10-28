@@ -9,7 +9,7 @@ gradient is the Hessian applied to them.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md)
@@ -17,7 +17,7 @@ gradient is the Hessian applied to them.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -30,7 +30,7 @@ gradient is the Hessian applied to them.
 ## Value
 
 [`penalty_gradient()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
-returns an unnamed numeric vector of length `pen@n_coef`;
+returns an unnamed numeric vector of length `penalty@n_coef`;
 [`penalty_hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_gradient.md)
 the symmetric precision matrix \\\Omega(\theta)\\, carrying the
 structure's own dimnames (`v1`, `v2`, ... for the parameters7

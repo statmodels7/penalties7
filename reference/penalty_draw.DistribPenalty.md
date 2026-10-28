@@ -6,7 +6,7 @@ the map.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
@@ -22,8 +22,8 @@ the map.
 
 ## Value
 
-A numeric vector of length `pen@n_coef`, `NA` where a diagonal map has a
-zero entry and `NA` throughout under a map that is not diagonal.
+A numeric vector of length `penalty@n_coef`, `NA` where a diagonal map
+has a zero entry and `NA` throughout under a map that is not diagonal.
 
 ## Details
 

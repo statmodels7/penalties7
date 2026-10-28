@@ -8,12 +8,12 @@ kinds per call, whichever of `g`, `H` and `cross` is given.
 ## Usage
 
 ``` r
-ptheta_to_link(pen, theta, g = NULL, H = NULL, cross = NULL)
+ptheta_to_link(penalty, theta, g = NULL, H = NULL, cross = NULL)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -27,7 +27,7 @@ ptheta_to_link(pen, theta, g = NULL, H = NULL, cross = NULL)
 
 - g:
 
-  The parameter-scale gradient list, keyed by `pen@params`. It is
+  The parameter-scale gradient list, keyed by `penalty@params`. It is
   required for the gradient and for the Hessian and is `NULL` otherwise.
 
 - H:
@@ -38,8 +38,9 @@ ptheta_to_link(pen, theta, g = NULL, H = NULL, cross = NULL)
 
 - cross:
 
-  The parameter-scale mixed list, keyed by `pen@params`, in which each
-  element is a vector of length `pen@n_coef`. It is supplied alone.
+  The parameter-scale mixed list, keyed by `penalty@params`, in which
+  each element is a vector of length `penalty@n_coef`. It is supplied
+  alone.
 
 ## Value
 

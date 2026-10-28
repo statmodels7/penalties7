@@ -6,7 +6,7 @@ adds no constant, since MCP is improper.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`McpPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
@@ -14,7 +14,7 @@ adds no constant, since MCP is improper.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`, already coerced by the
+  A numeric vector of length `penalty@n_coef`, already coerced by the
   generic.
 
 - theta:
@@ -31,7 +31,7 @@ adds no constant, since MCP is improper.
 A single number, the sum over coordinates. It is bounded above by
 \\\sum_j \gamma\lambda^2/(2c_j)\\, where the sum runs over the
 coordinates of \\D\beta\\; under the identity map at unit curvature the
-bound is `pen@n_coef * gamma * lambda^2 / 2`.
+bound is `penalty@n_coef * gamma * lambda^2 / 2`.
 
 ## Details
 
@@ -44,7 +44,7 @@ With unit curvature and \\u = \lvert t\rvert\\ on each coordinate,
 where the two pieces meet continuously at \\\gamma\lambda\\. SCAD keeps
 the slope of the lasso over an interval before it tapers, while MCP
 tapers from the origin, so its value is a downward parabola up to
-\\\gamma\lambda\\. With curvature \\c_j\\ (the `curv` property),
+\\\gamma\lambda\\. With curvature \\c_j\\ (the `curvature` property),
 coordinate \\j\\ contributes \\c_j\\\rho(u_j;\\ \lambda/c_j)\\, the same
 formula with \\\lambda/c_j\\ in place of \\\lambda\\ and multiplied by
 \\c_j\\.

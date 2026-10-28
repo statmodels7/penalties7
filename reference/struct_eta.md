@@ -1,18 +1,18 @@
 # The Structure's Free Vector From the Aligned Hyperparameters
 
 Unlists the aligned hyperparameter list into the numeric vector that the
-generics of the structure take, in `pen@params` order, which is the
+generics of the structure take, in `penalty@params` order, which is the
 order of the structure's `free_names`.
 
 ## Usage
 
 ``` r
-struct_eta(pen, theta)
+struct_eta(penalty, theta)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md)
@@ -26,7 +26,7 @@ struct_eta(pen, theta)
 
 ## Value
 
-An unnamed numeric vector of length `length(pen@params)`.
+An unnamed numeric vector of length `length(penalty@params)`.
 
 ## See also
 

@@ -9,7 +9,7 @@ package's own keys, and places each through the penalty's map."><meta property="
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,14 +42,14 @@ package's own keys, and places each through the penalty's map.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">carry_pairs</span><span class="op">(</span><span class="va">pen</span>, <span class="va">comp</span>, <span class="va">carry</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">carry_pairs</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">comp</span>, <span class="va">carry</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="penalty.html">penalty()</a></code> object.</p></dd>
 
 
@@ -70,7 +70,7 @@ package's own keys, and places each through the penalty's map.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The two enumerations of pairs are built the same way from the same names, so
 a key of one is a key of the other. Each pair is looked up by name, first in
-<code>pen@params</code> order and then in the reversed order, and not by position or
+<code>penalty@params</code> order and then in the reversed order, and not by position or
 by splitting a key, since a hyperparameter whose own name contains the
 separator could not be split back into its two names. If the pair is absent
 in both orders, the function signals an error that names the pair.</p>

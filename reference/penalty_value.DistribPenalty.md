@@ -10,7 +10,7 @@ singular, the function does not subtract a constant.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
@@ -18,7 +18,7 @@ singular, the function does not subtract a constant.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`, already coerced by the
+  A numeric vector of length `penalty@n_coef`, already coerced by the
   generic.
 
 - theta:

@@ -8,7 +8,7 @@ constant.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`ScadPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
@@ -44,10 +44,10 @@ continuous and the second jumps between \\0\\ and \\-1/(a-1)\\
 because a numerical Hessian across any of them is as wrong as a
 numerical gradient across the origin.
 
-With `curv`, the points \\\pm\lambda/c_j\\ and \\\pm a\lambda/c_j\\ are
-returned for each distinct value of \\\lambda/c_j\\, so the vector has
-more than five points when the curvatures differ. Every point except the
-origin moves with the hyperparameters, so `theta` is required.
+With `curvature`, the points \\\pm\lambda/c_j\\ and \\\pm a\lambda/c_j\\
+are returned for each distinct value of \\\lambda/c_j\\, so the vector
+has more than five points when the curvatures differ. Every point except
+the origin moves with the hyperparameters, so `theta` is required.
 
 ## See also
 
@@ -67,7 +67,7 @@ penalty_kinks(scad_penalty(), list(lambda = 2, a = 3.7))
 #> [1]  0.0 -2.0  2.0 -7.4  7.4
 
 # Two curvatures give two rates and nine points.
-penalty_kinks(scad_penalty(n_coef = 2, curv = c(1, 2)),
+penalty_kinks(scad_penalty(n_coef = 2, curvature = c(1, 2)),
               list(lambda = 1, a = 3.7))
 #> [1]  0.00 -1.00 -0.50  1.00  0.50 -3.70 -1.85  3.70  1.85
 is_proper(scad_penalty())

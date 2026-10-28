@@ -10,7 +10,7 @@ returns `TRUE` when the structure has full rank.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md)

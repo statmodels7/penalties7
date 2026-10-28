@@ -11,7 +11,7 @@ the mixed block, one coefficient vector per hyperparameter.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   An
   [`McpPenalty()`](https://statmodels7.github.io/penalties7/reference/ScadPenalty.md)
@@ -19,7 +19,7 @@ the mixed block, one coefficient vector per hyperparameter.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -43,7 +43,7 @@ returns a list of two numbers, `lambda` and `gamma`.
 returns a list of three numbers, `lambda_lambda`, `gamma_gamma` and
 `lambda_gamma`.
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-returns a list of two numeric vectors of length `pen@n_coef`, named
+returns a list of two numeric vectors of length `penalty@n_coef`, named
 `lambda` and `gamma`.
 
 ## Details

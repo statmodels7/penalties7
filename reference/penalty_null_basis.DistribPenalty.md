@@ -9,7 +9,7 @@ spanned by coordinates.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
@@ -21,7 +21,7 @@ spanned by coordinates.
 
 ## Value
 
-A numeric matrix with `pen@n_coef` rows and one column per null
+A numeric matrix with `penalty@n_coef` rows and one column per null
 direction.
 
 ## Details

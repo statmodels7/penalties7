@@ -15,7 +15,7 @@ the higher components of the parent carried through the same map."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,12 +54,12 @@ the higher components of the parent carried through the same map.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="DistribPenalty.html">DistribPenalty()</a></code> object.</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>A numeric vector of length <code>pen@n_coef</code>. All three derivative
+<dd><p>A numeric vector of length <code>penalty@n_coef</code>. All three derivative
 methods read it, because the components of the parent depend on it.</p></dd>
 
 
@@ -74,10 +74,10 @@ methods read it, because the components of the parent depend on it.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code><a href="penalty_dhessian.html">penalty_dhessian()</a></code> returns a list of one base matrix of side
-<code>pen@n_coef</code> per hyperparameter. <code><a href="penalty_d2hessian.html">penalty_d2hessian()</a></code> returns a list of
+<code>penalty@n_coef</code> per hyperparameter. <code><a href="penalty_d2hessian.html">penalty_d2hessian()</a></code> returns a list of
 one such matrix per unordered pair, keyed diagonals first.
 <code><a href="penalty_dcross.html">penalty_dcross()</a></code> returns a list of one numeric vector of length
-<code>pen@n_coef</code> per unordered pair. <code><a href="beta_quadratic.html">beta_quadratic()</a></code> returns a single
+<code>penalty@n_coef</code> per unordered pair. <code><a href="beta_quadratic.html">beta_quadratic()</a></code> returns a single
 logical.</p>
     </div>
     <div class="section level2">
@@ -112,14 +112,14 @@ lasso, whose log-density is linear in the response away from the kink.</p>
 derivative in the response does not depend on the response. The generic
 has already checked <code>theta</code> (an invalid value is an error), and the method
 evaluates <code><a href="https://statmodels7.github.io/distributions7/reference/distrib_hess_y.html" class="external-link">distributions7::distrib_hess_y()</a></code> of the parent at four points of
-<code>pen@block</code> coordinates each, and tests with <code><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal()</a></code> at a relative
+<code>penalty@block</code> coordinates each, and tests with <code><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal()</a></code> at a relative
 tolerance of <code>1e-12</code> whether the values agree across the points. A
 multivariate parent returns one \(p \times p\) matrix per point, or a
 single matrix when that matrix does not depend on the response, and the
 method compares the matrices of different points with one another, not the
 entries of one matrix. A single value or a single matrix, which carries
 no dimension for the points, gives <code>TRUE</code>. If the parent signals an error,
-or returns a number of values that is not a multiple of <code>pen@block^2</code>, the
+or returns a number of values that is not a multiple of <code>penalty@block^2</code>, the
 method returns <code>FALSE</code>.</p>
     </div>
     <div class="section level2">

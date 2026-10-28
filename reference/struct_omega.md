@@ -9,18 +9,18 @@ requested order.
 ## Usage
 
 ``` r
-struct_omega(pen, eta)
+struct_omega(penalty, eta)
 
-struct_d1(pen, eta, omega = NULL)
+struct_d1(penalty, eta, omega = NULL)
 
-struct_d2(pen, eta, omega = NULL)
+struct_d2(penalty, eta, omega = NULL)
 
-struct_logdet(pen, eta, order = 2L)
+struct_logdet(penalty, eta, order = 2L)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md)
@@ -45,8 +45,8 @@ struct_logdet(pen, eta, order = 2L)
 ## Value
 
 `struct_omega()` returns a symmetric base matrix of side
-`pen@structure@dimension`. `struct_d1()` returns a list of such
-matrices, one per free value, in `pen@params` order. `struct_d2()`
+`penalty@structure@dimension`. `struct_d1()` returns a list of such
+matrices, one per free value, in `penalty@params` order. `struct_d2()`
 returns a list of such matrices, one per unordered pair, keyed by the
 colon-joined sorted names. `struct_logdet()` returns a list with `value`
 (a single number) and, according to `order`, `d1` (a named numeric

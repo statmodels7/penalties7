@@ -10,12 +10,12 @@ description; where such a penalty has an operator, it is applied with
 ## Usage
 
 ``` r
-penalty_prox_spec(pen, theta, step, ...)
+penalty_prox_spec(penalty, theta, step, ...)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -24,7 +24,7 @@ penalty_prox_spec(pen, theta, step, ...)
 - theta:
 
   A named list of hyperparameter values, or a named numeric vector
-  carrying the same, holding every name in `pen@params`.
+  carrying the same, holding every name in `penalty@params`.
 
 - step:
 
@@ -40,8 +40,8 @@ penalty_prox_spec(pen, theta, step, ...)
 ## Value
 
 A list of three matrices, `cut`, `slope` and `icept`, each with
-`pen@n_coef` rows and one column per piece. The last column of `cut` is
-`Inf`. The value is `NULL` where the operator has no piecewise linear
+`penalty@n_coef` rows and one column per piece. The last column of `cut`
+is `Inf`. The value is `NULL` where the operator has no piecewise linear
 description.
 
 ## The piecewise linear map
@@ -122,10 +122,10 @@ lasso the cut is \\t_j \lvert d_j\rvert \lambda\\ (with \\d = (0.5, 2,
 `1.44`).
 
 The step limit of SCAD and MCP is tested on the scaled step. With
-\\c_j\\ the curvature of the coordinate (the `curv` property, one when
-it is empty), the table exists only while \\t_j c_j d_j^2 \< a - 1\\ for
-SCAD and \\t_j c_j d_j^2 \< \gamma\\ for MCP in every coordinate, so a
-standardized penalty takes shorter steps.
+\\c_j\\ the curvature of the coordinate (the `curvature` property, one
+when it is empty), the table exists only while \\t_j c_j d_j^2 \< a -
+1\\ for SCAD and \\t_j c_j d_j^2 \< \gamma\\ for MCP in every
+coordinate, so a standardized penalty takes shorter steps.
 
 A diagonal map is recognized by its class through
 [`map_diagonal()`](https://statmodels7.github.io/penalties7/reference/map_diagonal.md).

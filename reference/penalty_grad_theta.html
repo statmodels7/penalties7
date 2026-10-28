@@ -19,7 +19,7 @@ scale or on the unconstrained scale, as selected by scale."><meta property="og:i
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,30 +57,30 @@ scale or on the unconstrained scale, as selected by <code>scale</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">penalty_grad_theta</span><span class="op">(</span><span class="va">pen</span>, <span class="va">beta</span>, <span class="va">theta</span>, scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"parameter"</span>, <span class="st">"link"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">penalty_grad_theta</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">beta</span>, <span class="va">theta</span>, scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"parameter"</span>, <span class="st">"link"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">penalty_hess_theta</span><span class="op">(</span><span class="va">pen</span>, <span class="va">beta</span>, <span class="va">theta</span>, scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"parameter"</span>, <span class="st">"link"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">penalty_hess_theta</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">beta</span>, <span class="va">theta</span>, scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"parameter"</span>, <span class="st">"link"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">penalty_cross</span><span class="op">(</span><span class="va">pen</span>, <span class="va">beta</span>, <span class="va">theta</span>, scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"parameter"</span>, <span class="st">"link"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">penalty_cross</span><span class="op">(</span><span class="va">penalty</span>, <span class="va">beta</span>, <span class="va">theta</span>, scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"parameter"</span>, <span class="st">"link"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="penalty.html">penalty()</a></code> object of any branch.</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>A finite numeric vector of length <code>pen@n_coef</code>, coerced with
+<dd><p>A finite numeric vector of length <code>penalty@n_coef</code>, coerced with
 <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric()</a></code> in the generic. A vector of another length signals an
 error.</p></dd>
 
 
 <dt id="arg-theta">theta<a class="anchor" aria-label="anchor" href="#arg-theta"></a></dt>
 <dd><p>A named list of hyperparameter values, or a named numeric
-vector carrying the same, holding every name in <code>pen@params</code>.</p></dd>
+vector carrying the same, holding every name in <code>penalty@params</code>.</p></dd>
 
 
 <dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
@@ -98,11 +98,11 @@ hyperparameter's standard error is built.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>All three return a named list.
 <code>penalty_grad_theta()</code> has one element per hyperparameter; each element
-is a single number, and the elements are named by <code>pen@params</code>.
+is a single number, and the elements are named by <code>penalty@params</code>.
 <code>penalty_hess_theta()</code> has \(p(p+1)/2\) elements; each element is a
 single number, and the elements are keyed by pairs as described above.
 <code>penalty_cross()</code> has one element per hyperparameter; each element is a
-numeric vector of length <code>pen@n_coef</code>.</p>
+numeric vector of length <code>penalty@n_coef</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="uses-of-the-three-blocks">Uses of the three blocks<a class="anchor" aria-label="anchor" href="#uses-of-the-three-blocks"></a></h2>
@@ -135,7 +135,7 @@ the coefficient direction.</p>
     </div>
     <div class="section level2">
     <h2 id="names-of-the-elements">Names of the elements<a class="anchor" aria-label="anchor" href="#names-of-the-elements"></a></h2>
-    <p>The gradient and the mixed block are keyed by <code>pen@params</code>. The Hessian is
+    <p>The gradient and the mixed block are keyed by <code>penalty@params</code>. The Hessian is
 keyed by pairs. The diagonal entries come first, in <code>params</code> order, the
 upper off-diagonal pairs follow, and each key joins the two names with an
 underscore. For an elastic net the keys are <code>lambda_lambda</code>, <code>alpha_alpha</code>,

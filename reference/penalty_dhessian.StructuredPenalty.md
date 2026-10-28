@@ -14,7 +14,7 @@ is `TRUE`.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md)
@@ -22,7 +22,7 @@ is `TRUE`.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`. Read by
+  A numeric vector of length `penalty@n_coef`. Read by
   [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md);
   the other three methods ignore it.
 
@@ -37,12 +37,12 @@ is `TRUE`.
 ## Value
 
 [`penalty_dhessian()`](https://statmodels7.github.io/penalties7/reference/penalty_dhessian.md)
-returns a list of one matrix per free value, named by `pen@params`; the
-dimnames of each matrix are removed.
+returns a list of one matrix per free value, named by `penalty@params`;
+the dimnames of each matrix are removed.
 [`penalty_d2hessian()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian.md)
 returns a list of one matrix per unordered pair, keyed diagonals first.
 [`penalty_dcross()`](https://statmodels7.github.io/penalties7/reference/penalty_dcross.md)
-returns a list of one numeric vector of length `pen@n_coef` per
+returns a list of one numeric vector of length `penalty@n_coef` per
 unordered pair, keyed the same way.
 [`beta_quadratic()`](https://statmodels7.github.io/penalties7/reference/beta_quadratic.md)
 returns the single logical `TRUE`.
@@ -53,7 +53,7 @@ This branch does not differentiate. parameters7 supplies both derivative
 arrays in closed form for the structures that it ships, and through its
 numerical fallback for a structure that does not implement them; this
 branch unwraps and re-keys the arrays. The free values in `theta` are
-passed to the structure as they are, in `pen@params` order.
+passed to the structure as they are, in `penalty@params` order.
 
 Since the value is quadratic in the coefficients, the mixed third
 derivative is

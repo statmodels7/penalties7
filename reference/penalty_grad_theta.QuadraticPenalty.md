@@ -11,7 +11,7 @@ out.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)
@@ -19,7 +19,7 @@ out.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -42,7 +42,7 @@ returns a list of one number named `lambda`;
 [`penalty_hess_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
 a list of one number named `lambda_lambda`;
 [`penalty_cross()`](https://statmodels7.github.io/penalties7/reference/penalty_grad_theta.md)
-a list of one numeric vector of length `pen@n_coef`, named `lambda`.
+a list of one numeric vector of length `penalty@n_coef`, named `lambda`.
 
 ## Details
 

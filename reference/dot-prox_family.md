@@ -8,12 +8,12 @@ the family underneath.
 ## Usage
 
 ``` r
-.prox_family(pen)
+.prox_family(penalty)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)

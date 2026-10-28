@@ -12,7 +12,7 @@ returns `TRUE` only when the penalty has full rank.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`QuadraticPenalty()`](https://statmodels7.github.io/penalties7/reference/QuadraticPenalty.md)

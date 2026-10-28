@@ -17,7 +17,7 @@ coefficients, and beta_quadratic() is TRUE."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,12 +57,12 @@ coefficients, and <code><a href="beta_quadratic.html">beta_quadratic()</a></code
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="StructuredPenalty.html">StructuredPenalty()</a></code> object.</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>A numeric vector of length <code>pen@n_coef</code>. Read by
+<dd><p>A numeric vector of length <code>penalty@n_coef</code>. Read by
 <code><a href="penalty_dcross.html">penalty_dcross()</a></code>; the other three methods ignore it.</p></dd>
 
 
@@ -77,11 +77,11 @@ coefficients, and <code><a href="beta_quadratic.html">beta_quadratic()</a></code
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code><a href="penalty_dhessian.html">penalty_dhessian()</a></code> returns a list of one matrix per free value,
-named by <code>pen@params</code>; the dimnames of each matrix are removed.
+named by <code>penalty@params</code>; the dimnames of each matrix are removed.
 <code><a href="penalty_d2hessian.html">penalty_d2hessian()</a></code> returns a list of one matrix per unordered pair,
 keyed diagonals first.
 <code><a href="penalty_dcross.html">penalty_dcross()</a></code> returns a list of one numeric vector of length
-<code>pen@n_coef</code> per unordered pair, keyed the same way. <code><a href="beta_quadratic.html">beta_quadratic()</a></code>
+<code>penalty@n_coef</code> per unordered pair, keyed the same way. <code><a href="beta_quadratic.html">beta_quadratic()</a></code>
 returns the single logical <code>TRUE</code>.</p>
     </div>
     <div class="section level2">
@@ -90,7 +90,7 @@ returns the single logical <code>TRUE</code>.</p>
 derivative arrays in closed form for the structures that it ships, and
 through its numerical fallback for a structure that does not implement them;
 this branch unwraps and re-keys the arrays. The free values in <code>theta</code> are
-passed to the structure as they are, in <code>pen@params</code> order.</p>
+passed to the structure as they are, in <code>penalty@params</code> order.</p>
 <p>Since the value is quadratic in the coefficients, the mixed third derivative
 is \((\partial^2\Omega/\partial\theta_m\partial\theta_l)\beta\), so
 <code><a href="penalty_dcross.html">penalty_dcross()</a></code> calls <code><a href="penalty_d2hessian.html">penalty_d2hessian()</a></code> and multiplies.</p>

@@ -17,7 +17,7 @@ first two derivatives in \(\lambda\)."><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.33.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@ first two derivatives in \(\lambda\).</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-pen">pen<a class="anchor" aria-label="anchor" href="#arg-pen"></a></dt>
+<dl><dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
 <dd><p>A <code><a href="QuadraticPenalty.html">QuadraticPenalty()</a></code> object.</p></dd>
 
 
@@ -72,11 +72,11 @@ first two derivatives in \(\lambda\).</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code><a href="penalty_matrix.html">penalty_matrix()</a></code> returns a symmetric matrix of side <code>pen@n_coef</code>,
+    <p><code><a href="penalty_matrix.html">penalty_matrix()</a></code> returns a symmetric matrix of side <code>penalty@n_coef</code>,
 a base matrix ordinarily and a <code>dgCMatrix</code> when the penalty was built with
 <code>blocks &gt; 1</code>. <code><a href="penalty_matrix.html">penalty_rank()</a></code> returns a single integer.
-<code><a href="penalty_matrix.html">penalty_null_basis()</a></code> returns a matrix with <code>pen@n_coef</code> rows and
-<code>pen@n_coef - penalty_rank(pen)</code> orthonormal columns, sparse under
+<code><a href="penalty_matrix.html">penalty_null_basis()</a></code> returns a matrix with <code>penalty@n_coef</code> rows and
+<code>penalty@n_coef - penalty_rank(penalty)</code> orthonormal columns, sparse under
 <code>blocks &gt; 1</code>. <code><a href="penalty_matrix.html">penalty_logpdet()</a></code> returns a list of <code>value</code> (a number),
 <code>grad</code> (a list of one number, <code>lambda</code>) and <code>hess</code> (a list of one number,
 <code>lambda_lambda</code>).</p>
@@ -111,7 +111,7 @@ constant.</p></div>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5 2</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="penalty_matrix.html">penalty_matrix</a></span><span class="op">(</span><span class="va">pen</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">N</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 8.382184e-15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.664535e-15</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The log pseudo-determinant is r log(lambda) plus a constant.</span></span></span>
 <span class="r-in"><span><span class="va">lp</span> <span class="op">&lt;-</span> <span class="fu"><a href="penalty_matrix.html">penalty_logpdet</a></span><span class="op">(</span><span class="va">pen</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>

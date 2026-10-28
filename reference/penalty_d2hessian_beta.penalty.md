@@ -11,7 +11,7 @@ reach. The quadratic, additive and structured branches
 and
 [`StructuredPenalty()`](https://statmodels7.github.io/penalties7/reference/StructuredPenalty.md))
 share one method per generic, which returns a zero matrix of side
-`pen@n_coef` from
+`penalty@n_coef` from
 [`penalty_d2hessian_beta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md)
 and a list of such zero matrices, one per hyperparameter, from
 [`penalty_dhessian_beta_theta()`](https://statmodels7.github.io/penalties7/reference/penalty_d2hessian_beta.md),
@@ -26,7 +26,7 @@ fourth or mixed third response derivative.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -34,7 +34,7 @@ fourth or mixed third response derivative.
 
 - beta:
 
-  A numeric vector of length `pen@n_coef`.
+  A numeric vector of length `penalty@n_coef`.
 
 - theta:
 
@@ -42,7 +42,7 @@ fourth or mixed third response derivative.
 
 - v, w:
 
-  Numeric vectors of length `pen@n_coef`, the directions.
+  Numeric vectors of length `penalty@n_coef`, the directions.
 
 - ...:
 
@@ -50,8 +50,8 @@ fourth or mixed third response derivative.
 
 ## Value
 
-A square base matrix of side `pen@n_coef`, a list of them keyed by
-`pen@params`, or an error.
+A square base matrix of side `penalty@n_coef`, a list of them keyed by
+`penalty@params`, or an error.
 
 ## See also
 

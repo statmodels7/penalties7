@@ -7,12 +7,12 @@ or when a diagonal entry is zero or missing.
 ## Usage
 
 ``` r
-map_diagonal(pen)
+map_diagonal(penalty)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`penalty()`](https://statmodels7.github.io/penalties7/reference/penalty.md)
@@ -20,8 +20,8 @@ map_diagonal(pen)
 
 ## Value
 
-A numeric vector of length `nrow(pen@map)`, or `NULL`. A unit diagonal
-object (`diag = "U"`) gives a vector of ones.
+A numeric vector of length `nrow(penalty@map)`, or `NULL`. A unit
+diagonal object (`diag = "U"`) gives a vector of ones.
 
 ## Details
 

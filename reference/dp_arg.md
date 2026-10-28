@@ -8,14 +8,14 @@ result of the parent back to a vector in coefficient order.
 ## Usage
 
 ``` r
-dp_arg(pen, t)
+dp_arg(penalty, t)
 
-dp_flat(pen, g)
+dp_flat(penalty, g)
 ```
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
@@ -24,7 +24,7 @@ dp_flat(pen, g)
 - t:
 
   The mapped coefficient vector \\D\beta\\, of length a multiple of
-  `pen@block`. This argument belongs to `dp_arg()` only.
+  `penalty@block`. This argument belongs to `dp_arg()` only.
 
 - g:
 
@@ -34,9 +34,9 @@ dp_flat(pen, g)
 
 ## Value
 
-`dp_arg()` returns the vector unchanged when `pen@block` is `1L`, and
-otherwise a matrix with `pen@block` columns filled by row. `dp_flat()`
-returns a numeric vector, in coefficient order.
+`dp_arg()` returns the vector unchanged when `penalty@block` is `1L`,
+and otherwise a matrix with `penalty@block` columns filled by row.
+`dp_flat()` returns a numeric vector, in coefficient order.
 
 ## Details
 

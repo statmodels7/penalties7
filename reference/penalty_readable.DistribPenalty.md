@@ -8,7 +8,7 @@ matrix parameter.
 
 ## Arguments
 
-- pen:
+- penalty:
 
   A
   [`DistribPenalty()`](https://statmodels7.github.io/penalties7/reference/DistribPenalty.md)
@@ -24,8 +24,8 @@ matrix parameter.
 
 ## Value
 
-`NULL` when `pen@block` is `1L`. Otherwise the method returns the list
-that
+`NULL` when `penalty@block` is `1L`. Otherwise the method returns the
+list that
 [`distributions7::mv_derived()`](https://statmodels7.github.io/distributions7/reference/mv_derived.html)
 produces, with the elements `value`, `jacobian`, `transform` and
 `block`.
