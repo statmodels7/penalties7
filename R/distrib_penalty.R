@@ -351,7 +351,7 @@ dp_is_multinomial <- function(d) {
 #' returns \eqn{\log\lvert\det D\rvert}: `0` for a `NULL` map,
 #' \eqn{\sum_j\log\lvert d_j\rvert} for a diagonal one, the log-modulus of the
 #' determinant for a square nonsingular one, and `NA` for a map that is not
-#' square or is singular. `dp_log_jacobian()` returns the same quantity for a
+#' square or is singular. [dp_log_jacobian()] returns the same quantity for a
 #' built penalty.
 #'
 #' @details
@@ -361,18 +361,11 @@ dp_is_multinomial <- function(d) {
 #' its default tolerance is below the number of columns, and otherwise the
 #' log-modulus comes from [determinant()].
 #'
-#' `dp_log_jacobian()` recomputes the quantity from the entries of a diagonal
-#' map, at the cost of \eqn{q} logarithms, so that the result stays correct
-#' when a caller replaces the map with a subset of its diagonal through
-#' [S7::set_props()] and the stored property is out of date. For any other
-#' map it reads the stored `log_jacobian`.
-#'
 #' @param map The map \eqn{D}: `NULL`, a base matrix or a \pkg{Matrix}.
-#' @param penalty A [DistribPenalty()] object.
 #'
 #' @return `dp_diag_entries()` returns a numeric vector of length `nrow(map)`,
 #'   a unit diagonal (`diag = "U"`) giving ones, or `NULL`. `map_log_jacobian()`
-#'   and `dp_log_jacobian()` return a single number, possibly `NA`.
+#'   returns a single number, possibly `NA`.
 #'
 #' @seealso [distrib_penalty()], [penalty_value.DistribPenalty()]
 #'
@@ -399,8 +392,36 @@ map_log_jacobian <- function(map) {
   as.numeric(determinant(m, logarithm = TRUE)$modulus)
 }
 
-#' @rdname dp_diag_entries
-#' @keywords internal
+#' The Log-Jacobian of a Separable Penalty's Map
+#'
+#' @description
+#' Returns \eqn{\log\lvert\det D\rvert} for the map \eqn{D} of a separable
+#' penalty: `0` when the penalty has no map, the sum of the logarithms of the
+#' absolute diagonal entries for a diagonal map, and the stored
+#' `log_jacobian` property for any other map.
+#'
+#' @details
+#' For a diagonal map the quantity is recomputed from the entries, at the
+#' cost of \eqn{q} logarithms, so that the result stays correct when a caller
+#' replaces the map with a subset of its diagonal through [S7::set_props()]
+#' and the stored property is out of date. A diagonal map with a zero or
+#' missing entry gives `NA`, as does a stored property that is `NA` because
+#' the map is not square or is singular.
+#'
+#' @param penalty A [DistribPenalty()] object.
+#'
+#' @return A single number, possibly `NA`.
+#'
+#' @seealso [distrib_penalty()]
+#'
+#' @examples
+#' d <- distributions7::fixed(distributions7::gaussian1_distrib(), mu = 0)
+#' pen <- distrib_penalty(d, n_coef = 3)
+#' dp_log_jacobian(pen)
+#' pen2 <- distrib_penalty(d, map = Matrix::Diagonal(x = c(1, 2, 4)))
+#' all.equal(dp_log_jacobian(pen2), log(8))
+#'
+#' @export
 dp_log_jacobian <- function(penalty) {
   if (is.null(penalty@map)) return(0)
   if (!is.null(dp_diag_entries(penalty@map))) return(map_log_jacobian(penalty@map))

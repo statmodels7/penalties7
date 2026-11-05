@@ -3,24 +3,19 @@
 \name{dp_diag_entries}
 \alias{dp_diag_entries}
 \alias{map_log_jacobian}
-\alias{dp_log_jacobian}
 \title{The Diagonal and the Log-Jacobian of a Map}
 \usage{
 dp_diag_entries(map)
 
 map_log_jacobian(map)
-
-dp_log_jacobian(penalty)
 }
 \arguments{
 \item{map}{The map \eqn{D}: \code{NULL}, a base matrix or a \pkg{Matrix}.}
-
-\item{penalty}{A \code{\link[=DistribPenalty]{DistribPenalty()}} object.}
 }
 \value{
 \code{dp_diag_entries()} returns a numeric vector of length \code{nrow(map)},
 a unit diagonal (\code{diag = "U"}) giving ones, or \code{NULL}. \code{map_log_jacobian()}
-and \code{dp_log_jacobian()} return a single number, possibly \code{NA}.
+returns a single number, possibly \code{NA}.
 }
 \description{
 \code{dp_diag_entries()} returns the entries of a \pkg{Matrix} diagonal map,
@@ -28,7 +23,7 @@ including the zeros, and \code{NULL} for any other map. \code{map_log_jacobian()
 returns \eqn{\log\lvert\det D\rvert}: \code{0} for a \code{NULL} map,
 \eqn{\sum_j\log\lvert d_j\rvert} for a diagonal one, the log-modulus of the
 determinant for a square nonsingular one, and \code{NA} for a map that is not
-square or is singular. \code{dp_log_jacobian()} returns the same quantity for a
+square or is singular. \code{\link[=dp_log_jacobian]{dp_log_jacobian()}} returns the same quantity for a
 built penalty.
 }
 \details{
@@ -37,12 +32,6 @@ other square map is converted once to a dense matrix; it is treated as
 singular when an entry is not finite or when the rank that \code{\link[=qr]{qr()}} reports at
 its default tolerance is below the number of columns, and otherwise the
 log-modulus comes from \code{\link[=determinant]{determinant()}}.
-
-\code{dp_log_jacobian()} recomputes the quantity from the entries of a diagonal
-map, at the cost of \eqn{q} logarithms, so that the result stays correct
-when a caller replaces the map with a subset of its diagonal through
-\code{\link[S7:props]{S7::set_props()}} and the stored property is out of date. For any other
-map it reads the stored \code{log_jacobian}.
 }
 \seealso{
 \code{\link[=distrib_penalty]{distrib_penalty()}}, \code{\link[=penalty_value.DistribPenalty]{penalty_value.DistribPenalty()}}

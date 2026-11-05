@@ -72,6 +72,7 @@ reference:
   contents:
   - additive_penalty
   - AdditivePenalty
+  - additive_sum
   - ends_with(".AdditivePenalty")
 - title: The separable branch
   desc: >
@@ -86,6 +87,7 @@ reference:
   contents:
   - distrib_penalty
   - distrib_kinks
+  - dp_log_jacobian
   - ridge_penalty
   - DistribPenalty
   - ends_with(".DistribPenalty")

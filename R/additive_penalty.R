@@ -545,7 +545,16 @@ additive_penalty <- function(matrices, map = NULL, blocks = 1L,
 #' @seealso [additive_stable()] for the transformation,
 #'   [additive_penalty()], [penalty_logpdet.AdditivePenalty()]
 #'
-#' @keywords internal
+#' @examples
+#' pen <- additive_penalty(list(diag(3), diag(c(1, 0, 0))))
+#' a <- additive_sum(pen, list(lambda1 = 2, lambda2 = 5))
+#' a$S
+#' # the log pseudo-determinant of S and its derivatives in log lambda
+#' a$logpdet
+#' all.equal(a$logpdet, sum(log(diag(a$S))))
+#' a$dlog
+#'
+#' @export
 additive_sum <- function(penalty, theta) {
   lam <- unlist(theta[penalty@params])
   S <- Reduce(`+`, Map(function(P, l) l * P, penalty@matrices, lam))

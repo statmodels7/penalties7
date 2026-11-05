@@ -93,8 +93,17 @@ function, so they stay finite at such a point unless the weighted sum
 itself overflows.
 }
 
+\examples{
+pen <- additive_penalty(list(diag(3), diag(c(1, 0, 0))))
+a <- additive_sum(pen, list(lambda1 = 2, lambda2 = 5))
+a$S
+# the log pseudo-determinant of S and its derivatives in log lambda
+a$logpdet
+all.equal(a$logpdet, sum(log(diag(a$S))))
+a$dlog
+
+}
 \seealso{
 \code{\link[=additive_stable]{additive_stable()}} for the transformation,
 \code{\link[=additive_penalty]{additive_penalty()}}, \code{\link[=penalty_logpdet.AdditivePenalty]{penalty_logpdet.AdditivePenalty()}}
 }
-\keyword{internal}
