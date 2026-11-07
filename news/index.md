@@ -1,5 +1,12 @@
 # Changelog
 
+## penalties7 0.35.0
+
+- [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+  and
+  [`dp_log_jacobian()`](https://statmodels7.github.io/penalties7/reference/dp_log_jacobian.md)
+  are exported.
+
 ## penalties7 0.34.0
 
 - Renamed for readability: the argument `pen` of every generic and

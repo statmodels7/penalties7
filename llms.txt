@@ -326,6 +326,8 @@ space of the sum does not depend on the smoothing parameters.
   : Construct a Sum of Quadratic Penalties
 - [`AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/AdditivePenalty.md)
   : S7 Class for a Sum of Quadratic Penalties
+- [`additive_sum()`](https://statmodels7.github.io/penalties7/reference/additive_sum.md)
+  : The Weighted Sum and Its Log Pseudo-Determinant
 
 ## The separable branch
 
@@ -341,6 +343,8 @@ and is built on the quadratic branch.
   : Construct a Separable Penalty From a Distribution
 - [`distrib_kinks()`](https://statmodels7.github.io/penalties7/reference/distrib_kinks.md)
   : Where the Parent's Log-Density Has a Kink
+- [`dp_log_jacobian()`](https://statmodels7.github.io/penalties7/reference/dp_log_jacobian.md)
+  : The Log-Jacobian of a Separable Penalty's Map
 - [`ridge_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
   [`lasso_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)
   [`elasticnet_penalty()`](https://statmodels7.github.io/penalties7/reference/ridge_penalty.md)

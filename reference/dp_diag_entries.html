@@ -19,7 +19,7 @@ built penalty."><meta property="og:image" content="https://statmodels7.github.io
 
     <a class="navbar-brand me-2" href="../index.html">penalties7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.34.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.35.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@ including the zeros, and <code>NULL</code> for any other map. <code>map_log_jaco
 returns \(\log\lvert\det D\rvert\): <code>0</code> for a <code>NULL</code> map,
 \(\sum_j\log\lvert d_j\rvert\) for a diagonal one, the log-modulus of the
 determinant for a square nonsingular one, and <code>NA</code> for a map that is not
-square or is singular. <code>dp_log_jacobian()</code> returns the same quantity for a
+square or is singular. <code><a href="dp_log_jacobian.html">dp_log_jacobian()</a></code> returns the same quantity for a
 built penalty.</p>
     </div>
 
@@ -59,9 +59,7 @@ built penalty.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dp_diag_entries</span><span class="op">(</span><span class="va">map</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">map_log_jacobian</span><span class="op">(</span><span class="va">map</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">dp_log_jacobian</span><span class="op">(</span><span class="va">penalty</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">map_log_jacobian</span><span class="op">(</span><span class="va">map</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -71,16 +69,12 @@ built penalty.</p>
 <dl><dt id="arg-map">map<a class="anchor" aria-label="anchor" href="#arg-map"></a></dt>
 <dd><p>The map \(D\): <code>NULL</code>, a base matrix or a <span class="pkg">Matrix</span>.</p></dd>
 
-
-<dt id="arg-penalty">penalty<a class="anchor" aria-label="anchor" href="#arg-penalty"></a></dt>
-<dd><p>A <code><a href="DistribPenalty.html">DistribPenalty()</a></code> object.</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>dp_diag_entries()</code> returns a numeric vector of length <code>nrow(map)</code>,
 a unit diagonal (<code>diag = "U"</code>) giving ones, or <code>NULL</code>. <code>map_log_jacobian()</code>
-and <code>dp_log_jacobian()</code> return a single number, possibly <code>NA</code>.</p>
+returns a single number, possibly <code>NA</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -89,11 +83,6 @@ other square map is converted once to a dense matrix; it is treated as
 singular when an entry is not finite or when the rank that <code><a href="https://rdrr.io/r/base/qr.html" class="external-link">qr()</a></code> reports at
 its default tolerance is below the number of columns, and otherwise the
 log-modulus comes from <code><a href="https://rdrr.io/r/base/det.html" class="external-link">determinant()</a></code>.</p>
-<p><code>dp_log_jacobian()</code> recomputes the quantity from the entries of a diagonal
-map, at the cost of \(q\) logarithms, so that the result stays correct
-when a caller replaces the map with a subset of its diagonal through
-<code><a href="https://rconsortium.github.io/S7/reference/props.html" class="external-link">S7::set_props()</a></code> and the stored property is out of date. For any other
-map it reads the stored <code>log_jacobian</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

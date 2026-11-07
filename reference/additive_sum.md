@@ -120,3 +120,22 @@ finite at such a point unless the weighted sum itself overflows.
 for the transformation,
 [`additive_penalty()`](https://statmodels7.github.io/penalties7/reference/additive_penalty.md),
 [`penalty_logpdet.AdditivePenalty()`](https://statmodels7.github.io/penalties7/reference/penalty_matrix.AdditivePenalty.md)
+
+## Examples
+
+``` r
+pen <- additive_penalty(list(diag(3), diag(c(1, 0, 0))))
+a <- additive_sum(pen, list(lambda1 = 2, lambda2 = 5))
+a$S
+#>      [,1] [,2] [,3]
+#> [1,]    7    0    0
+#> [2,]    0    2    0
+#> [3,]    0    0    2
+# the log pseudo-determinant of S and its derivatives in log lambda
+a$logpdet
+#> [1] 3.332205
+all.equal(a$logpdet, sum(log(diag(a$S))))
+#> [1] TRUE
+a$dlog
+#> [1] 1.1428571 0.1428571
+```
