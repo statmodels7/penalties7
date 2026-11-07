@@ -1,3 +1,7 @@
+# penalties7 0.35.0
+
+* `additive_sum()` and `dp_log_jacobian()` are exported.
+
 # penalties7 0.34.0
 
 * Renamed for readability: the argument `pen` of every generic and function
